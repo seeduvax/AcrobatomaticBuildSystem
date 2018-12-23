@@ -1,0 +1,1 @@
+{"version":1,"ops":[{"type":1,"author":{"name":"Sebastien Devaux","email":"sebastien.devaux@laposte.net","login":"","avatar_url":""},"timestamp":1545576918,"title":"Init project and import 1st legacy core component","message":"- create abs-3.0 branch that while host the 1st abs public release\n - setup project layout\n - import and adapt core component.","files":null}]}
