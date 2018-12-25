@@ -41,7 +41,7 @@ ifeq ($(findstring file://,$(ABS_REPO_1ST)),file://)
 	@ln -sf $(patsubst file://%,%,$(patsubst $(ABS_CACHE)/%,$(ABS_REPO_1ST)/%,$@)) $@
 else
 	@echo "Fetching $(@F) from $(ABS_REPO_1ST)"
-	@wget -q --no-cehck-certificate $(patsubst $(ABS_CACHE)/%,$(ABS_REPO_1ST)/%,$@) -O $@
+	@wget -q --no-check-certificate $(patsubst $(ABS_CACHE)/%,$(ABS_REPO_1ST)/%,$@) -O $@
 endif
 endif
 
@@ -56,5 +56,11 @@ $(PRJROOT)/local.cfg:
 ifneq ($(wildcard module.cfg),)
 Makefile: ../Makefile
 	@echo Updating module bootstrap makefile from parent directory
+	@cp $^ $@
+endif
+# update app bootstrap makefile from bootstrap makefile in abs core
+ifneq ($(wildcard app.cfg),)
+Makefile: .abs/core/bootstrap.mk
+	@echo Updating app bootstrap makefile from abs core
 	@cp $^ $@
 endif

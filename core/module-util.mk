@@ -172,8 +172,6 @@ uml:
 
 endif
 
-ifneq ($(MODTYPE),python)
-
 ##  - obuild: open build directory in browser
 .PHONY: obuild
 obuild:
