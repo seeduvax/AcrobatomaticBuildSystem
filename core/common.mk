@@ -91,19 +91,30 @@ TTARGETDIR?=$(TRDIR)/test
 
 ABS_SCM_TYPE=null
 ifneq ($(wildcard $(PRJROOT)/.git),)
-ABS_SCM_TYPE=git
+ABS_SCM_TYPE:=git
+ABS_GIT_DESCR:=$(shell git describe --tags)
 endif
 ifneq ($(wildcard $(PRJROOT)/.svn),)
-ABS_SCM_TYPE=svn
+ABS_SCM_TYPE:=svn
 endif
 
 # identify dev version from tagged version, only when version is not overloaded.
 VERSION_OVERLOADED:=$(filter VERSION=%,$(MAKEOVERRIDES))
-ifeq ($(VERSION_OVERLOADED),)
 ifeq ($(ABS_SCM_TYPE),svn)
 WORKSPACE_IS_TAG:=$(shell LANG=C svn info | grep "^URL:" | grep -c "/tags/")
+REVISION:=$(shell svnversion)
 endif
 ifeq ($(ABS_SCM_TYPE),git)
-WORKSPACE_IS_TAG:=$(shell LANG=C git describe)
+ ifeq ($(ABS_GIT_DESCR),$(APPNAME)-$(VERSION))
+WORKSPACE_IS_TAG:=1
+ else
+WORKSPACE_IS_TAG:=0
+REVISION:=$(subst $(APPNAME)-%,%,$(shell git describe))
+  ifneq ($(shell LANG_C git status | grep -c modified),0)
+REVISION:=$(REVISION)M
+  endif
+ endif
 endif
+ifeq ($(VERSION_OVERLOADED),)
+WORKSPACE_IS_TAG:=1
 endif
