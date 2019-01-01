@@ -1,0 +1,66 @@
+\definecolor{hellgelb}{rgb}{1,1,0.9}
+\definecolor{colKeys}{rgb}{0,0,1}
+\definecolor{colIdentifier}{rgb}{0,0,0}
+\definecolor{colComments}{rgb}{1,0,0}
+\definecolor{colString}{rgb}{0,0.5,0}
+
+% Symbol to put when line wraps
+\newcommand{\wrapsign}{\hbox{\rm\ensuremath\hookleftarrow}}
+
+%
+% Default verbatim layout used if \lstparamset not defined
+%
+%\@ifundefined{lstparamset}{
+\lstset{%
+    basicstyle=\ttfamily\small, %
+    identifierstyle=\color{colIdentifier}, %
+    keywordstyle=\color{colKeys}, %
+    stringstyle=\color{colString}, %
+    commentstyle=\color{colComments}, %
+    tabsize=4, %
+    frame=single, %
+    framerule=0pt, %
+    extendedchars=true, %
+    showspaces=false, %
+    showlines=true, %
+    showstringspaces=true, %
+    numberstyle=\tiny, %
+    numbers=left, %
+    breaklines=true, %
+    basewidth=0.5em, %
+    prebreak={\space\wrapsign}, %
+    backgroundcolor=\color[gray]{0.95}, %
+    breakautoindent=true, %
+    captionpos=b%
+}
+%}{
+% Call the user macro that defines the layout
+%\lstparamset
+%}
+
+%
+% GAP language, derivated from Pascal, has more keywords to highlight
+%
+\lstdefinelanguage[]{GAP}[]{Pascal}{%
+    morekeywords={od,fi,alias}%
+}
+
+% Lengths to compute the listing width from the number of characters
+\newlength{\lstcharwidth}
+\newlength{\lstcharwidthb}
+\newlength{\lstframesep}
+\newlength{\lstwidth}
+%\setlength{\lstcharwidth}{\lst@width}
+%\let\lstcharwidth\lst@width
+%\setlength{\lstframesep}{\lst@frametextsep}
+
+% Setup to compute a char width
+\def\lstsetup{\sbox{\z@}{\lstinline!x!}%
+  \settowidth{\lstcharwidth}{\usebox{\z@}}%
+  \sbox{\z@}{\lstinline[basicstyle=\ttfamily]!x!}
+  \settowidth{\lstcharwidthb}{\usebox{\z@}}}
+
+% Environment to render fancyvrb like listings does
+\newenvironment{fvlisting}[1][]
+  {\lstset{fancyvrb,#1}}
+  {\lstset{fancyvrb=false}}

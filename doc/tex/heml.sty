@@ -1,0 +1,353 @@
+\documentclass{article}
+\usepackage[utf8x]{inputenc}
+\usepackage[scaled]{helvet}
+\usepackage[a4paper]{geometry}
+\usepackage{lastpage}
+\usepackage{fancyhdr}
+\usepackage{textcomp}
+\usepackage{float}
+\usepackage{graphicx}
+\usepackage[export]{adjustbox}
+\usepackage{xcolor}
+\usepackage{color,colortbl}
+\usepackage{soul}
+\usepackage{fancybox}
+\usepackage{multirow}
+\usepackage{caption}
+\usepackage{tabu}
+\usepackage{longtable}
+\usepackage{ifthen}
+\usepackage{listings}
+\usepackage[htt]{hyphenat}
+\usepackage[tikz]{bclogo}
+\usepackage[most]{tcolorbox}
+\usepackage[hidelinks]{hyperref}
+\hypersetup{pdftex,colorlinks=true,linkcolor=black,citecolor=black,urlcolor=blue}
+\usepackage{hypcap}
+\usepackage{lscape}
+% ---- specific styling to be improved to enable user customisation
+\definecolor{reqbgcolor}{rgb}{0.9, 0.9, 1.0}
+
+% Page layout (geometry) ------------------------------------------------------------
+\setlength{\paperwidth}{21cm}
+\setlength{\paperheight}{29.7cm}
+\setlength{\hoffset}{-1in}
+\setlength{\voffset}{-1in}
+\setlength{\oddsidemargin}{1.5cm}
+\setlength{\marginparsep}{0cm}
+\setlength{\marginparwidth}{0cm}
+\setlength{\textwidth}{18cm}
+\setlength{\topmargin}{0.5cm}
+\setlength{\textheight}{25.3cm}
+\setlength{\footskip}{1.5cm}
+\setlength\parindent{0pt}
+\setlength\listparindent{0pt}
+\setlength\itemindent{0pt}
+\setlength\leftmargin{0pt}
+
+\newcommand\HEMLtitle{Untitled document}
+\newcommand\HEMLcompanyName{}
+\newcommand\HEMLorgName{}
+\newcommand\HEMLreference{NoRef}
+\newcommand\HEMLauthor{Anonymous}
+\newcommand\HEMLserviceName{}
+\newcommand\HEMLedition{0}
+\newcommand\HEMLrevision{0}
+\newcommand\HEMLcopyright{}
+\newcommand\HEMLorgLogo{CompanyLogo.png}
+\newcommand\HEMLprojectLogo{ProjectLogo.png}
+\newcommand\HEMLdate{YYYY-MM-DD}
+\newcommand\HEMLfooter{\small{\HEMLrevision  \ifthenelse{\equal{\HEMLcopyright}{}}{}{- \textcopyright \HEMLcopyright}}}
+\newcommand{\HEMLabstract}{}
+\newcommand{\HEMLkeywords}{}
+\newcommand{\HEMLcontext}{}
+\newcommand{\HEMLrevisiontable}{}
+
+\newcommand{\HEMLsecuritydefenseCD}{false}
+\newcommand{\HEMLsecuritydefenseSD}{false}
+\newcommand{\HEMLsecurityrestrictionDR}{false}
+\newcommand{\HEMLsecuritynationalitySF}{false}
+\newcommand{\HEMLsecuritycompanyU}{false}
+\newcommand{\HEMLsecuritycompanyR}{false}
+\newcommand{\HEMLsecuritycompanyC}{false}
+\newcommand{\HEMLsecuritycompanyS}{false}
+\newcommand{\HEMLsecuritydefenseNP}{false}
+\newcommand{\HEMLsecurityprogramGP}{false}
+\newcommand{\HEMLsecurityprogramI}{false}
+\newcommand{\HEMLsecurityprogramR}{false}
+\newcommand{\HEMLsecurityprogramC}{false}
+\newcommand{\HEMLbuildinfo}{buildinfo}
+\newcommand{\HEMLrevisionTable}{}
+\newcommand{\HEMLdraft}{false}
+\definecolor{darkred}{rgb}{0.55, 0.0, 0.0}
+\newcommand{\HEMLkw}[1]{\texttt{\textcolor{darkred}{#1}}}
+\newcommand\HEMLfigScale{0.5}
+
+\newcommand{\HEMLreqrefBegin}{
+\begin{tcolorbox}[
+    left=0.1cm,
+    right=0.1cm,
+    top=0.1cm,
+    bottom=0.1cm,
+    colback=black!10,
+    colframe=white,
+    width=\dimexpr\textwidth\relax,
+    enlarge left by=0mm,
+    boxsep=0cm,
+    arc=0pt,outer arc=0pt]
+}
+\newcommand{\HEMLreqrefEnd}{\end{tcolorbox}}
+
+\newcommand{\HEMLoperationBegin}{
+\begin{tcolorbox}[left=0.1cm,
+    right=0.1cm,
+    top=0.1cm,
+    bottom=0.1cm,
+    colback=blue!10,
+    colframe=white,
+    width=\dimexpr\textwidth\relax,
+    enlarge left by=0mm,
+    boxsep=0cm,
+    arc=0pt,outer arc=0pt]
+}
+\newcommand{\HEMLoperationEnd}{\end{tcolorbox}}
+\newcommand{\HEMLassertBegin}{
+\begin{tcolorbox}[left=0.1cm,
+    right=0.1cm,
+    top=0.1cm,
+    bottom=0.1cm,
+    colback=yellow!10,
+    colframe=white,
+    width=\dimexpr\textwidth\relax,
+    enlarge left by=0mm,
+    boxsep=0cm,
+    arc=0pt,outer arc=0pt]
+}
+\newcommand{\HEMLassertEnd}{\end{tcolorbox}}
+
+\newcommand{\HEMLLogoBox}[3]{
+    \begin{tcolorbox}[nobeforeafter, boxrule=2pt, width=#3, colframe=#2, boxsep=0pt, left=0pt, right=0pt, colback=white, arc=0pt, tcbox raise base]
+        \centering \color{#2} #1
+    \end{tcolorbox}
+}
+
+
+% CheckBox
+\newcommand{\HEMLcheckBox}[1]{\ifthenelse{\equal{#1}{false}}
+                {
+                \begin{picture}(10,14)
+                \put(0,0){\line(1,0){10}}
+                \put(0,10){\line(1,0){10}}
+                \put(0,0){\line(0,1){10}}
+                \put(10,0){\line(0,1){10}}
+                \end{picture}}
+                {
+                \begin{picture}(10,14)
+                \put(0,0){\line(1,0){10}}
+                \put(0,10){\line(1,0){10}}
+                \put(0,0){\line(0,1){10}}
+                \put(10,0){\line(0,1){10}}
+                \put(0,0){\line(1,1){10}}
+                \put(0,10){\line(1,-1){10}}
+                \end{picture}}
+                }
+
+\renewcommand{\familydefault}{\sfdefault}
+\renewcommand*\contentsname{Summary}
+
+% Pictures
+\newcommand{\HEMLPicture}[2]{\ifthenelse{\equal{#1}{undefined}} {} {\includegraphics[#2]{#1}} }
+\newcommand{\HEMLPrologPicture}[1]{\HEMLPicture{#1}{width=8cm, max height=8cm, keepaspectratio}}
+\newcommand{\HEMLHeadPicture}[1]{\HEMLPicture{#1}{width=5cm, max height=8cm, keepaspectratio}}
+
+% Pages styles -----------------------------------------------------------------------
+\newcommand{\HEMLPrologLeftHeader}{}
+\newcommand{\HEMLPrologCenterHeader}{}
+\newcommand{\HEMLPrologRightHeader}{}
+\newcommand{\HEMLPrologFooter}{\parbox{17cm}{\fontsize{6}{6}\selectfont \HEMLfooter}}
+
+\newcommand{\HEMLTitleLeftHeader}{\HEMLPrologLeftHeader}
+\newcommand{\HEMLTitleCenterHeader}{\HEMLPrologCenterHeader}
+\newcommand{\HEMLTitleRightHeader}{\HEMLPrologRightHeader}
+\newcommand{\HEMLTitleFooter}{\HEMLPrologFooter}
+
+\newcommand{\HEMLStandardCenterHeader}{\HEMLreference, Ed. \HEMLedition, \HEMLdate}
+\newcommand{\HEMLStandardLeftHeader}{}
+\newcommand{\HEMLStandardRightHeader}{\thepage{} / \pageref{LastPage}}
+\newcommand{\HEMLStandardFooter}{\parbox{17cm}{\fontsize{6}{6}\selectfont \HEMLfooter}}
+\newcommand{\HEMLDocMetaInfoTable}{
+    \begin{tabular}{|p{2cm}p{14.15cm}|}
+    \hline
+    \textbf{AUTHOR} & \HEMLauthor \\
+    \hline
+    \textbf{ABSTRACT} & \HEMLabstract \\
+    \hline
+    \textbf{KEYWORDS} & \HEMLkeywords \\
+    \hline
+    \textbf{CONTEXT} & \HEMLcontext \\
+    \hline
+    \textbf{PROCESSED} & \HEMLbuildinfo \\
+    \hline
+    \end{tabular}
+}
+
+\fancypagestyle{Title}{
+  \fancyhead{}
+  \fancyfoot{}
+  \renewcommand{\headrulewidth}{0pt}
+  \renewcommand{\footrulewidth}{0pt}
+  \fancyhead[L]{\HEMLTitleLeftHeader}
+  \fancyhead[C]{\HEMLTitleCenterHeader}
+  \fancyhead[R]{\HEMLTitleRightHeader}
+  \fancyfoot[C]{\HEMLTitleFooter}
+}
+
+\fancypagestyle{Prolog}{
+  \fancyhead{}
+  \fancyfoot{}
+  \renewcommand{\headrulewidth}{0pt}
+  \renewcommand{\footrulewidth}{0pt}
+  \fancyhead[L]{\HEMLPrologLeftHeader}
+  \fancyhead[C]{\HEMLPrologCenterHeader}
+  \fancyhead[R]{\HEMLPrologRightHeader}
+  \fancyfoot[C]{\HEMLPrologFooter}
+}
+
+\fancypagestyle{Standard}{
+  \fancyhead{}
+  \fancyfoot{}
+  \renewcommand{\headrulewidth}{0.5pt}
+  \renewcommand{\footrulewidth}{0.5pt}
+  \fancyhead[L]{\HEMLStandardLeftHeader}
+  \fancyhead[C]{\HEMLStandardCenterHeader}
+  \fancyhead[R]{\HEMLStandardRightHeader}
+  \fancyfoot[C]{\HEMLStandardFooter}
+}
+
+\newcommand{\HEMLStartOfTitle}{
+    {\fontsize{12}{14}\selectfont\textcolor[rgb]{0.07058824,0.38039216,0.6509804}{
+    \HEMLcompanyName}} \\
+    {\fontsize{10}{14}\selectfont\textbf{\HEMLorgName}}
+    
+    \begin{tabbing} \hspace*{11cm}\=\kill
+    
+    \>{\fontsize{12}{20}\selectfont\textbf{\HEMLreference}}\\
+    \>{\fontsize{11}{20}\selectfont Issue \HEMLedition\ -  Revision \HEMLrevision\ - \HEMLdate}\\
+    \>{\fontsize{11}{20}\selectfont Page 1}\\
+    
+    \end{tabbing}
+}
+\newcommand{\HEMLTitlePrint}{
+    {\centering{\bfseries\fontsize{18}{18}\selectfont\shadowbox{\parbox{14cm}{  \centering{ \bigskip\bfseries \HEMLtitle \bigskip}}}}\par}
+}
+\newcommand{\HEMLEndOfTitle}{}
+
+\newcommand{\HEMLTitlePage}{
+    \HEMLStartOfTitle{}
+    
+    \bigskip\bigskip
+    \bigskip\bigskip
+    \bigskip\bigskip
+    \bigskip\bigskip
+    
+    \HEMLTitlePrint 
+    \vspace*{\fill}
+	\HEMLDocMetaInfoTable
+    \HEMLEndOfTitle
+}
+
+\newcommand{\HEMLVisasPage}{    
+    \quad\bigskip\bigskip
+    
+    {
+    \setlength{\tabcolsep}{0.2cm}
+    {\fontsize{11}{16}\selectfont
+    
+    \begin{tabular}{|p{3.9cm}|p{2.49cm}|p{2.0cm}|p{3.8cm}|p{2.7cm}|}
+    \hline
+    \textbf{Ref:} \HEMLreference & \textbf{Edition:} \HEMLedition & \textbf{Rev:} \HEMLrevision & \textbf{Date:} \HEMLdate & \textbf{Page:} \thepage{} / \pageref{LastPage} \\
+    \hline
+    \end{tabular}
+    }
+    \smallskip
+    
+    \begin{tabular}{|p{2cm}p{14.15cm}|}
+    \hline
+    \textbf{TITLE} & \HEMLtitle
+    \\
+    \hline
+    \end{tabular}
+    
+    \smallskip
+    
+	\HEMLDocMetaInfoTable
+    
+    \vspace*{\fill}
+    
+    \begin{tabular}{|p{1.9cm}|>{\centering\arraybackslash}p{4.5cm}|>{\centering\arraybackslash}p{4.5cm}|>{\centering\arraybackslash}p{4.5cm}|}
+    \hline
+    \textbf{VISAS} &  &  &  \\
+     & & &\\
+    Sigle & & & \\
+    Name & & & \\
+    Signature & & & \\
+     & & & \\
+     & & & \\
+    \hline
+    \end{tabular}
+    }
+}
+
+% history page translations.
+\newcommand{\HEMLhistoryPageTitle}{ISSUE / REVISION STATUS RECORD}
+\newcommand{\HEMLhistoryPageEditionNumberTitle}{Edition and revision}
+\newcommand{\HEMLhistoryPageMainReasonsTitle}{Main reasons for document change \par
+        (+ paragraphs nb concerned in case of revision) Document validity status (reference and date)}
+
+\newcommand{\HEMLhistoryPage}{
+    {\fontsize{11}{14}\selectfont
+    \begin{longtabu} to \textwidth{|X[0.14, c]|X[0.14, c]|X[0.70, l]|}
+    \hline
+    \multicolumn{3}{|c|}{\multirow{2}{17.1cm}{\fontsize{14}{14}\selectfont \centering{\HEMLhistoryPageTitle}}}\\
+    \multicolumn{3}{|c|}{} \\
+    \hline
+    \bigskip \textbf{\HEMLhistoryPageEditionNumberTitle} & \bigskip \textbf{Date} & \bigskip \textbf{\HEMLhistoryPageMainReasonsTitle} \\
+    & &\\
+    \HEMLrevisiontable
+    \hline
+    & & \\
+    \hline
+    \end{longtabu}
+    }
+}
+
+\newcommand{\HEMLsummaryPage}{
+    \def\contentsname{S u m m a r y}
+    \tableofcontents
+    \listoffigures
+    \listoftables
+    \setlength{\parskip}{0.2cm}
+}
+
+\def\maketitle{
+\setcounter{tocdepth}{5}
+\setcounter{secnumdepth}{5}
+% Title page #########################################################################
+\clearpage
+\pagestyle{Title}
+\HEMLTitlePage
+
+% History page #####################################################################
+\clearpage
+\pagestyle{Standard}
+\HEMLhistoryPage
+
+% Summary pages #########################################################################
+\clearpage
+\setlength{\parskip}{0cm}
+\HEMLsummaryPage
+
+% End of prolog
+\clearpage
+%\pagestyle{Standard}
+}

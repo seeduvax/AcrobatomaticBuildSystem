@@ -1,0 +1,317 @@
+{?set %encoding=utf-8}
+{presentation 
+  {title Acrobatomatic Build System - introduction and training}
+  {titleImage abs.png}
+{#
+@startuml abs.pgn
+digraph abs {
+  node [ shape=note, fillcolor="#EEEEFF", style=filled];
+  srcc [ label="int main()"];
+  srccpp [ label="class Obj"];
+  srcj [ label="import java.lang.*;"];
+  bin [ label="0010110" ];
+  jar [ shape=folder, label="jar" ];
+  dist [ label="install.bin", shape=folder ];
+  srcc -> bin;
+  srccpp -> bin;
+  srcj -> jar;
+  bin -> dist;
+  jar -> dist;
+}
+@enduml
+#}
+  {slide %title=ABS - overview
+Generic tool for software builds and deliverable package generation.
+  - implemented with makefiles (GNU make required) and a few shell scripts.
+  - C/C++, Java, python support.
+  - Dependency management
+  - Features: 
+    - compilation, package generation,
+    - launch software and unit tests with or without debugger,
+    - source code file templates, continuous integration support, and more...
+Documentation: {a %href=http://www.eduvax.net/abs/pdf/ABS_manual_170983b.pdf %%ABS manual.}.
+  }
+  {slide %title=Project files layout
+{layout %col=2
+{fig %src=file_layout.png}
+{#
+@startuml file_layout.png
+digraph tree {
+  rankdir=LR;
+  splines=ortho;
+  node [ shape=folder, fillcolor="#EEEEFF", style=filled];  
+  edge [ arrowhead=none ];
+  ws [ label="workspace", fillcolor="#FFDDAA" ];
+  abscach [ label="abs-cache", fillcolor="#FFDDAA"];
+  root [label="appname-X.Y"];
+  abs [label=".abs", fillcolor="#FFDDAA"];
+  build [fillcolor="#FFDDAA"];
+  dist [fillcolor="#FFDDAA"];
+  app_cfg [label="app.cfg", shape=note];
+  Makefile [shape=note];
+  module [label="module", shape=folder];
+  ws -> abscach [ arrowtail=none, splines=ortho];
+  ws -> root;
+  root -> abs;
+  root -> build;
+  root -> app_cfg;
+  root -> Makefile;
+  root -> module;
+  root -> dist;
+  mod_cfg [label="module.cfg", shape=note];
+  MMakefile [label="Makefile", shape=note];
+  module -> mod_cfg;
+  module -> MMakefile;
+  module -> include;
+  module -> src;
+  module -> test;
+}
+@enduml
+#}
+Never add to revision control:
+  - {kw .abs}, {kw abs-cache}: ABS local copy
+  - {kw build}: workspace build output directory
+  - {kw dist}: deliverable packages output directory
+Project configuration files:
+  - {kw app.cfg}: application level configuration parameters
+  - {kw module.cfg}: module level configuration parameters
+}
+  }
+  {slide %title=Main configuration parameters
+Application level
+{table
+{tr
+{th Parameter} {th Value} {th Description}
+}
+{?table
+APPNAME % string % Application name
+VERSION % X.Y.Z % Application version
+USELIB % string % Dependencies (libA-X.Y.Z libB-X.Y.Z etc)
+EXPMOD % string % List of "public" modules
+VABS, ABS_REPO % X.Y, URL % Version of ABS to use, ABS download repository location
+}
+}
+Module level
+{table
+{tr
+{th Parameter} {th Value} {th Description}
+}
+{?table
+MODNAME % string % Module name
+MODTYPE % exe / library / fileset / ... % Module type
+USEMOD % string % list of required modules from the same application
+LINKLIB % string % Libraries to link with (use short name: foo for libfoo.so)
+}
+}
+  }
+  {slide %title=Main targets
+Application level:
+{table
+{tr
+{th Target} {th Description}
+}
+{?table
+all % Default target: build all modules (all target of each module)
+clean % Clean all outputs (delete build and dist directories)
+dist % Build the library deliverable package
+distinstall % Build the application installation package, including all dependencies.
+}
+}
+Module level:
+{table
+{tr
+{th Target} {th Description}
+}
+{?table
+all % Build the module 
+clean % Delete the build outputs (related to the module only)
+run % Launch application (when module is an executable or a lua binded library)
+test % build and run unit tests
+}
+}
+  }
+  {slide %title=Exercise 1 - explore sampleprj (1/2)
+Checkout sampleprj-0.4 branch:
+{code %language=sh
+{!$ cd <workspace>
+$ svn co https://sdengrle.public.infrapub.fr.st.space.corp/svn/rle/rd_tea332/branches/sampleprj-0.4
+$ cd sampleprj-0.4!}}
+Build project, run some tests...
+{code %language=sh
+{!$ make
+$ cd cpplib
+$ make test
+$ touch src/Example.cpp
+$ make!}}
+Edit configuration parameters from {kw app.cfg} and {kw module.cfg} files and see what happens...
+{note %type=warning
+Do not commit, sampleprj is used for ABS validation.
+}
+  }
+  {slide %title=Exercise 1 - explore sampleprj (2/2)
+Go back to the project root and remove your local changes
+{code %language=sh
+{!$ cd <workspace>/sampleprj-0.4
+$ svn revert!}}
+Build installation package and install software to a temporary location
+{code %language=sh
+{!$ make distinstall
+$ ./dist/sampleprj-0.4.X.<arch>-install.bin <workspace>/temp/sampleprj!}}
+Explore installation and launch installed application
+{code %language=sh
+{!$ ls <workspace>/temp/sampleprj/*
+$ <workspace>/temp/sampleprj/bin/sampleprj_cppexe!}}
+{note
+Installed application file layout is a standard unix layout.
+No need to set library search path, search path is embedded in the built binaries.
+}
+  }
+  {slide %title=More targets
+Application level
+{table
+{tr
+{th Target} {th Argument} {th Description}
+}
+{?table
+newmod % <module name> % Create a new empty module
+test % % Launch all modules' unit tests
+cint % % Full build, test and packaging (designed to be used from jenkins)
+}
+}
+Module level
+{table
+{tr
+{th Target} {th Argument} {th Description}
+}
+{?table
+newclass % <class name> % Create a new class (for C/C++/Java modules)
+newtest % <class name> % Create a new Test for the given class name.
+debug % % Run application from gdb
+debugtest % % Run unit tests from gdb
+help % % display online help
+checkdep % % display application dependency graph
+}
+}
+   }
+   {slide %title=Exercise 2 - create new ABS managed project
+Perform the following steps:
+  - create new directory and enter the new directory.
+  - create app.cfg file and set into the following configuration parameters: {kw APPNAME}, {kw VERSION}, {kw VABS}, {kw ABS_REPO}
+  - copy the ABS {a %href=http://mspc6269/dist/noarch/abs-2.0-bootstrap.mk %% {kw abs-2.0-bootstrap.mk} } file as {kw Makefile} in the directory.
+  - use ABS features create modules and C++ classes and unit tests.
+  - Build, run and test the project.
+  - Build the deliverable packages.
+   }
+   {slide %title=Writing unit tests with cppunit
+{layout %col=2
+{code %language=c++
+{!#include <cppunit/extensions/HelperMacros.h>
+#include <cppunit/plugin/TestPlugIn.h>
+#include "BuildScriptTester/cpplib/Example.hpp"
+using namespace BuildScriptTester::cpplib;
+namespace test {
+class TestExample: public CppUnit::TestFixture {
+CPPUNIT_TEST_SUITE( TestExample );
+CPPUNIT_TEST( testCaseSuccess );
+CPPUNIT_CONDITIONAL_TEST( IS_INTERACTIVE , testCaseFail );
+CPPUNIT_TEST_SUITE_END();
+public:
+    void setUp() {
+    }
+    void tearDown() {
+    }
+    void testCaseSuccess() {
+        std::cout << "in test case" << std::endl;
+        CPPUNIT_ASSERT_EQUAL(1,1);
+    }
+    void testCaseFail() {
+        CPPUNIT_ASSERT_EQUAL(0,1);
+    }
+};
+CPPUNIT_TEST_SUITE_REGISTRATION(TestExample);
+} // namespace test!}}
+{layout %size=small
+Test implementation steps:
+  - Declare test methods (lines 8-9)
+  - Define common initializations and cleanups (lines 12-15)
+  - implements test methods (lines 16-22), use {kw CPPUNIT_ASSERT} macros to check tested methods and functions output values. 
+}
+}
+   }
+   {slide %title=Running tests
+{layout %col=2
+{fig %src=CPPUnitOutput.png}
+{fig %src=JenkinsTestView.png}
+}
+   }
+   {slide %title=Good practices, tips and tricks
+Test tips:
+  - {em Test requiring additional dependencies:} integration tests rather than unit tests. Setup dedicated module (or even application), use {kw T_} prefix for test only modules.  
+  - {em Conditional tests:} use the {kw CPPUNIT_CONDITIONAL_TEST} declaration test (not available with original cppunit), to trigger test execution on particular condition. Use it to disable test in jenkins where user inputs or specific hardware are not available.
+  - {em No file output in the module directories:} all output files should go somewhere into the build directory. Use the {kw TRDIR} (build root), {kw TTARGETDIR} (module test output directory) environment variable to retrieve the right path from inside your test.
+Short naming:
+  - {em Small application with a single module:} give the same name to the application and module to get a short built binary name ({kw appname} instead of {kw appname_modname}).
+   }
+   {slide %title=Coding style, Coding rules
+{layout %col=2
+C++ coding, {em "Simplified C++"}:
+    - Java like style, create explicit methods (equals, clone, ...), don't use operator overload, variadic, functor, ...
+    - interface = abstract classes, avoid multiple inheritance.
+    - avoid copy constructors / assignment overload troubles): use pointers, avoid ambiguous references.
+Naming rules:
+    - one class = one header + one implementation file
+    - namespace = {kw app_name::module_name}
+    - identifiers: {kw ClassName}, {kw localVarName}, {kw pLocalPointer}, {kw _classVarName}, {kw _pClassPointerVarName}, ...
+    - comments to be parsed by {em Doxygen}: use {em javadoc} syntax ({kw @param}, {kw @return}, etc)
+}
+   }
+   {slide %title=Project documentation
+Project documents shall be managed as any source code file:
+  - Create a {kw _doc} module to store the documents.
+  - Document source files in {kw _doc/src} directory.
+  - Specific ABS module type for documentation.
+  - Write documents using the {a %href=http://www.eduvax.net/jdev/net.eduvax.heml/ %%heml} format (some kind of markdown/XML).
+  - invoke {kw make} from your {kw _doc} module to generate {kw html} and {kw pdf} files from your {kw heml} sources. 
+{note
+Current presentation has been written using this feature!
+}
+   }
+   {slide %title=Exercise 3 - Editing HEML documents
+{layout %col=2
+Edit and render {kw heml} example from {kw sampleprj} :
+{code %language=sh
+{!$ cd <workspace>/sampleprj-0.4/_doc/
+$ gvim src/example1.heml
+$ make!}}
+Document header:
+{code
+{!{?set %encoding=utf-8}
+{document 
+  {title ...}
+  {abstract ...}
+{# ... #}
+}!}}
+Sections:
+{code
+{!{section %title=A section
+   {section %title=A subsection
+   }
+}!}}
+Figures:
+{code
+{!{fig %src=image.png %title=an image}!}}
+In line diagrams using {em plantUml}:
+{code
+{!{fig %src=mydiagram.png %title=UML diagram} {#
+@startuml mydiagram.png
+class MyClass
+@enduml
+#}!}}
+Paragraph, bullet lists:
+{code
+{!1st paragraphe.
+2nd paragraphe:
+  - enum!}}
+}
+   }
+}
