@@ -42,6 +42,15 @@ include $(ABSROOT)/core/xarch/$(XARCH).mk
 endif
 
 ISWINDOWS:=$(if $(WINDIR),true,)
+ifeq ($(ISWINDOWS),true)
+define absGetPath
+$(shell cygpath -m $(1))
+endef
+else
+define absGetPath
+$(1)
+endef
+endif
 BUILDNUM=null
 
 

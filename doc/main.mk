@@ -24,13 +24,8 @@ HEMLARGS:=-param app $(APPNAME) -param version $(VERSION) -param date "`date --r
 PUMLVERSION:=1.2017.12
 PUMLJAR:=$(NDNA_EXTLIBDIR)/plantuml.$(PUMLVERSION).jar
 HEMLJAR:=$(NDNA_EXTLIBDIR)/heml-$(HEMLVERSION).jar
-ifeq ($(ISWINDOWS),true)
-HEMLCMD:=$(JAVACMD) -jar $(shell cygpath -m "$(HEMLJAR)")
-PUMLCMD:=$(JAVACMD) -jar $(shell cygpath -m "$(PUMLJAR)")
-else
-HEMLCMD:=$(JAVACMD) -jar $(HEMLJAR)
-PUMLCMD:=$(JAVACMD) -jar $(PUMLJAR)
-endif
+HEMLCMD:=$(JAVACMD) -jar $(call absGetPath,$(HEMLJAR))
+PUMLCMD:=$(JAVACMD) -jar $(call absGetPath,$(PUMLJAR))
 
 HEMLS:=$(filter-out %_release.heml,$(shell find src -name "*.heml"))
 PDFLATEX:=$(shell which pdflatex 2>/dev/null)
@@ -52,7 +47,10 @@ endif
 DOCBOOKS:=$(patsubst src/%.heml,$(DBDIR)/%.xml,$(HEMLS))
 HTMLS:=$(patsubst src/%.heml,$(HTMLDIR)/%.html,$(HEMLS)) $(HTMLDIR)/style.css $(HTMLDIR)/highlight/highlight.js
 IMGS:=$(patsubst src/%,$(HTMLDIR)/%,$(shell find src -name "*.jpg")) $(patsubst src/%,$(HTMLDIR)/%,$(shell find src -name "*.png")) $(patsubst src/%.dia,$(HTMLDIR)/%.png,$(shell find src -name "*.dia"))
-
+## XSL Stylesheets definition:
+##   - HEMLTOTEX_STYLE: tex (pdf)
+##   - HEMLTOXHTML_STYLE: html
+##   - HEMLTOXML_STYLE: docbook
 HEMLTOTEX_STYLE:=$(DOCROOT)/tex/style.tex.xsl
 HEMLTOXHTML_STYLE:=$(DOCROOT)/html/style.xhtml.xsl
 HEMLTOXML_STYLE:=$(DOCROOT)/docbook/style.docbook.xsl
@@ -67,8 +65,6 @@ all-impl:: $(HTMLS) $(PDFS)
 
 ifneq ($(DOXYGENCMD),)
 all-impl:: $(DOXDIR)
-
-VERSION?=UnkwownVersion
 
 $(DOXDIR): $(DOXSRCFILES)
 	@$(ABS_PRINT_info) "Generating API reference documentation..."
@@ -115,26 +111,23 @@ $(HTMLDIR)/%.png: src/%.dia
 	@MROOT=`pwd` ; cd $(@D) ; dia -t png $$MROOT/$^
 endif
 
-$(HTMLDIR)/%.html: src/%.heml $(HEMLJAR) $(PUMLJAR) $(IMGS)
-	@$(ABS_PRINT_info) "heml to html: $< : use style: $(HEMLTOXHTML_STYLE)"
+# HEML transformation
+# $1 xsl file
+define absHemlTransformation
+	@$(ABS_PRINT_info) "heml to $(suffix $@) of $< using style $(1)"
 	@mkdir -p $(@D)
-	@fgrep '{#!' $< | cut -d '!' -f 2 | sh
-	@$(PUMLCMD) $(PUMLJAR) -in $< -o $(@D)
-	@$(HEMLCMD) -in $< -xsl $(HEMLTOXHTML_STYLE) -param srcdir "$(<D)" $(HEMLARGS) -out $@
+	@$(PUMLCMD) -in $(call absGetPath,$<) -o $(call absGetPath,$(@D))
+	@$(HEMLCMD) -in $(call absGetPath,$<) -xsl $(call absGetPath,$(1)) -param srcdir "$(call absGetPath,$(<D))" $(HEMLARGS) -out $(call absGetPath,$@)
+endef
+
+$(HTMLDIR)/%.html: src/%.heml $(HEMLJAR) $(PUMLJAR) $(IMGS)
+	$(call absHemlTransformation,$(HEMLTOXHTML_STYLE))
 
 $(DBDIR)/%.xml: src/%.heml $(HEMLJAR) $(PUMLJAR)
-	@$(ABS_PRINT_info) "heml to docbook: $< : use style: $(HEMLTOXML_STYLE)"
-	@mkdir -p $(@D)
-	@fgrep '{#!' $< | cut -d '!' -f 2 | sh
-	@$(PUMLCMD) $(PUMLJAR) -in $< -o $(@D)
-	@$(HEMLCMD) -in $< -xsl $(HEMLTOXML_STYLE) -param srcdir "$(<D)" $(HEMLARGS) -out $@
+	$(call absHemlTransformation,$(HEMLTOXML_STYLE))
 
 $(TEXDIR)/%.tex: src/%.heml $(HEMLJAR) $(PUMLJAR)
-	@$(ABS_PRINT_info) "heml to tex: $< : use style: $(HEMLTOTEX_STYLE)"
-	@mkdir -p $(@D)
-	@fgrep '{#!' $< | cut -d '!' -f 2 | sh
-	@$(PUMLCMD) $(PUMLJAR) -in $< -o $(@D)
-	@$(HEMLCMD) -in $< -xsl $(HEMLTOTEX_STYLE) -param srcdir "$(<D)" $(HEMLARGS) -out $@
+	$(call absHemlTransformation,$(HEMLTOTEX_STYLE))
 
 TEXINPUTS+=$(PRJROOT)/.abs/doc/tex//:$(OBJDIR):$(TEXDIR):$(HTMLDIR)
 TEXENV=TEXINPUTS=$(TEXINPUTS):
