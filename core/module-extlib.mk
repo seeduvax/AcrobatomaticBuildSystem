@@ -20,7 +20,7 @@ $(ABS_CACHE)/%:
 				test -f $$srcfile && ln -sf $$srcfile $@ ; \
 				test -r $@ && exit 0 || \
 				$(ABS_PRINT_warning) "$$afile not available from $$repo";; \
-			*) wget -q --no-check-certificate $$(repo)/$$afile -O $@ && exit 0 || \
+			*) wget -q --no-check-certificate $$repo/$$afile -O $@ && exit 0 || \
 				$(ABS_PRINT_warning) "$$afile not available from $$repo";; \
 		esac \
 	done ; $(ABS_PRINT_error) "Can't fetch $$afile." && exit 1

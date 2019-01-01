@@ -109,7 +109,7 @@ ifeq ($(ABS_SCM_TYPE),git)
 WORKSPACE_IS_TAG:=1
  else
 WORKSPACE_IS_TAG:=0
-REVISION:=$(subst $(APPNAME)-%,%,$(shell git describe))
+REVISION:=$(subst $(APPNAME)-%,%,$(shell git describe --tags))
   ifneq ($(shell LANG=C git status | grep -c modified),0)
 REVISION:=$(REVISION)M
   endif
