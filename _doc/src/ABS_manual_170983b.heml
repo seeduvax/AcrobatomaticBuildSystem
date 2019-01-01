@@ -1,7 +1,7 @@
 {?set %encoding=utf-8}
 {document 
   {title Automated Build System - generic make files and companion scripts}
-  {reference 170983b3}
+  {reference 170983b}
   {revision $Id$}
   {author %%Sebastien DEVAUX}
   {copyright %year=2019 %holder=Sebastien Devaux / ArianeGroup SAS}
