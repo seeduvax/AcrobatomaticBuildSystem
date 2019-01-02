@@ -292,9 +292,9 @@ select="substring-after($text,$from)"/>
      	enumerations
 -->
 <xsl:template match="ul">
-\begin{itemize}
+\begin{HEMLitemize}
 <xsl:apply-templates/>
-\end{itemize}
+\end{HEMLitemize}
 </xsl:template>
 <xsl:template match="li">
 \item{} <xsl:apply-templates/>
@@ -359,7 +359,9 @@ select="substring-after($text,$from)"/>
     \renewcommand{\HEMLserviceName}{<xsl:value-of select="author/@service"/>}
     \renewcommand{\HEMLreference}{<xsl:apply-templates select="reference"/>}
     \renewcommand{\HEMLauthor}{<xsl:value-of select="author"/>}
-	\renewcommand{\HEMLcopyright}{<xsl:value-of select="copyright/@year"/><xsl:text> </xsl:text><xsl:value-of select="copyright/@holder"/><xsl:text> </xsl:text><xsl:value-of select="copyright"/>}
+<xsl:if test="count(copyright)=1">
+    \renewcommand{\HEMLcopyright}{<xsl:value-of select="copyright/@year"/><xsl:text> </xsl:text><xsl:value-of select="copyright/@holder"/><xsl:text> </xsl:text><xsl:value-of select="copyright"/>}
+</xsl:if>
     \renewcommand{\HEMLedition}{<xsl:value-of select="history/edition[1]/@version"/>}
     \renewcommand{\HEMLrevision}{<xsl:call-template name="strreplace">
       <xsl:with-param name="text"><xsl:call-template name="strreplace">
@@ -719,7 +721,9 @@ Checksum function: <xsl:value-of select="@type"/>
 \renewcommand{\HEMLreference}{<xsl:apply-templates select="reference"/>}
 \renewcommand{\HEMLauthor}{<xsl:value-of select="author|authors"/>}
 \renewcommand{\HEMLedition}{<xsl:value-of select="version"/>}
+<xsl:if test="count(copyright)=1">
 \renewcommand{\HEMLcopyright}{<xsl:value-of select="copyright/@year"/><xsl:text> </xsl:text><xsl:value-of select="copyright/@holder"/><xsl:text> </xsl:text><xsl:value-of select="copyright"/>}
+</xsl:if>
 \renewcommand{\HEMLrevision}{<xsl:call-template name="strreplace">
   <xsl:with-param name="text"><xsl:call-template name="strreplace">
     <xsl:with-param name="text"><xsl:value-of select="revision"/></xsl:with-param>

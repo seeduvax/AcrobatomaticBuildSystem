@@ -61,7 +61,7 @@ HEMLTOXML_STYLE:=$(DOCROOT)/docbook/style.docbook.xsl
 ##      from heml files, and doxygen reference.
 all-impl:: $(HTMLS) $(PDFS)
 
-.PRECIOUS: $(HEMLJAR) $(PUMLJAR) $(IMGS) $(TEXDIR)/%.tex
+.PRECIOUS: $(HEMLJAR) $(PUMLJAR) $(patsubst $(NDNA_EXTLIBDIR)/%,$(ABS_CACHE)/noarch/%,$(HEMLJAR) $(PUMLJAR)) $(IMGS) $(TEXDIR)/%.tex
 
 ifneq ($(DOXYGENCMD),)
 all-impl:: $(DOXDIR)
