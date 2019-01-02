@@ -21,6 +21,7 @@ dist/abs.%-$(VERSION).tar.gz:
 	@tar cvzf $@ -C $(@D) abs-$(VERSION)/$(patsubst dist/abs.%-$(VERSION).tar.gz,%,$@)
 
 dist: $(DISTPACKAGES)
+	test -d dist/noarch || ln -sf $$PWD/dist dist/noarch
 
 clean:
 	rm -rf dist

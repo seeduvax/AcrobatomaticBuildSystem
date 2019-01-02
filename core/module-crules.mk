@@ -63,17 +63,8 @@ $(TARGETFILE): $(OBJS)
 
 # vinfo file generated from make macro value.
 # vinfo must be regenerated each time a source file change, since it
-# may come from n update of the workspace from the repository.
-ifneq ($(SRCFILES),)
-VINFOCPP?=$(shell fgrep -q LOGGER_DECL $(SRCFILES) && ( fgrep -q LOGGER_CREATE $(SRCFILES) && echo false || echo true ) || echo false)
-else
-VINFOCPP?=false
-endif
-ifeq ($(VINFOCPP),true)
-VINFO=$(OBJDIR)/vinfo.cpp
-else
-VINFO=$(OBJDIR)/vinfo.c
-endif
+# may come from any update of the workspace from the repository.
+VINFO:=$(OBJDIR)/vinfo.cpp
 $(VINFO): module.cfg $(PRJROOT)/app.cfg $(SRCFILES) $(MODDEPS)
 	@$(ABS_PRINT_info) "Generating vinfo for module $(MODNAME) ..."
 	@mkdir -p $(OBJDIR)
@@ -91,8 +82,7 @@ $(VINFO): module.cfg $(PRJROOT)/app.cfg $(SRCFILES) $(MODDEPS)
 	@echo "	\"\$$Attr: build.user="`whoami | sed -e 's:\\\\:/:g'`" $$ \"" >> $@
 	@echo "	\"\$$Attr: build.id=$(BUILDNUM) $$ \";" >> $@
 	@echo "const char * _$(APPNAME)_$(MODNAME)_version=\"$(VERSION)\";" >> $@
-	@echo "}}" >> $@
-endif
+	$(call absVInfoExtra)
 
 ifneq ($(GENSRC),)
 # dependencies management.
