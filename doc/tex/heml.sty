@@ -90,7 +90,14 @@
 \newcommand{\HEMLkw}[1]{\texttt{\textcolor{darkred}{#1}}}
 \newcommand\HEMLfigScale{0.5}
 
-\newcommand{\HEMLreqrefBegin}{
+\newcommand{\HEMLrequirement}[2]{
+\begin{tabu}{p{3.3cm} X}
+\hline
+\rowcolor{yellow!10}
+\textbf{#1} & #2 \\ 
+\end{tabu}%
+}
+\newcommand{\HEMLreqref}[1]{
 \begin{tcolorbox}[
     left=0.1cm,
     right=0.1cm,
@@ -102,8 +109,11 @@
     enlarge left by=0mm,
     boxsep=0cm,
     arc=0pt,outer arc=0pt]
+
+#1
+
+\end{tcolorbox}
 }
-\newcommand{\HEMLreqrefEnd}{\end{tcolorbox}}
 
 \newcommand{\HEMLoperationBegin}{
 \begin{tcolorbox}[left=0.1cm,
@@ -137,6 +147,19 @@
         \centering \color{#2} #1
     \end{tcolorbox}
 }
+
+\newenvironment{HEMLtable}[1]
+{ \begin{longtabu}{#1}
+  \hline
+}
+{
+  \hline
+  \end{longtabu}
+}
+\newcommand{\HEMLoddRow}{\rowcolor{blue!8}}
+\newcommand{\HEMLevenRow}{\rowcolor{blue!4}}
+\newcommand{\HEMLoddHeadCell}{\cellcolor{blue!14}}
+\newcommand{\HEMLevenHeadCell}{\cellcolor{blue!10}}
 
 
 % CheckBox

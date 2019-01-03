@@ -91,8 +91,9 @@ select="substring-after($text,$from)"/>
 <xsl:template name="sectionHead">
 	<xsl:param name="id">none</xsl:param>
 	<xsl:param name="title"></xsl:param>
-	<xsl:param name="level">2</xsl:param>
+	<xsl:param name="level">1</xsl:param>
 <xsl:choose>
+  <xsl:when test="$level=1">\chapter</xsl:when>
   <xsl:when test="$level=2">\section</xsl:when>
   <xsl:when test="$level=3">\subsection</xsl:when>
   <xsl:when test="$level=4">\subsubsection</xsl:when>
@@ -102,7 +103,7 @@ select="substring-after($text,$from)"/>
   <xsl:when test="$level=8">\subsubsubparagraph</xsl:when>
   <xsl:when test="$level=9">\subsubsubsubparagraph</xsl:when>
   </xsl:choose>{<xsl:value-of select="$title"/>} 
-  <xsl:if test="$level&gt;4">\mbox{}</xsl:if>
+  <xsl:if test="$level&gt;4">~\\</xsl:if>
 </xsl:template>
 <!--************************************************
 	Prise en charge d'une section
@@ -113,7 +114,7 @@ select="substring-after($text,$from)"/>
 			<xsl:call-template name="sectionHead">
 				<xsl:with-param name="id"><xsl:number level="multiple" count="section|article"/></xsl:with-param> 
 				<xsl:with-param name="title"><xsl:apply-templates select="@title"/></xsl:with-param> 
-				<xsl:with-param name="level"><xsl:value-of select="count(ancestor-or-self::section)+count(ancestor-or-self::article)+1"/></xsl:with-param> 
+				<xsl:with-param name="level"><xsl:value-of select="count(ancestor-or-self::section)+count(ancestor-or-self::article)"/></xsl:with-param> 
 			</xsl:call-template>	
 		</xsl:when>
 		<xsl:otherwise>
@@ -173,11 +174,9 @@ select="substring-after($text,$from)"/>
      	requirements
 -->
 <xsl:template match="req">
-\begin{tabu}{p{3.3cm} X}
-\hline
-\rowcolor{yellow!10}
-\textbf{<xsl:value-of select="@id"/>} &amp; <xsl:apply-templates/> \\ 
-\end{tabu}%
+\HEMLrequirement{<xsl:value-of select="@id"/>}{
+<xsl:apply-templates/>
+}
 </xsl:template>
 <xsl:template match="req" mode="ref">
 <xsl:value-of select="text()"/><xsl:text> </xsl:text>
@@ -186,27 +185,27 @@ select="substring-after($text,$from)"/>
      	tables
 -->
 <xsl:template match="table">
-\begin{longtabu}{|<xsl:apply-templates select="tr[1]/*" mode="tablespec"/>}
-\hline
-<xsl:apply-templates select="tr"
- />\hline<xsl:if test="@title!=''">
-\caption{<xsl:value-of select="@title"/>}
-</xsl:if>
+\begin{HEMLtable}{|<xsl:apply-templates select="tr[1]/*" mode="tablespec"
+  />}
+<xsl:apply-templates select="tr"/>
+\end{HEMLtable}
+<!--
+<xsl:if test="@title!=''">\caption{<xsl:value-of select="@title"/>}</xsl:if>
 <xsl:if test="@xref!=''">\label{<xsl:value-of select="@xref"/>}</xsl:if>
-\end{longtabu}
+-->
 </xsl:template>
 <xsl:template match="tr">
 <xsl:choose>
   <xsl:when test="position() mod 2 = 1">
-\rowcolor{blue!8}
+\HEMLoddRow
   </xsl:when>
   <xsl:otherwise>
-\rowcolor{blue!4}
+\HEMLevenRow
   </xsl:otherwise>
 </xsl:choose>
-<xsl:apply-templates mode="cellcontent">
-  <xsl:with-param name="rowpos"><xsl:value-of select="position()"/></xsl:with-param>
-</xsl:apply-templates>\\
+<xsl:apply-templates mode="cellcontent"
+ ><xsl:with-param name="rowpos"><xsl:value-of select="position()"/></xsl:with-param
+ ></xsl:apply-templates>\\
 <xsl:if test="position()=1 and count(td)=0">
 \endhead
 </xsl:if>
@@ -219,10 +218,10 @@ select="substring-after($text,$from)"/>
 <xsl:param name="rowpos">0</xsl:param>
 <xsl:choose>
   <xsl:when test="$rowpos mod 2 = 1">
-\cellcolor{blue!14}
+\HEMLoddHeadCell
   </xsl:when>
   <xsl:otherwise>
-\cellcolor{blue!10}
+\HEMLevenHeadCell
   </xsl:otherwise>
 </xsl:choose>
 \textbf{<xsl:apply-templates select="."/>}<xsl:if test="count(following-sibling::*)&gt;0">&amp;</xsl:if
@@ -232,26 +231,23 @@ select="substring-after($text,$from)"/>
 -->
 <xsl:template match="references">
 \subsection{<xsl:value-of select="@title"/>}
-
-\begin{longtabu}{X[-1]X[-1]}
-\hline
-\rowcolor{blue!14}
-&amp; \textbf{Authors}\hspace{1cm}\textbf{\emph{Title}} \\
-\rowcolor{blue!14}
-&amp;  \textbf{\emph{Reference}}\hspace{1cm}\textbf{Edition} \\
+\begin{HEMLtable}{X[-1]X[-1]}
+\HEMLoddHeadCell
+&amp; \HEMLoddHeadCell \textbf{Authors}\hspace{1cm}\textbf{\emph{Title}} \\
+\HEMLoddHeadCell
+&amp; \HEMLoddHeadCell \textbf{\emph{Reference}}\hspace{1cm}\textbf{Edition} \\
 \endhead
 <xsl:apply-templates select="ref" mode="detail"/>
-\hline
-\end{longtabu}
+\end{HEMLtable}
 </xsl:template>
 <xsl:template match="ref" mode="detail">
 <xsl:param name="hhref"><xsl:value-of select="@href"/></xsl:param>
 <xsl:param name="rowcolor"><xsl:choose>
   <xsl:when test="position() mod 2 = 0">
-\rowcolor{blue!8}
+\HEMLoddRow
   </xsl:when>
   <xsl:otherwise>
-\rowcolor{blue!4}
+\HEMLevenRow
   </xsl:otherwise>
 </xsl:choose></xsl:param>
 <xsl:value-of select="$rowcolor"/>
@@ -271,19 +267,19 @@ select="substring-after($text,$from)"/>
 -->
 <xsl:template match="definitions">
 \subsection{<xsl:value-of select="@title"/>}
-\begin{longtabu}{X[-1]X[-1]}
+\begin{HEMLtable}{X[-1]X[-1]}
 <xsl:apply-templates select="def" mode="detail">
  <xsl:sort select="@entry"/>
 </xsl:apply-templates>
-\end{longtabu}
+\end{HEMLtable}
 </xsl:template>
 <xsl:template match="def" mode="detail">
 <xsl:choose>
   <xsl:when test="position() mod 2 = 0">
-\rowcolor{blue!8}
+\HEMLoddRow
   </xsl:when>
   <xsl:otherwise>
-\rowcolor{blue!4}
+\HEMLevenRow
   </xsl:otherwise>
 </xsl:choose>
 \textbf{<xsl:apply-templates select="@entry"/>} &amp; <xsl:apply-templates select="."/> \\
@@ -608,12 +604,10 @@ Checksum function: <xsl:value-of select="@type"/>
 	<xsl:with-param name="level"><xsl:value-of select="count(ancestor-or-self::section)+count(ancestor-or-self::article)+2"/></xsl:with-param> 
 </xsl:call-template>	
 <xsl:if test="count(req)&gt;0">
-\HEMLreqrefBegin
+\HEMLreqref{
 \textbf{Checked requirements}
-
 <xsl:apply-templates select="req" mode="ref"/> 
-
-\HEMLreqrefEnd
+}
 </xsl:if>
 <xsl:apply-templates select="*[not(self::req)]"/>
 </xsl:template>
@@ -642,24 +636,22 @@ Checksum function: <xsl:value-of select="@type"/>
      indexs
 -->     
 <xsl:template match="index[@type='req']">
-\begin{longtabu}{|X[-1]|X[-1]|}
-\hline
-\rowcolor{blue!14}
-\textbf{Requirement}&amp; \textbf{Referenced by} \\
+\begin{HEMLtable}{|X[-1]|X[-1]|}
+\HEMLoddHeadCell
+\textbf{Requirement}&amp; \HEMLoddHeadCell \textbf{Referenced by} \\
 \endhead
   <xsl:apply-templates select="/document/section//req" mode="index"/>
-\hline
-\end{longtabu}
+\end{HEMLtable}
 </xsl:template>
 <xsl:template match="req" mode="index">
   <xsl:param name="rid"><xsl:value-of select="@id"/></xsl:param>
 <xsl:if test="@id!=''">
 <xsl:choose>
   <xsl:when test="position() mod 2 = 0">
-\rowcolor{blue!8}
+\HEMLoddRow
   </xsl:when>
   <xsl:otherwise>
-\rowcolor{blue!4}
+\HEMLevenRow
   </xsl:otherwise>
 </xsl:choose>
   <xsl:value-of select="@id"/>&amp;

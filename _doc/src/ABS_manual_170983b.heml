@@ -1,6 +1,6 @@
 {?set %encoding=utf-8}
 {document 
-  {title Automated Build System - generic make files and companion scripts}
+  {title Acrobatomatic Build System - generic make files and companion scripts}
   {reference 170983b}
   {revision $Id$}
   {author %%Sebastien DEVAUX}
@@ -417,36 +417,7 @@ endif!}}
      }
   }
   {section %title=External libraries and dependencies
-Buildscripts includes packaging for external libraries, for its internal use, and as well to make them available to any project managed with abs.
-{table %title=Packaged libraries
- {tr
-  {th Tool/lib} {th description} {th licence}
- }
-{?table
-ace % The ACE library. General purpose library and operating system abstraction layer use by SimTG % 
-cppunit % C++ unit test framework % 
-heml % Human editable markup language processor % 
-libpcap % ethernet packet capture library % 
-libwebsockets % http server with websocket support library % 
-linenoise % console input handling library % 
-lmdb % ??? % 
-lmdb-lua % lmdb lua binding % 
-lua % the lua scipting language interpreter % 
-LuaBridge % C++ Lua binding % 
-luaclang-parser % C++ parsing lua library % 
-OpenSceneGraph % 3D OpenGL engine % 
-SMP % SMP2 header files % 
-tao % The ACE Orb: corba library % 
-tsp % ??? % 
-wireshark % Packet capture browser and analyzer % 
-xerces-c % XML handling C/C++ library % 
-xmlrunner % ??? % 
-zeromq % Low latency messages queue library % 
-plantuml % UML diagram processor % 
-}
-}
-Version information is maintained and published in projects release notes (including buildscripts' self release note). 
-Buildscripts also need to have some other tools available on the workstation for its own purpose.
+Buildscripts need to have some tools available on the workstation for its own purpose.
 {table %title=Dependencies list
  {tr
   {th Tool/lib} {th description} {th license}
@@ -456,8 +427,6 @@ gcc % C compiler (default) % GPL
 g++ % C++ compiler (default) % GPL 
 g++ % Linker (default) % GPL 
 gdb % The GNU debugger % GPL
-clang % Alternate C compiler % NCSA Open source license
-clang++ % Alternate C++ compiler % NCSA Open source license
 javac % Java compiler and development kit % JDK Supplier dependent, GPL for OpenJDK   
 xsltproc % libxml2's XSLT processor % MIT license   
 Doxygen % Document generator % GPL  
@@ -478,7 +447,7 @@ valgrind % debugging and profiling tool % GPL
 {note %title=about the GPL and copyleft licenses
 All GPL licensed product are used as is in development environment and are not needed to be deployed with any buildscripts managed project on operational target, unless such project itself makes direct and explicit use of such product for its own purpose. Then it is possible and allowed to develop full proprietary software with abs. 
 }
-GNU make and a {ew not too old} Bourne shell (bash preferred) are the only mandatory prerequisites:
+GNU make and a {em not too old} Bourne shell (bash preferred) are the only mandatory prerequisites:
   - other tools listed above are required only for the feature they support. For instance a java compiler is needed only when the project managed with buildscripts includes java code.
   - for a given feature, only one tool supporting the feature is needed. For instance for C++ projects, one can choose gcc or clang. It is not necessary to have both available on your workstation. Any other C compiler can even be used as soon it supports the same command line flags. However some advanced feature may still need a particular implementation (See table below).
   - no precise version information is provided since many Linux and posix like system are known to be compatible. Buildscripts is daily used with various RedHawk/CentOS Linux versions (starting from version 6.3), Debian Linux, Cygwin, Msys2 (GNU tools for Mingw64). However some very particular features may be usable only from a few targets operating systems (for instance, obviously Linux kernel module support is operational only from a Linux host).
@@ -488,7 +457,6 @@ Features using specific tooling are:
   {th Feature}  {th related tools}
  }
 {?table
-Smart responder code generation % clang
 External dependencies download % curl or wget
 Release note generation % curl, subversion
 PDF document generation % latex

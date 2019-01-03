@@ -42,6 +42,26 @@
 \setlength\itemindent{0pt}
 \setlength\leftmargin{0pt}
 
+\newenvironment{HEMLitemize}
+{ \begin{itemize}
+    \setlength{\itemsep}{0pt}
+    \setlength{\parskip}{0pt}
+    \setlength{\parsep}{0pt}     }
+{ \end{itemize}                  }
+
+\newenvironment{HEMLtable}[1]
+{ \begin{longtabu}{#1}
+  \hline
+}
+{
+  \hline
+  \end{longtabu}
+}
+\newcommand{\HEMLoddRow}{\rowcolor{blue!8}}
+\newcommand{\HEMLevenRow}{\rowcolor{blue!4}}
+\newcommand{\HEMLoddHeadCell}{\cellcolor{blue!14}}
+\newcommand{\HEMLevenHeadCell}{\cellcolor{blue!10}}
+
 \newcommand\HEMLtitle{Untitled document}
 \newcommand\HEMLtitleImage{}
 \newcommand\HEMLcompanyName{}
