@@ -839,7 +839,6 @@ The project level main targets are:
      - when project contains in its root directory a file named {kw extradist.sh}, this script is run during the processing of the dist target. It receive the target build path (default is {kw dist/<app>-<version>} as first argument. You can put in this script any commands that copy/create/update files into the dist directory that will then be included in the built final archive file.
      - using the extra dist feature, one can insert in the {kw dist/<app>-<version>/bin} directory a file named {kw postinstall.sh}. The in installation archive embedded script, at the end of the install process, looks at this file availability and if present run it with two arguments, the application name, and the application version. Caution: take care to set this {kw postinstall.sh} file the executable attribute in order to be invoked by the installation script.
 Some utility and additional targets may be added according to buildscripts improvements. See in-line help for more complete reference.
-    - {kw make klocwork}: Execute a KlocWork process to analyze the code. (This target needs a precise configuration: see RD_TEA332-1840_abs_userManual_klocwork document).
     }
     {section %title=At module level
 The module level main targets are:
