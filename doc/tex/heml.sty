@@ -1,6 +1,6 @@
 \documentclass{article}
 \usepackage[utf8x]{inputenc}
-\usepackage[scaled]{helvet}
+%\usepackage[scaled]{helvet}
 \usepackage[a4paper]{geometry}
 \usepackage{lastpage}
 \usepackage{fancyhdr}
@@ -147,14 +147,28 @@
         \centering \color{#2} #1
     \end{tcolorbox}
 }
-
-\newenvironment{HEMLtable}[1]
-{ \begin{longtabu}{#1}
+\newcommand{\HEMLempty}{}
+\newcommand{\HEMLtableCaption}{\HEMLempty}
+\newcommand{\HEMLtableLabel}{\HEMLempty}
+\newenvironment{HEMLtable}[2]
+{ 
+  #2
+  \begin{longtabu}{#1}
   \hline
 }
 {
-  \hline
   \end{longtabu}
+}
+\newcommand{\HEMLtableTail}{
+  \hline
+\if\HEMLtableCaption\HEMLempty
+\else
+\caption{\HEMLtableCaption}
+\fi
+\if\HEMLtableLabel\HEMLempty
+\else
+\caption{\HEMLtableLabel}
+\fi
 }
 \newcommand{\HEMLoddRow}{\rowcolor{blue!8}}
 \newcommand{\HEMLevenRow}{\rowcolor{blue!4}}

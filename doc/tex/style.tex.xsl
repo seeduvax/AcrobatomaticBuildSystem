@@ -186,8 +186,12 @@ select="substring-after($text,$from)"/>
 -->
 <xsl:template match="table">
 \begin{HEMLtable}{|<xsl:apply-templates select="tr[1]/*" mode="tablespec"
-  />}
+  />}{
+<xsl:if test="@title!=''">\renewcommand{\HEMLtableCaption}{<xsl:value-of select="@title"/>}</xsl:if>
+<xsl:if test="@xref!=''">\renewcommand{\HEMLtableLabel}{<xsl:value-of select="@xref"/>}</xsl:if>
+}
 <xsl:apply-templates select="tr"/>
+\HEMLtableTail
 \end{HEMLtable}
 <!--
 <xsl:if test="@title!=''">\caption{<xsl:value-of select="@title"/>}</xsl:if>
@@ -231,13 +235,14 @@ select="substring-after($text,$from)"/>
 -->
 <xsl:template match="references">
 \subsection{<xsl:value-of select="@title"/>}
-\begin{HEMLtable}{X[-1]X[-1]}
+\begin{HEMLtable}{X[-1]X[-1]}{}
 \HEMLoddHeadCell
 &amp; \HEMLoddHeadCell \textbf{Authors}\hspace{1cm}\textbf{\emph{Title}} \\
 \HEMLoddHeadCell
 &amp; \HEMLoddHeadCell \textbf{\emph{Reference}}\hspace{1cm}\textbf{Edition} \\
 \endhead
 <xsl:apply-templates select="ref" mode="detail"/>
+\HEMLtableTail
 \end{HEMLtable}
 </xsl:template>
 <xsl:template match="ref" mode="detail">
@@ -267,10 +272,11 @@ select="substring-after($text,$from)"/>
 -->
 <xsl:template match="definitions">
 \subsection{<xsl:value-of select="@title"/>}
-\begin{HEMLtable}{X[-1]X[-1]}
+\begin{HEMLtable}{X[-1]X[-1]}{}
 <xsl:apply-templates select="def" mode="detail">
  <xsl:sort select="@entry"/>
 </xsl:apply-templates>
+\HEMLtableTail
 \end{HEMLtable}
 </xsl:template>
 <xsl:template match="def" mode="detail">
@@ -636,11 +642,12 @@ Checksum function: <xsl:value-of select="@type"/>
      indexs
 -->     
 <xsl:template match="index[@type='req']">
-\begin{HEMLtable}{|X[-1]|X[-1]|}
+\begin{HEMLtable}{|X[-1]|X[-1]|}{}
 \HEMLoddHeadCell
 \textbf{Requirement}&amp; \HEMLoddHeadCell \textbf{Referenced by} \\
 \endhead
   <xsl:apply-templates select="/document/section//req" mode="index"/>
+\HEMLtableTail
 \end{HEMLtable}
 </xsl:template>
 <xsl:template match="req" mode="index">
