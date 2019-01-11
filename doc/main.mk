@@ -51,7 +51,7 @@ IMGS:=$(patsubst src/%,$(HTMLDIR)/%,$(shell find src -name "*.jpg")) $(patsubst 
 ##   - HEMLTOTEX_STYLE: tex (pdf)
 ##   - HEMLTOXHTML_STYLE: html
 ##   - HEMLTOXML_STYLE: docbook
-HEMLTOTEX_STYLE:=$(DOCROOT)/tex/style.tex.xsl
+HEMLTOTEX_STYLE?=$(DOCROOT)/tex/style.tex.xsl
 HEMLTOXHTML_STYLE:=$(DOCROOT)/html/style.xhtml.xsl
 HEMLTOXML_STYLE:=$(DOCROOT)/docbook/style.docbook.xsl
 
@@ -129,7 +129,7 @@ $(DBDIR)/%.xml: src/%.heml $(HEMLJAR) $(PUMLJAR)
 $(TEXDIR)/%.tex: src/%.heml $(HEMLJAR) $(PUMLJAR)
 	$(call absHemlTransformation,$(HEMLTOTEX_STYLE))
 
-TEXINPUTS+=$(PRJROOT)/.abs/doc/tex//:$(OBJDIR):$(TEXDIR):$(HTMLDIR)
+TEXINPUTS+=$(PRJROOT)/.abs/doc/tex//:$(OBJDIR):$(TEXDIR):$(HTMLDIR):$(PWD)/src
 TEXENV=TEXINPUTS=$(TEXINPUTS):
 
 $(PDFDIR)/%.pdf: $(TEXDIR)/%.tex $(IMGS)
