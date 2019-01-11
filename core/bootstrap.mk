@@ -46,7 +46,7 @@ endif
 endif
 
 $(PRJROOT)/.abs/%/main.mk: $(ABS_CACHE)/noarch/abs.%-$(VABS).tar.gz
-	@mkdir -p .abs
+	@mkdir -p $(PRJROOT)/.abs
 	@tar xzf $^ -C $(PRJROOT)/.abs --strip-components=1
 	@touch $@
 
