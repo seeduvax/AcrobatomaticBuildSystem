@@ -10,6 +10,8 @@ DEPTOOL:=$(ABSROOT)/core/deptool.bash
 # tell the bootstrap makefile to not define its own default download rule.
 ABS_DEPDOWNLOAD_RULE_OVERLOADED:=1
 # download files from repository
+.PRECIOUS: $(ABS_CACHE)/%
+
 $(ABS_CACHE)/%:
 	@mkdir -p $(@D)
 	@afile=$(patsubst $(ABS_CACHE)/%,%,$@) ;\

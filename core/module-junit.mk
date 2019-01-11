@@ -9,7 +9,7 @@ JUNIT?=junit-4.8.2
 JUNITXML?=junitXmlFormatter-0.0
 TXTXSL=xunit2txt.xsl
 
-TESTCLASSFILES=$(patsubst %.java,$(OBJDIR)/%.class,$(shell find test -name "*.java" 2>/dev/null))
+TESTCLASSFILES=$(patsubst %.java,$(OBJDIR)/%.class,$(shell find test -name "Test*.java" 2>/dev/null))
 TESTCLASSFILES+=$(patsubst src/%.java,$(OBJDIR)/%.class,$(filter %.java,$(SRCFILES)))
 TESTCLASSPATH=$(OBJDIR)$(PATH_SEP)$(NA_EXTLIBDIR)/$(JUNIT).jar$(PATH_SEP)$(CLASSPATH)
 JUFLAGS=-classpath "$(TESTCLASSPATH)" -d $(OBJDIR) -sourcepath ".$(PATH_SEP)src$(PATH_SEP)$(OBJDIR)"
@@ -39,7 +39,7 @@ check:: $(TESTCLASSFILES) $(TARGETFILE)
 	@$(ABS_PRINT_info) "check : running tests $(TESTCLASSFILES)"
 	@mkdir -p $(TTARGETDIR)
 	@rm -f $(TTARGETDIR)/$(APPNAME)_$(MODNAME).xml
-	java -cp "$(TESTCLASSPATH)$(PATH_SEP)$(NA_EXTLIBDIR)/$(JUNIT).jar$(PATH_SEP)$(NA_EXTLIBDIR)/$(JUNITXML).jar"\
+	@TRDIR="$(TRDIR)" TTARGETDIR="$(TTARGETDIR)" java -cp "$(TESTCLASSPATH)$(PATH_SEP)$(NA_EXTLIBDIR)/$(JUNIT).jar$(PATH_SEP)$(NA_EXTLIBDIR)/$(JUNITXML).jar"\
      -Dorg.schmant.task.junit4.target=$(TTARGETDIR)/$(APPNAME)_$(MODNAME).xml $(TOPTS)\
      barrypitman.junitXmlFormatter.Runner $(subst /,.,$(patsubst $(OBJDIR)/test/%.class,test/%,$(TESTCLASSFILES)))\
      2>&1 | tee $(TTARGETDIR)/$(APPNAME)_$(MODNAME).stdout  || true
