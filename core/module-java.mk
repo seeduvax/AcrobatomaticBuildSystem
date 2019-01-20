@@ -4,10 +4,18 @@
 
 # default compiler commands
 PATH_SEP?=$(if $(ISWINDOWS),;,:)
+ifeq ($(SYSNAME),Android_)
+JC?=ecj
+JAVA?=dalvikvm
+JAR?=dx
+TARGET_EXT=dex
+else
 JAVA?=java
 JAR?=jar
 JC?=javac
 JDB?=jdb
+TARGET_EXT=jar
+endif
 
 # ---------------------------------------------------------------------
 # Compilation flags by compilation modes
@@ -22,9 +30,9 @@ endif
 
 # Main target definition
 ifeq ($(APPNAME),$(MODNAME))
-TARGET=$(DOMAIN).$(APPNAME)-$(VERSION).jar
+TARGET=$(DOMAIN).$(APPNAME)-$(VERSION).$(TARGET_EXT)
 else
-TARGET=$(DOMAIN).$(APPNAME).$(MODNAME)-$(VERSION).jar
+TARGET=$(DOMAIN).$(APPNAME).$(MODNAME)-$(VERSION).$(TARGET_EXT)
 endif
 TARGETDIR=$(TRDIR)/lib
 TARGETFILE=$(TARGETDIR)/$(TARGET)
@@ -38,7 +46,7 @@ ifeq ($(ISWINDOWS),true)
 JFLAGS+=-cp "${CLASSPATH}" -d `cygpath -m $(OBJDIR)`
 JCFLAGS:=$(JFLAGS) -sourcepath "src;$(shell cygpath -m $(OBJDIR))"
 else
-JFLAGS+=-cp "${CLASSPATH}" -d $(OBJDIR)
+JFLAGS+=-cp ".null:${CLASSPATH}" -d $(OBJDIR)
 JCFLAGS:=$(JFLAGS) -sourcepath "src:$(OBJDIR)"
 endif
 RESFILES=$(patsubst src/%,$(OBJDIR)/%,$(filter-out %.java src/test/%,$(SRCFILES)))
@@ -56,7 +64,7 @@ $(OBJDIR)/%.class: src/%.java
 	@$(ABS_PRINT_info) "Compiling $< ..."
 	@mkdir -p $(OBJDIR)
 	@echo `date --rfc-3339 s`'> $(JC) $(JCFLAGS) $<' >> $(TRDIR)/build.log
-	@$(JC) $(JCFLAGS) $(if $(ISWINDOWS),`cygpath -m $<`,$<) || ( echo 'Failed: JFLAGS=$(JCFLAGS)' ; exit 1 )
+	$(JC) $(JCFLAGS) $(if $(ISWINDOWS),`cygpath -m $<`,$<) || ( echo 'Failed: JFLAGS=$(JCFLAGS)' ; exit 1 )
 
 # Resource file copy
 $(OBJDIR)/%: src/%
@@ -83,19 +91,27 @@ $(TARGETDIR)/$(MODNAME).Manifest: $(JCLASSES)
 
 # Jar archive
 $(TARGETFILE): $(TARGETDIR)/$(MODNAME).Manifest $(RESFILES)
-	@$(ABS_PRINT_info) "Building jar archive $@ ..."
+	@$(ABS_PRINT_info) "Building archive $@ ..."
 	@mkdir -p $(TARGETDIR)
-	@echo `date --rfc-3339 s`'> $(JAR) cf $@ -C $(OBJDIR) .' >> $(TRDIR)/build.log
 ifeq ($(ISWINDOWS),true)
-	$(JAR) cf `cygpath -m $@` -C `cygpath -m $(OBJDIR)` .
+	@echo `date --rfc-3339 s`'> $(JAR) cf $@ -C $(OBJDIR) .' >> $(TRDIR)/build.log
+	@$(JAR) cf `cygpath -m $@` -C `cygpath -m $(OBJDIR)` .
 else
-	$(JAR) cf $@ -C $(OBJDIR) .
+ifeq ($(JAR),dx)
+	@echo `date --rfc-3339 s`'> $(JAR) --dex --output $@ $(OBJDIR)' >> $(TRDIR)/build.log
+	@$(JAR) --dex --output $@ $(OBJDIR)
+else
+	@echo `date --rfc-3339 s`'> $(JAR) cf $@ -C $(OBJDIR) .' >> $(TRDIR)/build.log
+	@$(JAR) cf $@ -C $(OBJDIR) .
+endif
 endif
 	@echo `date --rfc-3339 s`'$(JAR) umf $(TARGETDIR)/Manifest $@' >> $(TRDIR)/build.log
 ifeq ($(ISWINDOWS),true)
 	@$(JAR) umf `cygpath -m $(TARGETDIR)/$(MODNAME).Manifest` `cygpath -m $@`
 else
+ifneq ($(JAR),dx)
 	@$(JAR) umf $(TARGETDIR)/$(MODNAME).Manifest $@
+endif
 endif
 
 # ---------------------------------------------------------------------
