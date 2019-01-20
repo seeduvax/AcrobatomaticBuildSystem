@@ -71,7 +71,7 @@ ABS_GET_OS_DESCR:=LSBRCMD=`which lsb_release 2>/dev/null` ;\
 		release=`$$LSBRCMD -rs` ;\
 		mrelease=`echo $$release | cut -f 1 -d '.'` ;\
 	else \
-		distId=`uname -o | sed 's:[/ ]:_/g'` ;\
+		distId=`uname -o | sed 's:[/ ]:_:g'` ;\
 	fi ;\
 	case "$$distId"_"$$release" in \
 		_) echo "UnknownArch" ;;\
