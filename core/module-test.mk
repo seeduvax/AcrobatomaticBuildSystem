@@ -5,7 +5,7 @@
 ## Test services variables
 ## 
 ##  - CPPUNIT: cppunit version (default is cppunit-1.12.1)
-CPPUNIT?=cppunit-1.12.1
+CPPUNIT?=cppunit-1.14.0
 TESTRUNNER=ctrunner
 TXTXSL=xunit2txt.xsl
 TIMEOUT=300
