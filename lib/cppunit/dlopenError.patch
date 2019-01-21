@@ -1,0 +1,29 @@
+diff -Naur cppunit-1.12.1/src/cppunit/UnixDynamicLibraryManager.cpp cppunit-1.12.1-patched/src/cppunit/UnixDynamicLibraryManager.cpp
+--- cppunit-1.12.1/src/cppunit/UnixDynamicLibraryManager.cpp	2004-03-13 12:22:49.000000000 +0100
++++ cppunit-1.12.1-patched/src/cppunit/UnixDynamicLibraryManager.cpp	2013-12-19 16:52:27.000000000 +0100
+@@ -5,6 +5,10 @@
+ 
+ #include <dlfcn.h>
+ #include <unistd.h>
++#include <iostream>
++#include <string.h>
++#include <errno.h>
++
+ 
+ 
+ CPPUNIT_NS_BEGIN
+@@ -13,7 +17,13 @@
+ DynamicLibraryManager::LibraryHandle 
+ DynamicLibraryManager::doLoadLibrary( const std::string &libraryName )
+ {
+-  return ::dlopen( libraryName.c_str(), RTLD_NOW | RTLD_GLOBAL );
++    dlerror();
++    DynamicLibraryManager::LibraryHandle res=::dlopen( libraryName.c_str(), RTLD_NOW | RTLD_GLOBAL );
++    char * error=dlerror();
++    if (error!=NULL) {
++        std::cerr << "Can't load "<<libraryName<< ": " << error << std::endl;
++    }
++    return res;
+ }
+ 
+ 
