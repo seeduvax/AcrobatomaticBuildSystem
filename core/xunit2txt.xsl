@@ -36,7 +36,7 @@
 # Failed tests
 # ---------------------------------------------------------------------
 <xsl:apply-templates select=".//testcase[@status='failure' or @status='error']"/>
-<xsl:apply-templates select=".//testcase[count(failure)&gt;0]"/>
+<xsl:apply-templates select=".//testcase[not(@status) and count(failure)&gt;0]"/>
 # ---------------------------------------------------------------------
 # Statistics
 # ---------------------------------------------------------------------

@@ -129,7 +129,7 @@ $(DBDIR)/%.xml: src/%.heml $(HEMLJAR) $(PUMLJAR)
 $(TEXDIR)/%.tex: src/%.heml $(HEMLJAR) $(PUMLJAR)
 	$(call absHemlTransformation,$(HEMLTOTEX_STYLE))
 
-TEXINPUTS+=$(PRJROOT)/.abs/doc/tex//:$(OBJDIR):$(TEXDIR):$(HTMLDIR):$(PWD)/src
+TEXINPUTS+=$(PRJROOT)/.abs/doc/tex//:$(OBJDIR):$(TEXDIR):$(HTMLDIR):$(CURDIR)/src
 TEXENV=TEXINPUTS=$(TEXINPUTS):
 
 $(PDFDIR)/%.pdf: $(TEXDIR)/%.tex $(IMGS)
