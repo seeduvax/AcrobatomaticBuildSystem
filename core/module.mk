@@ -142,9 +142,9 @@ all-impl::
 # object files go in a subdirectory of build dir dedicated to the module
 OBJDIR?=$(TRDIR)/obj/$(MODNAME)
 # external libraries local repository
-ifeq ($(TRDIR),$(PRJROOT)/build/$(ARCH)/$(MODE))
-EXTLIBDIR?=$(PRJROOT)/build/$(ARCH)/extlib
-NA_EXTLIBDIR?=$(PRJROOT)/build/noarch/extlib
+ifeq ($(TRDIR),$(BUILDROOT)/$(ARCH)/$(MODE))
+EXTLIBDIR?=$(BUILDROOT)/$(ARCH)/extlib
+NA_EXTLIBDIR?=$(BUILDROOT)/noarch/extlib
 else
 EXTLIBDIR?=$(TRDIR)/extlib
 NA_EXTLIBDIR?=$(TRDIR)/extlib

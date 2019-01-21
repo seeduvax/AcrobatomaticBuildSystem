@@ -94,8 +94,10 @@ PATH_SEP:=:
 endif
 
 
-##  - TRDIR: build root path definition
-TRDIR?=$(PRJROOT)/build/$(ARCH)/$(MODE)
+##  - BUILDROOT: build root directory
+BUILDROOT?=$(PRJROOT)/build
+##  - TRDIR: target root directory (where the installed product image is stored)
+TRDIR?=$(BUILDROOT)/$(ARCH)/$(MODE)
 TTARGETDIR?=$(TRDIR)/test
 
 ABS_SCM_TYPE=null
