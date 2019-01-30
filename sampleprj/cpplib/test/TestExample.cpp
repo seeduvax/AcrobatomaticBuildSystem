@@ -24,7 +24,9 @@ public:
     }
 
     void testCaseSuccess() {
-        std::cout << "in test case" << std::endl;
+        std::cout << "in test case of " 
+            << __APPNAME__ << "::" 
+            << __MODNAME__ << std::endl;
         CPPUNIT_ASSERT_EQUAL(1,1);
     }
 

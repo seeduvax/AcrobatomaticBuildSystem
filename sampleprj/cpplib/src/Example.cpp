@@ -10,7 +10,7 @@ namespace BuildScriptTester {
 //
 void Example::helloWorld() {
     char str[1024];
-	printf("Hello world !\n");
+	printf("Hello world from " __APPNAME__ "::" __MODNAME__ "!\n" );
     printf("len=%d\n",sampleprj_cpplib_res_text_dat_len);
     printf("bufptr=%x\n",sampleprj_cpplib_res_text_dat);
     strncpy(str,(const char *)sampleprj_cpplib_res_text_dat,sampleprj_cpplib_res_text_dat_len);
