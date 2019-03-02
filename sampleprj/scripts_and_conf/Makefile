@@ -14,8 +14,9 @@
 # Any GNU environment (GNU/Linux, cygwin, mingw, may be GNU/hurd) should
 # be able to run this makefile.
 # ---------------------------------------------------------------------
-# See ABS documentation (ref #5b53baa) for more details.
+# See ABS documentation (ref #170983b) for more details.
 # https://www.eduvax.net/gitweb
+# https://github.com/seeduvax/AcrobatomaticBuildSystem
 # ---------------------------------------------------------------------
 
 ifneq ($(wildcard app.cfg),)
@@ -50,7 +51,7 @@ endif
 
 $(ABSROOT)/%/main.mk: $(ABS_CACHE)/noarch/abs.%-$(VABS).tar.gz
 	@mkdir -p $(ABSROOT)
-	@tar xzf $^ -C $(ABSWS)
+	@tar xzf $^ -C $(ABSROOT) --strip-components=1
 	@touch $@
 
 $(PRJROOT)/local.cfg:
