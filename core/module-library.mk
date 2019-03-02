@@ -1,6 +1,6 @@
-include $(PRJROOT)/.abs/core/module-crules-vars.mk
-include $(PRJROOT)/.abs/core/module-crules.mk
+include $(ABSROOT)/core/module-crules-vars.mk
+include $(ABSROOT)/core/module-crules.mk
 ifneq ($(INCTESTS),)
-include $(PRJROOT)/.abs/core/module-test.mk
+include $(ABSROOT)/core/module-test.mk
 endif
-include $(PRJROOT)/.abs/core/module-scripts.mk
+include $(ABSROOT)/core/module-scripts.mk

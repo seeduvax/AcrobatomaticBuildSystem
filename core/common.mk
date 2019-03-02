@@ -7,7 +7,7 @@
 ##          release: without debug symbols, with some compiler
 ##                           optimizations
 MODE?=debug
-ABSROOT=$(PRJROOT)/.abs
+ABSROOT?=$(ABSWS)/abs-$(VABS)
 # macro for pretty message printi, use color if available
 COLORS_TCAP:=$(shell ncolors=`tput colors` 2>/dev/null ; ( [ "$$ncolors" != "" ] && [ "$$ncolors" -ge 0 ] ) && echo yes || echo no)
 ifeq ($(COLORS_TCAP),yes)
@@ -35,7 +35,7 @@ export ABS_PRINT
 LIB_REPO?=$(ABS_REPO)
 
 ##  - XARCH: defined alternate architecture for cross compilation. See
-##     available files in <workspace root>/.abs/core/xarch to get supported
+##     available files in $(ABSROOT)/core/xarch to get supported
 ##     architecture names (remove .mk suffix to get arch name)
 ifneq ($(XARCH),)
 include $(ABSROOT)/core/xarch/$(XARCH).mk

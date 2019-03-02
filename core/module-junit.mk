@@ -33,9 +33,9 @@ $(TESTCLASSFILES): $(NA_EXTLIBDIR)/$(JUNITXML).jar $(NA_EXTLIBDIR)/$(JUNIT).jar
 ## 
 ##  - check: run tests
 ifeq ($(wildcard test),)
-check:: $(TARGETFILE)
+test:: $(TARGETFILE)
 else
-check:: $(TESTCLASSFILES) $(TARGETFILE)
+test:: $(TESTCLASSFILES) $(TARGETFILE)
 	@$(ABS_PRINT_info) "check : running tests $(TESTCLASSFILES)"
 	@mkdir -p $(TTARGETDIR)
 	@rm -f $(TTARGETDIR)/$(APPNAME)_$(MODNAME).xml
@@ -46,9 +46,6 @@ check:: $(TESTCLASSFILES) $(TARGETFILE)
 	@if [ ! -r $(TTARGETDIR)/$(APPNAME)_$(MODNAME).xml ]; then $(ABS_PRINT_error) "no test report, test runner exited abnormally."; \
 	else xsltproc $(ABSROOT)/core/$(TXTXSL) $(TTARGETDIR)/$(APPNAME)_$(MODNAME).xml; fi
 endif
-
-##  - test: alias for check
-test:: check
 
 Test%: $(OBJDIR)/test/Test%.class
 	@$(ABS_PRINT_info) "Test% : running test $@"

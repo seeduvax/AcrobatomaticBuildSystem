@@ -33,5 +33,5 @@ $(CMDTORUN): $(TRDIR)/bin/$(CMDTORUN)
 endif
 endif
 
-include $(PRJROOT)/.abs/core/module-crules-vars.mk
-include $(PRJROOT)/.abs/core/module-test.mk
+include $(ABSROOT)/core/module-crules-vars.mk
+include $(ABSROOT)/core/module-test.mk

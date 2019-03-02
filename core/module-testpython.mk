@@ -15,7 +15,7 @@ PY_TSRC=$(wildcard $(PY_TSRCDIR)/*.py)
 PY_TOBJS=$(patsubst $(PY_TSRCDIR)/%.py,$(PY_TMODDIR)/%.pyc,$(PY_TSRC))
 # python path for test targets
 PY_TPATH=$(PY_PATH):$(PY_TMODDIR)
-PY_UTILS=$(PRJROOT)/.abs/core/python/py_utils
+PY_UTILS=$(ABSROOT)/core/python/py_utils
 
 $(PY_TMODDIR): 
 	@mkdir -p $@
@@ -38,7 +38,7 @@ test:: all $(PY_TOBJS)
 	@printf "import py_utils; from py_utils.main_exec import main_exec; main_exec(APPNAME='$(APPNAME)',MODNAME='$(MODNAME)',TTARGETDIR='$(TTARGETDIR)',T='$(T)')" > $(PY_TMODDIR)/__main__.py
 	(PYTHONPATH="$(PY_TPATH)";LD_LIBRARY_PATH="$(LIB_PATH)" $(PP) $(PY_TMODDIR) 2>&1 | tee $(TTARGETDIR)/$(APPNAME)_$(MODNAME).stdout) || true
 	@( [ -d test -a ! -r $(TTARGETDIR)/$(APPNAME)_$(MODNAME).xml ] && $(ABS_PRINT_error) "no test report, test runner exited abnormally." ) || true 
-	@( [ -d test -a -r $(TTARGETDIR)/$(APPNAME)_$(MODNAME).xml ] && xsltproc $(PRJROOT)/.abs/core/$(TXTXSL) $(TTARGETDIR)/$(APPNAME)_$(MODNAME).xml ) || true
+	@( [ -d test -a -r $(TTARGETDIR)/$(APPNAME)_$(MODNAME).xml ] && xsltproc $(ABSROOT)/core/$(TXTXSL) $(TTARGETDIR)/$(APPNAME)_$(MODNAME).xml ) || true
 	@if [ -d test ]; then [ -s $(TTARGETDIR)/$(APPNAME)_$(MODNAME).xml ]; else true; fi
 
 ##  - check: alias for test

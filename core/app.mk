@@ -9,7 +9,7 @@
 ABS_FROMAPP:=true
 export ABS_FROMAPP
 
-include $(PRJROOT)/.abs/core/common.mk
+include $(ABSROOT)/core/common.mk
 
 # re-include in case that common variables are used in this cfg.
 include $(PRJROOT)/app.cfg
@@ -98,8 +98,6 @@ clean:
 	@rm -rf dist
 	@$(ABS_PRINT_info) "Removing tmp"
 	@rm -rf tmp
-	@$(ABS_PRINT_info) "Removing .abs"
-	@rm -rf .abs
 
 build/.moddeps.mk:
 	@mkdir -p build

@@ -164,10 +164,10 @@ endif
 # create uml diagram of module from sources.
 ifneq ($(MODTYPE),python)
 uml: 	
-	cp $(PRJROOT)/.abs/core/doxyuml.xsl $(PRJROOT)/build/doxygen/xml ; \
+	cp $(ABSROOT)/core/doxyuml.xsl $(PRJROOT)/build/doxygen/xml ; \
 	cd $(PRJROOT)/build/doxygen/xml ; \
 	xsltproc doxyuml.xsl index.xml > $(MODNAME).uml.xml ; \
-	xsltproc ../../../.abs/core/uml2dot.xsl $(MODNAME).uml.xml | sed "s/\!g//g" > $(MODNAME).uml.dot ; \
+	xsltproc $(ABSROOT)/core/uml2dot.xsl $(MODNAME).uml.xml | sed "s/\!g//g" > $(MODNAME).uml.dot ; \
 	dot -T png -o $(MODNAME).dot.png $(MODNAME).uml.dot 
 
 endif

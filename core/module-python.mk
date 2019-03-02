@@ -131,7 +131,7 @@ pyrun: all
 
 
 ifneq ($(INCTESTS),)
-  include $(PRJROOT)/.abs/core/module-testpython.mk
+  include $(ABSROOT)/core/module-testpython.mk
 endif
-include $(PRJROOT)/.abs/core/module-scripts.mk
+include $(ABSROOT)/core/module-scripts.mk
 

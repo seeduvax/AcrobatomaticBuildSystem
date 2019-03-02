@@ -1,5 +1,5 @@
 ifneq ($(wildcard app.cfg),)
-include $(PRJROOT)/.abs/core/app.mk
+include $(ABSROOT)/core/app.mk
 else
-include $(PRJROOT)/.abs/core/module.mk
+include $(ABSROOT)/core/module.mk
 endif

@@ -13,10 +13,10 @@ HTMLDIR:=$(DOCDIR)/html
 JAVACMD:=java -Djava.awt.headless=true
 DOXYGENCMD:=$(shell which doxygen 2>/dev/null)
 DOCROOT:=$(ABSROOT)/doc
-HTML_STYLE_BUNDLE:= $(PRJROOT)/.abs/doc/html/style.tar.gz
+HTML_STYLE_BUNDLE:= $(ABSROOT)/doc/html/style.tar.gz
 
 # files to be processed by doxygen.
-DOXSRCFILES:=$(shell find $(PRJROOT) -name *.h -o -name *.c -o -name *.hpp -o -name *.cpp -o -name *.py -o -name *.java | fgrep -v "/build/" | fgrep -v "/dist/" | fgrep -v "/.abs/")
+DOXSRCFILES:=$(shell find $(PRJROOT) -name *.h -o -name *.c -o -name *.hpp -o -name *.cpp -o -name *.py -o -name *.java | fgrep -v "/build/" | fgrep -v "/dist/" | fgrep -v "$(ABSROOT)")
 
 HEMLVERSION:=0.1.0-1550
 HEMLARGS:=-param app $(APPNAME) -param version $(VERSION) -param date "`date --rfc-3339 s`" -param user $$USER -param host $(shell hostname)
@@ -68,7 +68,7 @@ all-impl:: $(DOXDIR)
 
 $(DOXDIR): $(DOXSRCFILES)
 	@$(ABS_PRINT_info) "Generating API reference documentation..."
-	@m4 -D__project_name__=$(APPNAME) -D__project_number__=$(VERSION) -D__output_directory__=$(DOXDIR) -D__prj_root__=$(PRJROOT) -D__prj_module_list__="$(patsubst %/module.cfg,%,$(wildcard $(PRJROOT)/*/module.cfg))" $(PRJROOT)/.abs/doc/doxygen/Doxyfile > $(TRDIR)/.Doxyfile
+	@m4 -D__project_name__=$(APPNAME) -D__project_number__=$(VERSION) -D__output_directory__=$(DOXDIR) -D__prj_root__=$(PRJROOT) -D__prj_module_list__="$(patsubst %/module.cfg,%,$(wildcard $(PRJROOT)/*/module.cfg))" $(ABSROOT)/doc/doxygen/Doxyfile > $(TRDIR)/.Doxyfile
 	@$(DOXYGENCMD) $(TRDIR)/.Doxyfile
 	@rm -rf $(TRDIR)/.Doxyfile
 else
@@ -85,7 +85,7 @@ $(HTMLDIR)/%.css: $(HTML_STYLE_BUNDLE)
 	@mkdir -p $(@D)
 	@tar -C $(@D) -xzf $^ && touch $@
 
-$(HTMLDIR)/highlight/highlight.js: $(PRJROOT)/.abs/doc/html/highlight.js.tar.gz
+$(HTMLDIR)/highlight/highlight.js: $(ABSROOT)/doc/html/highlight.js.tar.gz
 	@$(ABS_PRINT_info) "Extracting syntax highlight.js bundle..."
 	@mkdir -p $(@D)
 	@tar -C `dirname $(@D)` -xzf $^ && touch $@
@@ -103,7 +103,7 @@ ifeq ($(DIACMD),)
 $(HTMLDIR)/%.png: src/%.dia
 	@$(ABS_PRINT_warning) "dia is not available for $^ rendering."
 	@mkdir -p $(@D)
-	@cp $(PRJROOT)/.abs/doc/diamissing.png $@
+	@cp $(ABSROOT)/doc/diamissing.png $@
 else
 $(HTMLDIR)/%.png: src/%.dia
 	@$(ABS_PRINT_info) "Rendering dia file $^..."
@@ -129,7 +129,7 @@ $(DBDIR)/%.xml: src/%.heml $(HEMLJAR) $(PUMLJAR)
 $(TEXDIR)/%.tex: src/%.heml $(HEMLJAR) $(PUMLJAR)
 	$(call absHemlTransformation,$(HEMLTOTEX_STYLE))
 
-TEXINPUTS+=$(PRJROOT)/.abs/doc/tex//:$(OBJDIR):$(TEXDIR):$(HTMLDIR):$(CURDIR)/src
+TEXINPUTS+=$(ABSROOT)/doc/tex//:$(OBJDIR):$(TEXDIR):$(HTMLDIR):$(CURDIR)/src
 TEXENV=TEXINPUTS=$(TEXINPUTS):
 
 $(PDFDIR)/%.pdf: $(TEXDIR)/%.tex $(IMGS)
@@ -160,7 +160,7 @@ endif
 docbook: $(DOCBOOKS)
 
 $(PRJROOT)/build/release.spec:
-	@APPNAME=$(APPNAME) PRJROOT=$(PRJROOT) VPARENT=$(VPARENT) VERSION=$(VERSION) VISSUE=$(VISSUE) $(PRJROOT)/.abs/doc/release-info.sh
+	@APPNAME=$(APPNAME) PRJROOT=$(PRJROOT) VPARENT=$(VPARENT) VERSION=$(VERSION) VISSUE=$(VISSUE) $(ABSROOT)/doc/release-info.sh
 	@touch $@
 
 ##  - release: generates release note (pdf only). Source file for relase note

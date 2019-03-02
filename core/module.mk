@@ -15,7 +15,7 @@ ifeq ($(PRJROOT),)
 	PRJROOT:=$(shell dirname $(MODROOT))
 endif
 
-include $(PRJROOT)/.abs/core/common.mk
+include $(ABSROOT)/core/common.mk
 
 # remove some default macros
 CC=
@@ -143,8 +143,8 @@ all-impl::
 OBJDIR?=$(TRDIR)/obj/$(MODNAME)
 # external libraries local repository
 ifeq ($(TRDIR),$(BUILDROOT)/$(ARCH)/$(MODE))
-EXTLIBDIR?=$(BUILDROOT)/$(ARCH)/extlib
-NA_EXTLIBDIR?=$(BUILDROOT)/noarch/extlib
+EXTLIBDIR?=$(ABSWS)/extlib/$(ARCH)
+NA_EXTLIBDIR?=$(ABSWS)/extlib/noarch
 else
 EXTLIBDIR?=$(TRDIR)/extlib
 NA_EXTLIBDIR?=$(TRDIR)/extlib
