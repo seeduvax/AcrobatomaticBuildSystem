@@ -30,6 +30,11 @@ Generic tool for software builds and deliverable package generation.
     - launch software and unit tests with or without debugger,
     - source code file templates, continuous integration support, and more...
 Documentation: {a %href=http://www.eduvax.net/abs/pdf/ABS_manual_170983b.pdf %%ABS manual.}.
+{speech %%ABS purpose is to provide features similar to maven, but not limited to the java platform. That is it ensure }
+{speech %%Its funny to have the same voice than stephen hawking.}
+{pnotes
+ABS is designed by a lazy coder, for lazy coders.
+}
   }
   {slide %title=Project files layout
 {layout %col=2

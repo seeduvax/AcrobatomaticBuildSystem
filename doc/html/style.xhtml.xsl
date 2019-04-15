@@ -679,16 +679,30 @@ Copyright (c) <xsl:value-of select="./text()"/> <xsl:value-of select="@year"/><x
      ##########################################################################
 -->
 <xsl:template match="slide">
-<hr/>
+<div class="step slide" data-rel-x="1500" data-rel-y="50" >
 <h2><xsl:apply-templates select="@title"/></h2>
 <xsl:apply-templates/>
+</div>
 </xsl:template>
 <!-- layout handling, resize, multi column, ... -->
 <xsl:template match="layout">
+<div class="col{@col}">
 <xsl:apply-templates/>
+</div>
 </xsl:template>
 <!-- column break handling -->
 <xsl:template match="break">
+</xsl:template>
+<xsl:template match="pnotes|pnote">
+<div class="notes">
+<xsl:apply-templates/>
+</div>
+</xsl:template>
+<xsl:template match="speech">
+<xsl:param name="toSpeech"><xsl:value-of select="."/></xsl:param>
+<div class="speech">
+<a href="#" onclick="speak('{$toSpeech}')">[Speech]</a>
+</div>
 </xsl:template>
 <!-- Presentation main -->
 <xsl:template match="/presentation">
@@ -706,14 +720,30 @@ Copyright (c) <xsl:value-of select="./text()"/> <xsl:value-of select="@year"/><x
 <link rel="stylesheet" href="{$root}/{$slidesCss}"/>
 </head>	
 <body>
-	<a name="top"/>
-<!-- en tete page -->
-<xsl:call-template name="page-head">
-	<xsl:with-param name="title"><xsl:value-of select="title"/><xsl:value-of select="@title"/></xsl:with-param>
-</xsl:call-template>
+<div id="impress">
+<div class="step slide title" data-x="0" data-y="0" data-z="0">
+<h1><xsl:value-of select="title"/><xsl:value-of select="@title"/></h1>
+</div>
 <xsl:apply-templates select="slide"/>
+</div>
 <!-- pied de page -->
-<xsl:call-template name="page-foot"/>
+<div id="impress-toolbar"></div>
+<div class="impress-progressbar"><div></div></div>
+<div class="impress-progress"></div>
+<div id="impress-help"></div>
+<script type="text/javascript" src="{$root}/impress/impress.js">
+<xsl:text> </xsl:text>
+</script>
+<script>
+function speak(txt) {
+	var u=new SpeechSynthesisUtterance();
+	u.lang="en-US";
+	u.text=txt;
+	speechSynthesis.speak(u);
+}
+
+impress().init();
+</script>
 </body>
 </html>
 </xsl:template>

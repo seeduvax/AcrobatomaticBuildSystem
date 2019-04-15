@@ -14,8 +14,9 @@
 # Any GNU environment (GNU/Linux, cygwin, mingw, may be GNU/hurd) should
 # be able to run this makefile.
 # ---------------------------------------------------------------------
-# See ABS documentation (ref #5b53baa) for more details.
+# See ABS documentation (ref #170983b) for more details.
 # https://www.eduvax.net/gitweb
+# https://github.com/seeduvax/AcrobatomaticBuildSystem
 # ---------------------------------------------------------------------
 
 ifneq ($(wildcard app.cfg),)
@@ -24,10 +25,13 @@ endif
 ifneq ($(wildcard module.cfg),)
 PRJROOT:=$(shell dirname $(CURDIR))
 endif
-ABS_CACHE:=$(PRJROOT)/../abs-cache
+ABSWS:=$(PRJROOT)/../abs
 
 include $(PRJROOT)/app.cfg
-include $(PRJROOT)/.abs/core/main.mk
+-include local.cfg
+ABSROOT:=$(ABSWS)/abs-$(VABS)
+ABS_CACHE:=$(ABSWS)/cache
+include $(ABSROOT)/core/main.mk
 
 # Default and minimal rule download files from repository
 # May be overloaded by dependencies download rules for more features
@@ -41,13 +45,13 @@ ifeq ($(findstring file://,$(ABS_REPO_1ST)),file://)
 	@ln -sf $(patsubst file://%,%,$(patsubst $(ABS_CACHE)/%,$(ABS_REPO_1ST)/%,$@)) $@
 else
 	@echo "Fetching $(@F) from $(ABS_REPO_1ST)"
-	@wget -q --no-check-certificate $(patsubst $(ABS_CACHE)/%,$(ABS_REPO_1ST)/%,$@) -O $@
+	@wget -q $(WGETFLAGS) $(patsubst $(ABS_CACHE)/%,$(ABS_REPO_1ST)/%,$@) -O $@
 endif
 endif
 
-$(PRJROOT)/.abs/%/main.mk: $(ABS_CACHE)/noarch/abs.%-$(VABS).tar.gz
-	@mkdir -p .abs
-	@tar xzf $^ -C $(PRJROOT)/.abs --strip-components=1
+$(ABSROOT)/%/main.mk: $(ABS_CACHE)/noarch/abs.%-$(VABS).tar.gz
+	@mkdir -p $(ABSROOT)
+	@tar xzf $^ -C $(ABSROOT) --strip-components=1
 	@touch $@
 
 $(PRJROOT)/local.cfg:
@@ -60,7 +64,11 @@ Makefile: ../Makefile
 endif
 # update app bootstrap makefile from bootstrap makefile in abs core
 ifneq ($(wildcard app.cfg),)
-Makefile: .abs/core/bootstrap.mk
+Makefile: $(ABSROOT)/core/bootstrap.mk
 	@echo Updating app bootstrap makefile from abs core
 	@cp $^ $@
 endif
+
+cleanabs:
+	@echo Cleaning ABS files and cache $(ABSWS)
+	@rm -rf $(ABSWS)

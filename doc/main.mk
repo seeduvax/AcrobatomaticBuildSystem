@@ -45,15 +45,15 @@ endif
 PDFS:=$(patsubst src/%.heml,$(PDFDIR)/%.pdf,$(HEMLS))
 endif
 DOCBOOKS:=$(patsubst src/%.heml,$(DBDIR)/%.xml,$(HEMLS))
-HTMLS:=$(patsubst src/%.heml,$(HTMLDIR)/%.html,$(HEMLS)) $(HTMLDIR)/style.css $(HTMLDIR)/highlight/highlight.js
+HTMLS:=$(patsubst src/%.heml,$(HTMLDIR)/%.html,$(HEMLS)) $(HTMLDIR)/style.css $(HTMLDIR)/highlight $(HTMLDIR)/impress
 IMGS:=$(patsubst src/%,$(HTMLDIR)/%,$(shell find src -name "*.jpg")) $(patsubst src/%,$(HTMLDIR)/%,$(shell find src -name "*.png")) $(patsubst src/%.dia,$(HTMLDIR)/%.png,$(shell find src -name "*.dia"))
 ## XSL Stylesheets definition:
 ##   - HEMLTOTEX_STYLE: tex (pdf)
 ##   - HEMLTOXHTML_STYLE: html
 ##   - HEMLTOXML_STYLE: docbook
-HEMLTOTEX_STYLE?=$(DOCROOT)/tex/style.tex.xsl
-HEMLTOXHTML_STYLE:=$(DOCROOT)/html/style.xhtml.xsl
-HEMLTOXML_STYLE:=$(DOCROOT)/docbook/style.docbook.xsl
+HEMLTOTEX_STYLE?=$(DOCROOT)/tex/style.tex.xsl $(HEMLTOTEX_FLAGS)
+HEMLTOXHTML_STYLE:=$(DOCROOT)/html/style.xhtml.xsl $(HEMLTOXHTML_FLAGS)
+HEMLTOXML_STYLE:=$(DOCROOT)/docbook/style.docbook.xsl $(HEMLTOXML_FLAGS)
 
 ## Documentation targets:
 ## 
@@ -85,10 +85,6 @@ $(HTMLDIR)/%.css: $(HTML_STYLE_BUNDLE)
 	@mkdir -p $(@D)
 	@tar -C $(@D) -xzf $^ && touch $@
 
-$(HTMLDIR)/highlight/highlight.js: $(ABSROOT)/doc/html/highlight.js.tar.gz
-	@$(ABS_PRINT_info) "Extracting syntax highlight.js bundle..."
-	@mkdir -p $(@D)
-	@tar -C `dirname $(@D)` -xzf $^ && touch $@
 
 $(HTMLDIR)/%.jpg: src/%.jpg
 	@mkdir -p $(@D)
@@ -97,6 +93,11 @@ $(HTMLDIR)/%.jpg: src/%.jpg
 $(HTMLDIR)/%.png: src/%.png
 	@mkdir -p $(@D)
 	cp $^ $@
+
+$(HTMLDIR)/%: $(ABSROOT)/doc/html/%.js.tar.gz
+	@$(ABS_PRINT_info) "Extracting $(@F) bundle..."
+	@mkdir -p $@
+	@tar -C $(@D) -xzf $^ && touch $@
 
 DIACMD:=$(shell which dia 2>/dev/null)
 ifeq ($(DIACMD),)
