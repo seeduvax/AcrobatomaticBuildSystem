@@ -13,11 +13,12 @@ include $(ABSROOT)/core/common.mk
 
 # re-include in case that common variables are used in this cfg.
 include $(PRJROOT)/app.cfg
+-include local.cfg
 
 JENKINS_USER?=jenkins
-DISTHOST?=httppub@10.17.0.1
-DISTREPO?=$(DISTHOST):/home/httpd/www/dist
--include local.cfg
+DISTUSER?=$(USER)
+DISTHOST?=$(DISTUSER)@moneta.eduvax.net
+DISTREPO?=$(DISTHOST):/home/httpd/www.eduvax.net/www/dist
 ## - MAXJOBS: max allowed parallel tasks.
 MAXJOBS:=$(shell getconf _NPROCESSORS_ONLN)
 ## - MMARGS: extra make arguments to forward to modules sub-make.
@@ -41,7 +42,7 @@ MODE=release
 RELEASE_IDENTIFIER:=$(VMAJOR).$(VMEDIUM)$(RELEASE)$(VSUFFIX)
 endif
 ##  - PREFIX: installation prefix (default is /opt/<appname>-<version>)
-PREFIX=/opt/$((APPNAME)NAME)-$(VERSION)
+PREFIX=/opt/$((APPNAME)-$(VERSION)
 
 ifeq ($(MODULES),)
 # search for module only if not explicitely defined from app.cfg.
@@ -151,103 +152,102 @@ help:
 
 _extra_import_defs_=$(subst >,\n,$(shell echo '$(extra_import_defs)'))
 
-dist/$((APPNAME)NAME)-$(VERSION)/import.mk:
+dist/$((APPNAME)-$(VERSION)/import.mk:
 	@rm -rf dist
 	@$(ABS_PRINT_info) "Compilation of the project in mode: $(MODE)"
-	@make TRDIR=$$PWD/dist/$((APPNAME))-$(VERSION) MODE=$(MODE) $(filter-out $(patsubst %,mod.%,$(NODISTMOD)),$(MODULES))
+	@make TRDIR=$$PWD/dist/$(APPNAME)-$(VERSION) MODE=$(MODE) $(filter-out $(patsubst %,mod.%,$(NODISTMOD)),$(MODULES))
 	@test -f export.mk && \
-	m4 -D__app__=$((APPNAME)) -D__version__=$(VERSION) export.mk -D__uselib__="$(USELIB)" > $$PWD/dist/$((APPNAME))-$(VERSION)/import.mk || \
-	printf '\n-include $$(dir $$(lastword $$(MAKEFILE_LIST)))/.abs/index.mk\n$$(eval $$(call extlib_import_template,$((APPNAME)),$(VERSION),$(USELIB)))\n$(_extra_import_defs_)\n\n' > $@
-	@test -x extradist.sh && VERSION=$(VERSION) (APPNAME)=$((APPNAME)) ./extradist.sh `dirname $@` || :
-	@mkdir -p dist/$((APPNAME))-$(VERSION)/include/$((APPNAME))
+	m4 -D__app__=$(APPNAME) -D__version__=$(VERSION) export.mk -D__uselib__="$(USELIB)" > $$PWD/dist/$(APPNAME)-$(VERSION)/import.mk || \
+	printf '\n-include $$(dir $$(lastword $$(MAKEFILE_LIST)))/.abs/index.mk\n$$(eval $$(call extlib_import_template,$(APPNAME),$(VERSION),$(USELIB)))\n$(_extra_import_defs_)\n\n' > $@
+	@test -x extradist.sh && VERSION=$(VERSION) (APPNAME)=$(APPNAME) ./extradist.sh `dirname $@` || :
+	@mkdir -p dist/$(APPNAME)-$(VERSION)/include/$(APPNAME)
 	@for headerdir in $(patsubst %,%/include,$(filter-out $(NODISTMOD),$(EXPMOD))); \
-	do cp -r $$headerdir dist/$((APPNAME))-$(VERSION) ; \
+	do cp -r $$headerdir dist/$(APPNAME)-$(VERSION) ; \
 	test -d .svn && find dist -name ".svn" | xargs rm -rf ; \
 	: ; \
 	done 
-	@rm -rf dist/$((APPNAME))-$(VERSION)/obj
-	@rm -rf dist/$((APPNAME))-$(VERSION)/build.log
-	@rm -rf dist/$((APPNAME))-$(VERSION)/.*.dep
+	@rm -rf dist/$(APPNAME)-$(VERSION)/obj
+	@rm -rf dist/$(APPNAME)-$(VERSION)/build.log
+	@rm -rf dist/$(APPNAME)-$(VERSION)/.*.dep
 
 
-DISTTAR:=tar cvzf dist/$((APPNAME))-$(VERSION).$(ARCH).tar.gz -C dist --exclude extlib --exclude extlib.nodist $((APPNAME))-$(VERSION)
+DISTTAR:=tar cvzf dist/$(APPNAME)-$(VERSION).$(ARCH).tar.gz -C dist --exclude obj --exclude extlib --exclude extlib.nodist $(APPNAME)-$(VERSION)
 
-dist/$((APPNAME))-$(VERSION).$(ARCH).tar.gz: dist/$((APPNAME))-$(VERSION)/import.mk
+dist/$(APPNAME)-$(VERSION).$(ARCH).tar.gz: dist/$(APPNAME)-$(VERSION)/import.mk
 ifeq ($(RELEASE_IDENTIFIER),)
 	@$(DISTTAR)
 else
-	@ln -sf $((APPNAME))-$(VERSION) dist/$((APPNAME))-$(RELEASE_IDENTIFIER)
-	@$(DISTTAR) $((APPNAME))-$(RELEASE_IDENTIFIER)
+	@ln -sf $(APPNAME)-$(VERSION) dist/$(APPNAME)-$(RELEASE_IDENTIFIER)
+	@$(DISTTAR) $(APPNAME)-$(RELEASE_IDENTIFIER)
 endif
 
 ##  - dist: creates binary package
-dist: dist/$((APPNAME))-$(VERSION).$(ARCH).tar.gz
+dist: dist/$(APPNAME)-$(VERSION).$(ARCH).tar.gz
 
 ##  - echoDID: displays package identifier
 echoDID:
-	@echo $((APPNAME))-$(VERSION).$(ARCH)
+	@echo $(APPNAME)-$(VERSION).$(ARCH)
 
 pubfile: $(FILE)
 	scp $(FILE) $(DISTREPO)/$(ARCH)/`basename $(FILE)`
 
 ##  - install [PREFIX=<install path>]: installs the application
-install: dist/$((APPNAME))-$(VERSION)/import.mk
+install: dist/$(APPNAME)-$(VERSION)/import.mk
 	@mkdir -p $(PREFIX)
 	@$(ABS_PRINT_info) "Copying binaries..."
-	@test -d dist/$((APPNAME))-$(VERSION)/bin && cp -r dist/$((APPNAME))-$(VERSION)/bin $(PREFIX)/ || :
-	@test -d dist/$((APPNAME))-$(VERSION)/sbin && cp -r dist/$((APPNAME))-$(VERSION)/sbin $(PREFIX)/ || :
+	@test -d dist/$(APPNAME)-$(VERSION)/bin && cp -r dist/$(APPNAME)-$(VERSION)/bin $(PREFIX)/ || :
+	@test -d dist/$(APPNAME)-$(VERSION)/sbin && cp -r dist/$(APPNAME)-$(VERSION)/sbin $(PREFIX)/ || :
 	@$(ABS_PRINT_info)  "Copying header files..."
-	@test -d dist/$((APPNAME))-$(VERSION)/include && cp -r dist/$((APPNAME))-$(VERSION)/include $(PREFIX)/ || :
+	@test -d dist/$(APPNAME)-$(VERSION)/include && cp -r dist/$(APPNAME)-$(VERSION)/include $(PREFIX)/ || :
 	@$(ABS_PRINT_info)  "Copying configuration files..."
-	@test -d dist/$((APPNAME))-$(VERSION)/etc && cp -r dist/$((APPNAME))-$(VERSION)/etc $(PREFIX)/ || : 
-	@cp $(ABSROOT)/core/install_env $(PREFIX)/.env
+	@test -d dist/$(APPNAME)-$(VERSION)/etc && cp -r dist/$(APPNAME)-$(VERSION)/etc $(PREFIX)/ || : 
 	@$(ABS_PRINT_info)  "Copying libraries..."
-	@test -d dist/$((APPNAME))-$(VERSION)/lib && cp -r dist/$((APPNAME))-$(VERSION)/lib $(PREFIX)/ || :
+	@test -d dist/$(APPNAME)-$(VERSION)/lib && cp -r dist/$(APPNAME)-$(VERSION)/lib $(PREFIX)/ || :
 	@$(ABS_PRINT_info)  "Copying shared files..."
-	@test -d dist/$((APPNAME))-$(VERSION)/share && cp -r dist/$((APPNAME))-$(VERSION)/share $(PREFIX)/ || :
+	@test -d dist/$(APPNAME)-$(VERSION)/share && cp -r dist/$(APPNAME)-$(VERSION)/share $(PREFIX)/ || :
 	@$(ABS_PRINT_info)  "Copying dependancies..."
-	@for lib in `ls dist/$((APPNAME))-$(VERSION)/extlib/ | fgrep -v cppunit-` ; do \
+	@for lib in `ls dist/$(APPNAME)-$(VERSION)/extlib/ | fgrep -v cppunit-` ; do \
 	$(ABS_PRINT_info) "  Processing $$lib..." ; \
-	test -d dist/$((APPNAME))-$(VERSION)/extlib/$$lib && chmod -R +rwX dist && ( tar -C dist/$((APPNAME))-$(VERSION)/extlib/$$lib -cf - include lib lib64 etc bin sbin share | tar -C $(PREFIX) -xf - ) || cp dist/$((APPNAME))-$(VERSION)/extlib/$$lib $(PREFIX)/lib ; \
+	test -d dist/$(APPNAME)-$(VERSION)/extlib/$$lib && chmod -R +rwX dist && ( tar -C dist/$(APPNAME)-$(VERSION)/extlib/$$lib -cf - include lib lib64 etc bin sbin share | tar -C $(PREFIX) -xf - ) || cp dist/$(APPNAME)-$(VERSION)/extlib/$$lib $(PREFIX)/lib ; \
 	done
 	@if [ ! -z "$(INSTALL_EXCLUDE_PATTERNS)" ]; then pwd=$$PWD; for p in $(INSTALL_EXCLUDE_PATTERNS); do $(ABS_PRINT_info) "Removing pattern $$p from installation ..."; cmd="cd $(PREFIX) ; find . -path '$$p' | xargs rm -rf 2> /dev/null ; cd $$pwd"; eval $$cmd; done; fi
 
-dist/$((APPNAME))-$(VERSION).$(ARCH)-install.bin:
-	@make PREFIX=tmp/$((APPNAME))-$(VERSION) INSTALL_EXCLUDE_PATTERNS=$(INSTALL_EXCLUDE_PATTERNS) install
-	@tar -C tmp -cvzf tmp/arch.tar.gz $((APPNAME))-$(VERSION)/
-	@sed -e 's/__app__/$((APPNAME))/g' $(ABSROOT)/core/install-template.sh | sed -e 's/__version__/$(VERSION)/g' > "$@"
+dist/$(APPNAME)-$(VERSION).$(ARCH)-install.bin:
+	@make PREFIX=tmp/$(APPNAME)-$(VERSION) INSTALL_EXCLUDE_PATTERNS=$(INSTALL_EXCLUDE_PATTERNS) install
+	@tar -C tmp -cvzf tmp/arch.tar.gz $(APPNAME)-$(VERSION)/
+	@sed -e 's/__app__/$(APPNAME)/g' $(ABSROOT)/core/install-template.sh | sed -e 's/__version__/$(VERSION)/g' > "$@"
 	cat tmp/arch.tar.gz >> "$@"
 	chmod +x "$@"
 
 ##  - distinstall: builds installation package.
-distinstall: dist/$((APPNAME))-$(VERSION).$(ARCH)-install.bin
+distinstall: dist/$(APPNAME)-$(VERSION).$(ARCH)-install.bin
 
 KVERSION:=$(shell uname -r)
 ##  - kdistinstall: builds linux kernel modules installation package
-kdistinstall: dist/$((APPNAME))_lkm-$(VERSION)-$(KVERSION)-install.bin
+kdistinstall: dist/$(APPNAME)_lkm-$(VERSION)-$(KVERSION)-install.bin
 
 KMODULES:=$(filter-out $(patsubst %,mod.%,$(NOBUILD)),$(patsubst %,mod.%,$(shell ls | grep _lkm)))
-dist/$((APPNAME))_lkm-$(VERSION)-$(KVERSION)-install.bin:
-	@make TRDIR=$$PWD/dist/$((APPNAME))-$(VERSION) MODE=release $(KMODULES)
-	tar -C dist/$((APPNAME))-$(VERSION) -cvzf dist/arch.tar.gz etc/ lib/
-	sed -e 's/__app__/$((APPNAME))/g' $(ABSROOT)/core/kinstall-template.sh | sed -e 's/__version__/$(VERSION)/g' | sed -e 's/__kversion__/$(KVERSION)/g' > "$@"
+dist/$(APPNAME)_lkm-$(VERSION)-$(KVERSION)-install.bin:
+	@make TRDIR=$$PWD/dist/$(APPNAME)-$(VERSION) MODE=release $(KMODULES)
+	tar -C dist/$(APPNAME)-$(VERSION) -cvzf dist/arch.tar.gz etc/ lib/
+	sed -e 's/__app__/$(APPNAME)/g' $(ABSROOT)/core/kinstall-template.sh | sed -e 's/__version__/$(VERSION)/g' | sed -e 's/__kversion__/$(KVERSION)/g' > "$@"
 	cat dist/arch.tar.gz >> "$@"
 	chmod +x "$@"
 	rm dist/arch.tar.gz
 
-pubdist: dist/$((APPNAME))-$(VERSION).$(ARCH).tar.gz
+pubdist: dist/$(APPNAME)-$(VERSION).$(ARCH).tar.gz
 	@$(ABS_PRINT_info)  "Publishing dist archive $^ $(USER) on $(DISTREPO)"
 	@-test $(USER) = $(JENKINS_USER) && \
-	scp $^ $(DISTREPO)/$(ARCH)/$((APPNAME))-$(VERSION).$(ARCH).tar.gz
+	scp $^ $(DISTREPO)/$(ARCH)/$(APPNAME)-$(VERSION).$(ARCH).tar.gz
 ifneq ($(RELEASE_IDENTIFIER),)
-	@ssh $(DISTHOST) rm -rf $(patsubst $(DISTHOST):%,%,$(DISTREPO))/$(ARCH)/$((APPNAME))-$(RELEASE_IDENTIFIER).$(ARCH).tar.gz
-	@ssh $(DISTHOST) ln -sf $((APPNAME))-$(VERSION).$(ARCH).tar.gz $(patsubst $(DISTHOST):%,%,$(DISTREPO))/$(ARCH)/$((APPNAME))-$(RELEASE_IDENTIFIER).$(ARCH).tar.gz
+	@ssh $(DISTHOST) rm -rf $(patsubst $(DISTHOST):%,%,$(DISTREPO))/$(ARCH)/$(APPNAME)-$(RELEASE_IDENTIFIER).$(ARCH).tar.gz
+	@ssh $(DISTHOST) ln -sf $(APPNAME)-$(VERSION).$(ARCH).tar.gz $(patsubst $(DISTHOST):%,%,$(DISTREPO))/$(ARCH)/$(APPNAME)-$(RELEASE_IDENTIFIER).$(ARCH).tar.gz
 endif
 
-pubinstall: dist/$((APPNAME))-$(VERSION).$(ARCH)-install.bin
+pubinstall: dist/$(APPNAME)-$(VERSION).$(ARCH)-install.bin
 	@$(ABS_PRINT_info)  "Publishing dist archive $^ $(USER) on $(DISTREPO)"
 	@-test $(USER) = $(JENKINS_USER) && \
-	scp $^ $(DISTREPO)/$(ARCH)/$((APPNAME))-$(VERSION).$(ARCH)-install.bin
+	scp $^ $(DISTREPO)/$(ARCH)/$(APPNAME)-$(VERSION).$(ARCH)-install.bin
 
 ##  - cint: full package build, to be used for the continuous integration
 ##    process (for builds from jenkins or any similar tool).
