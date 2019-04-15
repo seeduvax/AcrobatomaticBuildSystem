@@ -68,7 +68,7 @@ all-impl:: $(DOXDIR)
 
 $(DOXDIR): $(DOXSRCFILES)
 	@$(ABS_PRINT_info) "Generating API reference documentation..."
-	@m4 -D__project_name__=$(APPNAME) -D__project_number__=$(VERSION) -D__output_directory__=$(DOXDIR) -D__prj_root__=$(PRJROOT) -D__prj_module_list__="$(patsubst %/module.cfg,%,$(wildcard $(PRJROOT)/*/module.cfg))" $(ABSROOT)/doc/doxygen/Doxyfile > $(TRDIR)/.Doxyfile
+	@m4 -D__project_name__=$(APPNAME) -D__project_number__=$(VERSION) -D__output_directory__=$(DOXDIR) -D__abs_root__=$(ABSROOT) -D__prj_module_list__="$(patsubst %/module.cfg,%,$(wildcard $(PRJROOT)/*/module.cfg))" $(ABSROOT)/doc/doxygen/Doxyfile > $(TRDIR)/.Doxyfile
 	@$(DOXYGENCMD) $(TRDIR)/.Doxyfile
 	@rm -rf $(TRDIR)/.Doxyfile
 else

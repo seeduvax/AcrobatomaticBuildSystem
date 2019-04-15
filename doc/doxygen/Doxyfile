@@ -863,7 +863,7 @@ IMAGE_PATH             =
 # code is scanned, but not when the output code is generated. If lines are added
 # or removed, the anchors will not be placed correctly.
 
-INPUT_FILTER           = "sed -f __prj_root__/.abs/doc/doxygen_filter.sed"
+INPUT_FILTER           = "sed -f __abs_root__/doc/doxygen/tagfilter.sed"
 
 # The FILTER_PATTERNS tag can be used to specify filters on a per file pattern
 # basis. Doxygen will compare the file name with each pattern and apply the

@@ -1,8 +1,8 @@
 ## ---------------------------------------------------------------------
 ## ABS: Automated Build System
-## See ABS documentation for more details
-## - wiki page: https://pforgerle.public.infrapub.fr.st.space.corp/confluence/display/rdtea332/BuildScripts
-## - reference documentation: RD_TEA332-1593
+## See ABS documentation (res #170983b) for more details
+##   http://github.com/seeduvax/AcrobatomaticBuildSystem
+##   http://www.eduvax.net/gitweb
 ## --------------------------------------------------------------------
 ## Module level build services
 ## --------------------------------------------------------------------
