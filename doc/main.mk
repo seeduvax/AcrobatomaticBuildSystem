@@ -13,7 +13,7 @@ HTMLDIR:=$(DOCDIR)/html
 JAVACMD:=java -Djava.awt.headless=true
 DOXYGENCMD:=$(shell which doxygen 2>/dev/null)
 DOCROOT:=$(ABSROOT)/doc
-HTML_STYLE_BUNDLE:= $(ABSROOT)/doc/html/style.tar.gz
+HTML_STYLE_BUNDLE+=$(patsubst %,$(ABSROOT)/doc/html/%.tar.gz,style impress.js highlight.js)
 
 # files to be processed by doxygen.
 DOXSRCFILES:=$(shell find $(PRJROOT) -name *.h -o -name *.c -o -name *.hpp -o -name *.cpp -o -name *.py -o -name *.java | fgrep -v "/build/" | fgrep -v "/dist/" | fgrep -v "$(ABSROOT)")
@@ -45,15 +45,15 @@ endif
 PDFS:=$(patsubst src/%.heml,$(PDFDIR)/%.pdf,$(HEMLS))
 endif
 DOCBOOKS:=$(patsubst src/%.heml,$(DBDIR)/%.xml,$(HEMLS))
-HTMLS:=$(patsubst src/%.heml,$(HTMLDIR)/%.html,$(HEMLS)) $(HTMLDIR)/style.css $(HTMLDIR)/highlight $(HTMLDIR)/impress
+HTMLS:=$(patsubst src/%.heml,$(HTMLDIR)/%.html,$(HEMLS)) $(HTMLDIR)/style.css
 IMGS:=$(patsubst src/%,$(HTMLDIR)/%,$(shell find src -name "*.jpg")) $(patsubst src/%,$(HTMLDIR)/%,$(shell find src -name "*.png")) $(patsubst src/%.dia,$(HTMLDIR)/%.png,$(shell find src -name "*.dia"))
 ## XSL Stylesheets definition:
 ##   - HEMLTOTEX_STYLE: tex (pdf)
 ##   - HEMLTOXHTML_STYLE: html
 ##   - HEMLTOXML_STYLE: docbook
 HEMLTOTEX_STYLE?=$(DOCROOT)/tex/style.tex.xsl $(HEMLTOTEX_FLAGS)
-HEMLTOXHTML_STYLE:=$(DOCROOT)/html/style.xhtml.xsl $(HEMLTOXHTML_FLAGS)
-HEMLTOXML_STYLE:=$(DOCROOT)/docbook/style.docbook.xsl $(HEMLTOXML_FLAGS)
+HEMLTOXHTML_STYLE?=$(DOCROOT)/html/style.xhtml.xsl $(HEMLTOXHTML_FLAGS)
+HEMLTOXML_STYLE?=$(DOCROOT)/docbook/style.docbook.xsl $(HEMLTOXML_FLAGS)
 
 ## Documentation targets:
 ## 
@@ -80,11 +80,13 @@ $(HTMLDIR)/%.css: src/%.css
 	@mkdir -p $(@D)
 	cp $^ $@
 
-$(HTMLDIR)/%.css: $(HTML_STYLE_BUNDLE)
-	@$(ABS_PRINT_info) "Extracting style bundle..."
+$(HTMLDIR)/style.css: $(HTML_STYLE_BUNDLE)
+	@$(ABS_PRINT_info) "Extracting html style bundles:"
 	@mkdir -p $(@D)
-	@tar -C $(@D) -xzf $^ && touch $@
-
+	@for tarball in $^ ; do \
+	$(ABS_PRINT_info) "  - $$tarball" ; \
+	@tar -C $(@D) -xzf $$tarball && touch $@ ; \
+	done
 
 $(HTMLDIR)/%.jpg: src/%.jpg
 	@mkdir -p $(@D)
@@ -93,11 +95,6 @@ $(HTMLDIR)/%.jpg: src/%.jpg
 $(HTMLDIR)/%.png: src/%.png
 	@mkdir -p $(@D)
 	cp $^ $@
-
-$(HTMLDIR)/%: $(ABSROOT)/doc/html/%.js.tar.gz
-	@$(ABS_PRINT_info) "Extracting $(@F) bundle..."
-	@mkdir -p $@
-	@tar -C $(@D) -xzf $^ && touch $@
 
 DIACMD:=$(shell which dia 2>/dev/null)
 ifeq ($(DIACMD),)
@@ -130,7 +127,7 @@ $(DBDIR)/%.xml: src/%.heml $(HEMLJAR) $(PUMLJAR)
 $(TEXDIR)/%.tex: src/%.heml $(HEMLJAR) $(PUMLJAR)
 	$(call absHemlTransformation,$(HEMLTOTEX_STYLE))
 
-TEXINPUTS+=$(ABSROOT)/doc/tex//:$(OBJDIR):$(TEXDIR):$(HTMLDIR):$(CURDIR)/src
+TEXINPUTS:=$(TEXINPUTS):$(ABSROOT)/doc/tex//:$(OBJDIR):$(TEXDIR):$(HTMLDIR):$(CURDIR)/src
 TEXENV=TEXINPUTS=$(TEXINPUTS):
 
 $(PDFDIR)/%.pdf: $(TEXDIR)/%.tex $(IMGS)
