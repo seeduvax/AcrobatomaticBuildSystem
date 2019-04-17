@@ -42,7 +42,7 @@ MODE=release
 RELEASE_IDENTIFIER:=$(VMAJOR).$(VMEDIUM)$(RELEASE)$(VSUFFIX)
 endif
 ##  - PREFIX: installation prefix (default is /opt/<appname>-<version>)
-PREFIX=/opt/$((APPNAME)-$(VERSION)
+PREFIX=/opt/$(APPNAME)-$(VERSION)
 
 ifeq ($(MODULES),)
 # search for module only if not explicitely defined from app.cfg.
@@ -152,14 +152,14 @@ help:
 
 _extra_import_defs_=$(subst >,\n,$(shell echo '$(extra_import_defs)'))
 
-dist/$((APPNAME)-$(VERSION)/import.mk:
+dist/$(APPNAME)-$(VERSION)/import.mk:
 	@rm -rf dist
 	@$(ABS_PRINT_info) "Compilation of the project in mode: $(MODE)"
 	@make TRDIR=$$PWD/dist/$(APPNAME)-$(VERSION) MODE=$(MODE) $(filter-out $(patsubst %,mod.%,$(NODISTMOD)),$(MODULES))
 	@test -f export.mk && \
 	m4 -D__app__=$(APPNAME) -D__version__=$(VERSION) export.mk -D__uselib__="$(USELIB)" > $$PWD/dist/$(APPNAME)-$(VERSION)/import.mk || \
 	printf '\n-include $$(dir $$(lastword $$(MAKEFILE_LIST)))/.abs/index.mk\n$$(eval $$(call extlib_import_template,$(APPNAME),$(VERSION),$(USELIB)))\n$(_extra_import_defs_)\n\n' > $@
-	@test -x extradist.sh && VERSION=$(VERSION) (APPNAME)=$(APPNAME) ./extradist.sh `dirname $@` || :
+	@test -x extradist.sh && VERSION=$(VERSION) APPNAME=$(APPNAME) ./extradist.sh `dirname $@` || :
 	@mkdir -p dist/$(APPNAME)-$(VERSION)/include/$(APPNAME)
 	@for headerdir in $(patsubst %,%/include,$(filter-out $(NODISTMOD),$(EXPMOD))); \
 	do cp -r $$headerdir dist/$(APPNAME)-$(VERSION) ; \
