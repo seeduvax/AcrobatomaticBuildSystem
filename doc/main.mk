@@ -85,7 +85,7 @@ $(HTMLDIR)/style.css: $(HTML_STYLE_BUNDLE)
 	@mkdir -p $(@D)
 	@for tarball in $^ ; do \
 	$(ABS_PRINT_info) "  - $$tarball" ; \
-	@tar -C $(@D) -xzf $$tarball && touch $@ ; \
+	tar -C $(@D) -xzf $$tarball && touch $@ ; \
 	done
 
 $(HTMLDIR)/%.jpg: src/%.jpg
