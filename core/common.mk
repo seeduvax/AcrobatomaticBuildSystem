@@ -126,6 +126,6 @@ REVISION:=$(REVISION)M
   endif
  endif
 endif
-ifeq ($(VERSION_OVERLOADED),)
+ifneq ($(VERSION_OVERLOADED),)
 WORKSPACE_IS_TAG:=1
 endif
