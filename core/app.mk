@@ -215,7 +215,7 @@ install: dist/$(APPNAME)-$(VERSION)/import.mk
 dist/$(APPNAME)-$(VERSION).$(ARCH)-install.bin:
 	@make PREFIX=tmp/$(APPNAME)-$(VERSION) INSTALL_EXCLUDE_PATTERNS=$(INSTALL_EXCLUDE_PATTERNS) install
 	@tar -C tmp -cvzf tmp/arch.tar.gz $(APPNAME)-$(VERSION)/
-	@sed -e 's/__app__/$(APPNAME)/g' $(ABSROOT)/core/install-template.sh | sed -e 's/__version__/$(VERSION)/g' > "$@"
+	@sed -e 's/__appname__/$(APPNAME)/g' $(ABSROOT)/core/install-template.sh | sed -e 's/__version__/$(VERSION)/g' > "$@"
 	cat tmp/arch.tar.gz >> "$@"
 	chmod +x "$@"
 

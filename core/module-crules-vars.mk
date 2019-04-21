@@ -63,10 +63,10 @@ LDRUNP?=$$ORIGIN/../lib
 # ---------------------------------------------------------------------
 ifeq ($(MODE),debug)
 # debugging symbols, no optimisation, optionnal flags for debug mode
-CFLAGS+= -g -D_$(APPNAME)_$(MODNAME)_debug -D_abs_trace_debug -D__APPNAME__='"$(APPNAME)"' -D__MODNAME__='"$(MODNAME)"' -D__APP__=$(APPNAME) -D__MOD__=$(MODNAME) $(DEBUGCFLAGS)
+CFLAGS+= -g -D_$(APPNAME)_$(MODNAME)_debug -D_abs_trace_debug -D__APPNAME__='"$(APPNAME)"' -D__MODNAME__='"$(MODNAME)"' $(DEBUGCFLAGS)
 else
 # some optimisation, no debbugging symbol, optionnal flags for release mode
-CFLAGS+= -O3 -D_$(APPNAME)_$(MODNAME)_release $(RELEASECFLAGS)
+CFLAGS+= -O3 -D_$(APPNAME)_$(MODNAME)_release -D__APPNAME__='"$(APPNAME)"' -D__MODNAME__='"$(MODNAME)"' $(RELEASECFLAGS)
 endif
 
 define cc-command
