@@ -20,6 +20,7 @@ digraph abs {
 }
 @enduml
 #}
+{section
   {slide %title=ABS - overview
 Generic tool for software builds and deliverable package generation.
   - implemented with makefiles (GNU make required) and a few shell scripts.
@@ -207,6 +208,8 @@ Perform the following steps:
   - Build, run and test the project.
   - Build the deliverable packages.
    }
+}
+{section
    {slide %title=Writing unit tests with cppunit
 {layout %col=2
 {code %language=c++
@@ -257,6 +260,8 @@ Test tips:
 Short naming:
   - {em Small application with a single module:} give the same name to the application and module to get a short built binary name ({kw appname} instead of {kw appname_modname}).
    }
+}
+{section
    {slide %title=Coding style, Coding rules
 {layout %col=2
 C++ coding, {em "Simplified C++"}:
@@ -319,4 +324,5 @@ Paragraph, bullet lists:
   - enum!}}
 }
    }
+}
 }

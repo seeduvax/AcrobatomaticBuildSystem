@@ -678,8 +678,21 @@ Copyright (c) <xsl:value-of select="./text()"/> <xsl:value-of select="@year"/><x
                 Presentation/slides transformations
      ##########################################################################
 -->
-<xsl:template match="slide">
-<div class="step slide" data-rel-x="1500" data-rel-y="50" >
+<xsl:template match="section" mode="slide">
+<xsl:apply-templates mode="slide"/>
+</xsl:template>
+<xsl:template match="slide" mode="slide">
+<div class="step slide">
+<xsl:choose>
+  <xsl:when test="count(preceding-sibling::slide)=0">
+    <xsl:attribute name="data-x">0</xsl:attribute>
+    <xsl:attribute name="data-rel-y">1.25h</xsl:attribute>
+  </xsl:when>
+  <xsl:otherwise>
+    <xsl:attribute name="data-rel-x">1.05w</xsl:attribute>
+    <xsl:attribute name="data-rel-y">0</xsl:attribute>
+  </xsl:otherwise>
+</xsl:choose>
 <h2><xsl:apply-templates select="@title"/></h2>
 <xsl:apply-templates/>
 </div>
@@ -704,6 +717,11 @@ Copyright (c) <xsl:value-of select="./text()"/> <xsl:value-of select="@year"/><x
 <a href="#" onclick="speak('{$toSpeech}')">[Speech]</a>
 </div>
 </xsl:template>
+<xsl:template match="titleImage">
+<div class="fig">
+<img><xsl:attribute name="src"><xsl:value-of select="text()"/></xsl:attribute></img>
+</div>
+</xsl:template>
 <!-- Presentation main -->
 <xsl:template match="/presentation">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="fr" lang="fr">
@@ -721,10 +739,14 @@ Copyright (c) <xsl:value-of select="./text()"/> <xsl:value-of select="@year"/><x
 </head>	
 <body>
 <div id="impress">
-<div class="step slide title" data-x="0" data-y="0" data-z="0">
+<div class="step slide title" data-x="0" data-y="0" data-z="0" data-rel-x="0" data-rel-y="0" data-rel-z="0">
 <h1><xsl:value-of select="title"/><xsl:value-of select="@title"/></h1>
+<xsl:apply-templates select="titleImage"/>
 </div>
-<xsl:apply-templates select="slide"/>
+<xsl:apply-templates select="section|slide" mode="slide"/>
+<div id="overview" class="step" data-scale="10" data-x="4000" data-y="2000" data-z="10">
+<xsl:text> </xsl:text>
+</div>
 </div>
 <!-- pied de page -->
 <div id="impress-toolbar"></div>
