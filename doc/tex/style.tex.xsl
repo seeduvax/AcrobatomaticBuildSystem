@@ -689,7 +689,11 @@ Checksum function: <xsl:value-of select="@type"/>
                 Presentation/slides transformations
      ##########################################################################
 -->
-<xsl:template match="slide">
+<xsl:template match="section" mode="slide">
+<xsl:apply-templates mode="slide"/>
+</xsl:template>
+<xsl:template match="pnotes|speech"/>
+<xsl:template match="slide" mode="slide">
 \section*{<xsl:apply-templates select="@title"/>}
 <xsl:apply-templates/>
 \newpage
@@ -741,7 +745,7 @@ Checksum function: <xsl:value-of select="@type"/>
 \maketitle
 \input{code.sty}
 \renewcommand{\HEMLcurSlideBG}{\HEMLslideBG}
-<xsl:apply-templates select="slide"/>
+<xsl:apply-templates select="section|slide" mode="slide"/>
 \end{document}
 </xsl:template>
 
