@@ -61,7 +61,7 @@
 \newcommand\HEMLedition{0}
 \newcommand\HEMLrevision{0}
 \newcommand\HEMLcopyright{}
-\newcommand\HEMLorgLogo{CompanyLogo.png}
+\newcommand\HEMLorgLogo{OrgLogo.png}
 \newcommand\HEMLprojectLogo{ProjectLogo.png}
 \newcommand\HEMLdate{YYYY-MM-DD}
 \newcommand\HEMLfooter{\small{\HEMLrevision  \ifthenelse{\equal{\HEMLcopyright}{}}{}{- \textcopyright \HEMLcopyright}}}
@@ -202,7 +202,7 @@
 % Pictures
 \newcommand{\HEMLPicture}[2]{\ifthenelse{\equal{#1}{undefined}} {} {\includegraphics[#2]{#1}} }
 \newcommand{\HEMLPrologPicture}[1]{\HEMLPicture{#1}{width=8cm, max height=8cm, keepaspectratio}}
-\newcommand{\HEMLHeadPicture}[1]{\HEMLPicture{#1}{width=5cm, max height=8cm, keepaspectratio}}
+\newcommand{\HEMLHeadPicture}[1]{\HEMLPicture{#1}{max width=5cm, max height=15pt, keepaspectratio}}
 
 % Pages styles -----------------------------------------------------------------------
 \newcommand{\HEMLPrologLeftHeader}{}
@@ -215,8 +215,8 @@
 \newcommand{\HEMLTitleRightHeader}{\HEMLPrologRightHeader}
 \newcommand{\HEMLTitleFooter}{\HEMLPrologFooter}
 
-\newcommand{\HEMLStandardLeftHeader}{\HEMLreference, Ed. \HEMLedition, \HEMLdate}
-\newcommand{\HEMLStandardCenterHeader}{}
+\newcommand{\HEMLStandardLeftHeader}{\HEMLHeadPicture{\HEMLorgLogo}}
+\newcommand{\HEMLStandardCenterHeader}{\HEMLreference, Ed. \HEMLedition, \HEMLdate}
 \newcommand{\HEMLStandardRightHeader}{\thepage{} / \pageref{LastPage}}
 \newcommand{\HEMLStandardFooter}{\parbox{17cm}{\fontsize{6}{6}\selectfont \HEMLfooter}}
 \newcommand{\HEMLDocMetaInfoTable}{
@@ -295,6 +295,8 @@
     \bigskip\bigskip
     
     \HEMLTitlePrint 
+    \bigskip
+    {\centering \HEMLPrologPicture{\HEMLprojectLogo} \par}
     \vspace*{\fill}
 	\HEMLDocMetaInfoTable
     \HEMLEndOfTitle

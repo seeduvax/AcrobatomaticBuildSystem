@@ -1,25 +1,7 @@
 {?set %encoding=utf-8}
 {presentation 
   {title Acrobatomatic Build System - introduction and training}
-  {titleImage abs.png}
-{#
-@startuml abs.pgn
-digraph abs {
-  node [ shape=note, fillcolor="#EEEEFF", style=filled];
-  srcc [ label="int main()"];
-  srccpp [ label="class Obj"];
-  srcj [ label="import java.lang.*;"];
-  bin [ label="0010110" ];
-  jar [ shape=folder, label="jar" ];
-  dist [ label="install.bin", shape=folder ];
-  srcc -> bin;
-  srccpp -> bin;
-  srcj -> jar;
-  bin -> dist;
-  jar -> dist;
-}
-@enduml
-#}
+  {titleImage abslogo.png}
 {section
   {slide %title=ABS - overview
 Generic tool for software builds and deliverable package generation.
