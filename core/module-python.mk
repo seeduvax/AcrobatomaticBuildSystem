@@ -93,12 +93,7 @@ endif
 #  dependences beetween modules
 # ---------------------------------------------------------------------
 ifneq ($(USEMOD),)
-$(TRDIR)/.$(MODNAME).mod.dep:
-	@$(ABS_PRINT_info) "Building module's dependencies: $(USEMOD)..."
-	@make -j 1 $(patsubst %,$(APPNAME)_%.dep,$(USEMOD))
-	@touch $@
-
-$(PY_OBJS): $(TRDIR)/.$(MODNAME).mod.dep
+$(PY_OBJS): $(MODDEPS)
 
 $(APPNAME)_%.dep: $(PRJROOT)/%/Makefile
 	@make $(MMARGS) -C $(<D) 

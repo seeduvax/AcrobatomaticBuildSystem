@@ -77,16 +77,17 @@ endef
 #  dependences beetween modules
 # ---------------------------------------------------------------------
 ifeq ($(filter test,$(MAKECMDGOALS)),)
-MODDEPS:=$(patsubst %,$(TRDIR)/.%.mod.dep,$(USEMOD) $(USELKMOD))
+MODDEPS:=$(patsubst %,$(TRDIR)/.%.$(MODE).mod.dep,$(USEMOD) $(USELKMOD))
 else
-MODDEPS:=$(patsubst %,$(TRDIR)/.%.mod.dep,$(USEMOD) $(USELKMOD) $(TESTUSEMOD))
+MODDEPS:=$(patsubst %,$(TRDIR)/.%.$(MODE).mod.dep,$(USEMOD) $(USELKMOD) $(TESTUSEMOD))
 endif
 
-$(TRDIR)/.%.mod.dep:
+$(TRDIR)/.%.$(MODE).mod.dep:
 	@$(ABS_PRINT_info) "Request build of dependency: $(USEMOD)..."
-	@+make -C $(PRJROOT)/$(patsubst $(TRDIR)/.%.mod.dep,%,$@)
+	@+make -C $(PRJROOT)/$(patsubst $(TRDIR)/.%.$(MODE).mod.dep,%,$@) && \
+	touch $@
 
-$(OBJS): $(TRDIR)/.$(MODNAME).mod.dep
+$(OBJS): $(TRDIR)/.$(MODNAME).$(MODE).mod.dep
 
 ## 
 ## Common make targets:
@@ -95,12 +96,11 @@ $(OBJS): $(TRDIR)/.$(MODNAME).mod.dep
 .PHONY: all
 all: all-impl
 	@mkdir -p $(TRDIR) 
-	@touch $(TRDIR)/.$(MODNAME).mod.dep
 
 ##  - clean: removed all files created by the module build process
 .PHONY: clean
 clean:: clean-module
-	@rm -rf $(TRDIR)/.$(MODNAME).mod.dep
+	@rm -rf $(TRDIR)/.$(MODNAME).*.mod.dep
 
 # copy config files
 .PHONY: etc
