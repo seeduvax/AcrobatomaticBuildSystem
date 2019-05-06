@@ -58,10 +58,7 @@ Buildscripts is a generic build and packaging system for software. It supports m
 Only one build process should be used from both developer's workspace and continuous integration tools such as jenkins to ensure consistency of builds and coherence from various context.
 {req %id=abs.arch.1 
   buildscripts shall support several target computing architecture (various processor and operating systems)}
-The exact list of targets, is not specified and will be adjusted over the time according the projects' needs. At least, the foreseen needs for the simulators and tools developed by JOVG12 are:
-  - x86 64bits processors.
-  - RedHawk Linux From Concurrent Computer.
-  - a more "generic" Linux distribution
+The exact list of targets, is not specified and will be adjusted over the time according the user projects' needs. At least, it should enable build of softare targetting standard x86 PC running widely used not too old GNU/Linux operating systems. First implementations were started using RedHat 5 and Debian 7, and is currently used on projects targeting CentOs 7, SUSE 12, Debian 8 and Debian 9. Most features should require only GNU/make, a shell and a few additionnal commands and it shoudl be adaptable to any system where such software is available. Some successful experimental project were built using Android (through termux) and Cygwin/MinGW.  
   }
   {section %title=Design %xref=Design
      {section %title=from make to GNU make towards generic makefile
