@@ -99,33 +99,18 @@ BUILDROOT?=$(PRJROOT)/build
 ##  - TRDIR: target root directory (where the installed product image is stored)
 TRDIR?=$(BUILDROOT)/$(ARCH)/$(MODE)
 TTARGETDIR?=$(TRDIR)/test
+VERSION_OVERLOADED:=$(filter VERSION=%,$(MAKEOVERRIDES))
 
-ABS_SCM_TYPE=null
+ABS_SCM_TYPE:=null
 ifneq ($(wildcard $(PRJROOT)/.git),)
 ABS_SCM_TYPE:=git
-ABS_GIT_DESCR:=$(shell git describe --tags)
 endif
 ifneq ($(wildcard $(PRJROOT)/.svn),)
 ABS_SCM_TYPE:=svn
 endif
+include $(ABSROOT)/core/scm-$(ABS_SCM_TYPE).mk
 
-# identify dev version from tagged version, only when version is not overloaded.
-VERSION_OVERLOADED:=$(filter VERSION=%,$(MAKEOVERRIDES))
-ifeq ($(ABS_SCM_TYPE),svn)
-WORKSPACE_IS_TAG:=$(shell LANG=C svn info | grep "^URL:" | grep -c "/tags/")
-REVISION:=$(shell svnversion)
-endif
-ifeq ($(ABS_SCM_TYPE),git)
- ifeq ($(ABS_GIT_DESCR),$(APPNAME)-$(VERSION))
-WORKSPACE_IS_TAG:=1
- else
-WORKSPACE_IS_TAG:=0
-REVISION:=$(subst $(APPNAME)-%,%,$(shell git describe --tags))
-  ifneq ($(shell LANG=C git status | grep -c modified),0)
-REVISION:=$(REVISION)M
-  endif
- endif
-endif
+# if version is overloaded, consider workspace is tag.
 ifneq ($(VERSION_OVERLOADED),)
 WORKSPACE_IS_TAG:=1
 endif

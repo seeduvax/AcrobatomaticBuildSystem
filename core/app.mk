@@ -271,3 +271,19 @@ endif
 ifneq ($(IMPORT_ABSMOD),)
 include $(patsubst %,$(ABSROOT)/%/main.mk,$(IMPORT_ABSMOD))
 endif
+
+## --------------------------------------------------------------------------
+## Configuration management services
+## Targets:
+##  - tag: create tag
+tag:
+	@$(ABS_PRINT_info) "Tagging $(APPNAME) $(TAG_VERSION) ..."
+	$(abs_scm_tag)
+	@sed -i -e s/^VERSION=.*$$/VERSION=$(NEW_VERSION)/g app.cfg
+	$(call abs_scm_commit,$(VISSUE) [tag switch] $(COMMENT))
+	@$(ABS_PRINT_info) "# Tag set: $(APPNAME) $(TAG_VERSION)"
+
+##  - branch: create branch
+branch:
+	@$(ABS_PRINT_info) "Creating branch $(APPNAME)-$(NEW_BRANCH) from $(APPNAME)-$(VERSION)@$(REVISION) ..."
+
