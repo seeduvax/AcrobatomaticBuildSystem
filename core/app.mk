@@ -274,6 +274,16 @@ endif
 
 ## --------------------------------------------------------------------------
 ## Configuration management services
+##
+## Variables
+##  - BRANCH_VERSION: current branch identifier
+BRANCH_VERSION:=$(VMAJOR).$(VMEDIUM)
+##  - TAG_VERSION: current version identifier to be used for next tagging
+TAG_VERSION:=$(BRANCH_VERSION).$(VMINOR)
+##  - NEW_VERSION: next version  identifier after tagging.
+NEW_VERSION:=$(BRANCH_VERSION).$(shell expr $(VMINOR) + 1)
+##
+##
 ## Targets:
 ##  - tag: create tag
 tag:
