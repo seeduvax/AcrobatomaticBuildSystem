@@ -57,6 +57,13 @@ $(OBJDIR)/%.o: $(OBJDIR)/%.cpp
 $(OBJDIR)/%.o: src/%.cpp
 	$(cxx-command)
 
+# Ada files compilation
+$(OBJDIR)/%.o: src/%.adb
+	@$(ABS_PRINT_info) "Compiling $< ..."
+	@mkdir -p $(@D)
+	@echo `date --rfc-3339 s`"> $(AFAC) $(ADAFLAGS) -c $< -D $(@D)" >> $(TRDIR)/build.log
+	@$(ADAC) $(CFLAGS) -c $< -D $(@D) || ( $(ABS_PRINT_error) "Failed: ADAFLAGS=$(ADAFLAGS)" ; exit 1 )
+
 # link target from objects
 $(TARGETFILE): $(OBJS)
 	$(ld-command)

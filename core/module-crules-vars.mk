@@ -58,6 +58,16 @@ LDFLAGS+=$(patsubst %,-l%,$(LINKLIB))
 LDLIBP=$(subst !!,,$(subst !! ,:,$(patsubst -%,,$(patsubst -L%,%!!,$(filter -L%,$(LDFLAGS))))))
 LDRUNP?=$$ORIGIN/../lib
 
+
+# ---------------------------------------------------------------------
+# Variable for Ada support with gnat.
+# Not really C/C++ but still a source to object compiler.
+# ---------------------------------------------------------------------
+ADAFLAGS+=$(FILTER -I,$(CFLAGS))
+ADAC?=gnatmake
+ADAOBJS+=$(patsubst src/%.adb,$(OBJDIR)/%.o,$(filter %.adb,$(SRCFILES)))
+OBJS+=$(ADAOBJS)
+
 # ---------------------------------------------------------------------
 # Compilation flags by compilation modes
 # ---------------------------------------------------------------------
