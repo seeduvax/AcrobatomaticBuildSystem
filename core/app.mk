@@ -240,7 +240,7 @@ kdistinstall: dist/$(APPNAME)_lkm-$(VERSION)-$(KVERSION)-install.bin
 KMODULES:=$(filter-out $(patsubst %,mod.%,$(NOBUILD)),$(patsubst %,mod.%,$(shell ls | grep _lkm)))
 dist/$(APPNAME)_lkm-$(VERSION)-$(KVERSION)-install.bin:
 	@make TRDIR=$$PWD/dist/$(APPNAME)-$(VERSION) MODE=release $(KMODULES)
-	tar -C dist/$(APPNAME)-$(VERSION) -cvzf dist/arch.tar.gz etc/ lib/
+	tar -C dist/$(APPNAME)-$(VERSION) $(DISTTARFLAGS) -cvzf dist/arch.tar.gz etc/ lib/
 	sed -e 's/__app__/$(APPNAME)/g' $(ABSROOT)/core/kinstall-template.sh | sed -e 's/__version__/$(VERSION)/g' | sed -e 's/__kversion__/$(KVERSION)/g' > "$@"
 	cat dist/arch.tar.gz >> "$@"
 	chmod +x "$@"
