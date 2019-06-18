@@ -233,7 +233,6 @@ dist/$(APPNAME)-$(VERSION).$(ARCH)-install.bin:
 ##  - distinstall: builds installation package.
 distinstall: dist/$(APPNAME)-$(VERSION).$(ARCH)-install.bin
 
-KVERSION:=$(shell uname -r)
 ##  - kdistinstall: builds linux kernel modules installation package
 kdistinstall: dist/$(APPNAME)_lkm-$(VERSION)-$(KVERSION)-install.bin
 

@@ -1,10 +1,10 @@
 # path to kernel headers
-ifeq (1,$(shell test -d /usr/src/linux-headers-`uname -r` && echo 1 || echo 0))
+ifeq (1,$(shell test -d /usr/src/linux-headers-$(KVERSION) && echo 1 || echo 0))
 # debian style
-KERNELDIR?=/usr/src/linux-headers-$(shell uname -r)
+KERNELDIR?=/usr/src/linux-headers-$(KVERSION)
 else
 # CentOS style
-KERNELDIR?=/lib/modules/$(shell uname -r)/build
+KERNELDIR?=/lib/modules/$(KVERSION)/build
 endif
 LKMNAME:=$(patsubst %_lkm,%,$(MODNAME))
 

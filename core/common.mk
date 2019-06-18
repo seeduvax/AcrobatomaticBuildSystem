@@ -114,3 +114,5 @@ include $(ABSROOT)/core/scm-$(ABS_SCM_TYPE).mk
 ifneq ($(VERSION_OVERLOADED),)
 WORKSPACE_IS_TAG:=1
 endif
+
+KVERSION?=$(shell uname -r)
