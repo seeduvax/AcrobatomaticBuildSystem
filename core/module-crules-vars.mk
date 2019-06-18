@@ -21,6 +21,9 @@ SOPFX?=lib
 SODIR?=lib
 endif
 
+CC_VERSION:=$(shell $(CC) -dumpversion)
+
+
 # add extra symbol definition
 CFLAGS+= $(patsubst %,-D%,$(DEFINES))
 
