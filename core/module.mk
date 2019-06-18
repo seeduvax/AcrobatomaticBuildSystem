@@ -70,8 +70,20 @@ endif
 # 1st subst: replace the spaces between sed command with ; to permit the execution of each sed.
 # 2nd subst: replace | with space to get good sed commands.
 define filterCmds
-$(if $(FILTER_VARIABLES), $(subst |, ,$(subst $(eval) ,;,$(foreach name,$(FILTER_VARIABLES),sed|-i|'s~{$(name)}~$($(name))~g'|$@)));)
+$(if $(FILTER_VARIABLES), $(subst |, ,$(subst $(eval) ,;,$(foreach name,$(FILTER_VARIABLES),sed|-i|'s~{$(name)}~$($(name))~g'|$(strip $(1)))));)
 endef
+# Execute the filtering on a file.
+# params: 1-The original path to the file, 2-The output file to filter (must exists)
+ifneq ($(FILTER_FILES),)
+define executeFiltering
+/bin/bash -c "if [[ \"$(FILTER_FILES)\" == "*$(strip $(1))*" ]]; then echo \"Filtering $(2) ...\"; $(call filterCmds, $(2)) fi"
+endef
+else
+define executeFiltering
+endef
+endif
+
+
 
 # ---------------------------------------------------------------------
 #  dependences beetween modules
@@ -190,7 +202,7 @@ $(TRDIR)/etc/%: etc/%
 	@$(ABS_PRINT_info) "Copying config file $< ..."
 	@mkdir -p $(@D)
 	@cp $< $@
-	@/bin/bash -c "if [[ \"$(FILTER_FILES)\" == "*$<*" ]]; then echo \"Filtering $@ ...\"; $(filterCmds) fi" 
+	@$(call executeFiltering, $<, $@)
 
 etc:: $(CONFIGFILES)
 

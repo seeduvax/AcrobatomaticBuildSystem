@@ -7,12 +7,14 @@ $(TRDIR)/bin/%: src/bin/%
 	@$(ABS_PRINT_info) "Publishing $^..."
 	@mkdir -p $(@D)
 	@cp $^ $@
+	@$(call executeFiltering, $<, $@)
 	@chmod a+x $@
 
 $(TRDIR)/%: src/% 
 	@$(ABS_PRINT_info) "Publishing $^..."
 	@mkdir -p $(@D)
 	@cp $^ $@
+	@$(call executeFiltering, $<, $@)
 
 all-impl::$(TARGETFILES)
 
