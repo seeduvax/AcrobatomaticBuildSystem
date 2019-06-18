@@ -133,7 +133,7 @@ $(FILTERED_DIRECTORY)/%: test/%
 	@$(ABS_PRINT_info) "Copying test file to filter $< ..."
 	@mkdir -p $(@D)
 	@cp $< $@
-	@/bin/bash -c "echo \"Filtering $@ ...\"; $(filterCmds)" 
+	@/bin/bash -c "echo \"Filtering $@ ...\"; $(call filterCmds, $@)"
 	
 # ---------------------------------------------------------------------
 ## 
