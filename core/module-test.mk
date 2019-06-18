@@ -81,8 +81,8 @@ TLDLIBP=$(LDLIBP):$(subst !!,,$(subst !! ,:,$(patsubst -%,,$(patsubst -L%,%!!,$(
 $(OBJDIR)/test/%.o: test/%.cpp 
 	@$(ABS_PRINT_info) "Compiling test $< ..."
 	@mkdir -p $(@D)
-	@echo `date --rfc-3339 s`"> $(CPPC) $(CFLAGS) $(TCFLAGS) -c $< -o $@" >> $(TRDIR)/build.log
-	@$(CPPC) $(CFLAGS) $(TCFLAGS) -MMD -MF $@.d -c $< -o $@ \
+	@echo `date --rfc-3339 s`"> $(CPPC) $(CXXFLAGS) $(CFLAGS) $(TCFLAGS) -c $< -o $@" >> $(TRDIR)/build.log
+	@$(CPPC) $(CXXFLAGS) $(CFLAGS) $(TCFLAGS) -MMD -MF $@.d -c $< -o $@ \
 	&& ( cp $@.d $@.d.tmp ; sed -e 's/#.*//' -e 's/^[^:]*: *//' -e 's/ *\\$$//' -e '/^$$/ d' -e 's/$$/ :/' $@.d.tmp >> $@.d ; rm $@.d.tmp ) \
 	|| ( $(ABS_PRINT_error) "Failed: CFLAGS=$(CFLAGS) $(TCFLAGS)" ; exit 1 )
 

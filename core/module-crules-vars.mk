@@ -91,8 +91,8 @@ endef
 define cxx-command
 @$(ABS_PRINT_info) "Compiling $< ..."
 @mkdir -p $(@D)
-@echo `date --rfc-3339 s`"> $(CPPC) $(CFLAGS) -c $< -o $@" >> $(TRDIR)/build.log 
-@$(CPPC) $(CFLAGS) -MMD -MF $@.d -c $< -o $@ \
+@echo `date --rfc-3339 s`"> $(CPPC) $(CXXFLAGS) $(CFLAGS) -c $< -o $@" >> $(TRDIR)/build.log 
+@$(CPPC) $(CXXFLAGS) $(CFLAGS) -MMD -MF $@.d -c $< -o $@ \
    && ( cp $@.d $@.d.tmp ; sed -e 's/#.*//' -e 's/^[^:]*: *//' -e 's/ *\\$$//' -e '/^$$/ d' -e 's/$$/ :/' $@.d.tmp >> $@.d ; rm $@.d.tmp ) 
 endef
 
