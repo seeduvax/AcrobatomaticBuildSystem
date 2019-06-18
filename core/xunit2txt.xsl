@@ -15,6 +15,7 @@
 <!-- ############################################################## -->
 <xsl:template match="testsuites|testsuite" mode="stat"
 >- Tests: <xsl:value-of select="@tests"/>
+- Total Successes: <xsl:value-of select="count(//testcase[@status='pass'])"/>
 - Total Failures: <xsl:value-of select="@failures"/>
 - Total Errors: <xsl:value-of select="@errors"/>
 - Total Disabled: <xsl:value-of select="count(//skipped)"/>
