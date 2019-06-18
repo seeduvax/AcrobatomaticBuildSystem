@@ -53,9 +53,14 @@ endif
 endif
 # target full path
 TARGETFILE=$(TARGETDIR)/$(TARGET)
+
+# LDFLAGSUSEMOD permit to get the created .so that are not MODTYPE library.
+# this variable must be evaluated at the use time because at declaration time, the dependencies are not generated yet.
+LDFLAGSUSEMOD=$(foreach mod,$(USEMOD),$(if $(wildcard $(TRDIR)/$(SODIR)/lib$(APP)_$(mod).*),-l$(APP)_$(mod),)$(if $(wildcard $(TRDIR)/$(SODIR)/lib$(mod).*),-l$(mod),))
+
 # add paths to used modules' headers & libs.
 CFLAGS+= $(patsubst %,-I$(PRJROOT)/%/include,$(USEMOD)) 
-LDFLAGS+= -L$(TRDIR)/$(SODIR) $(patsubst %_$(APPNAME),%,$(patsubst %,-l$(APPNAME)_%,$(USEMOD)))
+LDFLAGS+= -L$(TRDIR)/$(SODIR) $(LDFLAGSUSEMOD)
 LDFLAGS+=$(patsubst %,-l%,$(LINKLIB))
 # library dir list (to be forwarded to LD_LIBRARY_PATH env var befor running the app)
 LDLIBP=$(subst !!,,$(subst !! ,:,$(patsubst -%,,$(patsubst -L%,%!!,$(filter -L%,$(LDFLAGS))))))
