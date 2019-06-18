@@ -44,6 +44,18 @@ endif
 ##  - PREFIX: installation prefix (default is /opt/<appname>-<version>)
 PREFIX=/opt/$(APPNAME)-$(VERSION)
 
+##  - DIST_EXCLUDE: pattern for files to be excluded on packaging.
+##      (default: share/*/tex)
+DIST_EXCLUDE:=share/*/tex
+##  - LIGHT_INSTALLER: when set to 1, add share/*/doxygen and include to the 
+##      list of file to exclude on packaging.
+ifeq ($(LIGHT_INSTALLER),1)
+DIST_EXCLUDE+=share/*/doxygen include
+endif
+##  - DISTTARFLAGS: arguments to add to tar command when packing files on dist
+##      and distinstall target.
+DISTTARFLAGS+=$(patsubst %,--exclude=%,$(DIST_EXCLUDE))
+
 ifeq ($(MODULES),)
 # search for module only if not explicitely defined from app.cfg.
 MODULES_DEPS:=$(filter-out $(patsubst %,mod.%,$(NOBUILD)),$(patsubst %/Makefile,mod.%,$(shell ls */Makefile)))
@@ -171,7 +183,7 @@ dist/$(APPNAME)-$(VERSION)/import.mk:
 	@rm -rf dist/$(APPNAME)-$(VERSION)/.*.dep
 
 
-DISTTAR:=tar cvzf dist/$(APPNAME)-$(VERSION).$(ARCH).tar.gz -C dist --exclude obj --exclude extlib --exclude extlib.nodist $(APPNAME)-$(VERSION)
+DISTTAR:=tar cvzf dist/$(APPNAME)-$(VERSION).$(ARCH).tar.gz -C dist --exclude obj --exclude extlib --exclude extlib.nodist $(DISTTARFLAGS) $(APPNAME)-$(VERSION)
 
 dist/$(APPNAME)-$(VERSION).$(ARCH).tar.gz: dist/$(APPNAME)-$(VERSION)/import.mk
 ifeq ($(RELEASE_IDENTIFIER),)
@@ -210,11 +222,10 @@ install: dist/$(APPNAME)-$(VERSION)/import.mk
 	$(ABS_PRINT_info) "  Processing $$lib..." ; \
 	test -d dist/$(APPNAME)-$(VERSION)/extlib/$$lib && chmod -R +rwX dist && ( tar -C dist/$(APPNAME)-$(VERSION)/extlib/$$lib -cf - include lib lib64 etc bin sbin share | tar -C $(PREFIX) -xf - ) || cp dist/$(APPNAME)-$(VERSION)/extlib/$$lib $(PREFIX)/lib ; \
 	done
-	@if [ ! -z "$(INSTALL_EXCLUDE_PATTERNS)" ]; then pwd=$$PWD; for p in $(INSTALL_EXCLUDE_PATTERNS); do $(ABS_PRINT_info) "Removing pattern $$p from installation ..."; cmd="cd $(PREFIX) ; find . -path '$$p' | xargs rm -rf 2> /dev/null ; cd $$pwd"; eval $$cmd; done; fi
 
 dist/$(APPNAME)-$(VERSION).$(ARCH)-install.bin:
-	@make PREFIX=tmp/$(APPNAME)-$(VERSION) INSTALL_EXCLUDE_PATTERNS=$(INSTALL_EXCLUDE_PATTERNS) install
-	@tar -C tmp -cvzf tmp/arch.tar.gz $(APPNAME)-$(VERSION)/
+	@make PREFIX=tmp/$(APPNAME)-$(VERSION) install
+	@tar -C tmp -cvzf tmp/arch.tar.gz $(DISTTARFLAGS) $(APPNAME)-$(VERSION)/
 	@sed -e 's/__appname__/$(APPNAME)/g' $(ABSROOT)/core/install-template.sh | sed -e 's/__version__/$(VERSION)/g' > "$@"
 	cat tmp/arch.tar.gz >> "$@"
 	chmod +x "$@"
