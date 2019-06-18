@@ -55,7 +55,6 @@ ifeq ($(MODTYPE),exe)
 # when the target is an exe, the test lib must include the objects made
 # to build the exe
 	TCPPOBJS+=$(patsubst src/%.cpp,$(OBJDIR)/bintest/%.o,$(shell find src/ -name '*.cpp'))  $(OBJDIR)/vinfo.o
-	TCFLAGS+=-D'main(a,b)=__Exec_Main_Stubbed_for_unit_tests_(a,b)'
 endif
 	TLDFLAGS+=-shared -ldl
 endif
@@ -87,21 +86,11 @@ $(OBJDIR)/test/%.o: test/%.cpp
 	&& ( cp $@.d $@.d.tmp ; sed -e 's/#.*//' -e 's/^[^:]*: *//' -e 's/ *\\$$//' -e '/^$$/ d' -e 's/$$/ :/' $@.d.tmp >> $@.d ; rm $@.d.tmp ) \
 	|| ( $(ABS_PRINT_error) "Failed: CFLAGS=$(CFLAGS) $(TCFLAGS)" ; exit 1 )
 
-$(OBJDIR)/bintest/%.o: src/%.c 
-	@$(ABS_PRINT_info) "Compiling $< [Test Mode] ..."
+$(OBJDIR)/bintest/%.o: $(OBJDIR)/%.o
+	@$(ABS_PRINT_info) "Checking $(@F) symbols for Test Mode..."
 	@mkdir -p $(@D)
-	@echo `date --rfc-3339 s`"> $(CC) $(CFLAGS) $(TCFLAGS) -c $< -o $@" >> $(TRDIR)/build.log
-	@$(CC) $(CFLAGS) $(TCFLAGS) -MMD -MF $@.d -c $< -o $@ \
-	&& ( cp $@.d $@.d.tmp ; sed -e 's/#.*//' -e 's/^[^:]*: *//' -e 's/ *\\$$//' -e '/^$$/ d' -e 's/$$/ :/' $@.d.tmp >> $@.d ; rm $@.d.tmp ) \
-	|| ( $(ABS_PRINT_error) "Failed: CFLAGS=$(CFLAGS) $(TCFLAGS)" ; exit 1 )
-
-$(OBJDIR)/bintest/%.o: src/%.cpp 
-	@$(ABS_PRINT_info) "Compiling $< [Test Mode] ..."
-	@mkdir -p $(@D)
-	@echo `date --rfc-3339 s`"> $(CPPC) $(CFLAGS) $(TCFLAGS) -c $< -o $@" >> $(TRDIR)/build.log
-	@$(CPPC) $(CFLAGS) $(TCFLAGS) -MMD -MF $@.d -c $< -o $@ \
-	&& ( cp $@.d $@.d.tmp ; sed -e 's/#.*//' -e 's/^[^:]*: *//' -e 's/ *\\$$//' -e '/^$$/ d' -e 's/$$/ :/' $@.d.tmp >> $@.d ; rm $@.d.tmp ) \
-	|| ( $(ABS_PRINT_error) "Failed: CFLAGS=$(CFLAGS) $(TCFLAGS)" ; exit 1 )
+	@echo `date --rfc-3339 s`"> objcopy --redefine-sym main=__Exec_Main_Stubbed_for_unit_tests__ $< $@" >> $(TRDIR)/build.log
+	@objcopy --redefine-sym main=__Exec_Main_Stubbed_for_unit_tests__ $< $@
 
 ifneq ($(filter exe library,$(MODTYPE)),)
 TTARGETFILEDEP:=$(TARGETFILE)
