@@ -29,8 +29,12 @@ LDFLAGS+=-L$(EXTLIBDIR)/$(CPPUNIT)/$(SODIR)
 # valgrind
 VALGRIND=valgrind
 
-# relpath tool
-RELPATH=$(ABSROOT)/core/relpath.sh
+# relative path (used by edebugtest target for more readability)
+RELPRJROOT=$(if $(shell which realpath 2>/dev/null),$(shell realpath --relative-to="$$PWD" "$(PRJROOT)),$(shell python -c "import os.path; print os.path.relpath('$(PRJROOT)')"))
+define relativePath
+$(patsubst $(PRJROOT)/%,$(RELPRJROOT)/%,$(1))
+endef
+
 
 # Target definition.
 TTARGETDIR=$(TRDIR)/test
@@ -195,19 +199,19 @@ edebugtest:
 	@echo "**** Eclipse debugger setup for tests : ****"
 	@echo
 	@printf "Application:\t\t"
-	@echo "$(patsubst %,$(EXTLIBDIR)/%/bin/$(TESTRUNNER),$(CPPUNIT))" | $(RELPATH) $(PRJROOT)
+	@echo "$(patsubst $(PRJROOT)/%,%,$(patsubst %,$(EXTLIBDIR)/%/bin/$(TESTRUNNER),$(CPPUNIT)))"
 	@printf "Arguments:\t\t"
-	@file=$$(echo "$(TTARGETFILE)" | $(RELPATH)) ; printf "$$file "
+	@printf "$(call relativePath,$(TTARGETFILE)) "
 	@echo "$(RUNARGS)  $(patsubst %,+f %,$(T))"
 	@echo
 	@echo "* Environment (replace native) :"
 	@echo
 	@printf "LD_LIBRARY_PATH\t"
-	@echo $(TLDLIBP) | $(RELPATH)
+	@echo "$(subst $(eval) ,:,$(foreach entry,$(subst :, ,$(TLDLIBP)),$(strip $(call relativePath,$(entry)))))"
 	@printf "TRDIR\t\t"
-	@echo $(TRDIR) | $(RELPATH)
+	@echo "$(call relativePath,$(TRDIR))"
 	@printf "TTARGETDIR\t"
-	@echo $(TTARGETDIR) | $(RELPATH)
+	@echo "$(call relativePath,$(TTARGETDIR))"
 
 ##  - newtest <tested class name>: create a new empty test class
 ifeq ($(word 1,$(MAKECMDGOALS)),newtest)
