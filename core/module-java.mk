@@ -64,7 +64,7 @@ $(OBJDIR)/%.class: src/%.java
 	@$(ABS_PRINT_info) "Compiling $< ..."
 	@mkdir -p $(OBJDIR)
 	@echo `date --rfc-3339 s`'> $(JC) $(JCFLAGS) $<' >> $(TRDIR)/build.log
-	$(JC) $(JCFLAGS) $(if $(ISWINDOWS),`cygpath -m $<`,$<) || ( echo 'Failed: JFLAGS=$(JCFLAGS)' ; exit 1 )
+	@$(JC) $(JCFLAGS) $(if $(ISWINDOWS),`cygpath -m $<`,$<) || ( echo 'Failed: JFLAGS=$(JCFLAGS)' ; exit 1 )
 
 # Resource file copy
 $(OBJDIR)/%: src/%
