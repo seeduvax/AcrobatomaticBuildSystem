@@ -19,5 +19,5 @@ define abs_scm_tag
 endef
 
 define abs_scm_commit
-@git commit -a -m "$1" && git push -all $(GIT_REPOSITORY)
+@git commit -a -m "$1" && git push --all $(GIT_REPOSITORY)
 endef
