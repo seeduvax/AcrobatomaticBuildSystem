@@ -173,7 +173,7 @@ include $(ABSROOT)/core/module-extlib.mk
 # -------------------------------------------------
 
 MODULE_TYPES_MAP+=$(ABSROOT)/core/module-%.mk:linuxmodule,java,python,library,exe,fileset,absext,arduino \
-    $(ABSROOT)/%/main.mk:doc,mstrans \
+    $(ABSROOT)/%/main.mk:doc \
     $(ABSROOT)/core/module-java.mk:jar
 
 comma:=,
