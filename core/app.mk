@@ -162,7 +162,7 @@ branch:
 help:
 	@grep "^## " $(MAKEFILE_LIST) | sed -e 's/^.*## //'
 
-_extra_import_defs_=$(subst >,\n,$(shell echo '$(extra_import_defs)'))
+_extra_import_defs_=$(subst !,\n,$(shell echo '$(extra_import_defs)'))
 
 dist/$(APPNAME)-$(VERSION)/import.mk:
 	@rm -rf dist
