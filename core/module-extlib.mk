@@ -3,7 +3,6 @@
 ## Dependencies management
 ## ------------------------------------------------------------------------
 
-GETLIB?=$(ABSROOT)/core/getdist.sh
 ECLIPSE_PRJ=$(PRJROOT)/.project
 DEPTOOL:=$(ABSROOT)/core/deptool.bash
 
@@ -25,7 +24,7 @@ $(ABS_CACHE)/%:
 			*) wget -q --no-check-certificate $$repo/$$afile -O $@ && exit 0 || \
 				$(ABS_PRINT_warning) "$$afile not available from $$repo";; \
 		esac \
-	done ; $(ABS_PRINT_error) "Can't fetch $$afile." && exit 1
+	done ; $(ABS_PRINT_error) "Can't fetch $$afile." ; rm -rf $@ ; exit 1
 
 # unpack external libraries when app.cfg is more recent than the download
 # since it may have been edited to change USELIB.
