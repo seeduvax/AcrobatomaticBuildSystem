@@ -130,6 +130,9 @@ debug::
 .PHONY: test
 test:: testbuild
 
+.PHONY: coverage
+coverage::
+
 ##  - valgrindtest [RUNARGS="<arg> [<arg>]*":  build and run tests with valgrind
 .PHONY: valgrindtest
 valgrindtest:: testbuild
@@ -163,7 +166,7 @@ NA_EXTLIBDIR?=$(TRDIR)/extlib
 endif
 NDEXTLIBDIR:=$(EXTLIBDIR).nodist
 NDNA_EXTLIBDIR:=$(NA_EXTLIBDIR).nodist
-INCTESTS:=$(filter test %test check %check testbuild help,$(MAKECMDGOALS))
+INCTESTS:=$(filter test %test check %check testbuild help coverage,$(MAKECMDGOALS))
 
 # include extern libraries management rules
 include $(ABSROOT)/core/module-extlib.mk

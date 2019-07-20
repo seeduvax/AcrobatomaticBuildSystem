@@ -271,3 +271,10 @@ clean-module-test:
 	rm -rf $(TTARGETDIR)/$(APPNAME)_$(MODNAME).stdout
 	rm -rf $(TTARGETDIR)/$(APPNAME)_$(MODNAME).xml
 
+
+$(OBJDIR)/coverage.info: test
+	lcov -c --directory $(OBJDIR) -b . --output-file $(OBJDIR)/coverage.info
+	genhtml $(OBJDIR)/coverage.info --output-directory $(OBJDIR)/coverage
+
+coverage:: $(OBJDIR)/coverage.info
+	firefox $(OBJDIR)/coverage/index.html &

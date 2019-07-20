@@ -27,6 +27,12 @@ CC_VERSION:=$(shell $(CC) -dumpversion)
 # add extra symbol definition
 CFLAGS+= $(patsubst %,-D%,$(DEFINES))
 
+# add coverage flags on coverage target.
+ifeq ($(MAKECMDGOALS),coverage)
+CFLAGS+=-coverage
+LDFLAGS+=-lgcov
+endif
+
 # Target definition
 ifeq ($(MODTYPE),library) 
 # target is a library
