@@ -165,7 +165,7 @@ select="substring-after($text,$from)"/>
 \includegraphics[scale=\HEMLfigScale, min width=3cm, max width=\linewidth, min height=3cm, max height=\textheight, keepaspectratio]{<xsl:value-of select="$figpath"/>}
 \end{center}
 <xsl:if test="@title!=''">
-\caption{<xsl:value-of select="@title"/>}
+\caption{<xsl:apply-templates select="@title"/>}
 </xsl:if>
 <xsl:if test="@xref!=''">\label{<xsl:value-of select="@xref"/>}</xsl:if>
 \end{figure}
@@ -187,14 +187,14 @@ select="substring-after($text,$from)"/>
 <xsl:template match="table">
 \begin{HEMLtable}{|<xsl:apply-templates select="tr[1]/*" mode="tablespec"
   />}{
-<xsl:if test="@title!=''">\renewcommand{\HEMLtableCaption}{<xsl:value-of select="@title"/>}</xsl:if>
+<xsl:if test="@title!=''">\renewcommand{\HEMLtableCaption}{<xsl:apply-templates select="@title"/>}</xsl:if>
 <xsl:if test="@xref!=''">\renewcommand{\HEMLtableLabel}{<xsl:value-of select="@xref"/>}</xsl:if>
 }
 <xsl:apply-templates select="tr"/>
 \HEMLtableTail
 \end{HEMLtable}
 <!--
-<xsl:if test="@title!=''">\caption{<xsl:value-of select="@title"/>}</xsl:if>
+<xsl:if test="@title!=''">\caption{<xsl:apply-templates select="@title"/>}</xsl:if>
 <xsl:if test="@xref!=''">\label{<xsl:value-of select="@xref"/>}</xsl:if>
 -->
 </xsl:template>
@@ -234,7 +234,7 @@ select="substring-after($text,$from)"/>
      Reference table
 -->
 <xsl:template match="references">
-\subsection{<xsl:value-of select="@title"/>}
+\subsection{<xsl:apply-templates select="@title"/>}
 \begin{HEMLtable}{X[-1]X[-1]}{}
 \HEMLoddHeadCell
 &amp; \HEMLoddHeadCell \textbf{Authors}\hspace{1cm}\textbf{\emph{Title}} \\
@@ -271,7 +271,7 @@ select="substring-after($text,$from)"/>
      Definition table
 -->
 <xsl:template match="definitions">
-\subsection{<xsl:value-of select="@title"/>}
+\subsection{<xsl:apply-templates select="@title"/>}
 \begin{HEMLtable}{X[-1]X[-1]}{}
 <xsl:apply-templates select="def" mode="detail">
  <xsl:sort select="@entry"/>
@@ -312,7 +312,7 @@ select="substring-after($text,$from)"/>
  </xsl:choose></xsl:param>
 \lstset{language=<xsl:value-of select="$lng"/>}
 \begin{lstlisting}[<xsl:if 
-    test="@title!=''">caption=<xsl:value-of select="@title"/></xsl:if><xsl:if test="@size!=''">basicstyle=\<xsl:value-of select="@size"/></xsl:if>]<xsl:value-of select="."
+    test="@title!=''">caption=<xsl:apply-templates select="@title"/></xsl:if><xsl:if test="@size!=''">basicstyle=\<xsl:value-of select="@size"/></xsl:if>]<xsl:value-of select="."
 />\end{lstlisting}
 </xsl:template>
 <!-- **************************************************
@@ -427,8 +427,8 @@ select="substring-after($text,$from)"/>
     <xsl:apply-templates select="history/edition"/>
     }
         
-    \renewcommand{\HEMLtitle}{<xsl:value-of select="@title"/><xsl:value-of select="title"/>}
-    \title{<xsl:value-of select="@title"/><xsl:value-of select="title"/>}
+    \renewcommand{\HEMLtitle}{<xsl:apply-templates select="@title"/><xsl:apply-templates select="title/text()"/>}
+    \title{<xsl:apply-templates select="@title"/><xsl:apply-templates select="title/text()"/>}
     \begin{document}
     \maketitle
     \input{code.sty}
@@ -620,7 +620,7 @@ Checksum function: <xsl:value-of select="@type"/>
 
 <xsl:template match="operation">
 \HEMLoperationBegin
-\textbf{Operation \#<xsl:value-of select="count(preceding-sibling::operation)+1"/> <xsl:value-of select="@id"/>} <xsl:value-of select="@title"/>
+\textbf{Operation \#<xsl:value-of select="count(preceding-sibling::operation)+1"/> <xsl:value-of select="@id"/>} <xsl:apply-templates select="@title"/>
 <xsl:apply-templates/>
 \HEMLoperationEnd
 </xsl:template>
@@ -628,7 +628,7 @@ Checksum function: <xsl:value-of select="@type"/>
 <xsl:template match="assert">
   <xsl:param name="aid"><xsl:number count="section|references|definitions|check|assert" level="multiple" format="1.1"/></xsl:param>
 \HEMLassertBegin
-\textbf{Assert \#<xsl:value-of select="count(preceding-sibling::assert)+1"/> <xsl:value-of select="@id"/> <xsl:value-of select="@title"/>} 
+\textbf{Assert \#<xsl:value-of select="count(preceding-sibling::assert)+1"/> <xsl:value-of select="@id"/> <xsl:apply-templates select="@title"/>} 
  
 <xsl:apply-templates select="*[not(self::req)]"/>
 
@@ -737,9 +737,9 @@ Checksum function: <xsl:value-of select="@type"/>
   <xsl:with-param name="to" select="' '"/>		
 </xsl:call-template>}
 \renewcommand{\HEMLdate}{<xsl:value-of select="date"/>}
-\renewcommand{\HEMLtitle}{<xsl:value-of select="@title"/><xsl:value-of select="title"/>}
+\renewcommand{\HEMLtitle}{<xsl:apply-templates select="@title"/><xsl:apply-templates select="title/text()"/>}
 <xsl:if test="count(titleImage)=1">\renewcommand{\HEMLtitleImage}{<xsl:value-of select="titleImage"/>}</xsl:if>
-\title{<xsl:value-of select="@title"/><xsl:value-of select="title"/>}
+\title{<xsl:apply-templates select="@title"/><xsl:apply-templates select="title/text()"/>}
 \author{\HEMLauthor}
 \begin{document}
 \maketitle
