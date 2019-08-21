@@ -293,14 +293,20 @@ NEW_VERSION:=$(BRANCH_VERSION).$(shell expr $(VMINOR) + 1)
 ##
 ##
 ## Targets:
-##  - tag: create tag
+##  - tag M="<msg>": create tag
+##      <msg>: tag comment message
+ifeq ($(M),)
+tag:
+	@$(ABS_PRINT_error) "Can't tag, comment message is missing."
+	@$(ABS_PRINT_error) '    make tag M="<msg>"'
+else
 tag:
 	@$(ABS_PRINT_info) "Tagging $(APPNAME) $(TAG_VERSION) ..."
 	$(abs_scm_tag)
 	@sed -i -e s/^VERSION=.*$$/VERSION=$(NEW_VERSION)/g app.cfg
-	$(call abs_scm_commit,$(VISSUE) [tag switch] $(COMMENT))
+	$(call abs_scm_commit,$(VISSUE) [tag switch] $(M))
 	@$(ABS_PRINT_info) "# Tag set: $(APPNAME) $(TAG_VERSION)"
-
+endif
 ##  - branch <X.Y> I=<issue> M="<msg>": create branch <APPNAME>-X.Y
 ##      <issue>: new branch tracking issue reference.
 ##      <msg>: branch creation comment message

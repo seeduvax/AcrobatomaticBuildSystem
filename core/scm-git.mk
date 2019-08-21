@@ -14,7 +14,7 @@ REVISION:=$(REVISION)M
 endif
 
 define abs_scm_tag
-@git tag -a $(APPNAME)-$(TAG_VERSION) $(TAG_REVISION) -m "$(VISSUE) $(COMMENT)" && \
+@git tag -a $(APPNAME)-$(TAG_VERSION) $(TAG_REVISION) -m "#$(VISSUE) $(M)" && \
  git push $(GIT_REPOSITORY) $(APPNAME)-$(TAG_VERSION)
 endef
 

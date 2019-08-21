@@ -9,7 +9,7 @@ TAG_REVISION?=$(SVN_REVISION)
 TAG_REVISION?=HEAD
 
 define abs_scm_tag
-@svn copy $(SVNFLAGS) $(SVNURL)@$(TAG_REVISION) $(SVNROOT)/tags/$(APPNAME)/$(APPNAME)-$(TAG_VERSION) -m "$(VISSUE) $(COMMENT)"
+@svn copy $(SVNFLAGS) $(SVNURL)@$(TAG_REVISION) $(SVNROOT)/tags/$(APPNAME)/$(APPNAME)-$(TAG_VERSION) -m "$(VISSUE) $(M)"
 endef
 
 define abs_scm_commit
