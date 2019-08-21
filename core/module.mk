@@ -157,15 +157,6 @@ all-impl::
 # object files go in a subdirectory of build dir dedicated to the module
 OBJDIR?=$(TRDIR)/obj/$(MODNAME)
 # external libraries local repository
-ifeq ($(TRDIR),$(BUILDROOT)/$(ARCH)/$(MODE))
-EXTLIBDIR?=$(ABSWS)/extlib/$(ARCH)
-NA_EXTLIBDIR?=$(ABSWS)/extlib/noarch
-else
-EXTLIBDIR?=$(TRDIR)/extlib
-NA_EXTLIBDIR?=$(TRDIR)/extlib
-endif
-NDEXTLIBDIR:=$(EXTLIBDIR).nodist
-NDNA_EXTLIBDIR:=$(NA_EXTLIBDIR).nodist
 INCTESTS:=$(filter test %test check %check testbuild help coverage,$(MAKECMDGOALS))
 
 # include extern libraries management rules

@@ -3,6 +3,16 @@
 ## Dependencies management
 ## ------------------------------------------------------------------------
 
+ifeq ($(TRDIR),$(BUILDROOT)/$(ARCH)/$(MODE))
+EXTLIBDIR?=$(ABSWS)/extlib/$(ARCH)
+NA_EXTLIBDIR?=$(ABSWS)/extlib/noarch
+else
+EXTLIBDIR?=$(TRDIR)/extlib
+NA_EXTLIBDIR?=$(TRDIR)/extlib
+endif
+NDEXTLIBDIR:=$(EXTLIBDIR).nodist
+NDNA_EXTLIBDIR:=$(NA_EXTLIBDIR).nodist
+
 ECLIPSE_PRJ=$(PRJROOT)/.project
 DEPTOOL:=$(ABSROOT)/core/deptool.bash
 
@@ -26,8 +36,6 @@ $(ABS_CACHE)/%:
 		esac \
 	done ; $(ABS_PRINT_error) "Can't fetch $$afile." ; rm -rf $@ ; exit 1
 
-# unpack external libraries when app.cfg is more recent than the download
-# since it may have been edited to change USELIB.
 $(EXTLIBDIR)/%/import.mk: $(ABS_CACHE)/$(ARCH)/%.$(ARCH).tar.gz
 	@$(ABS_PRINT_info) "Unpacking library : $(patsubst $(EXTLIBDIR)/%/import.mk,%,$@)"
 	@$(ABS_PRINT_debug) "$^"
@@ -140,5 +148,10 @@ endif
 ## Targets:
 ##  - checkdep: show currently defined dependencies (full graph including 
 ##    dependencies of dependencies).
+ifneq ($(USELIB),)
 checkdep:
 	@APPNAME="$(APPNAME)" VERSION="$(VERSION)" EXTLIBDIR="$(EXTLIBDIR)" PRJROOT="$(PRJROOT)" $(DEPTOOL)
+else
+checkdep:
+	@$(ABS_PRINT_info) "No dependancies set in USELIB project parameter."
+endif
