@@ -85,7 +85,7 @@ $(TARGETDIR)/$(MODNAME).Manifest: $(JCLASSES)
 	@echo "Copyright: $(COPYRIGHT)" >> $@
 	@echo "Build-Date: "`date` >> $@
 	@echo "Build-Host: "`hostname` >> $@
-	@echo "Build-User: "`whoami` >> $@
+	@echo "Build-User: $(USER)" >> $@
 	@echo "Build-Option: $(MODE) $(DEFINES)" >> $@
 	@echo "Build-Id: $(BUILDNUM)" >> $@
 

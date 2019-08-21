@@ -307,3 +307,60 @@ tag:
 branch:
 	@$(ABS_PRINT_info) "Creating branch $(APPNAME)-$(NEW_BRANCH) from $(APPNAME)-$(VERSION)@$(REVISION) ..."
 
+## 
+## --------------------------------------------------------------------
+## Docker utilities.
+##  Enable easy cross build on same hardware architecture for an alternate
+##  OS distribution without setting up a huge VM.
+## Targets:
+##   - docker[.<target>] <image>
+##     call make from current place binded in the provided docker image.
+ifneq ($(filter docker%,$(word 1,$(MAKECMDGOALS))),)
+## Variables:
+DOCKER_IMAGE:=$(word 2,$(MAKECMDGOALS))
+ifeq ($(DOCKER_IMAGE),)
+docker.%:
+	@$(ABS_PRINT_error) "argument missing: need a docker image name."
+	@$(ABS_PRINT_error) "   make docker[.<target>] <image>"
+
+else
+DOCKER_TARGET:=$(TARGET)
+DOCKER_ARGS:=-e USER=$(USER) --hostname $(shell hostname).$(subst /,.,$(DOCKER_IMAGE))
+# preserve uid/gid for proper host file access
+DOCKER_ARGS+= -u $(shell id -u):$(shell id -g)
+# let the dockerized build open ssh session as the user from the host.
+DOCKER_ARGS+=-v $(HOME)/.ssh:/home/$(USER)/.ssh
+##  - DOCKER_WORKSPACE: workspace root dir inside the container ot use for the
+##    build. Caution it shall be writeable for the uid/gid calling make, since
+##    it is set from current user to ensure proper access to project source tree
+##    that is bind into the container as 
+##    $(DOCKER_WORKSPACE)/$(APPNAME)-$(VERSION).
+##    Default is set to /tmp that is a quite standard place world writable.
+DOCKER_WORKSPACE:=/tmp
+DOCKER_WDIR:=$(DOCKER_WORKSPACE)/$(APPNAME)-$(VERSION)
+DOCKER_ARGS+=-v $(PRJROOT):$(DOCKER_WDIR) -w $(DOCKER_WDIR)
+
+.PHONY: docker.%
+docker.%:
+	@$(ABS_PRINT_info) "Running build with target $* from docker image $(DOCKER_IMAGE)"
+	@docker run $(DOCKER_ARGS) $(DOCKER_IMAGE) make $* $(MAKEFLAGS) USER=$(USER)
+
+.PHONY: $(DOCKER_IMAGE)
+$(DOCKER_IMAGE):
+	@:
+
+endif # if DOCKER_IMAGE
+else
+.PHONY: docker.%
+docker.%:
+	@$(ABS_PRINT_warning) "docker target ignored, should be used first to run build from docker image."
+	@$(ABS_PRINT_warning) "   make docker[.<target>] <image>"
+
+endif # docker as first target.
+
+.PHONY: docker
+docker: docker.all
+
+
+absdebug:
+	ls -alrt absws

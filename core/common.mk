@@ -8,7 +8,7 @@
 ##                           optimizations
 MODE?=debug
 ABSROOT?=$(ABSWS)/abs-$(VABS)
-# macro for pretty message printi, use color if available
+# macro for pretty message print, use color if available
 COLORS_TCAP:=$(shell ncolors=`tput colors` 2>/dev/null ; ( [ "$$ncolors" != "" ] && [ "$$ncolors" -ge 0 ] ) && echo yes || echo no)
 ifeq ($(COLORS_TCAP),yes)
 ABS_PRINT_debug:=env printf "\e[36m[abs-debug]\t%s\e[0m\n" 
@@ -41,6 +41,8 @@ ifneq ($(XARCH),)
 include $(ABSROOT)/core/xarch/$(XARCH).mk
 endif
 
+##  - USER: name of the user running the build
+USER?=$(shell whoami | sed -e 's:\\\\:/:g')
 ISWINDOWS:=$(if $(WINDIR),true,)
 ifeq ($(ISWINDOWS),true)
 define absGetPath

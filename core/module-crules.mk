@@ -86,7 +86,7 @@ $(VINFO): module.cfg $(PRJROOT)/app.cfg $(SRCFILES) $(MODDEPS)
 	@echo "	\"\$$Attr: build.opts=$(DEFINES) $$ \"" >> $@
 	@echo "	\"\$$Attr: build.date="`date`" $$ \"" >> $@
 	@echo "	\"\$$Attr: build.host="`hostname`" $$ \"" >> $@
-	@echo "	\"\$$Attr: build.user="`whoami | sed -e 's:\\\\:/:g'`" $$ \"" >> $@
+	@echo "	\"\$$Attr: build.user=$(USER) $$ \"" >> $@
 	@echo "	\"\$$Attr: build.id=$(BUILDNUM) $$ \";" >> $@
 	@echo "const char * _$(APPNAME)_$(MODNAME)_version=\"$(VERSION)\";" >> $@
 	$(call absVInfoExtra)
