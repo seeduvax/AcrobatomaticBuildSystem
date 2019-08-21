@@ -27,4 +27,4 @@ define abs_scm_branch
  printf '1,$$s/VERSION=.*\$$/VERSION=$(NEW_BRANCH).0/g\n1,$$s/VPARENT=.*$$/VPARENT=$(TAG_VERSION)/g\n1,$$s/VISSUE=.*$$/VISSUE=$(I)/g\nwq\n' | ed app.cfg && \
  git commit app.cfg -m "#$(I) [open branch $(NEW_BRANCH) from $(TAG_VERSION)] $(M)" && \
  git push --all $(GIT_REPOSITORY)
-endif
+endef
