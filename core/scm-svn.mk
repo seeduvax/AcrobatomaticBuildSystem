@@ -15,3 +15,13 @@ endef
 define abs_scm_commit
 @svn commit $(SVNFLAGS) -m "$1"
 endef
+
+define abs_scm_branch
+@svn copy $(SVNFLAGS) $(SVNURL)@$(TAG_REVISION) $(SVNROOT)/branch/$(APPNAME)-$(NEW_BRANCH) -m "$(I) [open branch $(NEW_BRANCH) from $(TAG_VERSION)] $(M)" && \
+ svn co $(SVNROOT)/branch/$(APPNAME)-$(NEW_BRANCH) tmp.$(APPNAME)-$(NEW_BRANCH) && \
+ cd tmp.$(APPNAME)-$(NEW_BRANCH) && \
+ printf '1,$$s/VERSION=.*\$$/VERSION=$(NEW_BRANCH).0/g\n1,$$s/VPARENT=.*$$/VPARENT=$(TAG_VERSION)/g\n1,$$s/VISSUE=.*$$/VISSUE=$(I)/g\nwq\n' | ed app.cfg && \
+ svn commit $(SVNFLAGS) -m "$(I) [open branch $(NEW_BRANCH) from $(TAG_VERSION)] $(M)" && \
+ cd - && \
+ rm -rf tmp.$(APPNAME)-$(NEW_BRANCH)
+endef

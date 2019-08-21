@@ -21,3 +21,10 @@ endef
 define abs_scm_commit
 @git commit -a -m "$1" && git push --all $(GIT_REPOSITORY)
 endef
+
+define abs_scm_branch
+@git checkout -b $(NEW_BRANCH) && \
+ printf '1,$$s/VERSION=.*\$$/VERSION=$(NEW_BRANCH).0/g\n1,$$s/VPARENT=.*$$/VPARENT=$(TAG_VERSION)/g\n1,$$s/VISSUE=.*$$/VISSUE=$(I)/g\nwq\n' | ed app.cfg && \
+ git commit app.cfg -m "#$(I) [open branch $(NEW_BRANCH) from $(TAG_VERSION)] $(M)" && \
+ git push --all $(GIT_REPOSITORY)
+endif

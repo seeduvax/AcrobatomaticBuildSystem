@@ -156,9 +156,6 @@ $(NEWMODNAME):
 	@:
 
 endif
-##  - branch: create a new branch from the current one
-branch:
-	$(ABSROOT)/core/scmtools.sh branch
 
 help:
 	@grep "^## " $(MAKEFILE_LIST) | sed -e 's/^.*## //'
@@ -304,10 +301,33 @@ tag:
 	$(call abs_scm_commit,$(VISSUE) [tag switch] $(COMMENT))
 	@$(ABS_PRINT_info) "# Tag set: $(APPNAME) $(TAG_VERSION)"
 
-##  - branch: create branch
+##  - branch <X.Y> I=<issue> M="<msg>": create branch <APPNAME>-X.Y
+##      <issue>: new branch tracking issue reference.
+##      <msg>: branch creation comment message
+ifeq ($(word 1,$(MAKECMDGOALS)),branch)
+NEW_BRANCH=$(word 2,$(MAKCMDGOALS))
+ifeq ($(NEW_BRANCH),)
 branch:
-	@$(ABS_PRINT_info) "Creating branch $(APPNAME)-$(NEW_BRANCH) from $(APPNAME)-$(VERSION)@$(REVISION) ..."
-
+	@$(ABS_PRINT_error) "Can't crate branch, new branch spec is missing"
+	@$(ABS_PRINT_error) "    make branch <X.Y> I=<issue> M='<msg>'"
+else
+NEW_BRANCH:
+	@:
+ifeq ($(I),)
+branch:
+	@$(ABS_PRINT_error) "Can't create branch $(APPNAME)-$(NEW_BRANCH), missing tracking issue."
+	@$(ABS_PRINT_error) "    make branch <X.Y> I=<issue> M='<msg>'"
+else ifeq ($(M),)
+branch:
+	@$(ABS_PRINT_error) "Can't create branch $(APPNAME)-$(NEW_BRANCH), missing comment message."
+	@$(ABS_PRINT_error) "    make branch <X.Y> I=<issue> M='<msg>'"
+else
+branch:
+	@$(ABS_PRINT_info) "Creating branch $(APPNAME)-$(NEW_BRANCH) from $(APPNAME)-$(VERSION)..."
+	$(call abs_scm_branch)
+endif # check param I and M
+endif # check NEW_BRANCH
+endif # branch target
 ## 
 ## --------------------------------------------------------------------
 ## Docker utilities.
