@@ -153,6 +153,7 @@ newmod:
 	printf "MODNAME=$(NEWMODNAME)\nMODTYPE=library\nUSEMOD=\nLINKLIB=\nCFLAGS+=\nLDFLAGS+=\n" > $(NEWMODNAME)/module.cfg
 
 $(NEWMODNAME):
+	@:
 
 endif
 ##  - branch: create a new branch from the current one

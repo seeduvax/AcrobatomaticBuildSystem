@@ -261,6 +261,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION(Test$(TESTNAME));\n\
 } // namespace test\n" `date +%Y` > test/Test$(TESTNAME).cpp
 
 $(TESTNAME):
+	@:
 
 endif
 

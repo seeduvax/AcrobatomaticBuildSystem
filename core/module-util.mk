@@ -158,6 +158,7 @@ $(NAMESPACE_END)\n" `date +%Y` > src/$(CLASSNAME).cpp
 endif
 
 $(CLASSNAME):
+	@:
 
 endif
 

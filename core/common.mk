@@ -106,8 +106,7 @@ VERSION_OVERLOADED:=$(filter VERSION=%,$(MAKEOVERRIDES))
 ABS_SCM_TYPE:=null
 ifneq ($(wildcard $(PRJROOT)/.git),)
 ABS_SCM_TYPE:=git
-endif
-ifneq ($(wildcard $(PRJROOT)/.svn),)
+else ifneq ($(wildcard $(PRJROOT)/.svn),)
 ABS_SCM_TYPE:=svn
 endif
 include $(ABSROOT)/core/scm-$(ABS_SCM_TYPE).mk

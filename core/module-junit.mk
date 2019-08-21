@@ -89,6 +89,7 @@ public class Test$(TESTNAME) {\n\
 " > test/Test$(TESTNAME).java
 
 $(TESTNAME):
+	@:
 
 
 endif

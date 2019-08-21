@@ -85,5 +85,6 @@ if __name__ == '__main__':\n\
     unittest.main()\n" > test/test_$(TESTNAME).py
 
 $(TESTNAME):
+	@:
 
 endif
