@@ -352,7 +352,7 @@ docker.%:
 
 else
 DOCKER_TARGET:=$(TARGET)
-DOCKER_ARGS:=-e USER=$(USER) --hostname $(shell hostname).$(subst /,.,$(DOCKER_IMAGE))
+DOCKER_ARGS:=--rm -e USER=$(USER) --hostname $(shell hostname).$(subst /,.,$(DOCKER_IMAGE))
 # preserve uid/gid for proper host file access
 DOCKER_ARGS+= -u $(shell id -u):$(shell id -g)
 # let the dockerized build open ssh session as the user from the host.
