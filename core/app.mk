@@ -352,25 +352,25 @@ docker.%:
 
 else
 DOCKER_TARGET:=$(TARGET)
-DOCKER_ARGS:=--rm -e USER=$(USER) --hostname $(shell hostname).$(subst /,.,$(DOCKER_IMAGE))
-# preserve uid/gid for proper host file access
-DOCKER_ARGS+= -u $(shell id -u):$(shell id -g)
+DOCKER_ARGS:=--rm --hostname $(shell hostname).$(subst /,.,$(DOCKER_IMAGE))
+DOCKER_WORKSPACE:=/home/$(USER)
+# preliminary command to create user env in the container.
+DOCKER_CREATEUSERENV:=echo $(USER):x:$(shell id -u):$(shell id -g)::$(DOCKER_WORKSPACE):/bin/bash >> /etc/passwd ; chown $(USER) $(DOCKER_WORKSPACE)
 # let the dockerized build open ssh session as the user from the host.
-DOCKER_ARGS+=-v $(HOME)/.ssh:/home/$(USER)/.ssh
+DOCKER_ARGS+=-v $(HOME)/.ssh:$(DOCKER_WORKSPACE)/.ssh
 ##  - DOCKER_WORKSPACE: workspace root dir inside the container ot use for the
 ##    build. Caution it shall be writeable for the uid/gid calling make, since
 ##    it is set from current user to ensure proper access to project source tree
 ##    that is bind into the container as 
 ##    $(DOCKER_WORKSPACE)/$(APPNAME)-$(VERSION).
 ##    Default is set to /tmp that is a quite standard place world writable.
-DOCKER_WORKSPACE:=/tmp
 DOCKER_WDIR:=$(DOCKER_WORKSPACE)/$(APPNAME)-$(VERSION)
-DOCKER_ARGS+=-v $(PRJROOT):$(DOCKER_WDIR) -w $(DOCKER_WDIR)
+DOCKER_ARGS+=-v $(PRJROOT):$(DOCKER_WDIR)
 
 .PHONY: docker.%
 docker.%:
 	@$(ABS_PRINT_info) "Running build with target $* from docker image $(DOCKER_IMAGE)"
-	@docker run $(DOCKER_ARGS) $(DOCKER_IMAGE) make $* $(MAKEFLAGS) USER=$(USER)
+	@docker run $(DOCKER_ARGS) $(DOCKER_IMAGE) bash -c "$(DOCKER_CREATEUSERENV); su - $(USER) -c 'cd $(DOCKER_WDIR) ; make $* $(MAKEFLAGS)'"
 
 .PHONY: $(DOCKER_IMAGE)
 $(DOCKER_IMAGE):
