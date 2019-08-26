@@ -370,7 +370,6 @@ DOCKER_ARGS+=-v $(PRJROOT):$(DOCKER_WDIR)
 .PHONY: docker.%
 docker.%:
 	@$(ABS_PRINT_info) "Running build with target $* from docker image $(DOCKER_IMAGE)"
-	@echo "docker run $(DOCKER_ARGS) $(DOCKER_IMAGE) bash -c \"$(DOCKER_CREATEUSERENV) && su - $(USER) -c 'cd $(DOCKER_WDIR) && make $(patsubst docker.%,%,$@)' $(MAKEARGS)\""
 	@docker run $(DOCKER_ARGS) $(DOCKER_IMAGE) bash -c "$(DOCKER_CREATEUSERENV) && su - $(USER) -c 'cd $(DOCKER_WDIR) && make $(patsubst docker.%,%,$@)' $(MAKEARGS)"
 
 dockershell:
