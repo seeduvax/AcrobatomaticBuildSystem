@@ -42,7 +42,8 @@ include $(ABSROOT)/core/xarch/$(XARCH).mk
 endif
 
 ##  - USER: name of the user running the build
-USER?=$(shell whoami | tr '\\' '/')
+USER?=$(shell whoami)
+USER:=$(subst \,/,$(USER))
 ISWINDOWS:=$(if $(WINDIR),true,)
 ifeq ($(ISWINDOWS),true)
 define absGetPath
