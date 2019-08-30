@@ -16,7 +16,7 @@ $(TRDIR)/%: src/%
 	@cp $^ $@
 	@$(call executeFiltering, $<, $@)
 
-all-impl::$(TARGETFILES)
+all-impl::$(TARGETFILES) etc
 
 ## Specific target behavior for fileset: 
 ## - run <script_name> [RUNARGS="<arg> [<arg>]*]": run script. The script to
