@@ -72,6 +72,6 @@ endif
 cleanabs:
 	@echo Cleaning ABS files and cache $(ABSWS)
 	@echo Changing permissions of $(ABSWS)
-	@-if [ -d build ]; then chmod -R u+w $(ABSWS) 2> /dev/null; fi
+	@chmod -R u+w $(ABSWS) 2> /dev/null
 	@rm -rf $(ABSWS)
 	@echo $(ABSWS) has been deleted
