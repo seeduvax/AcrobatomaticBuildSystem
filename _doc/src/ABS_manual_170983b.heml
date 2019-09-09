@@ -12,7 +12,7 @@
   }
 {section %title=Introduction
   {section %title=Scope
-Acrobatomatic Build System is a generic build and packaging system for software. It supports many language and many targets. To be compatible, a project shall match the file and directory organization buildcripts expects. Buildscripts is mainly made of a set of makefiles (GNU make to be used to run those makefiles). It is completed by some common commands available from any (near) posix like system (including cygwin and mingw) to handle some advance features such as downloading dependencies, running tests, packaging and publishing builds. In some way buildscripts is similar to the maven/ant couple, but has been first designed to support C/C++ software that is not really supported by maven. Among the features are:
+Acrobatomatic Build System (ABS) is a generic build and packaging system for software. It supports many language and many targets. To be compatible, a project shall match the file and directory organization ABS expects. ABS is mainly made of a set of makefiles (GNU make to be used to run those makefiles). It is completed by some common commands available from any (near) posix like system (including cygwin and mingw) to handle some advance features such as downloading dependencies, running tests, packaging and publishing builds. In some way ABS is similar to the maven/ant couple, but has been first designed to support C/C++ software that is not really supported by maven. Among the features are:
   - multi language support: C/C++, java, python.
   - generation of source code skeletons from templates: C++ class, unit test class
   - target architecture handling (including cross compilation)
