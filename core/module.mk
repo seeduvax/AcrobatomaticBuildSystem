@@ -215,4 +215,9 @@ clean-module:
 help:
 	@grep "^## " $(MAKEFILE_LIST) | sed -e 's/^.*## //' ; echo ; echo
 
-
+# update bootstrap makefile if needed.
+ifneq ($(PRESERVEMAKEFILE),true)
+Makefile: $(PRJROOT)/Makefile
+	@$(ABS_PRINT_info) "Updating bootstrap makefile."
+	@cp $^ $@
+endif
