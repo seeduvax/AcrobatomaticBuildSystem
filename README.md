@@ -16,6 +16,7 @@ During my years of coding I used many tools to manage and build projects, from t
   - makefile generators (autoconf/automake / cmake) were to difficult to use for the new comer and I met many troubles from version incompatibility.
   - more featured tools like maven are language dependant and often require xml files that involve huge overhead for the everyday edition of project configuration.
   - many of those tools are not commonly available and by default installed. Working in constrained places were internet access is not directly available, being able to install new package becomes a major issue. 
+
 One day I realized the GNU implementation of make provides many macro and text function that enable automatic targets definitions from the source tree content: look at `subst`, `wildcard` and `ifeq` that let you really code a complete build automation. So why use something more, just use `gmake` at its full power. By the time I had hacked collected many macros in a file to be reused by more and more projects. By the time, almost all the build rules were provided by a few generic makefile leaving in it almost nothing else than few variable and identifier. After some further standardization of my projects' layout, sometime inspired by other (in particular maven), ABS was there.
 
 ## Getting started
