@@ -58,7 +58,7 @@ DISTTARFLAGS+=$(patsubst %,--exclude=%,$(DIST_EXCLUDE))
 
 ifeq ($(MODULES),)
 # search for module only if not explicitely defined from app.cfg.
-MODULES_DEPS:=$(filter-out $(patsubst %,mod.%,$(NOBUILD)),$(patsubst %/Makefile,mod.%,$(shell ls */Makefile)))
+MODULES_DEPS:=$(filter-out $(patsubst %,mod.%,$(NOBUILD)),$(patsubst %/Makefile,mod.%,$(wildcard */Makefile)))
 MODULES:=$(MODULES_DEPS) $(patsubst %,warnnobuild.%,$(NOBUILD))
 MODULES_TEST:=$(filter-out $(patsubst %,testmod.%,$(NOBUILD) $(NOTEST)),$(patsubst %/Makefile,testmod.%,$(shell ls */Makefile))) $(patsubst %,warnnotest.%,$(NOTEST) $(NOBUILD))
 MODULES_VALGRINDTEST:=$(filter-out $(patsubst %,valgrindtestmod.%,$(NOBUILD) $(NOTEST)),$(patsubst %/Makefile,valgrindtestmod.%,$(shell ls */Makefile))) $(patsubst %,warnnotest.%,$(NOTEST) $(NOBUILD))
@@ -112,9 +112,9 @@ clean:
 	@$(ABS_PRINT_info) "Removing tmp"
 	@rm -rf tmp
 
-build/.moddeps.mk:
-	@mkdir -p build
-	@( cd build && ln -s $(ABSWS)/extlib )
+$(TRDIR)/.moddeps.mk:
+	@$(ABS_PRINT_info) "Gererating module dependencies file."
+	@mkdir -p $(@D)
 	@for mod in $(patsubst mod.%,%,$(MODULES_DEPS)) ; do \
 	for element in mod testmod testbuildmod valgrindtestmod; do \
 	echo "$$element.$$mod:: "'$$(patsubst %,'`echo $$element`.%','`grep 'USE\(LK\)*MOD=' $$mod/module.cfg | cut -d '=' -f 2`")" >> $@ ; \
@@ -125,7 +125,7 @@ build/.moddeps.mk:
 mod.%::
 	make $(MMARGS) -C $*
 
--include build/.moddeps.mk
+include $(TRDIR)/.moddeps.mk
 
 testmod.%:
 	make $(MMARGS) -C $* test
@@ -147,11 +147,13 @@ ifeq ($(word 1,$(MAKECMDGOALS)),newmod)
 NEWMODNAME=$(word 2,$(MAKECMDGOALS))$(M)
 .PHONY: newmod
 newmod:
-	mkdir $(NEWMODNAME)
-	mkdir $(NEWMODNAME)/include
-	mkdir $(NEWMODNAME)/src
-	cp $(ABSROOT)/core/bootstrap.mk $(NEWMODNAME)/Makefile
-	printf "MODNAME=$(NEWMODNAME)\nMODTYPE=library\nUSEMOD=\nLINKLIB=\nCFLAGS+=\nLDFLAGS+=\n" > $(NEWMODNAME)/module.cfg
+	@(ABS_PRINT_info) "Creating new module $(NEWMODNAME)"
+	@mkdir $(NEWMODNAME)
+	@mkdir $(NEWMODNAME)/include
+	@mkdir $(NEWMODNAME)/src
+	@echo "# Generated make bootstrap, do not edit. Edit module.cfg to configure module build." > $(NEWMODNAME)/Makefile
+	@echo "include ../Makefile" >> $(NEWMODNAME)/Makefile
+	@printf "MODNAME=$(NEWMODNAME)\nMODTYPE=library\nUSEMOD=\nLINKLIB=\nCFLAGS+=\nLDFLAGS+=\n" > $(NEWMODNAME)/module.cfg
 
 $(NEWMODNAME):
 	@:
@@ -393,6 +395,21 @@ endif # docker as first target.
 .PHONY: docker
 docker: docker.all
 
+# update bootstrap makefile if needed.
+ifneq ($(PRESERVEMAKEFILE),true)
+Makefile: $(ABSROOT)/core/bootstrap.mk
+	@$(ABS_PRINT_info) "Updating bootstrap makefile."
+	@cp $^ $@
+endif
 
-absdebug:
-	ls -alrt absws
+## 
+## --------------------------------------------------------------------
+## ABS management utilities.
+##   - cleanabs: clean abs workdir (will remove all files cached by abs and abs
+##     itself). Does not make any change inside your project tree.
+cleanabs:
+	@$(ABS_PRINT_info) "Setting write permissions to $(ABSWS)..."
+	@chmod -R u+w $(ABSWS) 2> /dev/null
+	@$(ABS_PRINT_info) "Cleaning ABS files and cache $(ABSWS)..."
+	@rm -rf $(ABSWS)
+	@$(ABS_PRINT_info) "$(ABSWS) removed."

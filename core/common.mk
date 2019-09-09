@@ -9,7 +9,7 @@
 MODE?=debug
 ABSROOT?=$(ABSWS)/abs-$(VABS)
 # macro for pretty message print, use color if available
-COLORS_TCAP:=$(shell ncolors=`tput colors` 2>/dev/null ; ( [ "$$ncolors" != "" ] && [ "$$ncolors" -ge 0 ] ) && echo yes || echo no)
+COLORS_TCAP:=$(shell ncolors=`tput colors 2>/dev/null` ; ( [ "$$ncolors" != "" ] && [ "$$ncolors" -ge 0 ] ) && echo yes || echo no)
 ifeq ($(COLORS_TCAP),yes)
 ABS_PRINT_debug:=env printf "\e[36m[abs-debug]\t%s\e[0m\n" 
 ABS_PRINT_info:=env printf "\e[39;1m[abs-info]\t%s\e[0m\n" 
