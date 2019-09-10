@@ -217,7 +217,7 @@ help:
 
 # update bootstrap makefile if needed.
 ifneq ($(PRESERVEMAKEFILE),true)
-Makefile: $(PRJROOT)/Makefile
+Makefile: ../Makefile
 	@$(ABS_PRINT_info) "Updating bootstrap makefile."
 	@cp $^ $@
 endif

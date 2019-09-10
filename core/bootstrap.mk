@@ -56,9 +56,3 @@ $(ABSROOT)/%/main.mk: $(ABS_CACHE)/noarch/abs.%-$(VABS).tar.gz
 
 $(PRJROOT)/local.cfg:
 
-# update module bootstrap makefile from project app level bootstrap makefile
-ifneq ($(wildcard module.cfg),)
-Makefile: ../Makefile
-	@echo Updating module bootstrap makefile from parent directory
-	@cp $^ $@
-endif
