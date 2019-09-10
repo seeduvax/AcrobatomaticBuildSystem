@@ -1,1 +1,1 @@
-{"version":1,"ops":[{"type":1,"author":{"name":"Sebastien Devaux","email":"sebastien.devaux@laposte.net","login":"","avatar_url":""},"timestamp":1545578883,"title":"Reference for AutomatedBuildSystem definition file.","message":"","files":null}]}
+{"version":1,"ops":[{"type":5,"author":{"id":"2423ae637206cd47909c1584f829953d3a01cb87"},"timestamp":1568125420,"added":["reference","doc"],"removed":null},{"type":4,"author":{"id":"2423ae637206cd47909c1584f829953d3a01cb87"},"timestamp":1568125430,"status":2}]}
