@@ -18,16 +18,16 @@ HTML_STYLE_BUNDLE+=$(patsubst %,$(ABSROOT)/doc/html/%.tar.gz,style impress.js hi
 # files to be processed by doxygen.
 DOXSRCFILES:=$(shell find $(PRJROOT) -name *.h -o -name *.c -o -name *.hpp -o -name *.cpp -o -name *.py -o -name *.java | fgrep -v "/build/" | fgrep -v "/dist/" | fgrep -v "$(ABSROOT)")
 
-HEMLVERSION:=0.1.0-1550
+HEMLVERSION?=1.0.0
 HEMLARGS:=-param app $(APPNAME) -param version $(VERSION) -param date "`date --rfc-3339 s`" -param user $$USER -param host $(shell hostname)
 
-PUMLVERSION:=1.2017.12
-PUMLJAR:=$(NDNA_EXTLIBDIR)/plantuml.$(PUMLVERSION).jar
-HEMLJAR:=$(NDNA_EXTLIBDIR)/heml-$(HEMLVERSION).jar
-HEMLCMD:=$(JAVACMD) -jar $(call absGetPath,$(HEMLJAR))
-PUMLCMD:=$(JAVACMD) -jar $(call absGetPath,$(PUMLJAR))
+PUMLVERSION?=1.2017.12
+PUMLJAR?=$(NDNA_EXTLIBDIR)/plantuml.$(PUMLVERSION).jar
+HEMLJAR?=$(NDNA_EXTLIBDIR)/heml-$(HEMLVERSION).jar
+HEMLCMD?=$(JAVACMD) -jar $(call absGetPath,$(HEMLJAR))
+PUMLCMD?=$(JAVACMD) -jar $(call absGetPath,$(PUMLJAR))
 
-HEMLS:=$(filter-out %_release.heml,$(shell find src -name "*.heml"))
+HEMLS:=$(filter-out %_release.heml,$(filter %.heml,$(SRCFILES)))
 PDFLATEX:=$(shell which pdflatex 2>/dev/null)
 METAFONT:=$(shell which mf 2>/dev/null)
 HASLATEX:=false
@@ -46,7 +46,7 @@ PDFS:=$(patsubst src/%.heml,$(PDFDIR)/%.pdf,$(HEMLS))
 endif
 DOCBOOKS:=$(patsubst src/%.heml,$(DBDIR)/%.xml,$(HEMLS))
 HTMLS:=$(patsubst src/%.heml,$(HTMLDIR)/%.html,$(HEMLS)) $(HTMLDIR)/style.css
-IMGS:=$(patsubst src/%,$(HTMLDIR)/%,$(shell find src -name "*.jpg")) $(patsubst src/%,$(HTMLDIR)/%,$(shell find src -name "*.png")) $(patsubst src/%.dia,$(HTMLDIR)/%.png,$(shell find src -name "*.dia"))
+IMGS:=$(patsubst src/%,$(HTMLDIR)/%,$(filter %.jpg %.png,$(SRCFILES))) $(patsubst src/%.dia,$(HTMLDIR)/%.png,$(filter %.dia,$(SRCFILES)))
 ## XSL Stylesheets definition:
 ##   - HEMLTOTEX_STYLE: tex (pdf)
 ##   - HEMLTOXHTML_STYLE: html
@@ -150,30 +150,14 @@ html: $(HTMLS)
 ##    the pdflatex command.
 ifneq ($(HASLATEX),true)
 pdf:
-	@$(ABS_PRINT_warning) "pdflatex or metafont are not available, can't generate pdf file."
+	@$(ABS_PRINT_warning) "pdflatex or metafont are not available, can't generate pdf files."
 else
 pdf: $(PDFS)
 endif
 
 docbook: $(DOCBOOKS)
 
-$(PRJROOT)/build/release.spec:
-	@APPNAME=$(APPNAME) PRJROOT=$(PRJROOT) VPARENT=$(VPARENT) VERSION=$(VERSION) VISSUE=$(VISSUE) $(ABSROOT)/doc/release-info.sh
-	@touch $@
-
-##  - release: generates release note (pdf only). Source file for relase note
-##      naming scheme is src/%_release.heml
-ifeq ($(VPARENT),)
-release:
-	@$(ABS_PRINT_error) "Can't make release, VPARENT is undefined" ; exit 1
-else ifeq ($(VISSUE),)
-release:
-	@$(ABS_PRINT_error) "Can't make release, VISSUE is undefined" ; exit 1
-else
-release: $(PRJROOT)/build/release.spec $(patsubst src/%.heml,$(PDFDIR)/%.pdf,$(shell find src -name "*_release.heml"))
-endif
 
 clean::
 	rm -rf $(DOCDIR)
-	rm -rf $(PRJROOT)/build/release.spec
 
