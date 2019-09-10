@@ -1,1 +1,1 @@
-{"version":1,"ops":[{"type":2,"author":{"id":"2423ae637206cd47909c1584f829953d3a01cb87"},"timestamp":1568125855,"title":"dummy gargbage issue.","was":"Reference for AutomatedBuildSystem definition file."},{"type":5,"author":{"id":"2423ae637206cd47909c1584f829953d3a01cb87"},"timestamp":1568125874,"added":["garbage"],"removed":["doc","reference"]}]}
+{"version":1,"ops":[{"type":2,"author":{"id":"2423ae637206cd47909c1584f829953d3a01cb87"},"timestamp":1568125903,"title":"dummy garbage issue.","was":"dummy gargbage issue."}]}
