@@ -115,6 +115,9 @@ clean:
 $(TRDIR)/.moddeps.mk:
 	@$(ABS_PRINT_info) "Gererating module dependencies file."
 	@mkdir -p $(@D)
+ifeq ($(wildcard $(BUILDROOT)/extlib),)
+	@ln -s $(ABSWS)/extlib $(BUILDROOT)/extlib
+endif
 	@for mod in $(patsubst mod.%,%,$(MODULES_DEPS)) ; do \
 	for element in mod testmod testbuildmod valgrindtestmod; do \
 	echo "$$element.$$mod:: "'$$(patsubst %,'`echo $$element`.%','`grep 'USE\(LK\)*MOD=' $$mod/module.cfg | cut -d '=' -f 2`")" >> $@ ; \
