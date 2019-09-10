@@ -1,1 +1,1 @@
-{"version":1,"ops":[{"type":1,"author":{"name":"Sebastien Devaux","email":"sebastien.devaux@laposte.net","login":"","avatar_url":""},"timestamp":1545746781,"title":"Add git support","message":"","files":null}]}
+{"version":1,"ops":[{"type":3,"author":{"id":"2423ae637206cd47909c1584f829953d3a01cb87"},"timestamp":1568125287,"message":"delivered in abs-3.0.14","files":null},{"type":4,"author":{"id":"2423ae637206cd47909c1584f829953d3a01cb87"},"timestamp":1568125294,"status":2}]}
