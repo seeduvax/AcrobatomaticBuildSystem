@@ -1,1 +1,1 @@
-{"version":1,"ops":[{"type":5,"author":{"name":"Sebastien Devaux","email":"sdevaux@laposte.net","login":"","avatar_url":""},"timestamp":1555329368,"added":["reference"],"removed":null}]}
+{"version":1,"ops":[{"type":5,"author":{"id":"2423ae637206cd47909c1584f829953d3a01cb87"},"timestamp":1568125577,"added":["doc"],"removed":null},{"type":4,"author":{"id":"2423ae637206cd47909c1584f829953d3a01cb87"},"timestamp":1568125583,"status":2}]}
