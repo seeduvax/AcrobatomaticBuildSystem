@@ -3,6 +3,8 @@
 #include <string.h>
 #include "sampleprj/cpplib/res.h"
 
+#define STR_VALUE(name) #name
+#define MACRO_STRVALUE(name) STR_VALUE(name)
 namespace BuildScriptTester {
 	namespace cpplib {
 // --------------------------------------------------------------------
@@ -10,7 +12,7 @@ namespace BuildScriptTester {
 //
 void Example::helloWorld() {
     char str[1024];
-	printf("Hello world from " __APPNAME__ "::" __MODNAME__ "!\n" );
+	printf("Hello world from " MACRO_STRVALUE(__APPNAME__) "::" MACRO_STRVALUE(__MODNAME__) "!\n" );
     printf("len=%d\n",sampleprj_cpplib_res_text_dat_len);
     printf("bufptr=%x\n",sampleprj_cpplib_res_text_dat);
     strncpy(str,(const char *)sampleprj_cpplib_res_text_dat,sampleprj_cpplib_res_text_dat_len);

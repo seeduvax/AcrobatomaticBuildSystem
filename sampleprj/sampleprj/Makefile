@@ -37,9 +37,11 @@ include $(ABSROOT)/core/main.mk
 # May be overloaded by dependencies download rules for more features
 ifeq ($(ABS_DEPDOWNLOAD_RULE_OVERLOADED),)
 ABS_REPO_1ST=$(word 1,$(ABS_REPO))
+$(info ABS_REPO_1ST: $(ABS_REPO_1ST))
 $(ABS_CACHE)/%:
 	@mkdir -p $(@D)
 ifeq ($(findstring file://,$(ABS_REPO_1ST)),file://)
+	@echo "DDD $(patsubst file://%,%,$(patsubst $(ABS_CACHE)/%,$(ABS_REPO_1ST)/%,$@))"
 	@test -r $(patsubst file://%,%,$(patsubst $(ABS_CACHE)/%,$(ABS_REPO_1ST)/%,$@)) || exit 1
 	@echo "Linking $(@F) from $(ABS_REPO_1ST)"
 	@ln -sf $(patsubst file://%,%,$(patsubst $(ABS_CACHE)/%,$(ABS_REPO_1ST)/%,$@)) $@

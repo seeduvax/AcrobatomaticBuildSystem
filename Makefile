@@ -14,6 +14,7 @@ dist/abs.%-$(VERSION).tar.gz:
 	@mkdir -p $(@D)/abs-$(VERSION)
 	@tar cf - $(patsubst dist/abs.%-$(VERSION).tar.gz,%,$@) --exclude .svn | tar xf - -C $(@D)/abs-$(VERSION)
 	@tar cvzf $@ -C $(@D) abs-$(VERSION)/$(patsubst dist/abs.%-$(VERSION).tar.gz,%,$@)
+	@cd $(@D) ; ln -sf . noarch
 
 dist: $(DISTPACKAGES)
 
