@@ -27,12 +27,13 @@ $(ABS_CACHE)/%:
 	for repo in $(ABS_REPO) ; do \
 		$(ABS_PRINT_info) "Fetching $$afile from $$repo" ; \
 		case $$repo in \
-			file://*) srcfile=`echo "$$repo" | cut -f 2 -d ':'`/$$afile ; \
+			file://*) srcfile=`echo "$$repo" | cut -f 2 -d ':'`/$$afile ;\
 				test -f $$srcfile && ln -sf $$srcfile $@ ; \
 				test -r $@ && exit 0 || \
 				$(ABS_PRINT_warning) "$$afile not available from $$repo";; \
-			*) wget -q --no-check-certificate $$repo/$$afile -O $@ && exit 0 || \
-				$(ABS_PRINT_warning) "$$afile not available from $$repo";; \
+			*) wget -q $(WGETFLAGS) $$repo/$$afile -O $@ && exit 0 || \
+				rm -rf $@ ; \
+				 $(ABS_PRINT_warning) "$$afile not available from $$repo";; \
 		esac \
 	done ; $(ABS_PRINT_error) "Can't fetch $$afile." ; rm -rf $@ ; exit 1
 
