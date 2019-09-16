@@ -150,7 +150,7 @@ ifeq ($(word 1,$(MAKECMDGOALS)),newmod)
 NEWMODNAME=$(word 2,$(MAKECMDGOALS))$(M)
 .PHONY: newmod
 newmod:
-	@(ABS_PRINT_info) "Creating new module $(NEWMODNAME)"
+	@$(ABS_PRINT_info) "Creating new module $(NEWMODNAME)"
 	@mkdir $(NEWMODNAME)
 	@mkdir $(NEWMODNAME)/include
 	@mkdir $(NEWMODNAME)/src
