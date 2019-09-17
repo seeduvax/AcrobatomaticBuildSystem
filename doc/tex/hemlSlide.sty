@@ -49,12 +49,13 @@
     \setlength{\parsep}{0pt}     }
 { \end{itemize}                  }
 
-\newenvironment{HEMLtable}[1]
-{ \begin{longtabu}{#1}
+\newenvironment{HEMLtable}[2]
+{ 
+  #2
+  \begin{longtabu}{#1}
   \hline
 }
 {
-  \hline
   \end{longtabu}
 }
 \newcommand{\HEMLoddRow}{\rowcolor{blue!8}}
@@ -95,6 +96,21 @@
 \newcommand{\HEMLkw}[1]{\texttt{\textcolor{darkred}{#1}}}
 \newcommand\HEMLfigScale{1}
 \renewcommand{\familydefault}{\sfdefault}
+
+\newcommand{\HEMLempty}{}
+\newcommand{\HEMLtableCaption}{\HEMLempty}
+\newcommand{\HEMLtableLabel}{\HEMLempty}
+\newcommand{\HEMLtableTail}{
+\hline
+\if\HEMLtableCaption\HEMLempty
+\else
+\caption{\HEMLtableCaption}
+\fi
+\if\HEMLtableLabel\HEMLempty
+\else
+\label{\HEMLtableLabel}
+\fi
+}
 
 % Pages styles -----------------------------------------------------------------------
 \pagestyle{empty}
