@@ -278,10 +278,6 @@ cint:
 	@$(ABS_PRINT_info) "Pub Target: $(CINT_PUB_TARGET)"
 	@$(CINTMAKECMD) clean && $(CINTMAKECMD) $(CINT_TEST_TARGET) && $(CINTMAKECMD) $(CINT_PUB_TARGET)
 
-ifneq ($(filter klocwork, $(MAKECMDGOALS)),)
-include $(ABSROOT)/klocwork/main.mk
-endif
-
 ifneq ($(IMPORT_ABSMOD),)
 include $(patsubst %,$(ABSROOT)/%/main.mk,$(IMPORT_ABSMOD))
 endif
