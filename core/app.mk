@@ -50,11 +50,14 @@ DIST_EXCLUDE:=share/*/tex
 ##  - LIGHT_INSTALLER: when set to 1, add share/*/doxygen and include to the 
 ##      list of file to exclude on packaging.
 ifeq ($(LIGHT_INSTALLER),1)
-DIST_EXCLUDE+=share/*/doxygen include
+INSTALLTAR_EXCLUDE:=share/*/doxygen include
 endif
 ##  - DISTTARFLAGS: arguments to add to tar command when packing files on dist
 ##      and distinstall target.
 DISTTARFLAGS+=$(patsubst %,--exclude=%,$(DIST_EXCLUDE))
+
+##  - INSTALLTARFLAGS: arguments to add to tar command when packing files on distinstall target.
+INSTALLTARFLAGS+=$(patsubst %,--exclude=%,$(INSTALLTAR_EXCLUDE))
 
 ifeq ($(MODULES),)
 # search for module only if not explicitely defined from app.cfg.
@@ -229,7 +232,7 @@ install: dist/$(APPNAME)-$(VERSION)/import.mk
 
 dist/$(APPNAME)-$(VERSION).$(ARCH)-install.bin:
 	@make PREFIX=tmp/$(APPNAME)-$(VERSION) install
-	@tar -C tmp -cvzf tmp/arch.tar.gz $(DISTTARFLAGS) $(APPNAME)-$(VERSION)/
+	@tar -C tmp -cvzf tmp/arch.tar.gz $(DISTTARFLAGS) $(INSTALLTARFLAGS) $(APPNAME)-$(VERSION)/
 	@sed -e 's/__appname__/$(APPNAME)/g' $(ABSROOT)/core/install-template.sh | sed -e 's/__version__/$(VERSION)/g' > "$@"
 	cat tmp/arch.tar.gz >> "$@"
 	chmod +x "$@"
