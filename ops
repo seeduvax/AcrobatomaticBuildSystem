@@ -1,1 +1,1 @@
-{"version":1,"ops":[{"type":1,"author":{"id":"74add05b56062a24332aac0db6b275747f1cf218"},"timestamp":1568973439,"title":"Add a variable (NDUSELIB and TUSELIB) to import libraries that will not be deployed with the application","message":"","files":null}]}
+{"version":1,"ops":[{"type":4,"author":{"id":"74add05b56062a24332aac0db6b275747f1cf218"},"timestamp":1568984522,"status":2}]}
