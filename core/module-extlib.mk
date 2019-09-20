@@ -75,16 +75,39 @@ $(NDNA_EXTLIBDIR)/%/.dir: $(ABS_CACHE)/noarch/%.tar.gz
 	@$(ABS_PRINT_info) "Unpacking data file set : $(patsubst $(NDNA_EXTLIBDIR)/%/.dir,%,$@)"
 	@tar -xzf $^ -C $(NDNA_EXTLIBDIR) && touch $@
 
-define condIncludeExtLib
-ifeq ($$(filter $1,$$(USELIB)),)
-ifeq ($$(filter $(word 1,$(subst -, ,$1))-%,$$(USELIB)),)
-USELIB+=$1
-include $$(patsubst %,$(EXTLIBDIR)/%/import.mk,$1)
-else
-$$(info $$(shell $(ABS_PRINT_warning) "$1 not imported from $2, already imported another version: $$(filter $(word 1,$(subst -, ,$1))-%,$$(USELIB))"))
-endif
+# macro to include lib
+# $1 lib dependancy name (name-version)
+# $3 lib parent name
+# $3 extlib directory path
+# $4 variable to use to store libs
+define includeExtLib
+# the import.mk must not be imported if already imported in EXTLIB
+ifeq ($$(filter $1,$$($4) $$(USELIB)),)
+$$(eval $4+=$1)
+include $$(patsubst %,$3/%/import.mk,$1)
 else
 $$(info $$(shell $(ABS_PRINT_info) "$1 already imported, ignoring new dependency from $2 to $1"))
+endif
+
+endef
+
+# macro to include lib
+# $1 lib dependancy name (name-version)
+# $3 lib parent name
+# $3 extlib directory path
+# $4 variable to use to store libs
+define condIncludeExtLib
+ifeq ($$(filter $(word 1,$(subst -, ,$1))-%,$$(ALLUSELIB)),)
+# the lib has not been imported yet
+ALLUSELIB+=$1
+$(call includeExtLib,$1,$2,$3,$4)
+else
+ifneq ($(word 2,$(subst -, ,$1)),$$(word 2,$$(subst -, ,$$(filter $(word 1,$(subst -, ,$1))-%,$$(ALLUSELIB)))))
+$$(info $$(shell $(ABS_PRINT_warning) "$1 not imported from $2, already imported another version: $$(filter $(word 1,$(subst -, ,$1))-%,$$(ALLUSELIB))"))
+else
+# same version
+$(call includeExtLib,$1,$2,$3,$4)
+endif
 endif
 
 endef
@@ -92,15 +115,24 @@ endef
 # macro to be expansed at external lib inclusion.
 # $1 lib name
 # $2 lib version
-# $3 lib's dependancies.
+# $3 lib's dependencies.
 define extlib_import_template
-$(eval $(foreach lib,$3,$(call condIncludeExtLib,$(lib),$(1)-$(2))))
+ifneq ($$(filter $(1)-$(2),$$(USELIB)),)
+$(foreach lib,$3,$(call condIncludeExtLib,$(lib),$(1)-$(2),$(EXTLIBDIR),USELIB))
 CFLAGS+=-I$(EXTLIBDIR)/$(1)-$(2)/include
 LDFLAGS+=-L$(EXTLIBDIR)/$(1)-$(2)/lib -L$(EXTLIBDIR)/$(1)-$(2)/lib64
+else
+ifneq ($$(filter $(1)-$(2),$$(NDUSELIB)),)
+$(foreach lib,$3,$(call condIncludeExtLib,$(lib),$(1)-$(2),$(NDEXTLIBDIR),NDUSELIB))
+CFLAGS+=-I$(NDEXTLIBDIR)/$(1)-$(2)/include
+LDFLAGS+=-L$(NDEXTLIBDIR)/$(1)-$(2)/lib -L$(NDEXTLIBDIR)/$(1)-$(2)/lib64
+endif
+endif
+
 endef
 
 # list of import makefile from external libraries declared in module configuration
-EXTLIBMAKES=$(patsubst %,$(EXTLIBDIR)/%/import.mk,$(USELIB))
+EXTLIBMAKES=$(patsubst %,$(EXTLIBDIR)/%/import.mk,$(USELIB)) $(patsubst %,$(NDEXTLIBDIR)/%/import.mk,$(NDUSELIB))
 include $(EXTLIBMAKES)
 
 # external libraries are expected before starting compilation.
