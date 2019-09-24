@@ -1,0 +1,1 @@
+{"version":1,"ops":[{"type":1,"author":{"id":"74add05b56062a24332aac0db6b275747f1cf218"},"timestamp":1569334910,"title":"The tag not working when the root of repository doesn't contains tags directory, the tags directory is in a subdirectory","message":"","files":null}]}
