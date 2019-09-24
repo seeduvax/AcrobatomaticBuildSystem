@@ -357,7 +357,7 @@ docker.%:
 
 else
 DOCKER_TARGET:=$(TARGET)
-DOCKER_ARGS:=--rm --hostname $(shell hostname).$(subst /,.,$(DOCKER_IMAGE))
+DOCKER_ARGS+=--rm --hostname $(shell hostname).$(subst /,.,$(DOCKER_IMAGE))
 DOCKER_WORKSPACE:=/home/$(USER)
 # preliminary command to create user env in the container.
 DOCKER_CREATEUSERENV:=echo $(USER):x:$(shell id -u):$(shell id -g)::$(DOCKER_WORKSPACE):/bin/bash >> /etc/passwd && chown $(USER) $(DOCKER_WORKSPACE)
