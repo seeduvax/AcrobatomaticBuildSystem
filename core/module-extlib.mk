@@ -75,6 +75,8 @@ $(NDNA_EXTLIBDIR)/%/.dir: $(ABS_CACHE)/noarch/%.tar.gz
 	@$(ABS_PRINT_info) "Unpacking data file set : $(patsubst $(NDNA_EXTLIBDIR)/%/.dir,%,$@)"
 	@tar -xzf $^ -C $(NDNA_EXTLIBDIR) && touch $@
 
+
+ALLUSELIB:=$(USELIB) $(NDUSELIB)
 # macro to include lib
 # $1 lib dependancy name (name-version)
 # $3 lib parent name
