@@ -375,11 +375,12 @@ DOCKER_ARGS+=-v $(PRJROOT):$(DOCKER_WDIR)
 .PHONY: docker.%
 docker.%:
 	@$(ABS_PRINT_info) "Running build with target $* from docker image $(DOCKER_IMAGE)"
-	@docker run $(DOCKER_ARGS) $(DOCKER_IMAGE) bash -c "$(DOCKER_CREATEUSERENV) && su - $(USER) -c 'cd $(DOCKER_WDIR) && make $(patsubst docker.%,%,$@)' $(MAKEARGS)"
+	@# the () are needed to avoid the quit of container at the end of execution of some commands.
+	@docker run $(DOCKER_ARGS) $(DOCKER_IMAGE) bash -c "($(DOCKER_CREATEUSERENV) && su - $(USER) -c 'cd $(DOCKER_WDIR) && make $(patsubst docker.%,%,$@)' $(MAKEARGS))"
 
 dockershell:
 	@$(ABS_PRINT_info) "Starting shell from docker image $(DOCKER_IMAGE)"
-	@docker run $(DOCKER_ARGS) -it $(DOCKER_IMAGE) bash -c "$(DOCKER_CREATEUSERENV) && su - $(USER)"
+	@docker run $(DOCKER_ARGS) -it $(DOCKER_IMAGE) bash -c "($(DOCKER_CREATEUSERENV) && su - $(USER))"
 
 .PHONY: $(DOCKER_IMAGE)
 $(DOCKER_IMAGE):
