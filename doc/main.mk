@@ -37,6 +37,10 @@ HASLATEX:=true
 endif
 endif
 
+ifneq ($(DOC_FAIL_ON_ERROR),true)
+DOC_FAIL_ON_ERROR:=false
+endif
+
 ifeq ($(HASLATEX),true)
 TEXFOT:=$(shell which texfot 2>/dev/null)
 ifneq ($(TEXFOT),)
@@ -135,10 +139,10 @@ $(PDFDIR)/%.pdf: $(TEXDIR)/%.tex $(IMGS)
 	@mkdir -p $(@D)
 	@mkdir -p $(OBJDIR)
 ifneq ($(USER),jenkins)
-	@cd $(OBJDIR) && $(TEXENV) $(TEXFOT) pdflatex --interaction nonstopmode $< > $(OBJDIR)/tex.$(@F).log && $(TEXENV) pdflatex --interaction nonstopmode $< > $(OBJDIR)/tex.$(@F).log || cat $(OBJDIR)/tex.$(@F).log
+	@cd $(OBJDIR) && $(TEXENV) $(TEXFOT) pdflatex --interaction nonstopmode $< > $(OBJDIR)/tex.$(@F).log && $(TEXENV) pdflatex --interaction nonstopmode $< > $(OBJDIR)/tex.$(@F).log || cat $(OBJDIR)/tex.$(@F).log && ! $(DOC_FAIL_ON_ERROR)
 	@mv $(OBJDIR)/$(@F) $(@D)
 else
-	@cd $(OBJDIR) && $(TEXENV) pdflatex --interaction nonstopmode $< > $(OBJDIR)/tex.$(@F).log && $(TEXENV) pdflatex --interaction nonstopmode $< > $(OBJDIR)/tex.$(@F).log || $(ABS_PRINT_error) "pdf generation error see $(OBJDIR)/tex.$(@F).log for more information."
+	@cd $(OBJDIR) && $(TEXENV) pdflatex --interaction nonstopmode $< > $(OBJDIR)/tex.$(@F).log && $(TEXENV) pdflatex --interaction nonstopmode $< > $(OBJDIR)/tex.$(@F).log || $(ABS_PRINT_error) "pdf generation error see $(OBJDIR)/tex.$(@F).log for more information." && ! $(DOC_FAIL_ON_ERROR)
 	@mv $(patsubst $(PDFDIR)/%.pdf,$(OBJDIR)/%.pdf,$@) $(@D) || $(ABS_PRINT_error) "$@ generation failed."
 endif
 
