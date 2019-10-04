@@ -21,21 +21,30 @@ ABS_DEPDOWNLOAD_RULE_OVERLOADED:=1
 # download files from repository
 .PRECIOUS: $(ABS_CACHE)/%
 
+# Download an archive from repositories
+# $1: File to download
+# $2: Repositories list
+# $3: Dest file
+#
+define downloadFromRepos
+@for repo in $2 ; do \
+	$(ABS_PRINT_info) "Fetching $1 from $$repo" ; \
+	case $$repo in \
+		file://*) srcfile=`echo "$$repo" | cut -f 2 -d ':'`/$1 ;\
+			test -f $$srcfile && ln -sf $$srcfile $3 ; \
+			test -r $3 && exit 0 || \
+			$(ABS_PRINT_warning) "$1 not available from $$repo";; \
+		*) wget -q $(WGETFLAGS) $$repo/$1 -O $3 && exit 0 || \
+			rm -rf $3 ; \
+			 $(ABS_PRINT_warning) "$1 not available from $$repo";; \
+	esac \
+done ; $(ABS_PRINT_error) "Can't fetch $1." ; rm -rf $3 ; exit 1
+endef
+
+
 $(ABS_CACHE)/%:
 	@mkdir -p $(@D)
-	@afile=$(patsubst $(ABS_CACHE)/%,%,$@) ;\
-	for repo in $(ABS_REPO) ; do \
-		$(ABS_PRINT_info) "Fetching $$afile from $$repo" ; \
-		case $$repo in \
-			file://*) srcfile=`echo "$$repo" | cut -f 2 -d ':'`/$$afile ;\
-				test -f $$srcfile && ln -sf $$srcfile $@ ; \
-				test -r $@ && exit 0 || \
-				$(ABS_PRINT_warning) "$$afile not available from $$repo";; \
-			*) wget -q $(WGETFLAGS) $$repo/$$afile -O $@ && exit 0 || \
-				rm -rf $@ ; \
-				 $(ABS_PRINT_warning) "$$afile not available from $$repo";; \
-		esac \
-	done ; $(ABS_PRINT_error) "Can't fetch $$afile." ; rm -rf $@ ; exit 1
+	$(call downloadFromRepos,$*,$(ABS_REPO),$@)
 
 $(EXTLIBDIR)/%/import.mk: $(ABS_CACHE)/$(ARCH)/%.$(ARCH).tar.gz
 	@$(ABS_PRINT_info) "Unpacking library : $(patsubst $(EXTLIBDIR)/%/import.mk,%,$@)"
@@ -75,6 +84,8 @@ $(NDNA_EXTLIBDIR)/%/.dir: $(ABS_CACHE)/noarch/%.tar.gz
 	@$(ABS_PRINT_info) "Unpacking data file set : $(patsubst $(NDNA_EXTLIBDIR)/%/.dir,%,$@)"
 	@tar -xzf $^ -C $(NDNA_EXTLIBDIR) && touch $@
 
+
+ALLUSELIB:=$(USELIB) $(NDUSELIB)
 # macro to include lib
 # $1 lib dependancy name (name-version)
 # $3 lib parent name

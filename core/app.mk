@@ -254,8 +254,7 @@ dist/$(APPNAME)_lkm-$(VERSION)-$(KVERSION)-install.bin:
 
 pubdist: dist/$(APPNAME)-$(VERSION).$(ARCH).tar.gz
 	@$(ABS_PRINT_info)  "Publishing dist archive $^ $(USER) on $(DISTREPO)"
-	@-test $(USER) = $(JENKINS_USER) && \
-	scp $^ $(DISTREPO)/$(ARCH)/$(APPNAME)-$(VERSION).$(ARCH).tar.gz
+	@scp $^ $(DISTREPO)/$(ARCH)/$(APPNAME)-$(VERSION).$(ARCH).tar.gz
 ifneq ($(RELEASE_IDENTIFIER),)
 	@ssh $(DISTHOST) rm -rf $(patsubst $(DISTHOST):%,%,$(DISTREPO))/$(ARCH)/$(APPNAME)-$(RELEASE_IDENTIFIER).$(ARCH).tar.gz
 	@ssh $(DISTHOST) ln -sf $(APPNAME)-$(VERSION).$(ARCH).tar.gz $(patsubst $(DISTHOST):%,%,$(DISTREPO))/$(ARCH)/$(APPNAME)-$(RELEASE_IDENTIFIER).$(ARCH).tar.gz
@@ -263,8 +262,7 @@ endif
 
 pubinstall: dist/$(APPNAME)-$(VERSION).$(ARCH)-install.bin
 	@$(ABS_PRINT_info)  "Publishing dist archive $^ $(USER) on $(DISTREPO)"
-	@-test $(USER) = $(JENKINS_USER) && \
-	scp $^ $(DISTREPO)/$(ARCH)/$(APPNAME)-$(VERSION).$(ARCH)-install.bin
+	@scp $^ $(DISTREPO)/$(ARCH)/$(APPNAME)-$(VERSION).$(ARCH)-install.bin
 
 ##  - cint: full package build, to be used for the continuous integration
 ##    process (for builds from jenkins or any similar tool).
@@ -357,7 +355,7 @@ docker.%:
 
 else
 DOCKER_TARGET:=$(TARGET)
-DOCKER_ARGS:=--rm --hostname $(shell hostname).$(subst /,.,$(DOCKER_IMAGE))
+DOCKER_ARGS+=--rm --hostname $(shell hostname).$(subst /,.,$(DOCKER_IMAGE))
 DOCKER_WORKSPACE:=/home/$(USER)
 # preliminary command to create user env in the container.
 DOCKER_CREATEUSERENV:=echo $(USER):x:$(shell id -u):$(shell id -g)::$(DOCKER_WORKSPACE):/bin/bash >> /etc/passwd && chown $(USER) $(DOCKER_WORKSPACE)
@@ -375,11 +373,12 @@ DOCKER_ARGS+=-v $(PRJROOT):$(DOCKER_WDIR)
 .PHONY: docker.%
 docker.%:
 	@$(ABS_PRINT_info) "Running build with target $* from docker image $(DOCKER_IMAGE)"
-	@docker run $(DOCKER_ARGS) $(DOCKER_IMAGE) bash -c "$(DOCKER_CREATEUSERENV) && su - $(USER) -c 'cd $(DOCKER_WDIR) && make $(patsubst docker.%,%,$@)' $(MAKEARGS)"
+	@# the () are needed to avoid the quit of container at the end of execution of some commands.
+	@docker run $(DOCKER_ARGS) $(DOCKER_IMAGE) bash -c "($(DOCKER_CREATEUSERENV) && su - $(USER) -c 'cd $(DOCKER_WDIR) && make $(patsubst docker.%,%,$@)' $(MAKEARGS))"
 
 dockershell:
 	@$(ABS_PRINT_info) "Starting shell from docker image $(DOCKER_IMAGE)"
-	@docker run $(DOCKER_ARGS) -it $(DOCKER_IMAGE) bash -c "$(DOCKER_CREATEUSERENV) && su - $(USER)"
+	@docker run $(DOCKER_ARGS) -it $(DOCKER_IMAGE) bash -c "($(DOCKER_CREATEUSERENV) && su - $(USER))"
 
 .PHONY: $(DOCKER_IMAGE)
 $(DOCKER_IMAGE):

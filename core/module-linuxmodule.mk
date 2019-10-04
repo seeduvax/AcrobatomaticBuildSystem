@@ -52,7 +52,7 @@ $(ABS_PRINT_info) "Stopping device $(LKMNAME) before install" ; \
 define forward-command
 @$(ABS_PRINT_info) "Forwarding file $^ to $@"
 @mkdir -p $(@D)
-@sed -e 's/MODULE_DESCRIPTION[ ]*[(]/MODULE_DESCRIPTION("$$Attr: app.name=$(APPNAME) $$ $$Attr: app.version=$(VERSION) $$ $$Attr: app.revision=$(REVISION) $$ $$Attr: build.mode=$(MODE) $$ $$Attr: build.opts=$(DEFINES) $$ $$Attr: build.date='`date +%Y-%m-%d.%H:%M:%S`' $$ $$Attr: build.host='`hostname`' $$ $$Attr: build.user=$(USER) $$ $$Attr: build.id=$(BUILDNUM) $$ \\n\\t\\t\" /g' $^ > $@
+@sed -e 's%MODULE_DESCRIPTION[ ]*[(]%MODULE_DESCRIPTION("$$Attr: app.name=$(APPNAME) $$ $$Attr: app.version=$(VERSION) $$ $$Attr: app.revision=$(REVISION) $$ $$Attr: build.mode=$(MODE) $$ $$Attr: build.opts=$(DEFINES) $$ $$Attr: build.date='`date +%Y-%m-%d.%H:%M:%S`' $$ $$Attr: build.host='`hostname`' $$ $$Attr: build.user=$(USER) $$ $$Attr: build.id=$(BUILDNUM) $$ \\n\\t\\t\" %g' $^ > $@
 endef
 
 $(OBJDIR)/$(LKMNAME)_main__.c: src/$(LKMNAME).c
