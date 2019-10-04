@@ -156,7 +156,6 @@ ABS istelf is splitted in several module. Each module is a set of makefile and c
     - operating system identification.
   - doc: document processing features
   - mstrans: matlab/simulink to SMP2 wrapping features
-  - klocwork: source code static analysis tool support (coding rules checking)
   - jenkins: jenkins integration helper scripts.
 Inside the ABS core module, the technical service and utility features are implemented into the following files:
   - main.mk: detects whether the current directory is the application root or a module directory to include the appropriate file.
