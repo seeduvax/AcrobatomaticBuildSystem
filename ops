@@ -1,1 +1,1 @@
-{"version":1,"ops":[{"type":4,"author":{"id":"1844a66631e4efe7af9e283e9cde75174710841e"},"timestamp":1570177926,"status":2}]}
+{"version":1,"ops":[{"type":2,"author":{"id":"2423ae637206cd47909c1584f829953d3a01cb87"},"timestamp":1570198017,"title":"Regression on python module support","was":"ABS3: regression on python module support RD_TEA332-2755"},{"type":2,"author":{"id":"2423ae637206cd47909c1584f829953d3a01cb87"},"timestamp":1570198066,"title":"python module's unit test execution no longer works","was":"Regression on python module support"}]}
