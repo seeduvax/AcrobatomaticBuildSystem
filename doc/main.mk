@@ -27,7 +27,6 @@ HEMLJAR?=$(NDNA_EXTLIBDIR)/heml-$(HEMLVERSION).jar
 HEMLCMD?=$(JAVACMD) -jar $(call absGetPath,$(HEMLJAR))
 PUMLCMD?=$(JAVACMD) -jar $(call absGetPath,$(PUMLJAR))
 
-HEMLS:=$(filter-out %_release.heml,$(filter %.heml,$(SRCFILES)))
 PDFLATEX:=$(shell which pdflatex 2>/dev/null)
 METAFONT:=$(shell which mf 2>/dev/null)
 HASLATEX:=false
