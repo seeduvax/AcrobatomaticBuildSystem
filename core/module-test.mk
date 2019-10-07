@@ -29,12 +29,6 @@ LDFLAGS+=-L$(EXTLIBDIR)/$(CPPUNIT)/$(SODIR)
 # valgrind
 VALGRIND=valgrind
 
-# relative path (used by edebugtest target for more readability)
-RELPRJROOT=$(if $(shell which realpath 2>/dev/null),$(shell realpath --relative-to="$$PWD" "$(PRJROOT)),$(shell python -c "import os.path; print os.path.relpath('$(PRJROOT)')"))
-define relativePath
-$(patsubst $(PRJROOT)/%,$(RELPRJROOT)/%,$(1))
-endef
-
 
 # Target definition.
 TTARGETDIR=$(TRDIR)/test
@@ -150,7 +144,7 @@ testbuild::	$(TTARGETFILE) $(FILTERED_TEST_FILES_OUTPUT)
 define run-test 
 @( [ -d test ] && mkdir -p $(TTARGETDIR) ) || true 
 @( [ -d test ] && rm -f $(TTARGETDIR)/$(APPNAME)_$(MODNAME).xml ) || true 
-@( [ -d test ] && LD_LIBRARY_PATH=$(TLDLIBP) TRDIR=$(TRDIR) TTARGETDIR=$(TTARGETDIR) $1 $(patsubst %,$(EXTLIBDIR)/%/bin/$(TESTRUNNER),$(CPPUNIT)) -x $(TTARGETDIR)/$(APPNAME)_$(MODNAME).xml $(TTARGETFILE) $(RUNARGS) $(patsubst %,+f %,$(T)) $(TARGS) 2>&1 | tee $(TTARGETDIR)/$(APPNAME)_$(MODNAME).stdout ) || true
+@( [ -d test ] && PATH="$(RUNPATH) LD_LIBRARY_PATH="$(TLDLIBP)" TRDIR="$(TRDIR)" TTARGETDIR="$(TTARGETDIR)" $1 $(patsubst %,$(EXTLIBDIR)/%/bin/$(TESTRUNNER),$(CPPUNIT)) -x $(TTARGETDIR)/$(APPNAME)_$(MODNAME).xml $(TTARGETFILE) $(RUNARGS) $(patsubst %,+f %,$(T)) $(TARGS) 2>&1 | tee $(TTARGETDIR)/$(APPNAME)_$(MODNAME).stdout ) || true
 @( [ -d test -a ! -r $(TTARGETDIR)/$(APPNAME)_$(MODNAME).xml ] && $(ABS_PRINT_error) "no test report, test runner exited abnormally." ) || true 
 @( [ -d test -a -r $(TTARGETDIR)/$(APPNAME)_$(MODNAME).xml ] && xsltproc $(ABSROOT)/core/$(TXTXSL) $(TTARGETDIR)/$(APPNAME)_$(MODNAME).xml ) || true
 @if [ -d test ]; then [ -s $(TTARGETDIR)/$(APPNAME)_$(MODNAME).xml ]; else true; fi
@@ -174,7 +168,7 @@ valgrindtest:: testbuild
 debugcheck: testbuild
 	@printf "define runtests\nrun $(TTARGETFILE) $(RUNARGS) $(patsubst %,+f %,$(T)) $(TARGS)\nend\n" > cmd.gdb
 	@printf "\e[1;4mUse runtests command to launch tests from gdb\n\e[37;37;0m"
-	@LD_LIBRARY_PATH=$(TLDLIBP) TRDIR=$(TRDIR) TTARGETDIR=$(TTARGETDIR) gdb  $(patsubst %,$(EXTLIBDIR)/%/bin/$(TESTRUNNER),$(CPPUNIT)) -x cmd.gdb
+	@PATH="$(RUNPATH)" LD_LIBRARY_PATH="$(TLDLIBP)" TRDIR="$(TRDIR)" TTARGETDIR="$(TTARGETDIR)" gdb  $(patsubst %,$(EXTLIBDIR)/%/bin/$(TESTRUNNER),$(CPPUNIT)) -x cmd.gdb
 	@rm cmd.gdb
 
 ##  - debugtest: alias for debugcheck
@@ -206,6 +200,8 @@ edebugtest:
 	@echo
 	@echo "* Environment (replace native) :"
 	@echo
+	@printf "PATH\t"
+	@echo "$(subst $(eval) ,:,$(foreach entry,$(subst :, ,$(RUNPATH)),$(strip $(call relativePath,$(entry)))))"
 	@printf "LD_LIBRARY_PATH\t"
 	@echo "$(subst $(eval) ,:,$(foreach entry,$(subst :, ,$(TLDLIBP)),$(strip $(call relativePath,$(entry)))))"
 	@printf "TRDIR\t\t"

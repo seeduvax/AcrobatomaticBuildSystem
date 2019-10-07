@@ -122,6 +122,13 @@ $(OBJDIR)/%.c: src/% $(RES_HEADER)
 	@echo "#include \"$(RES_HEADER)\"" > $@
 	@xxd -i $< | sed -e "s/src_/$(APPNAME)_$(MODNAME)_/g"  >> $@
 
+
+# relative path (used by edebug and edebugtest targets for more readability)
+RELPRJROOT=$(if $(shell which realpath 2>/dev/null),$(shell realpath --relative-to="$$PWD" "$(PRJROOT)"),$(shell python -c "import os.path; print os.path.relpath('$(PRJROOT)')"))
+define relativePath
+$(patsubst $(PRJROOT)/%,$(RELPRJROOT)/%,$(1))
+endef
+
 # ---------------------------------------------------------------------
 # Extra dependencies
 # ---------------------------------------------------------------------
@@ -131,6 +138,7 @@ $(OBJDIR)/%.c: src/% $(RES_HEADER)
 $(OBJS): $(patsubst %,$(TRDIR)/include/$(APPNAME)/%,$(USELKMOD))
 
 $(COBJS) $(CPPOBJS): $(GENSRC)
+
 
 
 # ---------------------------------------------------------------------
@@ -147,13 +155,14 @@ debug:: all
 else
 # run application
 run:: all
-	LD_LIBRARY_PATH=$(LDLIBP) $(TARGETFILE) $(RUNARGS)
+	@$(ABS_PRINT_info) "Starting $(TARGETFILE) $(RUNARGS)"
+	@PATH=$(RUNPATH) LD_LIBRARY_PATH=$(LDLIBP) $(TARGETFILE) $(RUNARGS)
 
 # run application with gdb
 debug:: $(TARGETFILE)
 	@printf "define runapp\nrun $(RUNARGS)\nend\n" > cmd.gdb
 	@printf "\e[1;4mUse runapp command to launch app from gdb\n\e[37;37;0m"
-	@LD_LIBRARY_PATH=$(LDLIBP) gdb $(TARGETFILE) -x cmd.gdb
+	@PATH=$(RUNPATH) LD_LIBRARY_PATH=$(LDLIBP) gdb $(TARGETFILE) -x cmd.gdb
 	@rm cmd.gdb
 
 # print eclipse setup
@@ -162,14 +171,16 @@ edebug:
 	@echo "**** Eclipse debugger setup : ****"
 	@echo
 	@printf "Application:\t\t"
-	@echo $(TARGETFILE) | $(RELPATH) $(PRJROOT)
+	@echo "$(strip $(call relativePath,$(TARGETFILE)))"
 	@printf "Arguments:\t\t"
 	@echo $(RUNARGS)
 	@echo
 	@echo "* Environment (replace native) :"
 	@echo
+	@printf "PATH\t"
+	@echo "$(subst $(eval) ,:,$(foreach entry,$(subst :, ,$(RUNPATH)),$(strip $(call relativePath,$(entry)))))"
 	@printf "LD_LIBRARY_PATH\t"
-	@echo $(LDLIBP) | $(RELPATH)
+	@echo "$(subst $(eval) ,:,$(foreach entry,$(subst :, ,$(LDLIBP)),$(strip $(call relativePath,$(entry)))))"
 endif
 
 clean-crule:

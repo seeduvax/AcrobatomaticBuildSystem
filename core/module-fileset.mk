@@ -26,7 +26,7 @@ CMDTORUN=$(word 2,$(MAKECMDGOALS))
 ifneq ($(CMDTORUN),)
 run:: $(TARGETFILES) $(TRDIR)/bin/$(CMDTORUN)
 	@$(ABS_PRINT_info) "Launching: $(CMDTORUN) $(RUNARGS)"
-	@export LD_LIBRARY_PATH="$(LDLIBP)" ; \
+	@PATH="$(RUNPATH)" LD_LIBRARY_PATH="$(LDLIBP)" \
 	$(TRDIR)/bin/$(CMDTORUN) $(RUNARGS)
 
 $(CMDTORUN): $(TRDIR)/bin/$(CMDTORUN)

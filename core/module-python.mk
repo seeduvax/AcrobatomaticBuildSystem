@@ -40,6 +40,7 @@ LIB_APP_PATH=$(TRDIR)/lib
 LIST_LIBPATH=$(LIB_APP_PATH)!!
 LIST_LIBPATH+=$(patsubst %,:$(EXTLIBDIR)/%/lib!!,$(USELIB))
 LIB_PATH+=$(subst !!,,$(subst !! ,,$(LIST_LIBPATH)))
+RUNPATH:=$(TRDIR)/bin:$(subst !!,,$(subst !! ,,$(patsubst %,:$(EXTLIBDIR)/%/bin!!,$(USELIB)))):$(PATH)
 # app package dir
 PY_APPDIR=$(PY_APP_PATH)/$(APPNAME)
 # sub package dir
@@ -107,22 +108,22 @@ clean:: py-clean
 
 # run application
 run:: all
-	PYTHONPATH="$(PY_PATH)";LD_LIBRARY_PATH="$(LIB_PATH)"; $(PP) $(PY_MODDIR) $(RUNARGS)
+	PATH="$(RUNPATH)" PYTHONPATH="$(PY_PATH)" LD_LIBRARY_PATH="$(LIB_PATH)" $(PP) $(PY_MODDIR) $(RUNARGS)
 
 ##  - shell [RUNARGS=<arg> [<arg>]*]: run the python shell with module 
 ##      environment
 .PHONY: shell
 shell: all
-	PYTHONPATH="$(PY_PATH)";LD_LIBRARY_PATH="$(LIB_PATH)";$(PP) -i $(PY_MODDIR) $(RUNARGS)
+	PATH="$(RUNPATH)" PYTHONPATH="$(PY_PATH)" LD_LIBRARY_PATH="$(LIB_PATH)" $(PP) -i $(PY_MODDIR) $(RUNARGS)
 
 debug:: 
 	@make all BUILD_ONLY_PYC=0
-	PYTHONPATH="$(PY_PATH)";LD_LIBRARY_PATH="$(LIB_PATH)";$(PP) -m $(PDB) $(PY_MODDIR)/__main__.py $(RUNARGS)
+	PATH="$(RUNPATH)" PYTHONPATH="$(PY_PATH)" LD_LIBRARY_PATH="$(LIB_PATH)" $(PP) -m $(PDB) $(PY_MODDIR)/__main__.py $(RUNARGS)
 
 ##  - pyrun [RUNARGS=<arg> [<arg>]*]: run python
 .PHONY:	pyrun
 pyrun: all
-	PYTHONPATH="$(PY_PATH)";LD_LIBRARY_PATH="$(LIB_PATH)"; $(PP) $(RUNARGS)
+	PATH="$(RUNPATH) PYTHONPATH="$(PY_PATH)" LD_LIBRARY_PATH="$(LIB_PATH)" $(PP) $(RUNARGS)
 
 
 ifneq ($(INCTESTS),)

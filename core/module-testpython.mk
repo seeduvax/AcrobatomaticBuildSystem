@@ -36,7 +36,7 @@ $(PY_TMODDIR)/%.pyc: $(PY_TSRCDIR)/%.py
 test:: all $(PY_TOBJS)
 	@( [ -d test ] && rm -f $(TTARGETDIR)/$(APPNAME)_$(MODNAME).xml ) || true 
 	@printf "import py_utils; from py_utils.main_exec import main_exec; main_exec(APPNAME='$(APPNAME)',MODNAME='$(MODNAME)',TTARGETDIR='$(TTARGETDIR)',T='$(T)')" > $(PY_TMODDIR)/__main__.py
-	(PYTHONPATH="$(PY_TPATH)";LD_LIBRARY_PATH="$(LIB_PATH)" $(PP) $(PY_TMODDIR) 2>&1 | tee $(TTARGETDIR)/$(APPNAME)_$(MODNAME).stdout) || true
+	(PATH="$(RUNPATH)" PYTHONPATH="$(PY_TPATH)" LD_LIBRARY_PATH="$(LIB_PATH)" $(PP) $(PY_TMODDIR) 2>&1 | tee $(TTARGETDIR)/$(APPNAME)_$(MODNAME).stdout) || true
 	@( [ -d test -a ! -r $(TTARGETDIR)/$(APPNAME)_$(MODNAME).xml ] && $(ABS_PRINT_error) "no test report, test runner exited abnormally." ) || true 
 	@( [ -d test -a -r $(TTARGETDIR)/$(APPNAME)_$(MODNAME).xml ] && xsltproc $(ABSROOT)/core/$(TXTXSL) $(TTARGETDIR)/$(APPNAME)_$(MODNAME).xml ) || true
 	@if [ -d test ]; then [ -s $(TTARGETDIR)/$(APPNAME)_$(MODNAME).xml ]; else true; fi
@@ -46,7 +46,7 @@ check:: test
 
 ##  - debugtest: run tests in debugger
 debugtest:
-	PYTHONPATH="$(PY_TPATH)";LD_LIBRARY_PATH="$(LIB_PATH)" $(PP) -m $(PDB) $(PY_TMODDIR)/__main__.py
+	@PATH="$(RUNPATH)" PYTHONPATH="$(PY_TPATH)" LD_LIBRARY_PATH="$(LIB_PATH)" $(PP) -m $(PDB) $(PY_TMODDIR)/__main__.py
 
 ##  - debugcheck: alias for debugtest
 debugcheck: debugtest

@@ -70,6 +70,8 @@ LDFLAGS+= -L$(TRDIR)/$(SODIR) $(LDFLAGSUSEMOD)
 LDFLAGS+=$(patsubst %,-l%,$(LINKLIB))
 # library dir list (to be forwarded to LD_LIBRARY_PATH env var befor running the app)
 LDLIBP=$(subst !!,,$(subst !! ,:,$(patsubst -%,,$(patsubst -L%,%!!,$(filter -L%,$(LDFLAGS))))))
+RUNPATH:=$(TRDIR)/bin$(subst !!,,$(subst !! ,,$(patsubst %,:$(EXTLIBDIR)/%/bin!!,$(USELIB)))):$(PATH)
+
 LDRUNP?=$$ORIGIN/../lib
 
 
