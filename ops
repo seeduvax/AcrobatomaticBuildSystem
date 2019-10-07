@@ -1,0 +1,1 @@
+{"version":1,"ops":[{"type":1,"author":{"id":"2423ae637206cd47909c1584f829953d3a01cb87"},"timestamp":1570461143,"title":"Set PATH env var for run and test target.","message":"Define PATH in a similar way LD_LIBRARY_PATH is defined to let easy access to the commands available from the downloaded dependencies.","files":null}]}
