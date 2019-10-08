@@ -195,19 +195,19 @@ edebugtest:
 	@printf "Application:\t\t"
 	@echo "$(patsubst $(PRJROOT)/%,%,$(patsubst %,$(EXTLIBDIR)/%/bin/$(TESTRUNNER),$(CPPUNIT)))"
 	@printf "Arguments:\t\t"
-	@printf "$(call relativePath,$(TTARGETFILE)) "
+	@printf "$(patsubst $(PRJROOT)/%,%,$(TTARGETFILE))"
 	@echo "$(RUNARGS)  $(patsubst %,+f %,$(T))"
 	@echo
 	@echo "* Environment (replace native) :"
 	@echo
 	@printf "PATH\t"
-	@echo "$(subst $(eval) ,:,$(foreach entry,$(subst :, ,$(RUNPATH)),$(strip $(call relativePath,$(entry)))))"
+	@echo "$(subst $(eval) ,:,$(foreach entry,$(subst :, ,$(RUNPATH)),$(patsubst $(PRJROOT)/%,%,$(entry))))"
 	@printf "LD_LIBRARY_PATH\t"
-	@echo "$(subst $(eval) ,:,$(foreach entry,$(subst :, ,$(TLDLIBP)),$(strip $(call relativePath,$(entry)))))"
+	@echo "$(subst $(eval) ,:,$(foreach entry,$(subst :, ,$(TLDLIBP)),$(patsubst $(PRJROOT)/%,%,$(entry))))"
 	@printf "TRDIR\t\t"
-	@echo "$(call relativePath,$(TRDIR))"
+	@echo "$(patsubst $(PRJROOT)/%,%,$(TRDIR))"
 	@printf "TTARGETDIR\t"
-	@echo "$(call relativePath,$(TTARGETDIR))"
+	@echo "$(patsubst $(PRJROOT)/%,%,$(TTARGETDIR))"
 
 ##  - newtest <tested class name>: create a new empty test class
 ifeq ($(word 1,$(MAKECMDGOALS)),newtest)

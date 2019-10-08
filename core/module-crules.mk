@@ -171,16 +171,16 @@ edebug:
 	@echo "**** Eclipse debugger setup : ****"
 	@echo
 	@printf "Application:\t\t"
-	@echo "$(strip $(call relativePath,$(TARGETFILE)))"
+	@echo "$(patsubst $(PRJROOT)/%,%,$(TARGETFILE))"
 	@printf "Arguments:\t\t"
 	@echo $(RUNARGS)
 	@echo
 	@echo "* Environment (replace native) :"
 	@echo
 	@printf "PATH\t"
-	@echo "$(subst $(eval) ,:,$(foreach entry,$(subst :, ,$(RUNPATH)),$(strip $(call relativePath,$(entry)))))"
+	@echo "$(subst $(eval) ,:,$(foreach entry,$(subst :, ,$(RUNPATH)),$(patsubst $(PRJROOT)/%,%,$(entry))))"
 	@printf "LD_LIBRARY_PATH\t"
-	@echo "$(subst $(eval) ,:,$(foreach entry,$(subst :, ,$(LDLIBP)),$(strip $(call relativePath,$(entry)))))"
+	@echo "$(subst $(eval) ,:,$(foreach entry,$(subst :, ,$(LDLIBP)),$(patsubst $(PRJROOT)/%,%,$(entry))))"
 endif
 
 clean-crule:
