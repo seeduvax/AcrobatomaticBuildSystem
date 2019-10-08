@@ -1,0 +1,1 @@
+{"version":1,"ops":[{"type":1,"author":{"id":"80075e4cc680713faba8fd20cb1623d3c2a768fb"},"timestamp":1570554159,"title":"The documentation is not compiling anymore due to a suppression of the HEML variable in main.mk file in doc module","message":"","files":null}]}
