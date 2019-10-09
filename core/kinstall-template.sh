@@ -66,11 +66,37 @@ install() {
 	fi
 
 	mkdir -p "$PREFIX/lib/modules/$PKVERSION/drast"
-	tail -n +$SKIP "$THIS" | tar -xvz -C "$PREFIX/lib/modules/$PKVERSION/drast" --strip-components=2 lib/modules 
-	mkdir -p "$PREFIX/etc/init.d"
-	tail -n +$SKIP "$THIS" | tar -xvz -C "$PREFIX/etc/init.d" --strip-components=2 etc/init.d
-	mkdir -p "$PREFIX/etc/drast"
-	tail -n +$SKIP "$THIS" | tar -xvz -C "$PREFIX/etc/drast" --strip-components=2 --keep-old-files etc/drast
+	tail -n +$SKIP "$THIS" | tar -xvz --overwrite -C "$PREFIX/lib/modules/$PKVERSION/drast" --strip-components=2 lib/modules
+    mkdir -p "$PREFIX/etc/drast"
+    tail -n +$SKIP "$THIS" | tar -xvz -C "$PREFIX/etc/drast" --strip-components=2 --keep-old-files --wildcards etc/drast/*.conf
+    mkdir -p "$PREFIX/etc/drast/bin"
+    mkdir -p "$PREFIX/etc/drast/services"
+    tail -n +$SKIP "$THIS" | tar -xvz --overwrite -C "$PREFIX/etc/drast" --strip-components=2 etc/drast/services etc/drast/bin
+    mkdir -p "$PREFIX/etc/init.d"
+    tail -n +$SKIP "$THIS" | tar -xvz --overwrite -C "$PREFIX/etc/init.d" --strip-components=2 etc/init.d 
+    
+    if [ -d "$PREFIX/etc/drast/bin" ]; then
+        chmod 750 $PREFIX/etc/drast/bin/*
+    fi
+	if [ "$(which systemd)" != "" ]; then
+	    echo "Installation des drivers pour systemd"
+        if [ -d "$PREFIX/etc/drast/services" ]; then
+            mkdir -p "$PREFIX/lib/systemd/system"
+            for serviceFile in `ls $PREFIX/etc/drast/services/*.service`; do
+                echo "Linking $serviceFile into $PREFIX/lib/systemd/system"
+                chmod 750 $serviceFile
+                ln -srf "$serviceFile" "$PREFIX/lib/systemd/system/"
+            done
+        fi
+    else
+        echo "Installation des drivers avec init.d"
+        if [ -d "$PREFIX/etc/drast/bin" ]; then
+            for execFile in `ls "$PREFIX/etc/drast/bin"`; do
+                echo "Linking $execFile into init.d"
+                ln -srf "$execFile" "$PREFIX/etc/init.d/"
+            done
+        fi
+    fi
 	depmod -a
 
 	echo "File Installation done. Restart or reload related services and modules to complete installation."
@@ -97,6 +123,7 @@ extract() {
 
 list() {
 	tail -n +$SKIP "$THIS" | tar -tz etc/init.d | sed 's/etc\/init\.d\/\(.*\)/\1/g'
+    tail -n +$SKIP "$THIS" | tar -tz etc/drast/bin | sed 's/etc\/drast\/bin\/\(.*\)/\1/g'
 }
 
 activate() {
@@ -104,14 +131,21 @@ activate() {
 		moduleName=$1
 		echo "Activation of the module $moduleName"
 		if [ -f /etc/init.d/$moduleName ]; then 
-			chmod 755 /etc/init.d/$moduleName
+			chmod 750 /etc/init.d/$moduleName
 			which chkconfig && chkconfig --add $moduleName
 			which update-rc.d && update-rc.d $moduleName defaults
 			echo "Starting device..."
 			/etc/init.d/$moduleName start
 			echo "Activation finished"
+	    elif [ -f /lib/systemd/system/$moduleName.service ]; then
+	        chmod 750 /lib/systemd/system/$moduleName.service
+	        systemctl daemon-reload
+            echo "Enabling $moduleName"
+	        systemctl enable $moduleName
+	        echo "Restarting $moduleName"
+            systemctl restart $moduleName
 		else
-			echo "Cannot find the file /etc/init.d/$moduleName"
+			echo "Cannot find the file /etc/init.d/$moduleName or /etc/systemd/system/$moduleName.service"
 		fi
 	fi
 }

@@ -12,17 +12,19 @@ include $(ABSROOT)/core/module-cheaders.mk
 
 EXTRA_SIMVERS:=$(patsubst %,$(TRDIR)/obj/%/Module.symvers,$(USELKMOD))
 CFGFILES:=$(patsubst %,$(TRDIR)/%,$(shell find etc -name $(LKMNAME).conf -o -name $(LKMNAME)))
+SERVICEFILES:=$(patsubst %,$(TRDIR)/%,$(shell find etc -name $(LKMNAME).service))
+BINFILES:=$(patsubst %,$(TRDIR)/%,$(shell find etc -name $(LKMNAME)))
 
-$(TRDIR)/etc/drast/%.conf: src/etc/drast/%.conf
+$(TRDIR)/etc/drast/%: src/etc/drast/%
 	mkdir -p $(@D)
 	cp $^ $@
-
+	
 $(TRDIR)/etc/init.d/%: src/etc/init.d/%
 	mkdir -p $(@D)
 	cp $^ $@
 	chmod +x $@
 
-all-impl:: $(OBJDIR)/Makefile $(PUBLISHED_HEADERS) $(CFGFILES)
+all-impl:: $(OBJDIR)/Makefile $(PUBLISHED_HEADERS) $(CFGFILES) $(SERVICEFILES) $(BINFILES)
 	$(MAKE) -C $(KERNELDIR) M=$(OBJDIR) KBUILD_EXTRA_SYMBOLS="$(EXTRA_SIMVERS)" modules
 	mkdir -p $(TRDIR)/lib/modules/
 	cp $(TRDIR)/obj/$(MODNAME)/*.ko $(TRDIR)/lib/modules
