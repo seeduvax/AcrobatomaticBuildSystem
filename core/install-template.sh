@@ -5,24 +5,29 @@ VERSION=__version__
 PREFIX=/opt/$APPNAME-$VERSION
 
 THIS=$0
-SKIP=`awk '/^__END_SCRIPT_TAG__$/ { print NR + 1; exit 0; }' "$THIS"` 
+SKIP=`awk '/^__END_SCRIPT_TAG__$/ { print NR + 1; exit 0; }' "$THIS"`
+
+UNTAR_ARGS="v"
+TARGET=
 
 help() {
 cat << EOF
-$1 <cmd> [cmd args]
+$1 <cmd> [args] <target>
 
   Available commands as <cmd> :
 
     install : install application $APPNAME $VERSION
-      optionnal arg : installation path. Default installation path is
-      $PREFIX
+      args:
+         --quiet: Hide the untar process 
+      target: (optional) installation path. Default installation path is
+              $PREFIX
 
     extract : extract embedded tar gz archive as $APPNAME-$VERSION.bin.tar.gz
-      optionnal arg : alternate target file
+      target: (optional) arg : alternate target file
 
     help : display help info
 
-  Exemples : 
+  Examples : 
 
     to install application to its default location just enter following command
       $1 install
@@ -34,9 +39,9 @@ exit 0
 }
 
 install() {
-	if [ $# -eq 1 ]
+	if [ "$TARGET" != "" ]
 	then
-		PREFIX="$1"
+		PREFIX="$TARGET"
 	fi
 	echo "Welcome to $APPNAME $VERSION installation."
     # test that the directory not exists or doesn't contains no files.
@@ -46,10 +51,12 @@ install() {
 		read rep
 		if [ "$rep" = "r" -o "$rep" = "R" ]
 		then
-		    echo "Removing previous installation..."
+		    echo ""
+		    echo "#### Removing previous installation..."
 		    rm -rf "$PREFIX"/*
-            rm -rf "$PREFIX"/.*
-            echo "Previous installation removed"
+            rm -rf "$PREFIX"/.* 2> /dev/null # we silence errors for . and ..
+            echo "#### Previous installation removed"
+            echo ""
         elif [ "$rep" != "y" -a "$rep" != "Y" ]
 		then
 			exit 1
@@ -66,7 +73,11 @@ install() {
 
 	TEMPDIR="$PREFIX/bs-install.$$"
 	mkdir -p "$TEMPDIR"
-	tail -n +$SKIP "$THIS" | tar -xvz -C "$TEMPDIR"
+    echo ""
+    echo "#### Extracting files..."
+	tail -n +$SKIP "$THIS" | tar $UNTAR_ARGS"xz" -C "$TEMPDIR"
+    echo "#### Files extracted"
+    echo ""
 	mv "$TEMPDIR"/$APPNAME-$VERSION/* "$PREFIX"
 	mv "$TEMPDIR"/$APPNAME-$VERSION/.* "$PREFIX" 2> /dev/null # we silence errors for . and ..
 	rm -rf "$TEMPDIR"
@@ -101,9 +112,9 @@ install() {
 
 extract() {
 	target=$APPNAME-$VERSION.bin.tar.gz
-	if [ $# -eq 1 ]
+	if [ "$TARGET" != "" ]
 	then
-		target="$1"
+		target="$TARGET"
 	fi
 	if [ -f "$target" ]
 	then
@@ -124,14 +135,36 @@ then
 	help $0
 fi
 
+COMMAND=
 case "$1" in
-	install|extract) 
-		"$@"
-		;;
-	*)
-		help $0
-		;;
+    install|extract) 
+        COMMAND=$1
+        ;;
+    *)
+        help $0
+        ;;
 esac
+
+shift
+while [ $# -ge 1 ]
+do
+    case "$1" in
+        --quiet)
+            UNTAR_ARGS=""
+            shift
+            ;;
+        *)
+            # the last argument is the target if no match with anyother cases
+            if [ $# = 1 ]; then
+                TARGET=$1
+            else
+                echo "Unknown argument $1"
+            fi
+            shift
+            ;;            
+    esac
+done
+"$COMMAND"
 
 exit 0
 __END_SCRIPT_TAG__
