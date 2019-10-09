@@ -89,17 +89,6 @@ ifneq ($(BUILD_ONLY_PYC),1)
 	@cp $< $(@D)/
 endif
 
-
-# ---------------------------------------------------------------------
-#  dependences beetween modules
-# ---------------------------------------------------------------------
-ifneq ($(USEMOD),)
-$(PY_OBJS): $(MODDEPS)
-
-$(APPNAME)_%.dep: $(PRJROOT)/%/Makefile
-	@make $(MMARGS) -C $(<D) 
-endif
-
 py-clean:
 	rm -rf $(PY_MODDIR) 
 	rm -rf $(PY_MODULE_EXE)
