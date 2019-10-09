@@ -72,7 +72,7 @@ $(TARGETFILE): $(OBJS)
 # vinfo must be regenerated each time a source file change, since it
 # may come from any update of the workspace from the repository.
 VINFO:=$(OBJDIR)/vinfo.cpp
-$(VINFO): module.cfg $(PRJROOT)/app.cfg $(SRCFILES) $(MODDEPS)
+$(VINFO): module.cfg $(PRJROOT)/app.cfg $(SRCFILES)
 	@$(ABS_PRINT_info) "Generating vinfo for module $(MODNAME) ..."
 	@mkdir -p $(OBJDIR)
 	@echo "const char * _$(APPNAME)_$(MODNAME)_vinfo=" > $@
@@ -93,7 +93,7 @@ $(VINFO): module.cfg $(PRJROOT)/app.cfg $(SRCFILES) $(MODDEPS)
 
 ifneq ($(GENSRC),)
 # dependencies management.
-$(GENSRC): $(MODDEPS)
+$(GENSRC):
 endif
 
 $(RES_HEADER):
@@ -184,7 +184,6 @@ edebug:
 endif
 
 clean-crule:
-	@rm -rf $(TRDIR)/.$(MODNAME).depmod
 	@$(ABS_PRINT_info) "Removing generated resource header files..."
 	@rm -rf $(RES_HEADER) 
 

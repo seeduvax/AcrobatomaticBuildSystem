@@ -89,17 +89,16 @@ endif
 #  dependences beetween modules
 # ---------------------------------------------------------------------
 ifeq ($(filter test,$(MAKECMDGOALS)),)
-MODDEPS:=$(patsubst %,$(TRDIR)/.%.$(MODE).mod.dep,$(USEMOD) $(USELKMOD))
+MODDEPS:=$(patsubst %,%.mod.dep,$(USEMOD) $(USELKMOD))
 else
-MODDEPS:=$(patsubst %,$(TRDIR)/.%.$(MODE).mod.dep,$(USEMOD) $(USELKMOD) $(TESTUSEMOD))
+MODDEPS:=$(patsubst %,%.mod.dep,$(USEMOD) $(USELKMOD) $(TESTUSEMOD))
 endif
+.PHONY: .explicit_mod_dep
 
-$(TRDIR)/.%.$(MODE).mod.dep:
-	@$(ABS_PRINT_info) "Request build of dependency: $(USEMOD)..."
-	@+make -C $(PRJROOT)/$(patsubst $(TRDIR)/.%.$(MODE).mod.dep,%,$@) && \
-	touch $@
+%.mod.dep: .explicit_mod_dep
+	@$(ABS_PRINT_info) "Build of dependency: $(patsubst %.mod.dep,%,$@)..."
+	@+make -C $(PRJROOT)/$(patsubst %.mod.dep,%,$@)
 
-$(OBJS): $(TRDIR)/.$(MODNAME).$(MODE).mod.dep
 
 ## 
 ## Common make targets:
@@ -112,7 +111,6 @@ all: all-impl
 ##  - clean: removed all files created by the module build process
 .PHONY: clean
 clean:: clean-module
-	@rm -rf $(TRDIR)/.$(MODNAME).*.mod.dep
 
 # copy config files
 .PHONY: etc
