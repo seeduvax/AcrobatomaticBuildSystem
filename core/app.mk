@@ -223,7 +223,9 @@ install: dist/$(APPNAME)-$(VERSION)/import.mk
 dist/$(APPNAME)-$(VERSION).$(ARCH)-install.bin:
 	@make PREFIX=tmp/$(APPNAME)-$(VERSION) install
 	@tar -C tmp -cvzf tmp/arch.tar.gz $(DISTTARFLAGS) $(INSTALLTARFLAGS) $(APPNAME)-$(VERSION)/
-	@sed -e 's/__appname__/$(APPNAME)/g' $(ABSROOT)/core/install-template.sh | sed -e 's/__version__/$(VERSION)/g' > "$@"
+	@sed -e 's/__appname__/$(APPNAME)/g' $(ABSROOT)/core/install-template.sh |\
+	sed -e 's/__version__/$(VERSION)/g' | \
+	sed -e 's~__post_install_patch_files__~$(POST_INSTALL_PATCH_FILES)~g' > "$@"
 	cat tmp/arch.tar.gz >> "$@"
 	chmod +x "$@"
 

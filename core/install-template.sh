@@ -86,16 +86,17 @@ install() {
     uid=`id -u`
     [ $uid -eq 0 ] && chown -R 0:0 "$PREFIX"
 
-    # update .env file with actual install path
-    env_file=$PREFIX/.env
-    if [ -f "$env_file" ]; then
-        abs_prefix=`readlink -f $PREFIX`
-        mv $env_file ${env_file}.bak
-        [ -z "$abs_prefix" ] && abs_prefix=$PREFIX
-        echo "INSTALL_DIR=$abs_prefix" > $env_file
-        cat ${env_file}.bak >> ${env_file}
-        rm -f ${env_file}.bak
-    fi
+    # patch files with actual install path
+	PATCHFILES=__post_install_patch_files__
+	for patch_file in $PATCHFILES
+	do
+    	if [ -f "$PREFIX/$patch_file" ]; then
+        	abs_prefix=`readlink -f $PREFIX`
+        	[ -z "$abs_prefix" ] && abs_prefix=$PREFIX
+			echo "Patching $PREFIX/$patch_file"
+			sed -i "s~{INSTALL_PATH}~$abs_prefix~g" $PREFIX/$patch_file
+		fi
+    done
 	postinstall_script="bin/postinstall_${APPNAME}.sh"
     [ ! -x "$PREFIX/${postinstall_script}" ] && postinstall_script="bin/postinstall.sh"
 
