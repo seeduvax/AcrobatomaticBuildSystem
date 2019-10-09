@@ -37,11 +37,9 @@ include $(ABSROOT)/core/main.mk
 # May be overloaded by dependencies download rules for more features
 ifeq ($(ABS_DEPDOWNLOAD_RULE_OVERLOADED),)
 ABS_REPO_1ST=$(word 1,$(ABS_REPO))
-$(info ABS_REPO_1ST: $(ABS_REPO_1ST))
 $(ABS_CACHE)/%:
 	@mkdir -p $(@D)
 ifeq ($(findstring file://,$(ABS_REPO_1ST)),file://)
-	@echo "DDD $(patsubst file://%,%,$(patsubst $(ABS_CACHE)/%,$(ABS_REPO_1ST)/%,$@))"
 	@test -r $(patsubst file://%,%,$(patsubst $(ABS_CACHE)/%,$(ABS_REPO_1ST)/%,$@)) || exit 1
 	@echo "Linking $(@F) from $(ABS_REPO_1ST)"
 	@ln -sf $(patsubst file://%,%,$(patsubst $(ABS_CACHE)/%,$(ABS_REPO_1ST)/%,$@)) $@
@@ -58,19 +56,3 @@ $(ABSROOT)/%/main.mk: $(ABS_CACHE)/noarch/abs.%-$(VABS).tar.gz
 
 $(PRJROOT)/local.cfg:
 
-# update module bootstrap makefile from project app level bootstrap makefile
-ifneq ($(wildcard module.cfg),)
-Makefile: ../Makefile
-	@echo Updating module bootstrap makefile from parent directory
-	@cp $^ $@
-endif
-# update app bootstrap makefile from bootstrap makefile in abs core
-ifneq ($(wildcard app.cfg),)
-Makefile: $(ABSROOT)/core/bootstrap.mk
-	@echo Updating app bootstrap makefile from abs core
-	@cp $^ $@
-endif
-
-cleanabs:
-	@echo Cleaning ABS files and cache $(ABSWS)
-	@rm -rf $(ABSWS)
