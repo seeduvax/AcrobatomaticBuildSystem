@@ -115,7 +115,7 @@ clean:
 	@$(ABS_PRINT_info) "Removing tmp"
 	@rm -rf tmp
 
-$(TRDIR)/.moddeps.mk:
+$(TRDIR)/obj/.moddeps.mk:
 	@$(ABS_PRINT_info) "Gererating module dependencies file."
 	@mkdir -p $(@D)
 ifeq ($(wildcard $(BUILDROOT)/extlib),)
@@ -131,7 +131,7 @@ endif
 mod.%::
 	make $(MMARGS) -C $*
 
-include $(TRDIR)/.moddeps.mk
+include $(TRDIR)/obj/.moddeps.mk
 
 testmod.%:
 	make $(MMARGS) -C $* test
@@ -187,7 +187,6 @@ dist/$(APPNAME)-$(VERSION)/import.mk:
 	done 
 	@rm -rf dist/$(APPNAME)-$(VERSION)/obj
 	@rm -rf dist/$(APPNAME)-$(VERSION)/build.log
-	@rm -rf dist/$(APPNAME)-$(VERSION)/.*.dep
 
 
 DISTTAR:=tar cvzf dist/$(APPNAME)-$(VERSION).$(ARCH).tar.gz -C dist --exclude obj --exclude extlib --exclude extlib.nodist $(DISTTARFLAGS) $(APPNAME)-$(VERSION)
@@ -213,17 +212,8 @@ pubfile: $(FILE)
 ##  - install [PREFIX=<install path>]: installs the application
 install: dist/$(APPNAME)-$(VERSION)/import.mk
 	@mkdir -p $(PREFIX)
-	@$(ABS_PRINT_info) "Copying binaries..."
-	@test -d dist/$(APPNAME)-$(VERSION)/bin && cp -r dist/$(APPNAME)-$(VERSION)/bin $(PREFIX)/ || :
-	@test -d dist/$(APPNAME)-$(VERSION)/sbin && cp -r dist/$(APPNAME)-$(VERSION)/sbin $(PREFIX)/ || :
-	@$(ABS_PRINT_info)  "Copying header files..."
-	@test -d dist/$(APPNAME)-$(VERSION)/include && cp -r dist/$(APPNAME)-$(VERSION)/include $(PREFIX)/ || :
-	@$(ABS_PRINT_info)  "Copying configuration files..."
-	@test -d dist/$(APPNAME)-$(VERSION)/etc && cp -r dist/$(APPNAME)-$(VERSION)/etc $(PREFIX)/ || : 
-	@$(ABS_PRINT_info)  "Copying libraries..."
-	@test -d dist/$(APPNAME)-$(VERSION)/lib && cp -r dist/$(APPNAME)-$(VERSION)/lib $(PREFIX)/ || :
-	@$(ABS_PRINT_info)  "Copying shared files..."
-	@test -d dist/$(APPNAME)-$(VERSION)/share && cp -r dist/$(APPNAME)-$(VERSION)/share $(PREFIX)/ || :
+	@$(ABS_PRINT_info) "Copying file tree..."
+	@tar -cf - dist/$(APPNAME)-$(VERSION) $(patsubst %,--exclude dist/$(APPNAME)-$(VERSION)/%,obj extlib extlib.nodist) | tar -C $(PREFIX) --strip-components=2 -xf -
 	@$(ABS_PRINT_info)  "Copying dependancies..."
 	@for lib in `ls dist/$(APPNAME)-$(VERSION)/extlib/ | fgrep -v cppunit-` ; do \
 	$(ABS_PRINT_info) "  Processing $$lib..." ; \
