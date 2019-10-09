@@ -7,7 +7,6 @@ PREFIX=/opt/$APPNAME-$VERSION
 THIS=$0
 SKIP=`awk '/^__END_SCRIPT_TAG__$/ { print NR + 1; exit 0; }' "$THIS"` 
 
-
 help() {
 cat << EOF
 $1 <cmd> [cmd args]
@@ -25,7 +24,7 @@ $1 <cmd> [cmd args]
 
   Exemples : 
 
-    to install application to its default location just enter followin command
+    to install application to its default location just enter following command
       $1 install
 
     to extract embedded archive as archive.tar.gz :
@@ -33,18 +32,25 @@ $1 <cmd> [cmd args]
 EOF
 exit 0
 }
-ME
+
 install() {
 	if [ $# -eq 1 ]
 	then
 		PREFIX="$1"
 	fi
 	echo "Welcome to $APPNAME $VERSION installation."
-	if [ -r "$PREFIX" ]
+    # test that the directory not exists or doesn't contains no files.
+	if [ -r "$PREFIX" -a ! -z "$(ls -A $PREFIX)" ]
 	then
-		echo "Warning: target directory already exists. Continue (y/n) ?"
+		echo "Warning: target directory already exists. Continue ? [y: Yes, N: (default)No, r: remove previous installation]"
 		read rep
-		if [ "$rep" != "y" -a "$rep" != "Y" ]
+		if [ "$rep" = "r" -o "$rep" = "R" ]
+		then
+		    echo "Removing previous installation..."
+		    rm -rf "$PREFIX"/*
+            rm -rf "$PREFIX"/.*
+            echo "Previous installation removed"
+        elif [ "$rep" != "y" -a "$rep" != "Y" ]
 		then
 			exit 1
 		fi
@@ -84,7 +90,11 @@ install() {
 
 	if [ -x "$PREFIX/${postinstall_script}" ]
 	then
+	    echo ""
+	    echo "#### Executing postinstall script: $postinstall_script"
 		( cd "$PREFIX" && exec "${postinstall_script}" "$APPNAME" "$VERSION" )
+        echo "#### Executing postinstall script $postinstall_script ended"
+        echo ""
 	fi
 	echo "Installation completed."
 }
@@ -97,7 +107,7 @@ extract() {
 	fi
 	if [ -f "$target" ]
 	then
-		echo "Warning: target file already exists. Continue (y/n) ?"
+		echo "Warning: target file already exists. Continue (y/N) ?"
 		read rep
 		if [ "$rep" != "y" -a "$rep" != "Y" ]
 		then
