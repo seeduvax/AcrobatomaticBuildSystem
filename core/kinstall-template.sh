@@ -23,6 +23,10 @@ $1 <cmd> [cmd args]
 
     list : list modules
     
+    changeGroups : Change the device group in all $APP configuration files
+      require arg : new group
+      optionnal arg : installation prefix. Default is $PREFIX
+
     activate : activate a kernel module
       mandatory arg : module name
 
@@ -152,7 +156,26 @@ extract() {
 
 list() {
 	tail -n +$SKIP "$THIS" | tar -tz etc/init.d | sed 's/etc\/init\.d\/\(.*\)/\1/g'
-    tail -n +$SKIP "$THIS" | tar -tz etc/$APP/inits | sed 's/etc\/$APP\/inits\/\(.*\)/\1/g'
+    tail -n +$SKIP "$THIS" | tar -tz etc/$APP/inits | sed "s/etc\/$APP\/inits\/\(.*\)/\1/g"
+}
+
+changeGroups() {
+    if [ $# -lt 1 ]
+    then
+        help $0
+    fi
+    NEW_GROUP="$1"
+    if [ $# -eq 2 ]
+    then
+        PREFIX="$2"
+    fi
+    
+    if [ -d "$PREFIX/etc/$APP" ]; then
+        for initFile in `ls $PREFIX/etc/$APP/*.conf`; do
+            echo "Changing group in $initFile"
+            sed -ie "s/DEVGROUP=.*/DEVGROUP=$NEW_GROUP/g" $initFile
+        done
+    fi
 }
 
 activate() {
@@ -185,7 +208,7 @@ then
 fi
 
 case "$1" in
-	install|extract|list|activate) 
+	install|extract|list|changeGroups|activate) 
 		"$@"
 		;;
 	*)
