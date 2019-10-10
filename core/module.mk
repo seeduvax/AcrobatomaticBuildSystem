@@ -85,21 +85,6 @@ endif
 
 
 
-# ---------------------------------------------------------------------
-#  dependences beetween modules
-# ---------------------------------------------------------------------
-ifeq ($(filter test,$(MAKECMDGOALS)),)
-MODDEPS:=$(patsubst %,%.mod.dep,$(USEMOD) $(USELKMOD))
-else
-MODDEPS:=$(patsubst %,%.mod.dep,$(USEMOD) $(USELKMOD) $(TESTUSEMOD))
-endif
-.PHONY: .explicit_mod_dep
-
-%.mod.dep: .explicit_mod_dep
-	@$(ABS_PRINT_info) "Build of dependency: $(patsubst %.mod.dep,%,$@)..."
-	@+make -C $(PRJROOT)/$(patsubst %.mod.dep,%,$@)
-
-
 ## 
 ## Common make targets:
 ## 
@@ -144,7 +129,6 @@ testbuild:: all
 check:: test
 
 
-$(SRCFILES): $(MODDEPS)
 
 # this target must not defined a rule to avoid issues during parallel builds.
 all-impl::
@@ -224,3 +208,36 @@ Makefile: ../Makefile
 	@$(ABS_PRINT_info) "Updating bootstrap makefile."
 	@cp $^ $@
 endif
+
+# ---------------------------------------------------------------------
+#  dependences beetween modules
+# ---------------------------------------------------------------------
+ifeq ($(filter test,$(MAKECMDGOALS)),)
+MODDEPS:=$(patsubst %,%.mod.dep,$(USEMOD) $(USELKMOD))
+else
+MODDEPS:=$(patsubst %,%.mod.dep,$(USEMOD) $(USELKMOD) $(TESTUSEMOD))
+endif
+
+DEEPDEP?=1
+ifneq ($(DEEPDEP),0)
+.PHONY: .explicit.mod.dep
+LASTMODDEP:=.explicit.mod.dep
+endif
+
+define moduleDependencyRule
+$(TRDIR)/obj/$(1).mod.dep: $(LASTMODDEP)
+	@$$(ABS_PRINT_info) "Build of dependency: $(1) (L=$(DEEPDEP))..."
+ifneq ($(DEEPDEP),0)
+	@+make -C $(PRJROOT)/$(1) DEEPDEP=`expr $(DEEPDEP) - 1`
+else
+	@+make -C $(PRJROOT)/$(1)
+	@touch $$@
+endif
+
+LASTMODDEP:=$(TRDIR)/obj/$(1).mod.dep
+endef
+
+$(foreach entry,$(MODDEPS),$(eval $(call moduleDependencyRule,$(patsubst %.mod.dep,%,$(entry)))))
+
+
+$(SRCFILES): $(LASTMODDEP)

@@ -129,7 +129,7 @@ endif
 	done
 
 mod.%::
-	make $(MMARGS) -C $*
+	make $(MMARGS) -C $* DEEPDEP=0
 
 include $(TRDIR)/obj/.moddeps.mk
 
