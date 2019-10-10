@@ -196,7 +196,9 @@ include $(ABSROOT)/core/module-util.mk
 # Generic targets
 # ---------------------------------------------------------------------
 clean-module:
-	rm -rf $(TARGETFILE) $(OBJDIR) $(CONFIGFILES)
+	@$(ABS_PRINT_info) "Cleaning module..."
+	@rm -rf $(TARGETFILE) $(OBJDIR) $(CONFIGFILES)
+	@rm -rf $(TRDIR)/obj/.$(MODNAME).mod.dep
 
 # help rules
 help:
@@ -218,24 +220,28 @@ else
 MODDEPS:=$(patsubst %,%.mod.dep,$(USEMOD) $(USELKMOD) $(TESTUSEMOD))
 endif
 
-DEEPDEP?=1
-ifneq ($(DEEPDEP),0)
-.PHONY: .explicit.mod.dep
-LASTMODDEP:=.explicit.mod.dep
-endif
+RMODDEP?=1
 
+ifneq ($(RMODDEP),0)
+.PHONY: .explicit.mod.dep
 define moduleDependencyRule
-$(TRDIR)/obj/$(1).mod.dep: $(LASTMODDEP)
-	@$$(ABS_PRINT_info) "Build of dependency: $(1) (L=$(DEEPDEP))..."
-ifneq ($(DEEPDEP),0)
-	@+make -C $(PRJROOT)/$(1) DEEPDEP=`expr $(DEEPDEP) - 1`
-else
-	@+make -C $(PRJROOT)/$(1)
-	@touch $$@
-endif
+$(TRDIR)/obj/$(1).mod.dep: $(LASTMODDEP) .explicit.mod.dep
+	@$$(ABS_PRINT_info) "Build of dependency: $(1) (L=$(RMODDEP))..."
+	@+make -C $(PRJROOT)/$(1) DEPLEVEL=`expr $(RMODDEP) - 1`
 
 LASTMODDEP:=$(TRDIR)/obj/$(1).mod.dep
 endef
+else
+define moduleDependencyRule
+$(TRDIR)/obj/$(1).mod.dep: $(LASTMODDEP)
+	@$$(ABS_PRINT_info) "Build of dependency: $(1) (L=$(RMODDEP))..."
+	@+make -C $(PRJROOT)/$(1) RMODDEP=0
+	@touch $$@
+
+LASTMODDEP:=$(TRDIR)/obj/$(1).mod.dep
+endef
+
+endif
 
 $(foreach entry,$(MODDEPS),$(eval $(call moduleDependencyRule,$(patsubst %.mod.dep,%,$(entry)))))
 
