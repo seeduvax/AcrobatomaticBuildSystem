@@ -15,7 +15,7 @@ CFGFILES:=$(patsubst %,$(TRDIR)/%,$(shell find etc -name $(LKMNAME).conf -o -nam
 SERVICEFILES:=$(patsubst %,$(TRDIR)/%,$(shell find etc -name $(LKMNAME).service))
 INITSFILES:=$(patsubst %,$(TRDIR)/%,$(shell find etc -name $(LKMNAME)))
 
-$(TRDIR)/etc/drast/%: src/etc/drast/%
+$(TRDIR)/etc/$(APPNAME)/%: src/etc/$(APPNAME)/%
 	mkdir -p $(@D)
 	cp $^ $@
 	
@@ -33,14 +33,14 @@ install:: all
 	@( test -x /etc/init.d/$(LKMNAME) && ( \
 $(ABS_PRINT_info) "Stopping device $(LKMNAME) before install" ; \
 /etc/init.d/$(LKMNAME) stop ) ) || true
-	@$(MAKE) -C $(KERNELDIR) M=$(OBJDIR) INSTALL_MOD_DIR=drast modules_install
+	@$(MAKE) -C $(KERNELDIR) M=$(OBJDIR) INSTALL_MOD_DIR=$(APPNAME) modules_install
 	@$(ABS_PRINT_info) "Running depmod..."
 	@depmod -a
-	@( test -f etc/drast/$(LKMNAME).conf -a ! -f /etc/drast/$(LKMNAME).conf && ( \
+	@( test -f etc/$(APPNAME)/$(LKMNAME).conf -a ! -f /etc/$(APPNAME)/$(LKMNAME).conf && ( \
 	$(ABS_PRINT_info) "Installing module configuration file..." ; \
-	mkdir -p /etc/drast ; \
-	cp etc/drast/$(LKMNAME).conf /etc/drast/ ; \
-	chmod 644 /etc/drast/$(LKMNAME).conf ) ) || true
+	mkdir -p /etc/$(APPNAME) ; \
+	cp etc/$(APPNAME)/$(LKMNAME).conf /etc/$(APPNAME)/ ; \
+	chmod 644 /etc/$(APPNAME)/$(LKMNAME).conf ) ) || true
 	@( test -f etc/init.d/$(LKMNAME) && ( \
 	$(ABS_PRINT_info) "Installing startup script." ;\
 	cp etc/init.d/$(LKMNAME) /etc/init.d/ ;\
@@ -77,7 +77,7 @@ $(TRDIR)/include/$(APPNAME)/%: $(PRJROOT)/%/Makefile
 
 $(OBJDIR)/Makefile: $(LKMSRC) $(LKMH) $(patsubst %,$(TRDIR)/include/$(APPNAME)/%,$(USELKMOD))
 	printf "\
-INSTALL_MOD_DIR=drast\n\
+INSTALL_MOD_DIR=$(APPNAME)\n\
 obj-m:=$(LKMNAME).o\n\
 $(LKMNAME)-objs:=$(LKMOBJ)\n\
 EXTRA_CFLAGS+=-I$(MODROOT)/include -I$(MODROOT)/src $(EXTRA_CFLAGS) $(patsubst %,-D%,$(DEFINES)) -D_$(APPNAME)_$(MODNAME)_$(MODE)\n\
