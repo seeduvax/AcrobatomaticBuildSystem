@@ -22,7 +22,7 @@ $1 <cmd> [cmd args]
       optionnal arg : alternate target file
 
     list : list modules
-
+    
     activate : activate a kernel module
       mandatory arg : module name
 
@@ -89,25 +89,25 @@ install() {
 		exit 2
 	fi
 
-	mkdir -p "$PREFIX/lib/modules/$PKVERSION/drast"
-	tail -n +$SKIP "$THIS" | tar -xvz --overwrite -C "$PREFIX/lib/modules/$PKVERSION/drast" --strip-components=2 lib/modules
-    mkdir -p "$PREFIX/etc/drast"
-    tail -n +$SKIP "$THIS" | tar -xvz -C "$PREFIX/etc/drast" --strip-components=2 --keep-old-files --wildcards etc/drast/*.conf
-    mkdir -p "$PREFIX/etc/drast/inits"
-    mkdir -p "$PREFIX/etc/drast/services"
-    tail -n +$SKIP "$THIS" | tar -xvz --overwrite -C "$PREFIX/etc/drast" --strip-components=2 etc/drast/services etc/drast/inits
+	mkdir -p "$PREFIX/lib/modules/$PKVERSION/$APP"
+	tail -n +$SKIP "$THIS" | tar -xvz --overwrite -C "$PREFIX/lib/modules/$PKVERSION/$APP" --strip-components=2 lib/modules
+    mkdir -p "$PREFIX/etc/$APP"
+    tail -n +$SKIP "$THIS" | tar -xvz -C "$PREFIX/etc/$APP" --strip-components=2 --keep-old-files --wildcards etc/$APP/*.conf
+    mkdir -p "$PREFIX/etc/$APP/inits"
+    mkdir -p "$PREFIX/etc/$APP/services"
+    tail -n +$SKIP "$THIS" | tar -xvz --overwrite -C "$PREFIX/etc/$APP" --strip-components=2 etc/$APP/services etc/$APP/inits
     mkdir -p "$PREFIX/etc/init.d"
     tail -n +$SKIP "$THIS" | tar -xvz --overwrite -C "$PREFIX/etc/init.d" --strip-components=2 etc/init.d 
     
-    if [ -d "$PREFIX/etc/drast/inits" ]; then
-        chmod 750 $PREFIX/etc/drast/inits/*
+    if [ -d "$PREFIX/etc/$APP/inits" ]; then
+        chmod 750 $PREFIX/etc/$APP/inits/*
     fi
 	if [ "$(which systemd)" != "" ]; then
 	    echo "Installation des drivers pour systemd"
         mkdir -p "$PREFIX/lib/systemd/system"
-        if [ -d "$PREFIX/etc/drast/inits" ]; then
-            for initFile in `ls $PREFIX/etc/drast/inits/*`; do
-                serviceFile="$PREFIX/etc/drast/services/$(basename -- $initFile).service"
+        if [ -d "$PREFIX/etc/$APP/inits" ]; then
+            for initFile in `ls $PREFIX/etc/$APP/inits/*`; do
+                serviceFile="$PREFIX/etc/$APP/services/$(basename -- $initFile).service"
                 if [ ! -f $serviceFile ]; then 
                     echo "Create default service file $serviceFile"
                     createDefaultService $serviceFile $initFile
@@ -119,8 +119,8 @@ install() {
         fi
     else
         echo "Installation des drivers avec init.d"
-        if [ -d "$PREFIX/etc/drast/inits" ]; then
-            for execFile in `ls "$PREFIX/etc/drast/inits/*"`; do
+        if [ -d "$PREFIX/etc/$APP/inits" ]; then
+            for execFile in `ls "$PREFIX/etc/$APP/inits/*"`; do
                 echo "Linking $execFile into init.d"
                 ln -srf "$execFile" "$PREFIX/etc/init.d/"
             done
@@ -152,7 +152,7 @@ extract() {
 
 list() {
 	tail -n +$SKIP "$THIS" | tar -tz etc/init.d | sed 's/etc\/init\.d\/\(.*\)/\1/g'
-    tail -n +$SKIP "$THIS" | tar -tz etc/drast/inits | sed 's/etc\/drast\/inits\/\(.*\)/\1/g'
+    tail -n +$SKIP "$THIS" | tar -tz etc/$APP/inits | sed 's/etc\/$APP\/inits\/\(.*\)/\1/g'
 }
 
 activate() {
