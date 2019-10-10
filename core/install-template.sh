@@ -51,12 +51,18 @@ install() {
 		read rep
 		if [ "$rep" = "r" -o "$rep" = "R" ]
 		then
-		    echo ""
-		    echo "#### Removing previous installation..."
-		    rm -rf "$PREFIX"/*
-            rm -rf "$PREFIX"/.* 2> /dev/null # we silence errors for . and ..
-            echo "#### Previous installation removed"
-            echo ""
+		    # test we don't try to remove the / directory
+		    if [ "$PREFIX" = "/" -o "$PREFIX" = "" ]; then
+		        echo "Cannot remove data from $PREFIX/ !!!"
+		        exit 1
+		    else
+    		    echo ""
+    		    echo "#### Removing previous installation..."
+    		    rm -rf "$PREFIX"/*
+                rm -rf "$PREFIX"/.* 2> /dev/null # we silence errors for . and ..
+                echo "#### Previous installation removed"
+                echo ""
+            fi
         elif [ "$rep" != "y" -a "$rep" != "Y" ]
 		then
 			exit 1
