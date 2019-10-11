@@ -1,6 +1,7 @@
 ## 
+## --------------------------------------------------------------------
 ## Global overloadable variables:
-## 
+## --------------------------------------------------------------------
 ##  - MODE: compilation mode
 ##          debug (default): with debug symbols, without compiler 
 ##                           optimizations

@@ -211,39 +211,36 @@ Makefile: ../Makefile
 	@cp $^ $@
 endif
 
-# ---------------------------------------------------------------------
-#  dependences beetween modules
-# ---------------------------------------------------------------------
+## 
+## ---------------------------------------------------------------------
+##  dependencies beetween modules management
+## ---------------------------------------------------------------------
 ifeq ($(filter test,$(MAKECMDGOALS)),)
 MODDEPS:=$(patsubst %,%.mod.dep,$(USEMOD) $(USELKMOD))
 else
 MODDEPS:=$(patsubst %,%.mod.dep,$(USEMOD) $(USELKMOD) $(TESTUSEMOD))
 endif
-
+## Variables
+## - RMODDEP: module redo recurion level
 RMODDEP?=1
 
 ifneq ($(RMODDEP),0)
-.PHONY: .explicit.mod.dep
-define moduleDependencyRule
-$(TRDIR)/obj/$(1).mod.dep: $(LASTMODDEP) .explicit.mod.dep
-	@$$(ABS_PRINT_info) "Build of dependency: $(1) (L=$(RMODDEP))..."
-	@+make -C $(PRJROOT)/$(1) DEPLEVEL=`expr $(RMODDEP) - 1`
-
-LASTMODDEP:=$(TRDIR)/obj/$(1).mod.dep
-endef
+EXPLICIT_MOD_DEP:=.explicit.mod.dep
+DECRMODDEP:=$(shell expr $(RMODDEP) - 1)
+.PHONY: $(EXPLICIT_MOD_DEP)
 else
+DECRMODDEP:=0
+endif
+
 define moduleDependencyRule
-$(TRDIR)/obj/$(1).mod.dep: $(LASTMODDEP)
-	@$$(ABS_PRINT_info) "Build of dependency: $(1) (L=$(RMODDEP))..."
-	@+make -C $(PRJROOT)/$(1) RMODDEP=0
+$(TRDIR)/obj/$(1).mod.dep: $(LASTMODDEP) $(EXPLICIT_MOD_DEP)
+	@$$(ABS_PRINT_info) "Build of dependency: $(1) $(if $(EXPLICIT_MOD_DEP),[$(RMODDEP)])..."
+	@+make -C $(PRJROOT)/$(1) RMODDEP=$(DECRMODDEP)
 	@touch $$@
 
 LASTMODDEP:=$(TRDIR)/obj/$(1).mod.dep
 endef
 
-endif
-
 $(foreach entry,$(MODDEPS),$(eval $(call moduleDependencyRule,$(patsubst %.mod.dep,%,$(entry)))))
-
 
 $(SRCFILES): $(LASTMODDEP)
