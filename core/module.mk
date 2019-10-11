@@ -91,7 +91,6 @@ endif
 ##  - all (default): builds all
 .PHONY: all
 all: all-impl
-	@mkdir -p $(TRDIR) 
 
 ##  - clean: removed all files created by the module build process
 .PHONY: clean
@@ -198,7 +197,6 @@ include $(ABSROOT)/core/module-util.mk
 clean-module:
 	@$(ABS_PRINT_info) "Cleaning module..."
 	@rm -rf $(TARGETFILE) $(OBJDIR) $(CONFIGFILES)
-	@rm -rf $(TRDIR)/obj/.$(MODNAME).mod.dep
 
 # help rules
 help:
@@ -230,15 +228,17 @@ DECRMODDEP:=$(shell expr $(RMODDEP) - 1)
 .PHONY: $(EXPLICIT_MOD_DEP)
 else
 DECRMODDEP:=0
+EXPLICIT_MOD_DEP:=
 endif
 
 define moduleDependencyRule
-$(TRDIR)/obj/$(1).mod.dep: $(LASTMODDEP) $(EXPLICIT_MOD_DEP)
-	@$$(ABS_PRINT_info) "Build of dependency: $(1) $(if $(EXPLICIT_MOD_DEP),[$(RMODDEP)])..."
+$(OBJDIR)/$(1).mod.dep: $(LASTMODDEP) $(EXPLICIT_MOD_DEP)
+	@$$(ABS_PRINT_info) "Build of dependency: $(1) $(if $(EXPLICIT_MOD_DEP),[$(DECRMODDEP)])..."
 	@+make -C $(PRJROOT)/$(1) RMODDEP=$(DECRMODDEP)
+	@mkdir -p $$(@D)
 	@touch $$@
 
-LASTMODDEP:=$(TRDIR)/obj/$(1).mod.dep
+LASTMODDEP:=$(OBJDIR)/$(1).mod.dep
 endef
 
 $(foreach entry,$(MODDEPS),$(eval $(call moduleDependencyRule,$(patsubst %.mod.dep,%,$(entry)))))
