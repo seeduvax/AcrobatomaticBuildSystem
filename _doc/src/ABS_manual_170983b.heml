@@ -1088,6 +1088,7 @@ MODTYPE	% % Type of module, one of the following: jar (java package), library (C
 OBJDIR % $(TRDIR)/obj/$(MODNAME) % Directory to store intermediate files during the build process (includes object files, generated source code).
 PREFIX % /opt/$(APPNAME)_$(VERSION) % Default installation dir prefix for the install make target.
 PUB_H % % List of C/C++ header files stored in src directory to be published. Note: buildscripts standard layout request to store such files in include directory aside src directory. This feature was introduced only to ease the integration of legacy non compliant code into a buildscripts project.	 	
+RMODDEP % 1 % Maximum recursion level for deep inter module dependencies checking.
 RUNARGS % % Arguments to be forwarded to the application execution when invoking make run, make debug, make check or make debugcheck.
 SYSNAME % output of make/OS.sh % Target operating system. May include a version number (ex: Debian_8, CentOS_7)
 TRDIR %	$(PRJROOT)/build/$(MODE).$(ARCH) % Root directory for any built artifact storage.
