@@ -213,8 +213,8 @@ pubfile: $(FILE)
 install: dist/$(APPNAME)-$(VERSION)/import.mk
 	@mkdir -p $(PREFIX)
 	@$(ABS_PRINT_info) "Copying file tree..."
-	@tar -cf - dist/$(APPNAME)-$(VERSION) $(patsubst %,--exclude dist/$(APPNAME)-$(VERSION)/%,obj extlib extlib.nodist) | tar -C $(PREFIX) --strip-components=2 -xf -
-	@$(ABS_PRINT_info)  "Copying dependancies..."
+	@tar -cf - $(patsubst %,--exclude dist/$(APPNAME)-$(VERSION)/%,obj extlib extlib.nodist)  dist/$(APPNAME)-$(VERSION) | tar -C $(PREFIX) --strip-components=2 -xf -
+	@$(ABS_PRINT_info)  "Copying dependencies..."
 	@for lib in `ls dist/$(APPNAME)-$(VERSION)/extlib/ | fgrep -v cppunit-` ; do \
 	$(ABS_PRINT_info) "  Processing $$lib..." ; \
 	test -d dist/$(APPNAME)-$(VERSION)/extlib/$$lib && chmod -R +rwX dist && ( tar -C dist/$(APPNAME)-$(VERSION)/extlib/$$lib -cf - include lib lib64 etc bin sbin share | tar -C $(PREFIX) -xf - ) || cp dist/$(APPNAME)-$(VERSION)/extlib/$$lib $(PREFIX)/lib ; \
