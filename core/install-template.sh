@@ -93,7 +93,7 @@ install() {
     [ $uid -eq 0 ] && chown -R 0:0 "$PREFIX"
 
     # patch files with actual install path
-	PATCHFILES=__post_install_patch_files__
+	PATCHFILES="__post_install_patch_files__"
 	for patch_file in $PATCHFILES
 	do
     	if [ -f "$PREFIX/$patch_file" ]; then

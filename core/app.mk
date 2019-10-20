@@ -86,6 +86,7 @@ ifeq ($(filter clean,$(MAKECMDGOALS)),)
 # include extern libraries management rules
 include $(ABSROOT)/core/module-extlib.mk
 endif
+$(info XXXXX $(POST_INSTALL_PATCH_FILES))
 
 ##  - test: builds modules, tests and launch tests.
 test: $(MODULES_TEST)
@@ -224,7 +225,7 @@ install: dist/$(APPNAME)-$(VERSION)/import.mk
 	@$(ABS_PRINT_info)  "Copying dependencies..."
 	@for lib in `ls dist/$(APPNAME)-$(VERSION)/extlib/ | fgrep -v cppunit-` ; do \
 	$(ABS_PRINT_info) "  Processing $$lib..." ; \
-	test -d dist/$(APPNAME)-$(VERSION)/extlib/$$lib && chmod -R +rwX dist && ( tar -C dist/$(APPNAME)-$(VERSION)/extlib/$$lib -cf - include lib lib64 etc bin sbin share | tar -C $(PREFIX) -xf - ) || cp dist/$(APPNAME)-$(VERSION)/extlib/$$lib $(PREFIX)/lib ; \
+	test -d dist/$(APPNAME)-$(VERSION)/extlib/$$lib && chmod -R +rwX dist && ( tar -C dist/$(APPNAME)-$(VERSION)/extlib/ -cf - $(DISTTARFLAGS) --exclude=import.mk $$lib | tar -C $(PREFIX) --strip-components=1 -xf - ) || cp dist/$(APPNAME)-$(VERSION)/extlib/$$lib $(PREFIX)/lib ; \
 	done
 
 dist/$(APPNAME)-$(VERSION).$(ARCH)-install.bin:
