@@ -243,4 +243,8 @@ endef
 
 $(foreach entry,$(MODDEPS),$(eval $(call moduleDependencyRule,$(patsubst %.mod.dep,%,$(entry)))))
 
+ifneq ($(SRCFILES),)
 $(SRCFILES): $(LASTMODDEP)
+else
+all: $(LASTMODDEP)
+endif
