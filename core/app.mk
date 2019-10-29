@@ -137,7 +137,7 @@ endif
 	done
 
 mod.%::
-	make $(MMARGS) -C $* DEEPDEP=0
+	make $(MMARGS) -C $* RMODDEP=0
 
 include $(TRDIR)/obj/.moddeps.mk
 
