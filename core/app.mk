@@ -36,10 +36,8 @@ VERSION:=$(VERSION)e
 endif
 ifeq ($(WORKSPACE_IS_TAG),0)
 VERSION:=$(VERSION)d
-RELEASE_IDENTIFIER:=
 else
 MODE=release
-RELEASE_IDENTIFIER:=$(VMAJOR).$(VMEDIUM)$(RELEASE)$(VSUFFIX)
 endif
 ##  - PREFIX: installation prefix (default is /opt/<appname>-<version>)
 PREFIX=/opt/$(APPNAME)-$(VERSION)
@@ -199,12 +197,7 @@ dist/$(APPNAME)-$(VERSION)/import.mk:
 DISTTAR:=tar cvzf dist/$(APPNAME)-$(VERSION).$(ARCH).tar.gz -C dist --exclude obj --exclude extlib --exclude extlib.nodist $(DISTTARFLAGS) $(APPNAME)-$(VERSION)
 
 dist/$(APPNAME)-$(VERSION).$(ARCH).tar.gz: dist/$(APPNAME)-$(VERSION)/import.mk
-ifeq ($(RELEASE_IDENTIFIER),)
 	@$(DISTTAR)
-else
-	@ln -sf $(APPNAME)-$(VERSION) dist/$(APPNAME)-$(RELEASE_IDENTIFIER)
-	@$(DISTTAR) $(APPNAME)-$(RELEASE_IDENTIFIER)
-endif
 
 ##  - dist: creates binary package
 dist: dist/$(APPNAME)-$(VERSION).$(ARCH).tar.gz
@@ -254,10 +247,6 @@ dist/$(APPNAME)_lkm-$(VERSION)-$(KVERSION)-install.bin:
 pubdist: dist/$(APPNAME)-$(VERSION).$(ARCH).tar.gz
 	@$(ABS_PRINT_info)  "Publishing dist archive $^ $(USER) on $(DISTREPO)"
 	@scp $^ $(DISTREPO)/$(ARCH)/$(APPNAME)-$(VERSION).$(ARCH).tar.gz
-ifneq ($(RELEASE_IDENTIFIER),)
-	@ssh $(DISTHOST) rm -rf $(patsubst $(DISTHOST):%,%,$(DISTREPO))/$(ARCH)/$(APPNAME)-$(RELEASE_IDENTIFIER).$(ARCH).tar.gz
-	@ssh $(DISTHOST) ln -sf $(APPNAME)-$(VERSION).$(ARCH).tar.gz $(patsubst $(DISTHOST):%,%,$(DISTREPO))/$(ARCH)/$(APPNAME)-$(RELEASE_IDENTIFIER).$(ARCH).tar.gz
-endif
 
 pubinstall: dist/$(APPNAME)-$(VERSION).$(ARCH)-install.bin
 	@$(ABS_PRINT_info)  "Publishing dist archive $^ $(USER) on $(DISTREPO)"
