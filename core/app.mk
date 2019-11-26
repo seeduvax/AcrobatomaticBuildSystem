@@ -44,11 +44,12 @@ PREFIX=/opt/$(APPNAME)-$(VERSION)
 
 ##  - DIST_EXCLUDE: pattern for files to be excluded on packaging.
 ##      (default: share/*/tex)
-DIST_EXCLUDE:=share/*/tex
+DIST_EXCLUDE:=share/*/tex obj extlib extlib.nodist
+INSTALLTAR_EXCLUDE:=.abs
 ##  - LIGHT_INSTALLER: when set to 1, add share/*/doxygen and include to the 
 ##      list of file to exclude on packaging.
 ifeq ($(LIGHT_INSTALLER),1)
-INSTALLTAR_EXCLUDE:=share/*/doxygen include
+INSTALLTAR_EXCLUDE+=share/*/doxygen include
 endif
 ##  - DISTTARFLAGS: arguments to add to tar command when packing files on dist
 ##      and distinstall target.
@@ -194,7 +195,7 @@ dist/$(APPNAME)-$(VERSION)/import.mk:
 	@rm -rf dist/$(APPNAME)-$(VERSION)/build.log
 
 
-DISTTAR:=tar cvzf dist/$(APPNAME)-$(VERSION).$(ARCH).tar.gz -C dist --exclude obj --exclude extlib --exclude extlib.nodist $(DISTTARFLAGS) $(APPNAME)-$(VERSION)
+DISTTAR:=tar cvzf dist/$(APPNAME)-$(VERSION).$(ARCH).tar.gz -C dist $(DISTTARFLAGS) $(APPNAME)-$(VERSION)
 
 dist/$(APPNAME)-$(VERSION).$(ARCH).tar.gz: dist/$(APPNAME)-$(VERSION)/import.mk
 	@$(DISTTAR)
