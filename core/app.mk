@@ -303,10 +303,10 @@ endif
 ##      <issue>: new branch tracking issue reference.
 ##      <msg>: branch creation comment message
 ifeq ($(word 1,$(MAKECMDGOALS)),branch)
-NEW_BRANCH=$(word 2,$(MAKCMDGOALS))
+NEW_BRANCH=$(word 2,$(MAKECMDGOALS))
 ifeq ($(NEW_BRANCH),)
 branch:
-	@$(ABS_PRINT_error) "Can't crate branch, new branch spec is missing"
+	@$(ABS_PRINT_error) "Can't create branch, new branch spec is missing"
 	@$(ABS_PRINT_error) "    make branch <X.Y> I=<issue> M='<msg>'"
 else
 NEW_BRANCH:
