@@ -256,16 +256,14 @@ select="substring-after($text,$from)"/>
   </xsl:otherwise>
 </xsl:choose></xsl:param>
 <xsl:value-of select="$rowcolor"/>
-\textbf{<xsl:apply-templates select="../@id"/><xsl:value-of select="count(preceding-sibling::ref)+1"/>} &amp; 
+<xsl:param name="refName"><xsl:apply-templates select="../@id"/><xsl:value-of select="count(preceding-sibling::ref)+1"/></xsl:param>
+\textbf{<xsl:value-of select="$refName"/>}\namedlabel{<xsl:value-of select="@id"/>}{[<xsl:value-of select="$refName"/>]} &amp; 
   <xsl:if test="@authors!=''"><xsl:apply-templates select="@authors"/>:</xsl:if>\hspace{1cm}\emph{<xsl:apply-templates select="."/>} \\
 <xsl:if test="$hhref!=''">
  <xsl:value-of select="$rowcolor"/>
  &amp; \small <xsl:apply-templates select="@href"/> \\</xsl:if>
 <xsl:value-of select="$rowcolor"/>
   &amp; \emph{<xsl:apply-templates select="@ref"/>}\hspace{1cm}<xsl:apply-templates select="@edition"/><xsl:text> </xsl:text><xsl:apply-templates select="@date"/> \\
-</xsl:template>
-<xsl:template match="ref" mode="xref">
-[<xsl:apply-templates select="../@id"/><xsl:value-of select="count(preceding-sibling::ref)+1"/>]
 </xsl:template>
 <!--************************************************
      Definition table
@@ -337,13 +335,7 @@ select="substring-after($text,$from)"/>
     Cross reference
 -->
 <xsl:template match="xref">
-<xsl:param name="refvalue"><xsl:value-of select="text()"/></xsl:param>
-<xsl:choose>
-  <xsl:when test="count(//ref[@id=$refvalue])=1">
-   <xsl:apply-templates select="//ref[@id=$refvalue]" mode="xref"/>
-  </xsl:when>
-  <xsl:otherwise>\ref{<xsl:value-of select="."/>}</xsl:otherwise>
-</xsl:choose>
+\ref{<xsl:value-of select="."/>}
 </xsl:template>
 <!-- ************************************************************************
     Main

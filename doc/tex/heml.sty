@@ -52,6 +52,11 @@
     \setlength{\parsep}{0pt}     }
 { \end{itemize}                  }
 
+%% The following line permit to create a label with a name used in the \ref elements
+\makeatletter
+\newcommand{\namedlabel}[2]{\protected@edef\@currentlabel{#2}\label{#1}}
+\makeatother
+
 \newcommand\HEMLtitle{Untitled document}
 \newcommand\HEMLcompanyName{}
 \newcommand\HEMLorgName{}
