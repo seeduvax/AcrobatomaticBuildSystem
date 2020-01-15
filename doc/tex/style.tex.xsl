@@ -421,7 +421,7 @@ select="substring-after($text,$from)"/>
     </xsl:if>
     \renewcommand{\HEMLabstract}{<xsl:apply-templates select="abstract"/>}
     \renewcommand{\HEMLkeywords}{<xsl:apply-templates select="keywords"/>}
-    \renewcommand{\HEMLcontext}{<xsl:value-of select="$context"/>}
+    \renewcommand{\HEMLcontext}{<xsl:call-template name="formatText"><xsl:with-param name="text" select="$context"/></xsl:call-template>}
     \renewcommand{\HEMLrevisiontable}{
     <xsl:apply-templates select="history/edition"/>
     }
