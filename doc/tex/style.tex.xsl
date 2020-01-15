@@ -43,44 +43,51 @@ select="substring-after($text,$from)"/>
 <!--************************************************
     In latex & must become \\ampersand, and many other
     should be escpaed. 
--->     
-<xsl:template match="text()|@*">
+-->
+<xsl:template name="formatText">
+ <xsl:param name="text"/>
  <xsl:param name="step1"><xsl:call-template name="strreplace">
-  <xsl:with-param name="text" select="."/>		
-  <xsl:with-param name="from" select="'&amp;'"/>		
-  <xsl:with-param name="to" select="'\&amp;'"/>		
+  <xsl:with-param name="text" select="$text"/>      
+  <xsl:with-param name="from" select="'&amp;'"/>        
+  <xsl:with-param name="to" select="'\&amp;'"/>     
  </xsl:call-template></xsl:param>
  <xsl:param name="step2"><xsl:call-template name="strreplace">
-  <xsl:with-param name="text" select="$step1"/>		
-  <xsl:with-param name="from" select="'_'"/>		
-  <xsl:with-param name="to" select="'\_'"/>		
+  <xsl:with-param name="text" select="$step1"/>     
+  <xsl:with-param name="from" select="'_'"/>        
+  <xsl:with-param name="to" select="'\_'"/>     
  </xsl:call-template></xsl:param>
  <xsl:param name="step3"><xsl:call-template name="strreplace">
-  <xsl:with-param name="text" select="$step2"/>		
-  <xsl:with-param name="from" select="'$'"/>		
-  <xsl:with-param name="to" select="'\$'"/>		
+  <xsl:with-param name="text" select="$step2"/>     
+  <xsl:with-param name="from" select="'$'"/>        
+  <xsl:with-param name="to" select="'\$'"/>     
  </xsl:call-template></xsl:param>
  <xsl:param name="step4"><xsl:call-template name="strreplace">
-  <xsl:with-param name="text" select="$step3"/>		
-  <xsl:with-param name="from" select="'^'"/>		
-  <xsl:with-param name="to" select="'\^'"/>		
+  <xsl:with-param name="text" select="$step3"/>     
+  <xsl:with-param name="from" select="'^'"/>        
+  <xsl:with-param name="to" select="'\^'"/>     
  </xsl:call-template></xsl:param>
  <xsl:param name="step5"><xsl:call-template name="strreplace">
-  <xsl:with-param name="text" select="$step4"/>		
-  <xsl:with-param name="from" select="'#'"/>		
-  <xsl:with-param name="to" select="'\#'"/>		
+  <xsl:with-param name="text" select="$step4"/>     
+  <xsl:with-param name="from" select="'#'"/>        
+  <xsl:with-param name="to" select="'\#'"/>     
  </xsl:call-template></xsl:param>
  <xsl:param name="step6"><xsl:call-template name="strreplace">
-  <xsl:with-param name="text" select="$step5"/>		
-  <xsl:with-param name="from" select="'&lt;'"/>		
-  <xsl:with-param name="to" select="'{\textless}'"/>		
+  <xsl:with-param name="text" select="$step5"/>     
+  <xsl:with-param name="from" select="'&lt;'"/>     
+  <xsl:with-param name="to" select="'{\textless}'"/>        
  </xsl:call-template></xsl:param>
  <xsl:param name="step7"><xsl:call-template name="strreplace">
-  <xsl:with-param name="text" select="$step6"/>		
-  <xsl:with-param name="from" select="'&gt;'"/>		
-  <xsl:with-param name="to" select="'{\textgreater}'"/>		
+  <xsl:with-param name="text" select="$step6"/>     
+  <xsl:with-param name="from" select="'&gt;'"/>     
+  <xsl:with-param name="to" select="'{\textgreater}'"/>     
  </xsl:call-template></xsl:param>
  <xsl:value-of select="$step7"/>
+</xsl:template>
+
+<xsl:template match="text()|@*">
+ <xsl:call-template name="formatText">
+  <xsl:with-param name="text" select="."/>      
+ </xsl:call-template>
 </xsl:template>
 <!--************************************************
 	tete de section
