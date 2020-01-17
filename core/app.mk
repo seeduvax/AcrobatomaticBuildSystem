@@ -184,7 +184,7 @@ dist/$(APPNAME)-$(VERSION)/import.mk:
 	@test -f export.mk && \
 	m4 -D__app__=$(APPNAME) -D__version__=$(VERSION) export.mk -D__uselib__="$(USELIB)" > $$PWD/dist/$(APPNAME)-$(VERSION)/import.mk || \
 	printf '\n-include $$(dir $$(lastword $$(MAKEFILE_LIST)))/.abs/index.mk\n$$(eval $$(call extlib_import_template,$(APPNAME),$(VERSION),$(USELIB)))\n$(_extra_import_defs_)\n\n' > $@
-	@test -x extradist.sh && VERSION=$(VERSION) APPNAME=$(APPNAME) ./extradist.sh `dirname $@` || :
+	@if [ -x extradist.sh ]; then VERSION=$(VERSION) APP=$(APP) ./extradist.sh `dirname $@`; fi
 	@mkdir -p dist/$(APPNAME)-$(VERSION)/include/$(APPNAME)
 	@for headerdir in $(patsubst %,%/include,$(filter-out $(NODISTMOD),$(EXPMOD))); \
 	do cp -r $$headerdir dist/$(APPNAME)-$(VERSION) ; \
