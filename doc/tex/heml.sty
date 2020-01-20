@@ -55,6 +55,14 @@
 %% The following line permit to create a label with a name used in the \ref elements
 \makeatletter
 \newcommand{\namedlabel}[2]{\protected@edef\@currentlabel{#2}\label{#1}}
+
+%% Declaration of the subsubparagraph element. (to reach level 6)
+\newcounter{subsubparagraph}[subparagraph]
+\renewcommand\thesubsubparagraph{\thesubparagraph.\@arabic\c@subsubparagraph}
+\newcommand\subsubparagraph{\@startsection{subsubparagraph}{6}{2\parindent}{3.25ex \@plus1ex \@minus .2ex}{-1em}{\normalfont\normalsize\bfseries}}
+\newcommand*\l@subsubparagraph{\@dottedtocline{6}{14em}{5em}}
+\newcommand{\subsubparagraphmark}[1]{}
+\def\toclevel@subsubparagraph{6}
 \makeatother
 
 \newcommand\HEMLtitle{Untitled document}
@@ -381,8 +389,8 @@
 }
 
 \def\maketitle{
-\setcounter{tocdepth}{5}
-\setcounter{secnumdepth}{5}
+\setcounter{tocdepth}{6}
+\setcounter{secnumdepth}{6}
 % Title page #########################################################################
 \clearpage
 \pagestyle{Title}

@@ -135,7 +135,21 @@ select="substring-after($text,$from)"/>
 	<xsl:apply-templates/>
 </xsl:template>
 <!--************************************************
-     	paragraphe, empasis, quotes, ...
+        Appendices
+-->
+<xsl:template match="appendices">
+\clearpage
+\appendix
+<xsl:apply-templates select="section" mode="appendix"/>
+</xsl:template>
+
+<xsl:template match="section" mode="appendix">
+<xsl:apply-templates select="."/>
+\newpage
+</xsl:template>
+
+<!--************************************************
+     	paragraph, emphasis, quotes, ...
 -->
 <xsl:template match="p">
 	<xsl:apply-templates/><xsl:text>
@@ -433,6 +447,7 @@ select="substring-after($text,$from)"/>
     \input{code.sty}
     
     <xsl:apply-templates select="section"/>
+    <xsl:apply-templates select="appendices"/>
     \end{document}
 </xsl:template>
 
