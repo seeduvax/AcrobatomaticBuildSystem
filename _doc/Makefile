@@ -1,26 +1,58 @@
+# ---------------------------------------------------------------------
+# AcrobatomaticBuildSystem bootstrap make file.
+# (c) 2006-2019 Sebastien Devaux
+# (c) 2017-2019 ArianeGroup 
+#
+# To use ABS to build your project, just copy this file as 'Makefile' into
+# your project's root directory and each already existing module directories.
+# As soon your project's layout is complient to the ABS layout and contains
+# the expected configuration files (app.cfg at top level, and module.cfg in 
+# each module directory), you can invoke make command to build it.
+# ---------------------------------------------------------------------
+# Prerequisites: a quite regular shell including GNU make, tar, wget and
+# few other widely available commands.
+# Any GNU environment (GNU/Linux, cygwin, mingw, may be GNU/hurd) should
+# be able to run this makefile.
+# ---------------------------------------------------------------------
+# See ABS documentation (ref #170983b) for more details.
+# https://www.eduvax.net/gitweb
+# https://github.com/seeduvax/AcrobatomaticBuildSystem
+# ---------------------------------------------------------------------
+
+ifneq ($(wildcard app.cfg),)
 PRJROOT:=$(CURDIR)
-ABSROOT=$(CURDIR)
-include app.cfg
-ifeq ($(MAKECMDGOALS),dist)
-# overloading dist
-include core/common.mk
-ifeq ($(WORKSPACE_IS_TAG),0)
-VERSION:=$(VERSION)d
 endif
+ifneq ($(wildcard module.cfg),)
+PRJROOT:=$(shell dirname $(CURDIR))
+endif
+ABSWS:=$(PRJROOT)/../abs
 
-DISTPACKAGES:=$(patsubst %,dist/abs.%-$(VERSION).tar.gz,$(ABS_PACKAGES))
+include $(PRJROOT)/app.cfg
+-include local.cfg
+ABSROOT:=$(ABSWS)/abs-$(VABS)
+ABS_CACHE:=$(ABSWS)/cache
+include $(ABSROOT)/core/main.mk
 
-dist/abs.%-$(VERSION).tar.gz:
-	@mkdir -p $(@D)/abs-$(VERSION)
-	@tar cf - $(patsubst dist/abs.%-$(VERSION).tar.gz,%,$@) --exclude .svn | tar xf - -C $(@D)/abs-$(VERSION)
-	@tar cvzf $@ -C $(@D) abs-$(VERSION)/$(patsubst dist/abs.%-$(VERSION).tar.gz,%,$@)
-	@cd $(@D) ; ln -sf . noarch
-
-dist: $(DISTPACKAGES)
-
-$(PREFIX)/noarch/abs.%: dist/abs.%
-	cp $^ $@
-	$(link_command)
+# Default and minimal rule download files from repository
+# May be overloaded by dependencies download rules for more features
+ifeq ($(ABS_DEPDOWNLOAD_RULE_OVERLOADED),)
+ABS_REPO_1ST=$(word 1,$(ABS_REPO))
+$(ABS_CACHE)/%:
+	@mkdir -p $(@D)
+ifeq ($(findstring file://,$(ABS_REPO_1ST)),file://)
+	@test -r $(patsubst file://%,%,$(patsubst $(ABS_CACHE)/%,$(ABS_REPO_1ST)/%,$@)) || exit 1
+	@echo "Linking $(@F) from $(ABS_REPO_1ST)"
+	@ln -sf $(patsubst file://%,%,$(patsubst $(ABS_CACHE)/%,$(ABS_REPO_1ST)/%,$@)) $@
 else
-include core/main.mk
+	@echo "Fetching $(@F) from $(ABS_REPO_1ST)"
+	@wget -q $(WGETFLAGS) $(patsubst $(ABS_CACHE)/%,$(ABS_REPO_1ST)/%,$@) -O $@
 endif
+endif
+
+$(ABSROOT)/%/main.mk: $(ABS_CACHE)/noarch/abs.%-$(VABS).tar.gz
+	@mkdir -p $(ABSROOT)
+	@tar xzf $^ -C $(ABSROOT) --strip-components=1
+	@touch $@
+
+$(PRJROOT)/local.cfg:
+

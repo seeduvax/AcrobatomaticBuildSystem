@@ -32,7 +32,7 @@ ABS_REPO:=http://www.eduvax.net/dist
 ```
   - create a new module for your project with `make newmod modulename`
   - start coding and build your new module...
-See ABS documentation and the `sampleprj` directory from the abs source tree for more information and example of use. You may check my other projects (available at [github](https://github.com/seeduvax)) for more concrete and complete use case.
+See ABS documentation ([html](http://www.eduvax.net/abs/ABS_manual_170983b.html), [pdf](http://www.eduvax.net/abs/ABS_manual_170983b.pdf)), [introduction slides](http://www.eduvax.net/abs/ABS_introduction_cb844d9.html) and the `sampleprj` [directory](https://github.com/seeduvax/AcrobatomaticBuildSystem/tree/abs-3.0/sampleprj) from the abs source tree for more information and example of use. You may also check my other projects (available at [github](https://github.com/seeduvax)) for more concrete and complete use case.
 
 ## Licensing
 Acrobatomatic Build System is released under a BSD license. See LICENSE file included in the source file tree for the exact license definition. This licensing policy does not involve any constraint nor restriction on projects using ABS as is or with modifications. 

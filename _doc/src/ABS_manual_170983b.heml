@@ -32,32 +32,32 @@ Acrobatomatic Build System (ABS) is a generic build and packaging system for sof
 {section %title=Definition
   {section %title=Features and requirements
 {req %id=abs.lang.1 
-  buildscripts shall build C/C++ executables and shared libraries}
+  ABS shall build C/C++ executables and shared libraries}
 {req %id=abs.lang.2
-  buildscripts shall build java packages}
+  ABS shall build java packages}
 {req %id=abs.lang.3
-  buildscripts shall package python software and libraries}
+  ABS shall package python software and libraries}
 {req %id=abs.dep.1
   buidlscripts shall automatically fetch from remote repository all needed dependencies to build the software}
 {req %id=abs.run.1
-  buildscripts shall enable the user to run the developed software from its workspace}
+  ABS shall enable the user to run the developed software from its workspace}
 {req %id=abs.run.2
-  buildscripts shall enable the user to run in a debugger the developed software from its workspace}
+  ABS shall enable the user to run in a debugger the developed software from its workspace}
 {req %id=abs.run.3
-  buildscripts shall enable the user to launch the unit tests from its workspace}
+  ABS shall enable the user to launch the unit tests from its workspace}
 {req %id=abs.run.4 
-  buildscripts shall enable the user to launch in a debugger the unit tests from its workspace}
+  ABS shall enable the user to launch in a debugger the unit tests from its workspace}
 {req %id=abs.cm.1
-  buildscripts shall insert in generated binaries the project's and version's identifiers}
+  ABS shall insert in generated binaries the project's and version's identifiers}
 {req %id=abs.cm.2
-  buildscripts shall insert in binaries the build context information (who, when, where)}
+  ABS shall insert in binaries the build context information (who, when, where)}
 {req %id=abs.cm.3
-  buildscripts shall insert in generated binaries the build parameters (when the project use conditional compilation)}
+  ABS shall insert in generated binaries the build parameters (when the project use conditional compilation)}
 {req %id=abs.cm.4
-  buildscripts shall be compatible with continuous integration automation}
+  ABS shall be compatible with continuous integration automation}
 Only one build process should be used from both developer's workspace and continuous integration tools such as jenkins to ensure consistency of builds and coherence from various context.
 {req %id=abs.arch.1 
-  buildscripts shall support several target computing architecture (various processor and operating systems)}
+  ABS shall support several target computing architecture (various processor and operating systems)}
 The exact list of targets, is not specified and will be adjusted over the time according the user projects' needs. At least, it should enable build of softare targetting standard x86 PC running widely used not too old GNU/Linux operating systems. First implementations were started using RedHat 5 and Debian 7, and is currently used on projects targeting CentOs 7, SUSE 12, Debian 8 and Debian 9. Most features should require only GNU/make, a shell and a few additionnal commands and it shoudl be adaptable to any system where such software is available. Some successful experimental project were built using Android (through termux) and Cygwin/MinGW.  
   }
   {section %title=Design %xref=Design
@@ -441,10 +441,10 @@ valgrind % debugging and profiling tool % GPL
 }
 }
 {note %title=about the GPL and copyleft licenses
-All GPL licensed product are used as is in development environment and are not needed to be deployed with any buildscripts managed project on operational target, unless such project itself makes direct and explicit use of such product for its own purpose. Then it is possible and allowed to develop full proprietary software with abs. 
+All GPL licensed product are used as is in development environment and are not needed to be deployed with any ABS managed project on operational target, unless such project itself makes direct and explicit use of such product for its own purpose. Then it is possible and allowed to develop full proprietary software with abs. 
 }
 GNU make and a {em not too old} Bourne shell (bash preferred) are the only mandatory prerequisites:
-  - other tools listed above are required only for the feature they support. For instance a java compiler is needed only when the project managed with buildscripts includes java code.
+  - other tools listed above are required only for the feature they support. For instance a java compiler is needed only when the project managed with ABS includes java code.
   - for a given feature, only one tool supporting the feature is needed. For instance for C++ projects, one can choose gcc or clang. It is not necessary to have both available on your workstation. Any other C compiler can even be used as soon it supports the same command line flags. However some advanced feature may still need a particular implementation (See table below).
   - no precise version information is provided since many Linux and posix like system are known to be compatible. Buildscripts is daily used with various RedHawk/CentOS Linux versions (starting from version 6.3), Debian Linux, Cygwin, Msys2 (GNU tools for Mingw64). However some very particular features may be usable only from a few targets operating systems (for instance, obviously Linux kernel module support is operational only from a Linux host).
 Features using specific tooling are:
@@ -470,7 +470,7 @@ Automated configuration management % subversion, GNU ed
 }
 {section %title=Validation plan
   {section %title=Test strategy
-The dummy project named sampleprj is setup to check many buildscripts features:
+The dummy project named sampleprj is setup to check many ABS features:
   - the module management is checked through the several modules created in sampleprj.
   - C/C++ library build is checked using the ccplib module.
   - C/C++ executable build is checked using the cppexe module.
@@ -784,7 +784,7 @@ There is no obligation to create a anonymous module for a project. But a project
 }
     }
     {section %title=linux kernel modules
-Buildscripts can handle the compilation of linux kernel modules. To integrate an existing linux kernel module source code in a buildscripts managed project, apply following steps:
+Buildscripts can handle the compilation of linux kernel modules. To integrate an existing linux kernel module source code in an ABS managed project, apply following steps:
   - create a new buidlscript module in the project using {km _lkm} as name suffix:
 {code %language=sh
 {!make newmode M=<driver name>_lkm!}} 
@@ -809,13 +809,13 @@ Buildscripts is just a set of makefiles, scripts and style sheets. There is no b
 All packaged ABS version are available from the {a %href=http://www.eduvax.net/dist %%ABS distributions repository}. Some mirror may have been created in other location that can't reach this public primary repository, check people that have provided you this document that may know about such mirror. This document first public issue as written while integration ABS version 3.0.
     }
     {section %title=Create the configuration files and bootstrap makefiles.
-From the project root (where the make directory of buildscripts has been integrated):
+From the project root (where the make directory of ABS has been integrated):
   - create {kw app.cfg} file and define at least the {kw APPNAME}, {kw VERSION}, {kw VABS} and {kw ABS_REPO} variables.
   - extract the file core/bootstrap.mk from the ABS core distribution archive (or fetch the reference version such as {a %href=http://www.eduvax.net/dist/noarch/abs-3.0-bootstrap.mk %%abs-3.0-bootstrap.mk}) into the project root directory and rename it {kw Makefile}.
   - when some modules are already existing, for each one go to its directory, then:
     - create {kw module.cfg} file en define at least the {kw MODNAME} and {kw MODTYPE} variables.
     - copy the bootstrap makefile already integrated to the root directory as the module's {kw Makefile} file.
-After that you are ready to build your project with buildscripts by calling {kw make}, and even create new modules by calling {kw make newmod M=<module name>}. Next sections details all services available through make targets and variables that can be used to configure your project and enclosed modules.
+After that you are ready to build your project with ABS by calling {kw make}, and even create new modules by calling {kw make newmod M=<module name>}. Next sections details all services available through make targets and variables that can be used to configure your project and enclosed modules.
     } 
   }
   {section %title=Make targets
@@ -834,7 +834,7 @@ The project level main targets are:
   - {kw make distinstall}: generates an installation archive including the complete built application and its dependencies. The generated file is executable and handles, when later run, the installation process.
      - when project contains in its root directory a file named {kw extradist.sh}, this script is run during the processing of the dist target. It receive the target build path (default is {kw dist/<app>-<version>} as first argument. You can put in this script any commands that copy/create/update files into the dist directory that will then be included in the built final archive file.
      - using the extra dist feature, one can insert in the {kw dist/<app>-<version>/bin} directory a file named {kw postinstall.sh}. The in installation archive embedded script, at the end of the install process, looks at this file availability and if present run it with two arguments, the application name, and the application version. Caution: take care to set this {kw postinstall.sh} file the executable attribute in order to be invoked by the installation script.
-Some utility and additional targets may be added according to buildscripts improvements. See in-line help for more complete reference.
+Some utility and additional targets may be added according to ABS improvements. See in-line help for more complete reference.
     }
     {section %title=At module level
 The module level main targets are:
@@ -864,10 +864,10 @@ $ make check RUNARGS="-f testCaseSuccess"
   - {kw make debugtest}: see {kw make debugcheck}
   - {kw make edebug}: displays parameters required for debugging from {em Eclipse} (applicable to executable modules only). 
   - {kw make edebugtest}: displays parameters required for debugging unit tests from {em Eclipse}.
-  - {kw make newclass C=<class name>}: generate new empty class files (both implementation and headers for C++) complient to buildscripts rules.
+  - {kw make newclass C=<class name>}: generate new empty class files (both implementation and headers for C++) complient to ABS rules.
   - {kw make newtest T=<name of class to test>}: create source code file for a unit testing class. 
   - {kw make help}: in-line help system. Show usage information about per module available services.
-Some utility targets may be added according to buildscripts improvements. See in-line help for more complete reference.
+Some utility targets may be added according to ABS improvements. See in-line help for more complete reference.
     }
     {section %title=Options
 the main build targets will use the following option (given as make command arguments) to specialize the build process:
@@ -1087,7 +1087,7 @@ MODULES	% <computed modules list> % List of module to build from the application
 MODTYPE	% % Type of module, one of the following: jar (java package), library (C/C++ shared object), exe (C/C++ command), linuxmodule (linux kernel module), doc (document set), python (python library). 	
 OBJDIR % $(TRDIR)/obj/$(MODNAME) % Directory to store intermediate files during the build process (includes object files, generated source code).
 PREFIX % /opt/$(APPNAME)_$(VERSION) % Default installation dir prefix for the install make target.
-PUB_H % % List of C/C++ header files stored in src directory to be published. Note: buildscripts standard layout request to store such files in include directory aside src directory. This feature was introduced only to ease the integration of legacy non compliant code into a buildscripts project.	 	
+PUB_H % % List of C/C++ header files stored in src directory to be published. Note: ABS standard layout request to store such files in include directory aside src directory. This feature was introduced only to ease the integration of legacy non compliant code into an ABS project.	 	
 RMODDEP % 1 % Maximum recursion level for deep inter module dependencies checking.
 RUNARGS % % Arguments to be forwarded to the application execution when invoking make run, make debug, make check or make debugcheck.
 SYSNAME % output of make/OS.sh % Target operating system. May include a version number (ex: Debian_8, CentOS_7)
