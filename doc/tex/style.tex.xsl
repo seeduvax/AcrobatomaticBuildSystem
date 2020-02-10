@@ -8,6 +8,7 @@
 <xsl:param name="user"/>
 <xsl:param name="host"/>
 <xsl:param name="srcdir"/>
+<xsl:param name="srcfilename"/>
 <xsl:param name="style">heml.sty</xsl:param>
 <xsl:param name="slideStyle">hemlSlide.sty</xsl:param>
 <xsl:param name="context">Component <xsl:value-of select="$app"/>-<xsl:value-of select="$version"/></xsl:param>
@@ -367,7 +368,7 @@ select="substring-after($text,$from)"/>
 
 <xsl:template match="/document|/article">
     <xsl:call-template name="mainArticleInclude"/>
-    
+    \renewcommand{\HEMLsrcFileName}{<xsl:call-template name="formatText"><xsl:with-param name="text" select="$srcfilename"/></xsl:call-template>}
     \renewcommand{\HEMLdraft}{<xsl:value-of select="$draftStatus"/>}
     \renewcommand{\HEMLbuildinfo}{<xsl:value-of select="$buildinfo"/>}
     \renewcommand{\HEMLorgName}{<xsl:value-of select="author/@sigle"/>}
@@ -439,7 +440,7 @@ select="substring-after($text,$from)"/>
     \renewcommand{\HEMLrevisiontable}{
     <xsl:apply-templates select="history/edition"/>
     }
-        
+    
     \renewcommand{\HEMLtitle}{<xsl:apply-templates select="@title"/><xsl:apply-templates select="title/text()"/>}
     \title{<xsl:apply-templates select="@title"/><xsl:apply-templates select="title/text()"/>}
     \begin{document}
