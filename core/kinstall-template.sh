@@ -99,17 +99,17 @@ install() {
     tail -n +$SKIP "$THIS" | tar -xvz -C "$PREFIX/etc/$APP" --strip-components=2 --keep-old-files --wildcards etc/$APP/*.conf
     mkdir -p "$PREFIX/etc/$APP/inits"
     mkdir -p "$PREFIX/etc/$APP/services"
-    tail -n +$SKIP "$THIS" | tar -xvz --overwrite -C "$PREFIX/etc/$APP" --strip-components=2 etc/$APP/services etc/$APP/inits
+    tail -n +$SKIP "$THIS" | tar -xvz --overwrite -C "$PREFIX/etc/$APP" --strip-components=2 etc/$APP/services etc/$APP/inits 2> /dev/null
     mkdir -p "$PREFIX/etc/init.d"
     tail -n +$SKIP "$THIS" | tar -xvz --overwrite -C "$PREFIX/etc/init.d" --strip-components=2 etc/init.d 
     
-    if [ -d "$PREFIX/etc/$APP/inits" ]; then
+    # check that the inits directory exists and that inits contains file.
+    if [ -d "$PREFIX/etc/$APP/inits" -a ! -z "$(ls -A $PREFIX/etc/$APP/inits)" ]; then
         chmod 750 $PREFIX/etc/$APP/inits/*
-    fi
-	if [ "$(which systemd)" != "" ]; then
-	    echo "Installation des drivers pour systemd"
-        mkdir -p "$PREFIX/lib/systemd/system"
-        if [ -d "$PREFIX/etc/$APP/inits" ]; then
+        
+        if [ "$(which systemd)" != "" ]; then
+            echo "Installation des drivers pour systemd"
+            mkdir -p "$PREFIX/lib/systemd/system"
             for initFile in `ls $PREFIX/etc/$APP/inits/*`; do
                 serviceFile="$PREFIX/etc/$APP/services/$(basename -- $initFile).service"
                 if [ ! -f $serviceFile ]; then 
@@ -120,10 +120,8 @@ install() {
                 chmod 750 $serviceFile
                 ln -srf "$serviceFile" "$PREFIX/lib/systemd/system/"
             done
-        fi
-    else
-        echo "Installation des drivers avec init.d"
-        if [ -d "$PREFIX/etc/$APP/inits" ]; then
+        else
+            echo "Installation des drivers avec init.d"
             for execFile in `ls "$PREFIX/etc/$APP/inits/*"`; do
                 echo "Linking $execFile into init.d"
                 ln -srf "$execFile" "$PREFIX/etc/init.d/"

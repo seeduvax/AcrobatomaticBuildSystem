@@ -8,6 +8,7 @@
 <xsl:param name="user"/>
 <xsl:param name="host"/>
 <xsl:param name="srcdir"/>
+<xsl:param name="srcfilename"/>
 <xsl:param name="style">heml.sty</xsl:param>
 <xsl:param name="slideStyle">hemlSlide.sty</xsl:param>
 <xsl:param name="context">Component <xsl:value-of select="$app"/>-<xsl:value-of select="$version"/></xsl:param>
@@ -43,44 +44,51 @@ select="substring-after($text,$from)"/>
 <!--************************************************
     In latex & must become \\ampersand, and many other
     should be escpaed. 
--->     
-<xsl:template match="text()|@*">
+-->
+<xsl:template name="formatText">
+ <xsl:param name="text"/>
  <xsl:param name="step1"><xsl:call-template name="strreplace">
-  <xsl:with-param name="text" select="."/>		
-  <xsl:with-param name="from" select="'&amp;'"/>		
-  <xsl:with-param name="to" select="'\&amp;'"/>		
+  <xsl:with-param name="text" select="$text"/>      
+  <xsl:with-param name="from" select="'&amp;'"/>        
+  <xsl:with-param name="to" select="'\&amp;'"/>     
  </xsl:call-template></xsl:param>
  <xsl:param name="step2"><xsl:call-template name="strreplace">
-  <xsl:with-param name="text" select="$step1"/>		
-  <xsl:with-param name="from" select="'_'"/>		
-  <xsl:with-param name="to" select="'\_'"/>		
+  <xsl:with-param name="text" select="$step1"/>     
+  <xsl:with-param name="from" select="'_'"/>        
+  <xsl:with-param name="to" select="'\_'"/>     
  </xsl:call-template></xsl:param>
  <xsl:param name="step3"><xsl:call-template name="strreplace">
-  <xsl:with-param name="text" select="$step2"/>		
-  <xsl:with-param name="from" select="'$'"/>		
-  <xsl:with-param name="to" select="'\$'"/>		
+  <xsl:with-param name="text" select="$step2"/>     
+  <xsl:with-param name="from" select="'$'"/>        
+  <xsl:with-param name="to" select="'\$'"/>     
  </xsl:call-template></xsl:param>
  <xsl:param name="step4"><xsl:call-template name="strreplace">
-  <xsl:with-param name="text" select="$step3"/>		
-  <xsl:with-param name="from" select="'^'"/>		
-  <xsl:with-param name="to" select="'\^'"/>		
+  <xsl:with-param name="text" select="$step3"/>     
+  <xsl:with-param name="from" select="'^'"/>        
+  <xsl:with-param name="to" select="'\^'"/>     
  </xsl:call-template></xsl:param>
  <xsl:param name="step5"><xsl:call-template name="strreplace">
-  <xsl:with-param name="text" select="$step4"/>		
-  <xsl:with-param name="from" select="'#'"/>		
-  <xsl:with-param name="to" select="'\#'"/>		
+  <xsl:with-param name="text" select="$step4"/>     
+  <xsl:with-param name="from" select="'#'"/>        
+  <xsl:with-param name="to" select="'\#'"/>     
  </xsl:call-template></xsl:param>
  <xsl:param name="step6"><xsl:call-template name="strreplace">
-  <xsl:with-param name="text" select="$step5"/>		
-  <xsl:with-param name="from" select="'&lt;'"/>		
-  <xsl:with-param name="to" select="'{\textless}'"/>		
+  <xsl:with-param name="text" select="$step5"/>     
+  <xsl:with-param name="from" select="'&lt;'"/>     
+  <xsl:with-param name="to" select="'{\textless}'"/>        
  </xsl:call-template></xsl:param>
  <xsl:param name="step7"><xsl:call-template name="strreplace">
-  <xsl:with-param name="text" select="$step6"/>		
-  <xsl:with-param name="from" select="'&gt;'"/>		
-  <xsl:with-param name="to" select="'{\textgreater}'"/>		
+  <xsl:with-param name="text" select="$step6"/>     
+  <xsl:with-param name="from" select="'&gt;'"/>     
+  <xsl:with-param name="to" select="'{\textgreater}'"/>     
  </xsl:call-template></xsl:param>
  <xsl:value-of select="$step7"/>
+</xsl:template>
+
+<xsl:template match="text()|@*">
+ <xsl:call-template name="formatText">
+  <xsl:with-param name="text" select="."/>      
+ </xsl:call-template>
 </xsl:template>
 <!--************************************************
 	tete de section
@@ -128,7 +136,21 @@ select="substring-after($text,$from)"/>
 	<xsl:apply-templates/>
 </xsl:template>
 <!--************************************************
-     	paragraphe, empasis, quotes, ...
+        Appendices
+-->
+<xsl:template match="appendices">
+\clearpage
+\appendix
+<xsl:apply-templates select="section" mode="appendix"/>
+</xsl:template>
+
+<xsl:template match="section" mode="appendix">
+<xsl:apply-templates select="."/>
+\newpage
+</xsl:template>
+
+<!--************************************************
+     	paragraph, emphasis, quotes, ...
 -->
 <xsl:template match="p">
 	<xsl:apply-templates/><xsl:text>
@@ -256,16 +278,14 @@ select="substring-after($text,$from)"/>
   </xsl:otherwise>
 </xsl:choose></xsl:param>
 <xsl:value-of select="$rowcolor"/>
-\textbf{<xsl:apply-templates select="../@id"/><xsl:value-of select="count(preceding-sibling::ref)+1"/>} &amp; 
+<xsl:param name="refName"><xsl:apply-templates select="../@id"/><xsl:value-of select="count(preceding-sibling::ref)+1"/></xsl:param>
+\textbf{<xsl:value-of select="$refName"/>}\namedlabel{<xsl:value-of select="@id"/>}{[<xsl:value-of select="$refName"/>]} &amp; 
   <xsl:if test="@authors!=''"><xsl:apply-templates select="@authors"/>:</xsl:if>\hspace{1cm}\emph{<xsl:apply-templates select="."/>} \\
 <xsl:if test="$hhref!=''">
  <xsl:value-of select="$rowcolor"/>
  &amp; \small <xsl:apply-templates select="@href"/> \\</xsl:if>
 <xsl:value-of select="$rowcolor"/>
   &amp; \emph{<xsl:apply-templates select="@ref"/>}\hspace{1cm}<xsl:apply-templates select="@edition"/><xsl:text> </xsl:text><xsl:apply-templates select="@date"/> \\
-</xsl:template>
-<xsl:template match="ref" mode="xref">
-[<xsl:apply-templates select="../@id"/><xsl:value-of select="count(preceding-sibling::ref)+1"/>]
 </xsl:template>
 <!--************************************************
      Definition table
@@ -337,13 +357,7 @@ select="substring-after($text,$from)"/>
     Cross reference
 -->
 <xsl:template match="xref">
-<xsl:param name="refvalue"><xsl:value-of select="text()"/></xsl:param>
-<xsl:choose>
-  <xsl:when test="count(//ref[@id=$refvalue])=1">
-   <xsl:apply-templates select="//ref[@id=$refvalue]" mode="xref"/>
-  </xsl:when>
-  <xsl:otherwise>\ref{<xsl:value-of select="."/>}</xsl:otherwise>
-</xsl:choose>
+\ref{<xsl:value-of select="."/>}
 </xsl:template>
 <!-- ************************************************************************
     Main
@@ -354,7 +368,7 @@ select="substring-after($text,$from)"/>
 
 <xsl:template match="/document|/article">
     <xsl:call-template name="mainArticleInclude"/>
-    
+    \renewcommand{\HEMLsrcFileName}{<xsl:call-template name="formatText"><xsl:with-param name="text" select="$srcfilename"/></xsl:call-template>}
     \renewcommand{\HEMLdraft}{<xsl:value-of select="$draftStatus"/>}
     \renewcommand{\HEMLbuildinfo}{<xsl:value-of select="$buildinfo"/>}
     \renewcommand{\HEMLorgName}{<xsl:value-of select="author/@sigle"/>}
@@ -422,11 +436,11 @@ select="substring-after($text,$from)"/>
     </xsl:if>
     \renewcommand{\HEMLabstract}{<xsl:apply-templates select="abstract"/>}
     \renewcommand{\HEMLkeywords}{<xsl:apply-templates select="keywords"/>}
-    \renewcommand{\HEMLcontext}{<xsl:value-of select="$context"/>}
+    \renewcommand{\HEMLcontext}{<xsl:call-template name="formatText"><xsl:with-param name="text" select="$context"/></xsl:call-template>}
     \renewcommand{\HEMLrevisiontable}{
     <xsl:apply-templates select="history/edition"/>
     }
-        
+    
     \renewcommand{\HEMLtitle}{<xsl:apply-templates select="@title"/><xsl:apply-templates select="title/text()"/>}
     \title{<xsl:apply-templates select="@title"/><xsl:apply-templates select="title/text()"/>}
     \begin{document}
@@ -434,6 +448,7 @@ select="substring-after($text,$from)"/>
     \input{code.sty}
     
     <xsl:apply-templates select="section"/>
+    <xsl:apply-templates select="appendices"/>
     \end{document}
 </xsl:template>
 

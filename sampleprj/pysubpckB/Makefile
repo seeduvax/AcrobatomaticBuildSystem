@@ -56,3 +56,6 @@ $(ABSROOT)/%/main.mk: $(ABS_CACHE)/noarch/abs.%-$(VABS).tar.gz
 
 $(PRJROOT)/local.cfg:
 
+
+xxx:
+	echo "$(MASTOL_LUA_LIB)"

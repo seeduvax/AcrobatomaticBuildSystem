@@ -44,11 +44,12 @@ PREFIX=/opt/$(APPNAME)-$(VERSION)
 
 ##  - DIST_EXCLUDE: pattern for files to be excluded on packaging.
 ##      (default: share/*/tex)
-DIST_EXCLUDE:=share/*/tex
+DIST_EXCLUDE:=share/*/tex obj extlib extlib.nodist
+INSTALLTAR_EXCLUDE:=.abs
 ##  - LIGHT_INSTALLER: when set to 1, add share/*/doxygen and include to the 
 ##      list of file to exclude on packaging.
 ifeq ($(LIGHT_INSTALLER),1)
-INSTALLTAR_EXCLUDE:=share/*/doxygen include
+INSTALLTAR_EXCLUDE+=share/*/doxygen include
 endif
 ##  - DISTTARFLAGS: arguments to add to tar command when packing files on dist
 ##      and distinstall target.
@@ -183,7 +184,7 @@ dist/$(APPNAME)-$(VERSION)/import.mk:
 	@test -f export.mk && \
 	m4 -D__app__=$(APPNAME) -D__version__=$(VERSION) export.mk -D__uselib__="$(USELIB)" > $$PWD/dist/$(APPNAME)-$(VERSION)/import.mk || \
 	printf '\n-include $$(dir $$(lastword $$(MAKEFILE_LIST)))/.abs/index.mk\n$$(eval $$(call extlib_import_template,$(APPNAME),$(VERSION),$(USELIB)))\n$(_extra_import_defs_)\n\n' > $@
-	@test -x extradist.sh && VERSION=$(VERSION) APPNAME=$(APPNAME) ./extradist.sh `dirname $@` || :
+	@if [ -x extradist.sh ]; then VERSION=$(VERSION) APP=$(APPNAME) APPNAME=$(APPNAME) ./extradist.sh `dirname $@`; fi
 	@mkdir -p dist/$(APPNAME)-$(VERSION)/include/$(APPNAME)
 	@for headerdir in $(patsubst %,%/include,$(filter-out $(NODISTMOD),$(EXPMOD))); \
 	do cp -r $$headerdir dist/$(APPNAME)-$(VERSION) ; \
@@ -194,7 +195,7 @@ dist/$(APPNAME)-$(VERSION)/import.mk:
 	@rm -rf dist/$(APPNAME)-$(VERSION)/build.log
 
 
-DISTTAR:=tar cvzf dist/$(APPNAME)-$(VERSION).$(ARCH).tar.gz -C dist --exclude obj --exclude extlib --exclude extlib.nodist $(DISTTARFLAGS) $(APPNAME)-$(VERSION)
+DISTTAR:=tar cvzf dist/$(APPNAME)-$(VERSION).$(ARCH).tar.gz -C dist $(DISTTARFLAGS) $(APPNAME)-$(VERSION)
 
 dist/$(APPNAME)-$(VERSION).$(ARCH).tar.gz: dist/$(APPNAME)-$(VERSION)/import.mk
 	@$(DISTTAR)
@@ -302,10 +303,10 @@ endif
 ##      <issue>: new branch tracking issue reference.
 ##      <msg>: branch creation comment message
 ifeq ($(word 1,$(MAKECMDGOALS)),branch)
-NEW_BRANCH=$(word 2,$(MAKCMDGOALS))
+NEW_BRANCH=$(word 2,$(MAKECMDGOALS))
 ifeq ($(NEW_BRANCH),)
 branch:
-	@$(ABS_PRINT_error) "Can't crate branch, new branch spec is missing"
+	@$(ABS_PRINT_error) "Can't create branch, new branch spec is missing"
 	@$(ABS_PRINT_error) "    make branch <X.Y> I=<issue> M='<msg>'"
 else
 NEW_BRANCH:

@@ -20,9 +20,7 @@ public:
     }
 
     void testScript() {
-        std::string tdir(getenv("TRDIR"));
-        std::string cmd=tdir+"/bin/sampleprj.sh";
-        int res=system(cmd.c_str());
+        int res=system("sampleprj.sh");
         CPPUNIT_ASSERT_EQUAL(0,res);
     }
 };

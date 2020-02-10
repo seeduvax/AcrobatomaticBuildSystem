@@ -18,7 +18,7 @@ HTML_STYLE_BUNDLE+=$(patsubst %,$(ABSROOT)/doc/html/%.tar.gz,style impress.js hi
 # files to be processed by doxygen.
 DOXSRCFILES:=$(shell find $(PRJROOT) -name *.h -o -name *.c -o -name *.hpp -o -name *.cpp -o -name *.py -o -name *.java | fgrep -v "/build/" | fgrep -v "/dist/" | fgrep -v "$(ABSROOT)")
 
-HEMLVERSION?=1.0.0
+HEMLVERSION?=1.0.1
 HEMLARGS:=-param app $(APPNAME) -param version $(VERSION) -param date "`date --rfc-3339 s`" -param user $$USER -param host $(shell hostname)
 
 PUMLVERSION?=1.2017.12
@@ -119,7 +119,7 @@ define absHemlTransformation
 	@$(ABS_PRINT_info) "heml to $(suffix $@) of $< using style $(1)"
 	@mkdir -p $(@D)
 	@$(PUMLCMD) -in $(call absGetPath,$<) -o $(call absGetPath,$(@D))
-	@$(HEMLCMD) -in $(call absGetPath,$<) -xsl $(call absGetPath,$(1)) -param srcdir "$(call absGetPath,$(<D))" $(HEMLARGS) -out $(call absGetPath,$@)
+	@$(HEMLCMD) -in $(call absGetPath,$<) -xsl $(call absGetPath,$(1)) -param srcdir "$(call absGetPath,$(<D))" -param srcfilename "$(call absGetPath,$(<F))" $(HEMLARGS) -out $(call absGetPath,$@)
 endef
 
 $(HTMLDIR)/%.html: src/%.heml $(HEMLJAR) $(PUMLJAR) $(IMGS)
