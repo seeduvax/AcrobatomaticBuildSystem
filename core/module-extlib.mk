@@ -102,8 +102,6 @@ endif
 
 endef
 
-$(info PLOP)
-
 # macro to include lib
 # $1 lib dependancy name (name-version)
 # $2 lib parent name
