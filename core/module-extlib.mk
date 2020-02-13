@@ -84,8 +84,8 @@ $(NDNA_EXTLIBDIR)/%/.dir: $(ABS_CACHE)/noarch/%.tar.gz
 	@$(ABS_PRINT_info) "Unpacking data file set : $(patsubst $(NDNA_EXTLIBDIR)/%/.dir,%,$@)"
 	@tar -xzf $^ -C $(NDNA_EXTLIBDIR) && touch $@
 
-
-ALLUSELIB:=$(USELIB) $(NDUSELIB)
+TRANSUSELIB:=$(USELIB)
+ALLUSELIB:=$(TRANSUSELIB) $(NDUSELIB)
 # macro to include lib
 # $1 lib dependancy name (name-version)
 # $3 lib parent name
@@ -93,7 +93,7 @@ ALLUSELIB:=$(USELIB) $(NDUSELIB)
 # $4 variable to use to store libs
 define includeExtLib
 # the import.mk must not be imported if already imported in EXTLIB
-ifeq ($$(filter $1,$$($4) $$(USELIB)),)
+ifeq ($$(filter $1,$$($4) $$(TRANSUSELIB)),)
 $$(eval $4+=$1)
 include $$(patsubst %,$3/%/import.mk,$1)
 else
@@ -102,12 +102,15 @@ endif
 
 endef
 
+$(info PLOP)
+
 # macro to include lib
 # $1 lib dependancy name (name-version)
-# $3 lib parent name
+# $2 lib parent name
 # $3 extlib directory path
 # $4 variable to use to store libs
 define condIncludeExtLib
+$$(eval ADDEDDEPLIST:=$$(ADDEDDEPLIST) "$2"->"$1")
 ifeq ($$(filter $(word 1,$(subst -, ,$1))-%,$$(ALLUSELIB)),)
 # the lib has not been imported yet
 ALLUSELIB+=$1
@@ -128,8 +131,8 @@ endef
 # $2 lib version
 # $3 lib's dependencies.
 define extlib_import_template
-ifneq ($$(filter $(1)-$(2),$$(USELIB)),)
-$(foreach lib,$3,$(call condIncludeExtLib,$(lib),$(1)-$(2),$(EXTLIBDIR),USELIB))
+ifneq ($$(filter $(1)-$(2),$$(TRANSUSELIB)),)
+$(foreach lib,$3,$(call condIncludeExtLib,$(lib),$(1)-$(2),$(EXTLIBDIR),TRANSUSELIB))
 CFLAGS+=-I$(EXTLIBDIR)/$(1)-$(2)/include
 LDFLAGS+=-L$(EXTLIBDIR)/$(1)-$(2)/lib -L$(EXTLIBDIR)/$(1)-$(2)/lib64
 else
@@ -142,9 +145,15 @@ endif
 
 endef
 
-# list of import makefile from external libraries declared in module configuration
-EXTLIBMAKES=$(patsubst %,$(EXTLIBDIR)/%/import.mk,$(USELIB)) $(patsubst %,$(NDEXTLIBDIR)/%/import.mk,$(NDUSELIB))
+# list of import makefile from external libraries declared in module
+# configuration only if not requesting clean or cleanabs target. In this case,
+# we don't care importing the dependencies.
+ifneq ($(MAKECMDGOALS),clean)
+ifneq ($(MAKECMDGOALS),cleanabs)
+EXTLIBMAKES=$(patsubst %,$(EXTLIBDIR)/%/import.mk,$(TRANSUSELIB)) $(patsubst %,$(NDEXTLIBDIR)/%/import.mk,$(NDUSELIB))
 include $(EXTLIBMAKES)
+endif
+endif
 
 # external libraries are expected before starting compilation.
 $(OBJS): $(EXTLIBMAKES)
@@ -152,7 +161,7 @@ $(OBJS): $(EXTLIBMAKES)
 # --------------------------------
 # USELIB content check helper vars
 # --------------------------------
-S_USELIB=$(sort $(USELIB))
+S_USELIB=$(sort $(TRANSUSELIB))
 ifneq ($(TAGRQ),)
 ifeq ($(USER),jenkins)
 D_USELIB=$(filter %d,$(S_USELIB))
@@ -193,8 +202,18 @@ endif
 ##  - checkdep: show currently defined dependencies (full graph including 
 ##    dependencies of dependencies).
 ifneq ($(USELIB),)
-checkdep:
-	@APPNAME="$(APPNAME)" VERSION="$(VERSION)" EXTLIBDIR="$(EXTLIBDIR)" PRJROOT="$(PRJROOT)" $(DEPTOOL)
+$(BUILDROOT)/$(APPNAME)_deps.dot: $(PRJROOT)/app.cfg
+	@$(ABS_PRINT_info) "Generating project dependency graph."
+	@echo "digraph deps {" > $@
+	@printf ' $(foreach dep,$(USELIB),"$(APPNAME)-$(VERSION)"->"$(dep)"\n)' >> $@
+	@printf ' $(foreach dep,$(ADDEDDEPLIST),$(dep)\n)' >> $@
+	@echo "}" >> $@
+	@dot -Tpng $@ > $@.png
+
+checkdep: $(BUILDROOT)/$(APPNAME)_deps.dot
+	@$(ABS_PRINT_info) "Launching image viewer to display the generated dependency graph $^.png."
+	@$(ABS_PRINT_info) "Close image viewer to continue or hit Ctrl-C to stop here."
+	@xdot $^.png 2>/dev/null || eog $^.png 2>/dev/null || xdg-open $^.png 2>/dev/null || $(ABS_PRINT_error) "No image viewer found (expected one of: xdot, eog, xdg-open)"
 else
 checkdep:
 	@$(ABS_PRINT_info) "No dependancies set in USELIB project parameter."
