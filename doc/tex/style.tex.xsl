@@ -82,7 +82,12 @@ select="substring-after($text,$from)"/>
   <xsl:with-param name="from" select="'&gt;'"/>     
   <xsl:with-param name="to" select="'{\textgreater}'"/>     
  </xsl:call-template></xsl:param>
- <xsl:value-of select="$step7"/>
+ <xsl:param name="step8"><xsl:call-template name="strreplace">
+  <xsl:with-param name="text" select="$step7"/>     
+  <xsl:with-param name="from" select="'§'"/>     
+  <xsl:with-param name="to" select="'{\S}'"/>     
+ </xsl:call-template></xsl:param>
+ <xsl:value-of select="$step8"/>
 </xsl:template>
 
 <xsl:template match="text()|@*">
@@ -196,9 +201,16 @@ select="substring-after($text,$from)"/>
      	requirements
 -->
 <xsl:template match="req">
+<xsl:choose>
+<xsl:when test="@id!=''">
 \HEMLrequirement{<xsl:value-of select="@id"/>}{
 <xsl:apply-templates/>
 }
+</xsl:when>
+<xsl:otherwise>
+\HEMLreqReference{<xsl:value-of select="."/>}
+</xsl:otherwise>
+</xsl:choose>
 </xsl:template>
 <xsl:template match="req" mode="ref">
 <xsl:value-of select="text()"/><xsl:text> </xsl:text>
@@ -688,7 +700,7 @@ Checksum function: <xsl:value-of select="@type"/>
 </xsl:template>
 <xsl:template match="*" mode="index">
 <xsl:param name="num"><xsl:number count="section|references|definitions" level="multiple" format="1.1"/></xsl:param>
-<xsl:value-of select="$num"/>
+\S<xsl:value-of select="$num"/><xsl:text> </xsl:text>
 </xsl:template>
 <xsl:template match="check" mode="index">
 <xsl:param name="num"><xsl:number count="section|references|definitions|check" level="multiple" format="1.1"/></xsl:param>

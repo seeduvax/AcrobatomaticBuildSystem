@@ -178,11 +178,18 @@ include(<xsl:value-of select="@src"/>.txt)
      	requirements
 -->
 <xsl:template match="req">
+<xsl:choose>
+<xsl:when test="@id!=''">
 <div class="req">
 <table><tr>
 <th><a name="req.{@id}"><xsl:value-of select="@id"/></a></th><td><xsl:value-of select="."/></td> 
 </tr></table>
 </div>
+</xsl:when>
+<xsl:otherwise>
+  <xsl:call-template name="reqref"/>
+</xsl:otherwise>
+</xsl:choose>
 </xsl:template>
 <xsl:template match="req" mode="ref">
   <xsl:param name="rid"><xsl:value-of select="text()"/></xsl:param>
@@ -195,6 +202,10 @@ include(<xsl:value-of select="@src"/>.txt)
   <xsl:apply-templates select="/document/section//req" mode="index"/>
   </table>
 </xsl:template>
+<xsl:template name="reqref">
+  <xsl:param name="rid"><xsl:value-of select="."/></xsl:param>
+  <span class="xref"><xsl:attribute name="title"><xsl:value-of select="//req[@id=$rid]"/></xsl:attribute><a href="#req.{@id}"><xsl:value-of select="$rid"/></a></span>
+</xsl:template>
 <xsl:template match="req" mode="index">
 <xsl:if test="@id!=''">
   <xsl:variable name="rid"><xsl:value-of select="@id"/></xsl:variable>
@@ -202,7 +213,7 @@ include(<xsl:value-of select="@src"/>.txt)
 	<xsl:when test="(position() + 1) mod 2 = 0">even</xsl:when>
 	<xsl:otherwise>odd</xsl:otherwise>
   </xsl:choose></xsl:variable>
-  <tr class="{$trclass}"><td><a href="#req.{@id}"><xsl:value-of select="@id"/></a></td><td>
+  <tr class="{$trclass}"><td><xsl:call-template name="reqref"><xsl:with-param name="rid"><xsl:value-of select="@id"/></xsl:with-param></xsl:call-template></td><td>
     <xsl:choose>
       <xsl:when test="count(//req[text()=$rid])&gt;0">
 	<xsl:apply-templates select="//req[text()=$rid]/.." mode="index"/>
@@ -214,7 +225,7 @@ include(<xsl:value-of select="@src"/>.txt)
 </xsl:template>
 <xsl:template match="*" mode="index">
 <xsl:param name="num"><xsl:number count="section|references|definitions" level="multiple" format="1.1"/></xsl:param>
-<a href="#{$num}"><xsl:value-of select="$num"/></a>
+<a href="#{$num}">§<xsl:value-of select="$num"/> </a>
 </xsl:template>
 <xsl:template match="check" mode="index">
 <xsl:param name="num"><xsl:number count="section|references|definitions|check" level="multiple" format="1.1"/></xsl:param>
