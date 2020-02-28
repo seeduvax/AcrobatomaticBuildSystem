@@ -168,7 +168,7 @@
 { 
   #2
   %if no caption, remove from the table numbering to avoid steps in table numbering in summary
-  \ifthenelse{\equal{\HEMLtableCaption}{\HEMLempty}} {\addtocounter{table}{-1}\fi} {}
+  \ifthenelse{\equal{\HEMLtableCaption}{\HEMLempty}} {\addtocounter{table}{-1}} {}
   \begin{longtabu}{#1}
   \hline
 }
