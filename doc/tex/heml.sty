@@ -167,6 +167,8 @@
 \newenvironment{HEMLtable}[2]
 { 
   #2
+  %if no caption, remove from the table numbering to avoid steps in table numbering in summary
+  \ifthenelse{\equal{\HEMLtableCaption}{\HEMLempty}} {\addtocounter{table}{-1}\fi} {}
   \begin{longtabu}{#1}
   \hline
 }
@@ -366,6 +368,8 @@
 
 \newcommand{\HEMLhistoryPage}{
     {\fontsize{11}{14}\selectfont
+    % remove from table numbering
+    \addtocounter{table}{-1}
     \begin{longtabu} to \textwidth{|X[0.14, c]|X[0.14, c]|X[0.70, l]|}
     \hline
     \multicolumn{3}{|c|}{\multirow{2}{17.1cm}{\fontsize{14}{14}\selectfont \centering{\HEMLhistoryPageTitle}}}\\
