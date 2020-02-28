@@ -84,15 +84,20 @@ ADAC?=gnatmake
 ADAOBJS+=$(patsubst src/%.adb,$(OBJDIR)/%.o,$(filter %.adb,$(SRCFILES)))
 OBJS+=$(ADAOBJS)
 
+
 # ---------------------------------------------------------------------
 # Compilation flags by compilation modes
 # ---------------------------------------------------------------------
+## DEBUGCFLAGS: additional compiler option to set on debug mode only (default: empty)
+IDENTCFLAGS:=-D__APPNAME__='$(APPNAME)' -D__MODNAME__='$(MODNAME)'
 ifeq ($(MODE),debug)
 # debugging symbols, no optimisation, optionnal flags for debug mode
-CFLAGS+= -g -D_$(APPNAME)_$(MODNAME)_debug -D_abs_trace_debug -D__APPNAME__='$(APPNAME)' -D__MODNAME__='$(MODNAME)' $(DEBUGCFLAGS)
+CFLAGS+= -g -D_$(APPNAME)_$(MODNAME)_debug -D_abs_trace_debug $(IDENTCFLAGS) $(DEBUGCFLAGS)
 else
 # some optimisation, no debbugging symbol, optionnal flags for release mode
-CFLAGS+= -O3 -D_$(APPNAME)_$(MODNAME)_release -D__APPNAME__='$(APPNAME)' -D__MODNAME__='$(MODNAME)' $(RELEASECFLAGS)
+## RELEASECFLAGS: additional compiler option to set on release mode only (default: -O3)
+RELEASECFLAGS?=-O3
+CFLAGS+= -D_$(APPNAME)_$(MODNAME)_release $(IDENTCFLAGS) $(RELEASECFLAGS)
 endif
 
 define cc-command
