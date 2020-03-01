@@ -190,14 +190,6 @@ else
 	@xdg-open "$(EXTLIBDIR)/$(filter $(L)-%,$(USELIB))/share/doc/$(L)" &
 endif
 
-##  - odoc L=<libname>: open application document directory in browser
-odoc:
-ifeq ($(ISWINDOWS),true)
-	@explorer `cygpath -d "$(TRDIR)/share/doc/$(APPNAME)"` &
-else
-	@xdg-open "$(TRDIR)/share/doc/$(APPNAME)" &
-endif
-
 ##  - showvar [V="<var name> [<var name>]*]": print make variables
 ifeq ($(findstring showvar,$(MAKECMDGOALS)),showvar)
 V?=$(.VARIABLES)
