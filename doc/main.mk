@@ -165,3 +165,11 @@ docbook: $(DOCBOOKS)
 clean::
 	rm -rf $(DOCDIR)
 
+##  - odoc L=<libname>: open application document directory in browser
+odoc:
+ifeq ($(ISWINDOWS),true)
+	@explorer `cygpath -d "$(TRDIR)/share/doc/$(APPNAME)"` &
+else
+	@xdg-open "$(TRDIR)/share/doc/$(APPNAME)" &
+endif
+
