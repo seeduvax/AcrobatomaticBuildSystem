@@ -48,3 +48,7 @@ crcat:
 	@cat $(CRDIR)/$(CRID).cr
 
 endif
+
+
+# exemple de mise à jour d'un compteur dans un fichier XML avec xmlstarlet
+# xmlstarlet ed -L -u /cr/ch[1] -x 'number(/cr/ch[1])+1' 10.cr.xml
