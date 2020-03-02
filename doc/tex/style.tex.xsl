@@ -207,9 +207,7 @@ select="substring-after($text,$from)"/>
 <xsl:apply-templates/>
 }
 </xsl:when>
-<xsl:otherwise>
-\HEMLreqReference{<xsl:value-of select="."/>}
-</xsl:otherwise>
+<xsl:otherwise>\HEMLreqReference{<xsl:value-of select="."/>}</xsl:otherwise>
 </xsl:choose>
 </xsl:template>
 <xsl:template match="req" mode="ref">
