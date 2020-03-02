@@ -112,7 +112,7 @@ debug::
 ##  - pyrun [RUNARGS=<arg> [<arg>]*]: run python
 .PHONY:	pyrun
 pyrun: all
-	PATH="$(RUNPATH) PYTHONPATH="$(PY_PATH)" LD_LIBRARY_PATH="$(LIB_PATH)" $(PP) $(RUNARGS)
+	PATH="$(RUNPATH)" PYTHONPATH="$(PY_PATH)" LD_LIBRARY_PATH="$(LIB_PATH)" $(PP) $(RUNARGS)
 
 
 ifneq ($(INCTESTS),)
