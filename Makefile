@@ -13,14 +13,13 @@ DISTPACKAGES:=$(patsubst %,dist/abs.%-$(VERSION).tar.gz,$(ABS_PACKAGES))
 dist/abs.%-$(VERSION).tar.gz:
 	@mkdir -p $(@D)/abs-$(VERSION)
 	@tar cf - $(patsubst dist/abs.%-$(VERSION).tar.gz,%,$@) --exclude .svn | tar xf - -C $(@D)/abs-$(VERSION)
+	@sed -i 's/__ABS_MODULE_VERSION_MARKER__/$(VERSION)/g' $(@D)/abs-$(VERSION)/$(patsubst dist/abs.%-$(VERSION).tar.gz,%,$@)/main.mk
 	@tar cvzf $@ -C $(@D) abs-$(VERSION)/$(patsubst dist/abs.%-$(VERSION).tar.gz,%,$@)
-	@cd $(@D) ; ln -sf . noarch
 
 dist: $(DISTPACKAGES)
 
 $(PREFIX)/noarch/abs.%: dist/abs.%
 	cp $^ $@
-	$(link_command)
 else
 include core/main.mk
 endif
