@@ -1,3 +1,6 @@
+## --------------------------------------------------------------------
+## Configuration management services
+## --------------------------------------------------------------------
 
 ABS_SCM_TYPE:=git
 ABS_GIT_DESCR:=$(shell git describe --tags)
@@ -28,3 +31,25 @@ define abs_scm_branch
  git commit app.cfg -m "#$(I) [open branch $(NEW_BRANCH) from $(TAG_VERSION)] $(M)" && \
  git push --all $(GIT_REPOSITORY)
 endef
+
+
+$(BUILDROOT)/scm/file-list.txt:
+	@$(ABS_PRINT_info) "Generating file index for $(APPNAME)-$(VERSION)"
+	@mkdir -p $(@D)
+	@git ls-tree $(APPNAME)-$(VERSION) -r --full-tree | while read mode type sign path ; do echo "$$path % $$sign" >> $@ ; done
+
+$(BUILDROOT)/scm/diff.txt:
+	@$(ABS_PRINT_info) "Generating diff index for $(APPNAME) from $(VPARENT) to-$(VERSION)"
+	@mkdir -p $(@D)
+	@git diff $(APPNAME)-$(VPARENT) $(APPNAME)-$(VERSION) --name-status | while read op path ; do echo "$$op % $$path" >> $@ ; done
+
+$(BUILDROOT)/scm/log.xml:
+	@$(ABS_PRINT_info) "Generating log index for $(APPNAME) from $(VPARENT) to-$(VERSION)"
+	@mkdir -p $(@D)
+	@echo '<?xml version="1.0" encoding="utf-8"?>' > $@
+	@echo "<log>"  >> $@
+	@git log $(APPNAME)-$(VPARENT)..$(APPNAME)-$(VERSION) --pretty=format:'<logentry revision="%h"><author>%an</author><date>%ad</date><msg>%s</msg></logentry>' >> $@
+	@echo "</log>" >> $@
+## Targets:
+## - scm-release: build configuration management indexes
+scm-release:: $(patsubst %,$(BUILDROOT)/scm/%, file-list.txt diff.txt log.xml)
