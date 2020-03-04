@@ -7,6 +7,10 @@
   {abstract ABS (Acrobatomatic Build System) is a set of tool mainly made of make files to support software development. It enables complete software project technical management: chain compilation step for build binaries and distribuable package, fetch dependencies package, run tests, support continuous integration automated builds, and generate documentation.}
   {keywords build, compilation, document generation, unit test, software package}
   {history
+    {edition %version=2 %date=2020-03-03 
+update for ABS-3.0 release:
+  - misstypo and various small error fixes.
+    }
     {edition %version=1 %date=2019-01-01 %%First public issue of document}
   }
 {section %title=Introduction
@@ -163,6 +167,7 @@ Inside the ABS core module, the technical service and utility features are imple
      - run tests of all modules
      - build distribution packages
      - creation of new modules
+     - complete build, test, packaging and package publication triggered by the single target {kw cint} [{req abs.cm.4}].
   - module.mk: module level service. Reads the module parameters to include the required specialized makefile according the module type and the specific needed features and extensions requested by the module configuration.
   - module-absext.mk: defines mapping between module types and makefile to include name patterns
   - module-extlib.mk: external library management.
@@ -479,17 +484,18 @@ The dummy project named sampleprj is setup to check many ABS features:
   - document edition and generation features are checked using the _doc module.
 Some common references are used in the procedures described in the next section to identifiy file path and repository location:
   - <wsroot> is your workspace root directory
-  - <repo_url> is the project subversion repository URL.
   - <installpath> is an installation path for installing built components during tests.
   }
   {section %title=Procedures and analysis
     {check %id=general %title=General functional test %xref=CheckGen
       {operation
-Go to <wsroot> and checkout sampleprj-0.4, the go to the downloaded project's root directory:
+Checkout the abs release to be tested, then go to the {kw sampleprj} sub-directory (replace {kw X.Y.Z} by the version to test):
 {code %language=sh
 {!$ cd <wsroot>
-$ svn co <repo_url>/branches/sampleprj-0.4
-cd sampleprj-0.4!}}
+$ git clone https://github.com/seeduvax/AcrobatomaticBuildSystem.git
+cd AcrobatomaticBuildSystem
+git checkout abs-X.Y.Z
+cd sampleprj!}}
       }
       {operation
 Build the sample project's install archive:
@@ -507,6 +513,7 @@ Install the package to the test install location {kw <installpath>}:
       {assert
 {req abs.lang.1}
 The project C/C++ binaires are built and installed (from <installpath>):
+  - bin/sampleprj
   - bin/sampleprj_cppexe
   - lib/libsampleprj_cpplib.so
   - lib/libsampleprj.so
@@ -514,7 +521,7 @@ The project C/C++ binaires are built and installed (from <installpath>):
       {assert
 {req abs.lang.2}
 The project java packages are built and installed (from <installpath>):
-  - lib/fr.example.sampleprj-0.4.Xd.jar
+  - lib/fr.example.sampleprj.jmod-0.4.Xe.jar
       }
       {assert
 {req abs.lang.3}
@@ -527,12 +534,10 @@ The project python scripts are integrated and installed (from <installpath>):
       }
       {assert
 {req abs.dep.1}
-The project's dependencies are integrated and installed (from <installpath):
+The project's dependencies are integrated and installed (from <installpath>):
   - bin/lua
-  - bin/mastol_luad
-  - lib/libmastol_util.so
+  - bin/luac
   - lib/liblua.so 
-  - lib/net.eduvax.util.0.1.8.jar
       }
       {operation
 Extract configuration management information from the binaries:
@@ -544,34 +549,34 @@ Extract configuration management information from the binaries:
 {req abs.cm.2}
 Configuration management data (product name, version, subversion revision, build context) is printed on screen like in the following sample:
 {code
-{!/home/net/m026258/temp/sampleprj-0.4/lib/libsampleprj_cpplib.so:
+{!<installpath>/libsampleprj_cpplib.so:
      $Attr: app.name=sampleprj $
-     $Attr: app.version=0.4.2d $
-     $Attr: app.revision=6532 $
+     $Attr: app.version=0.4.2e $
+     $Attr: app.revision=undef $
      $Attr: app.file=libsampleprj_cpplib.so $
-     $Attr: company=ariane group $
+     $Attr: company=eduvax $
      $Attr: copyright= $
      $Attr: build.mode=release $
      $Attr: build.opts= $
      $Attr: build.date=jeudi 2 novembre 2017, 09:59:37 (UTC+0100) $
-     $Attr: build.host=apollo $
-     $Attr: build.user=m026258 $
+     $Attr: build.host=tethys $
+     $Attr: build.user=sdevaux $
      $Attr: build.id=null $
 
 /home/net/m026258/temp/sampleprj-0.4/lib/libsampleprj.so:
      $Attr: app.name=sampleprj $
-     $Attr: app.version=0.4.2d $
-     $Attr: app.revision=6532 $
+     $Attr: app.version=0.4.2e $
+     $Attr: app.revision=undef $
      $Attr: app.file=libsampleprj.so $
-     $Attr: company=ariane group $
+     $Attr: company=eduvax $
      $Attr: copyright= $
      $Attr: build.mode=release $
      $Attr: build.opts= $
      $Attr: build.date=jeudi 2 novembre 2017, 09:59:37 (UTC+0100) $
-     $Attr: build.host=apollo $
-     $Attr: build.user=m026258 $
+     $Attr: build.host=tethys $
+     $Attr: build.user=sdevaux $
      $Attr: build.id=null $!}}
-Version numbers may change regarding the sampleprj version you are using for the test.
+Version numbers may change regarding the {kw sampleprj} version you are using for the test.
 The build attributes (date, host, user) are related to the build operation done in first steps of the current test procedure.
       }
     } 
@@ -618,7 +623,7 @@ Build and Run the sampleprj cppexe module:
 {req abs.run.1}
 The software is built and run. It's dummy output is printed on the console.
 {code
-{!Hello world !
+{!Hello world from sampleprj::cpplib!
 len=33
 bufptr=b3820e60
 [Text to be embedded as resource

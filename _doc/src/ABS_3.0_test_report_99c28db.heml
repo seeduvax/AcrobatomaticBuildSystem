@@ -1,0 +1,41 @@
+{?set %encoding=utf-8}
+{document 
+  {title ABS 3.0 test report}
+  {reference 99c28db}
+  {author %%Sébastien Devaux}
+  {copyright %year=2020 %holder=Sébastien DEVAUX}
+  {abstract Test report from the application of the validation plan as described in abs definition file (170983b, edition 1)}
+  {keywords validation, report, abs, buidlscripts}
+  {history
+    {edition %version=1 %date=2020-03-03 %%First issue of document}
+  }
+  {section %title=References
+    {references %title=Applicable documents %id=A
+{ref %id=ABSDef %ref=170983b %author=S.Devaux %edition=1, 2019-01-01 %% Acrobatomatic Build System - generic make files and companion scripts.}
+    }
+    {definitions %title=Glossary
+{def %entry=ABS %%Acrobatomatic Build System}
+    }
+  }
+  {section %title=Validation context
+The validation was performed March 3rd 2020 according to the validation plan found in ABS definition file {xref ABSDef}.
+  - Operator: S. Devaux
+  - Means: Linux PC running Debian GNU/Linux 8
+  - Validated Software: abs-3.0.24
+  }
+  {section %title=Test results
+{table 
+{tr
+{th Check} {th Result} {th Comment}
+}
+{?table
+general (§3.2.1) % OK % 
+arch (§3.2.2) % OK % 
+run (§3.2.3) % OK % 
+}
+}
+  }
+  {section %title=Conclusion
+All expectations defined by the test procedures are met. No failure or anomaly where observed.
+  }
+}
