@@ -1,1 +1,1 @@
-{"version":1,"ops":[{"type":1,"author":{"id":"2423ae637206cd47909c1584f829953d3a01cb87"},"timestamp":1582897017,"title":"compiler option -O3 set in release mode should be overloadable","message":"","files":null}]}
+{"version":1,"ops":[{"type":4,"author":{"id":"2423ae637206cd47909c1584f829953d3a01cb87"},"timestamp":1583314587,"status":2},{"type":3,"author":{"id":"2423ae637206cd47909c1584f829953d3a01cb87"},"timestamp":1583314597,"message":"delivered in abs-3.0.23","files":null}]}
