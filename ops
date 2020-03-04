@@ -1,1 +1,1 @@
-{"version":1,"ops":[{"type":1,"author":{"id":"2423ae637206cd47909c1584f829953d3a01cb87"},"timestamp":1582912622,"title":"Enable use of requirement reference in every kind of section.","message":"","files":null}]}
+{"version":1,"ops":[{"type":4,"author":{"id":"2423ae637206cd47909c1584f829953d3a01cb87"},"timestamp":1583314558,"status":2},{"type":3,"author":{"id":"2423ae637206cd47909c1584f829953d3a01cb87"},"timestamp":1583314575,"message":"delivered in abs-3.0.23","files":null}]}
