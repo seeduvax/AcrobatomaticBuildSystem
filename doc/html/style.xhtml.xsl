@@ -10,6 +10,7 @@
 -->
 <xsl:param name="app"/>
 <xsl:param name="version"/>
+<xsl:param name="revision"/>
 <xsl:param name="date"/>
 <xsl:param name="user"/>
 <xsl:param name="host"/>
@@ -575,7 +576,7 @@ include(<xsl:value-of select="@src"/>.txt)
 <div class="head">
 	<xsl:apply-templates select="head"/>
 <h1><a name="top"><xsl:value-of select="$title"/></a></h1>
-<p aligh="right"><xsl:value-of select="/document/author/@sigle"/> n°<xsl:value-of select="/document/reference"/>, Issue <xsl:value-of select="/document/history/edition[1]/@version"/> - Revision <xsl:value-of select="/document/revision"/> - <xsl:value-of select="/document/history/edition[1]/@date"/></p>
+<p aligh="right"><xsl:value-of select="/document/author/@sigle"/> n°<xsl:value-of select="/document/reference"/>, Issue <xsl:value-of select="/document/history/edition[1]/@version"/> - Revision <xsl:value-of select="/document/revision"/><xsl:value-of select="$revision"/> - <xsl:value-of select="/document/history/edition[1]/@date"/></p>
 </div>
 </xsl:template>
 <!-- #######################################################

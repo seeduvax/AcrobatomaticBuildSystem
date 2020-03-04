@@ -4,6 +4,7 @@
 	    encoding="utf-8"/>
 <xsl:param name="app"/>
 <xsl:param name="version"/>
+<xsl:param name="revision"/>
 <xsl:param name="date"/>
 <xsl:param name="user"/>
 <xsl:param name="host"/>
@@ -217,6 +218,10 @@ select="substring-after($text,$from)"/>
      	tables
 -->
 <xsl:template match="table">
+<xsl:if test="@type='wide'">
+\begin{landscape}
+{\small
+</xsl:if>
 \begin{HEMLtable}{|<xsl:apply-templates select="tr[1]/*" mode="tablespec"
   />}{
 <xsl:if test="@title!=''">\renewcommand{\HEMLtableCaption}{<xsl:apply-templates select="@title"/>}</xsl:if>
@@ -225,10 +230,10 @@ select="substring-after($text,$from)"/>
 <xsl:apply-templates select="tr"/>
 \HEMLtableTail
 \end{HEMLtable}
-<!--
-<xsl:if test="@title!=''">\caption{<xsl:apply-templates select="@title"/>}</xsl:if>
-<xsl:if test="@xref!=''">\label{<xsl:value-of select="@xref"/>}</xsl:if>
--->
+<xsl:if test="@type='wide'">
+}
+\end{landscape}
+</xsl:if>
 </xsl:template>
 <xsl:template match="tr">
 <xsl:choose>
@@ -397,7 +402,7 @@ select="substring-after($text,$from)"/>
       </xsl:call-template></xsl:with-param>
       <xsl:with-param name="from" select="'$'"/>
       <xsl:with-param name="to" select="' '"/>
-    </xsl:call-template>}
+    </xsl:call-template><xsl:value-of select="$revision"/>}
     \renewcommand{\HEMLdate}{<xsl:value-of select="history/edition[1]/@date"/>}
     
     <xsl:call-template name="mainArticleOverrides"/>

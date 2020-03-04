@@ -1,0 +1,218 @@
+{?set %encoding=utf-8}
+{document
+  {title Release note - ABS 3.0}
+  {reference fd8b7d0}
+  {author %%Sebastien DEVAUX}
+  {copyright %year=2020 %holder=Sébastien DEVAUX / ArianGroup SAS}
+  {abstract ABS release note. Acrobatomatic Build System is a generic software project build tool. It is first based on make files a few shell script helpers. Any project following the proposed default directory layout should be compatible with ABS.}
+  {keywords release, configuration, version, ABS, buildscripts, make, executable generation}
+  {history
+    {edition %version=1 %date=2020-03-03 %%Release abs-3.0}
+    {edition %%For ArianeGroup users, some preliminary ABS releases were configuration managed and released integrated with the first internal project using it. The internal document reference was RD_TEA332-1618}
+  }
+{section %title=Product identification
+  {table
+{?table %fields=th,td
+Product name % Acrobatomatic Build System (ABS)
+Version % abs-3.0
+Parent version % abs-2.2
+repository URL % https://github.com/seeduvax/AcrobatomaticBuildSystem.git
+Tag % abs-3.0.24
+Version identifier % 3.0.24
+Tracking Issue % 8b4d566
+}
+  }
+}
+{section %title=References
+  {definitions %title=Glossary
+     {def %entry=Astre %%Advanced Simulation Technology Roadmap and Expertise}
+     {def %entry=ABS %%Acrobatomatic Build System.}
+     {def %entry=XML %%Extensible markup language}
+     {def %entry=MIT %%Massachusetts Institute of Technology. In this document: the software license first created for the X/Windows system and today used by many free software projects.}
+     {def %entry=GPL %%GNU Public License}
+     {def %entry=GNU %%GNU's not Unix. Frees software project aiming at  providing a full featured POSIX operating system and many applications.}
+     {def %entry=POSIX %%Portable operating system interface (for unix)}
+     {def %entry=LGPL %%Lesser GNU Public License}
+     {def %entry=HTML %%Hypertext markup language}
+     {def %entry=PDF %%Portable document format}
+     {def %entry=URL %%Uniform resource locator}
+     {def %entry=BSD %%Berkeley software distribution}
+  }
+  {section %title=Documentation
+{table
+ {tr
+  {th Type}{th Reference}{th Edition}{th Title}
+ }
+{?table
+Software Definition File % 170983b % 4, 2019-06-13 % Acrobatomatic Build System - generic make files and companion scripts
+Software Test Report % RD_TEA332-2599 % 1, 2019-06-13 % ABS 2.2 test report
+Software Executable Generation Procedure % % % See dedicated section in this document
+Software Installation Procedure % % % See dedicated section in this document
+Software Release Document % % % This document
+}
+}
+Software Definition file includes:
+  - software requirements specification
+  - user manual
+  - design
+  - test plan
+    }
+}
+{section %title=Product environment
+  {section %title=License
+Acrobatomatic Build System is released under a BSD license. See LICENSE file included in the source file tree for the exact license definition. This licensing policy does not involve any constraint nor restriction on projects using ABS as is or with modifications.
+This software is provided by the copyright holders and contributors "as is" and any express or implied warranties, including, but not limited to, the imploed warranties of merchantability and fitness for a particular purpose are disclamed.
+See the license file for the complete disclamer.
+  }
+  {section %title=Tools
+No specific tooling is needed to maintain buildscripts. Make files, and shell scripts are ASCII files and any text editor can be used to edit any file. Prefer editors with advanced programming features like syntax highlighting to edit efficiently those files.
+  }
+  {section %title=Dependencies
+ABS handles software project build process and was originally designed fro GNU/Linux systems but has demonstrated capabilities for any Posix like system including windows with the help of posix compatibility tools such as Cygwin or MinGW.  Buidlscripts is currently validated with the following systems:
+  - RedHawk Linux 7.2
+  - Debian Linux 8.2
+  - Debian Linux 9.3
+  - SUSE Linux 12
+  - Windows 7/Cygwin
+{table
+{tr
+ {th Tool}{th Version}{th License}{th Comments}
+}
+{?table
+GNU make % 3.81 or next % GPL % 
+gcc % 4.1 or next % GPL % 
+bash % 3.2.25 or next % GPL % 
+wget % 1.11.14 or next % GPL % 
+Java SDK % JDK 1.2 or next % Supplier dependent % Optional, for java support only, any implementation supplying the javac command should work.
+cppunit % 1.12.1 % LGPL 2.1 % Included in buildscript's external libraries packaging.
+xsltproc % libxml 20626, libxslt 10117 or next % MIT % 
+GNU tar % 1.11.4 or next % GPL % Any tar implementation support the z switch for file compression should be compatible.
+OpenSSH % 4.3 or next % BSD % Any ssh and scp commands implementation should be compatible.
+GNU m4 % 1.4.5 or next % GPL V3 % 
+Doxygen % 1.6.1 or next % GPL V2.0 % 
+subversion % 1.6 or next % Apache V2.0 % 
+curl % 7.19.7 or next % MIT % Optional, wget may be used as a replacement for most HTTP related functions.
+Graphviz (dot) % 2.38.0 or next % Eclipse Public License % Optional, for checkdep target only
+}
+}
+About the use of GPL licensed products: ABS does not link itself with any product, it runs some GPL product through commands as a human user can do using an interactive shell. Then ABS can't be considered as a derivate product and GPL is not applicable to ABS itself.
+  }
+}
+{section %title=Changes tracking
+  {section %title=Applied changes
+{table
+{tr
+ {th Id}{th State}{th Summary}
+}
+{?table
+00f2b2b % [closed] % Add git support
+844f0b7 % [closed] % Import doc module
+170983b % [closed] % ABS design and user manual
+cb844d9 % [closed] % ABS training slides
+fde8c48 % [closed] % Pretty impress support
+dcfa3de % [closed] % native code coverage
+0a1c375 % [closed] % docker.* targets to perform build from a docker image
+ad288cc % [closed] % Regression on backslash handling in user name
+06b33f2 % [closed] % Change readonly permissions before cleaning ABS cache
+b4a7ea8 % [closed] % Test First Commit
+f3175eb % [closed] % Downloading a dependency fails when mixing file:// URLS
+c46dbae % [closed] % remove remaining reference and part feature related to klocwork
+a32e52c % [closed] % The LIGHT_INSTALLER variable exclude include directory from tar.gz files
+1c715ec % [closed] % Add a variable (NDUSELIB and TUSELIB) to import libraries that will not be deployed with the application
+b4d6742 % [closed] % Add the possibility to add additionnal args for the docker container
+34c7121 % [closed] % The tag not working when the root of repository doesn't contains tags directory, the tags directory is in a subdirectory
+9fb6b08 % [closed] % When executing some matlab function (for example make_rtw) during the compilation of a project, the docker container is exited!
+23c6163 % [closed] % Extract download part into a macro to permit the download of elements from others targets than $(ABS_CACHE)/%
+56edb0f % [closed] % Linux modules compilation fails when user id contains a '/' character
+9f82cb7 % [closed] % remove jenkins user reference for pubdist / pubinstall targets
+c19718a % [closed] % Add a variable to permit to fail a compilation on a pdf generation error
+fa09962 % [closed] % python module's unit test execution no longer works
+9de453f % [closed] % Set PATH env var for run and test target.
+03be2cd % [closed] % The documentation is not compiling anymore due to a suppression of the HEML variable in main.mk file in doc module
+2342515 % [closed] % Improve the installation to inform user of existing installation directory only if contains files.
+7af6667 % [closed] % Improve the installation script to deactivate the verbosity of files extraction.
+c96f36d % [closed] % add macro feature to expand installation path in some installed files
+a4c3d94 % [closed] % force recursive make of module dependencies to ensure up to date used modules.
+e3df8b4 % [closed] % Take into account the systemctl mechanism for drivers installation
+2a2e8c4 % [closed] % The extlib directory is included into the installation binary. It should not
+9431831 % [closed] % Remove X.Y version aliasing over X.Y.Z
+f1bfcab % [closed] % Remove the .abs from the install binary
+77681ce % [closed] % The branch target is not working
+659b621 % [closed] % Create the cross reference link for applicable documents
+5b150e4 % [closed] % Create a xsl template to format a text from a variable for tex compatibility
+c5c6beb % [closed] % distinstall proceeds even when extradist.sh fails
+a6dfdfb % [closed] % Include the src filename information in xsl process from documentation generation
+554bf37 % [closed] % checkdep target display indirect depedencies as direct
+11f8268 % [closed] % Add custom docker command + parse MAKEARGS within inner make command
+8c83fe0 % [closed] % Remove the table without captions from the table numbering.
+759135b % [closed] % compiler option -O3 set in release mode should be overloadable
+5a089dd % [closed] % Enable use of requirement reference in every kind of section.
+ded2e0f % [closed] % fix pyrun target for python modules
+?}
+}
+  }
+  {section %title=Issues not fixed
+{table
+{tr
+ {th Id}{th State}{th Summary}
+}
+{?table
+3ed84c7 % [open] % charm - change request management tools
+?}
+}
+This new feature is just started, and not yet ready for use. It is implemented as an additional module that is not yet built when packaging the distributable archives. The implementation will continue with next release and the new module will be inserted in build target when good enough for a preliminary use.
+  }
+  {section %title=Known limitations
+None
+  }
+}
+{section %title=Executable generation procedure
+ABS is a tool providing a generic generation system for other software projects. It is a collection of make files and shell scripts and is not really built as itself. See ABS's documentation for information about how to setup a project to use ABS.
+However, archive files shall be deployed on a repository. Here is the procedure to generate the packages:
+  - clone ABS from the git repository (optional when you already have your own clone), and checkout the ABS release you need (replace {kw X.Y.Z} by the right ABS version).
+{code %language=sh
+{!git clone https://github.com/seeduvax/AcrobatomaticBuildSystem.git
+cd AcorbatomaticBuildSystem
+git checkout abs-X.Y.Z!}
+}
+  - build the packages
+{code %language=sh
+{!make dist!}
+}
+}
+{section %title=Installation procedure
+ABS is self downloaded by the projects using it. To let this happen, the archive files generated with the procedure detailed in the previous section, have to be put in the storage location behind the first URL you request your users to set in the {kw ABS_REPO} variable of the projects' configuration file. To do so, assuming you're still in the location of your ABS clone:
+  - copy the generated packages to your repository, assuming {kw <reporoot>} is the root of the repository locally reachable from the host you are using for the build (alternatively, use your preferred file transfer mean when your repository is stored elsewhere).
+{code %language=sh
+{!mkdir -p <reporoot>/noarch
+cp dist/*.tar.gz <reporoot>/noarch/!}
+}
+  - eventually, for your user projects convenience and let them identify only the partial {kw X.Y} version identifier, create symbolic links for each ABS package, for instance for the core package:
+{code %language=sh
+{!cd <reporoot>/noarch
+ln -sf abs.core-X.Y.Z.tar.gz abs.core-X.Y.tar.gz!}
+}
+  - Then, tell your users the new version of ABS is available to let them update VABS (if needed) in their projects' configuration file and perform a refresh ({kw make cleanabs}). 
+}
+{section %title=Product classification
+  {section %title=Impacted Source Code
+{table
+{tr
+ {th Change}{th File path}
+}
+{?table %src=../build/scm/diff.txt}
+}
+  }
+  {section %title=Detailed changes log
+    {include %src=../build/scm/log.xml}
+  }
+  {section %title=Product Sources
+{table %type=wide
+{tr
+ {th Path}{th git object id}
+}
+{?table %src=../build/scm/file-list.txt}
+}
+  }
+}
+}

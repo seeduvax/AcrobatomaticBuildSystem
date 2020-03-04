@@ -14,6 +14,7 @@ dist/abs.%-$(VERSION).tar.gz:
 	@mkdir -p $(@D)/abs-$(VERSION)
 	@tar cf - $(patsubst dist/abs.%-$(VERSION).tar.gz,%,$@) --exclude .svn | tar xf - -C $(@D)/abs-$(VERSION)
 	@sed -i 's/__ABS_MODULE_VERSION_MARKER__/$(VERSION)/g' $(@D)/abs-$(VERSION)/$(patsubst dist/abs.%-$(VERSION).tar.gz,%,$@)/main.mk
+	@cp LICENSE  $(@D)/abs-$(VERSION)/$(patsubst dist/abs.%-$(VERSION).tar.gz,%,$@)/
 	@tar cvzf $@ -C $(@D) abs-$(VERSION)/$(patsubst dist/abs.%-$(VERSION).tar.gz,%,$@)
 
 dist: $(DISTPACKAGES)

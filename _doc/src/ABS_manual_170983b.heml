@@ -2,7 +2,6 @@
 {document 
   {title Acrobatomatic Build System - generic make files and companion scripts}
   {reference 170983b}
-  {revision $Id$}
   {author %%Sebastien DEVAUX}
   {copyright %year=2019 %holder=Sebastien Devaux / ArianeGroup SAS}
   {abstract ABS (Acrobatomatic Build System) is a set of tool mainly made of make files to support software development. It enables complete software project technical management: chain compilation step for build binaries and distribuable package, fetch dependencies package, run tests, support continuous integration automated builds, and generate documentation.}
@@ -58,7 +57,7 @@ Acrobatomatic Build System (ABS) is a generic build and packaging system for sof
 Only one build process should be used from both developer's workspace and continuous integration tools such as jenkins to ensure consistency of builds and coherence from various context.
 {req %id=abs.arch.1 
   ABS shall support several target computing architecture (various processor and operating systems)}
-The exact list of targets, is not specified and will be adjusted over the time according the user projects' needs. At least, it should enable build of softare targetting standard x86 PC running widely used not too old GNU/Linux operating systems. First implementations were started using RedHat 5 and Debian 7, and is currently used on projects targeting CentOs 7, SUSE 12, Debian 8 and Debian 9. Most features should require only GNU/make, a shell and a few additionnal commands and it shoudl be adaptable to any system where such software is available. Some successful experimental project were built using Android (through termux) and Cygwin/MinGW.  
+The exact list of targets, is not specified and will be adjusted over the time according the user projects' needs. At least, it should enable build of software targeting standard x86 PC running widely used not too old GNU/Linux operating systems. First implementations were started using RedHat 5 and Debian 7, and is currently used on projects targeting CentOs 7, SUSE 12, Debian 8 and Debian 9. Most features should require only GNU/make, a shell and a few additional commands and it should be adaptable to any system where such software is available. Some experimental projects were successfully built with ABS on Android (through termux) and Cygwin/MinGW.  
   }
   {section %title=Design %xref=Design
      {section %title=from make to GNU make towards generic makefile
