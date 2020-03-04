@@ -72,6 +72,14 @@ $(TARGETFILE): $(OBJS)
 # vinfo must be regenerated each time a source file change, since it
 # may come from any update of the workspace from the repository.
 VINFO:=$(OBJDIR)/vinfo.cpp
+
+ifeq ($(APPNAME),$(MODNAME))
+define absVInfoShortAlias
+	@echo "const char * _$(APPNAME)_vinfo=_$(APPNAME)_$(MODNAME)_vinfo;" >> $@
+	@echo "const char * _$(APPNAME)_version=_$(APPNAME)_$(MODNAME)_version;" >> $@
+endef
+endif
+
 $(VINFO): module.cfg $(PRJROOT)/app.cfg $(SRCFILES)
 	@$(ABS_PRINT_info) "Generating vinfo for module $(MODNAME) ..."
 	@mkdir -p $(OBJDIR)
@@ -89,6 +97,7 @@ $(VINFO): module.cfg $(PRJROOT)/app.cfg $(SRCFILES)
 	@echo "	\"\$$Attr: build.user=$(USER) $$ \"" >> $@
 	@echo "	\"\$$Attr: build.id=$(BUILDNUM) $$ \";" >> $@
 	@echo "const char * _$(APPNAME)_$(MODNAME)_version=\"$(VERSION)\";" >> $@
+	$(call absVInfoShortAlias)
 	$(call absVInfoExtra)
 
 ifneq ($(GENSRC),)
