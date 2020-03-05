@@ -27,7 +27,7 @@ HEMLJAR?=$(NDNA_EXTLIBDIR)/heml-$(HEMLVERSION).jar
 HEMLCMD?=$(JAVACMD) -jar $(call absGetPath,$(HEMLJAR))
 PUMLCMD?=$(JAVACMD) -jar $(call absGetPath,$(PUMLJAR))
 
-ifeq ($(filter release,$(MAKECMDGOAL)),)
+ifeq ($(filter release,$(MAKECMDGOALS)),)
 DISABLE_SRC+=$(RELEASE_NOTE)
 else
 src/$(RELEASE_NOTE): scm-release

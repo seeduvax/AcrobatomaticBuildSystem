@@ -148,6 +148,8 @@ a6dfdfb % [closed] % Include the src filename information in xsl process from do
 759135b % [closed] % compiler option -O3 set in release mode should be overloadable
 5a089dd % [closed] % Enable use of requirement reference in every kind of section.
 ded2e0f % [closed] % fix pyrun target for python modules
+e1d18d9 % [closed] % Restore configuration management indexing to support release note generation
+01d71eb % [closed] % Add short alias name for vinfo var when app name is module name
 ?}
 }
   }
@@ -209,7 +211,7 @@ ln -sf abs.core-X.Y.Z.tar.gz abs.core-X.Y.tar.gz!}
   {section %title=Product Sources
 {table %type=wide
 {tr
- {th Path}{th git object id}
+ {th Path}{th commit}{th git object id}
 }
 {?table %src=../build/scm/file-list.txt}
 }

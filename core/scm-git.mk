@@ -39,7 +39,7 @@ endef
 $(BUILDROOT)/scm/file-list.txt:
 	@$(ABS_PRINT_info) "Generating file index for $(APPNAME)-$(VERSION)"
 	@mkdir -p $(@D)
-	@git ls-tree $(APPNAME)-$(VERSION) -r --full-tree | while read mode type sign path ; do echo "$$path % $$sign" >> $@ ; done
+	@git ls-tree $(APPNAME)-$(VERSION) -r --full-tree | while read mode type sign path ; do echo "$$path % "`git log --pretty=format:"%h" -1 $(APPNAME)-$(VERSION) $(PRJROOT)/$$path`" % $$sign" >> $@ ; done
 
 $(BUILDROOT)/scm/diff.txt:
 	@$(ABS_PRINT_info) "Generating diff index for $(APPNAME) from $(VPARENT) to $(VERSION)"
