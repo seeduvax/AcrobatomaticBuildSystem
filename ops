@@ -1,1 +1,1 @@
-{"version":1,"ops":[{"type":1,"author":{"id":"2423ae637206cd47909c1584f829953d3a01cb87"},"timestamp":1583335651,"title":"Add short alias name for vinfo var when app name is module name","message":"","files":null}]}
+{"version":1,"ops":[{"type":4,"author":{"id":"2423ae637206cd47909c1584f829953d3a01cb87"},"timestamp":1583411830,"status":2},{"type":3,"author":{"id":"2423ae637206cd47909c1584f829953d3a01cb87"},"timestamp":1583411847,"message":"delivered in abs-3.0.24","files":null}]}
