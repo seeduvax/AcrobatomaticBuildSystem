@@ -40,20 +40,20 @@ $(BUILDROOT)/scm/file-list.xml:
 	@svn $(SVNFLAGS) ls -R --xml $(SVNURLTO) > $@
 
 $(BUILDROOT)/scm/diff.xml:
-	@$(ABS_PRINT_info) "Generating diff index for $(APPNAME) from $(VPARENT) to-$(VERSION)"
+	@$(ABS_PRINT_info) "Generating diff index for $(APPNAME) from $(VPARENT) to $(VERSION)"
 	@mkdir -p $(@D)
 	@svn $(SVNFLAGS) diff --xml --summarize --notice-ancestry --old=$(SVNURLFROM) --new=$(SVNURLTO) | sed -e "s!$(SVNURLFROM)/!!g" > $@
 
 $(BUILDROOT)/scm/log.xml:
-	@$(ABS_PRINT_info) "Generating log index for $(APPNAME) from $(VPARENT) to-$(VERSION)"
+	@$(ABS_PRINT_info) "Generating log index for $(APPNAME) from $(VPARENT) to $(VERSION)"
 	@mkdir -p $(@D)
-	@svn $(SVNFLAGS) log --xml $(SVNURLTO) -v -r $(SVNFROMLREV):HEAD > $@
+	@svn $(SVNFLAGS) log --xml $(SVNURLTO) -v -r `LANG=C svn $(SVNFLAGS) info $(SVNURLFROM) | fgrep "Last Changed Rev:" | cut -f 4 -d ' '`:HEAD > $@
 
 $(BUILDROOT)/scm/checksum.txt:
 	@$(ABS_PRINT_info) "Generating checksum index for $(APPNAME)-$(VERSION)"
 	@rm -rf __tmp_$(APPNAME)
 	@svn $(SVNFLAGS) checkout $(SVNURLTO) __tmp_$(APPNAME)
-	@find __tmp_$(APPNAME) -type f | xargs sha256sum | sed -e 's!__tmp_$(APPNAME)/!!g' > $@
+	@find __tmp_$(APPNAME) -type f | fgrep -v '.svn/' | xargs sha256sum | sed -e 's!__tmp_$(APPNAME)/!!g' | sed -e 's/  / % /g' > $@
 	@rm -rf __tmp_$(APPNAME)
 
 scm-release:: $(patsubst %,$(BUILDROOT)/scm/%, file-list.xml diff.xml log.xml checksum.txt)

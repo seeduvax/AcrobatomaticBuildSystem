@@ -42,12 +42,12 @@ $(BUILDROOT)/scm/file-list.txt:
 	@git ls-tree $(APPNAME)-$(VERSION) -r --full-tree | while read mode type sign path ; do echo "$$path % $$sign" >> $@ ; done
 
 $(BUILDROOT)/scm/diff.txt:
-	@$(ABS_PRINT_info) "Generating diff index for $(APPNAME) from $(VPARENT) to-$(VERSION)"
+	@$(ABS_PRINT_info) "Generating diff index for $(APPNAME) from $(VPARENT) to $(VERSION)"
 	@mkdir -p $(@D)
 	@git diff $(APPNAME)-$(VPARENT) $(APPNAME)-$(VERSION) --name-status | while read op path ; do echo "$$op % $$path" >> $@ ; done
 
 $(BUILDROOT)/scm/log.xml:
-	@$(ABS_PRINT_info) "Generating log index for $(APPNAME) from $(VPARENT) to-$(VERSION)"
+	@$(ABS_PRINT_info) "Generating log index for $(APPNAME) from $(VPARENT) to $(VERSION)"
 	@mkdir -p $(@D)
 	@echo '<?xml version="1.0" encoding="utf-8"?>' > $@
 	@echo "<log>"  >> $@
