@@ -17,8 +17,8 @@ Product name % Acrobatomatic Build System (ABS)
 Version % abs-3.0
 Parent version % abs-2.2
 repository URL % https://github.com/seeduvax/AcrobatomaticBuildSystem.git
-Tag % abs-3.0.24
-Version identifier % 3.0.24
+Tag % abs-3.0.25
+Version identifier % 3.0.25
 Tracking Issue % 8b4d566
 }
   }
@@ -150,6 +150,7 @@ a6dfdfb % [closed] % Include the src filename information in xsl process from do
 ded2e0f % [closed] % fix pyrun target for python modules
 e1d18d9 % [closed] % Restore configuration management indexing to support release note generation
 01d71eb % [closed] % Add short alias name for vinfo var when app name is module name
+1aeaf12 % [closed] % open	bad naming of new branch for a git workspace.
 ?}
 }
   }
