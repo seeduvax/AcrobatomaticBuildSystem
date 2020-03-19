@@ -25,11 +25,6 @@ MAXJOBS:=$(shell getconf _NPROCESSORS_ONLN)
 MMARGS?=-j$(MAXJOBS)
 
 
-VERSION_FIELDS:=$(subst ., ,$(VERSION))
-VMAJOR:=$(word 1,$(VERSION_FIELDS))
-VMEDIUM:=$(word 2,$(VERSION_FIELDS))
-VMINOR:=$(word 3,$(VERSION_FIELDS))
-VSUFFIX:=$(patsubst %,.%,$(word 4,$(VERSION_FIELDS)))
 
 ifeq ($(ABS_SCM_TYPE),null)
 VERSION:=$(VERSION)e

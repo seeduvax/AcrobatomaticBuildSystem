@@ -7,7 +7,7 @@ ABS_INC_GUARD_CHARM:=1
 ##   - CREDITOR: Change request file editor
 CREDITOR?=vim
 DATE=$(shell date --rfc-3339=seconds)
-CRSRCDIR:=$(PRJROOT)/_charm/src/
+CRSRCDIR:=$(PRJROOT)/_charm/src
 CRWORKDIR:=$(BUILDROOT)/charm
 
 include $(CRWORKDIR)/vars.mk
@@ -25,10 +25,15 @@ CRID:=$(word 1,$(shell echo "$(USER)@$(HOSTNAME):$(CRTITLE)" | sha256sum))
 endif
 
 
+# ----------------------------------
+# Change Request creation.
+# cf element set to null is an indicator of no commit done with issue.
+# Is used to define if an issue can be moved to another branch.
 define cr_create_file
 	@mkdir -p $(CRSRCDIR)
-	@printf '<?xml version="1.0" encoding="utf-8"?>\n<cr id="$1" state="open">\n<title>$2</title>\n<reporter>$(USER)</reporter>\n<creation>$(DATE)</creation>\n<description></description>\n<links>\n<link name="parent">$3</link>\n</links>\n<cf v="$(USER) $(DATE)"/>\n</cr>\n' > $(CRSRCDIR)/$1.cr
+	@printf '<?xml version="1.0" encoding="utf-8"?>\n<cr id="$1" state="open">\n<title>$2</title>\n<reporter>$(USER)</reporter>\n<creation>$(DATE)</creation>\n<description></description>\n<links>\n<link name="parent">$3</link>\n</links>\n<cf v="null"/>\n</cr>\n' > $(CRSRCDIR)/$1.cr
 endef
+
 
 $(CRSRCDIR)/$(CR_BRANCH_TRACKING).cr:
 	$(call cr_create_file,$(CR_BRANCH_TRACKING),Release $(APPNAME) $(VMAJOR).$(VMEDIUM))
@@ -71,3 +76,18 @@ ci:
 
 # exemple de mise à jour d'un compteur dans un fichier XML avec xmlstarlet
 # xmlstarlet ed -L -u /cr/ch[1] -x 'number(/cr/ch[1])+1' 10.cr.xml
+
+# .........................................................
+# HTML rendering of CRs
+CRHTMLS:=$(patsubst $(CRSRCDIR)/%.cr, $(CRWORKDIR)/www/%.html, $(wildcard $(CRSRCDIR)/*.cr))
+
+$(CRWORKDIR)/www/%.html: $(CRSRCDIR)/%.cr
+	@mkdir -p $(@D)
+	@xsltproc --path $(CRSRCDIR) $(ABSROOT)/charm/cr2html.xslt $^ > $@
+
+##   - crbro: browse selected cr
+crbro: $(CRHTMLS)
+	@$(BROWSER) $(CRWORKDIR)/www/$(CRID).html
+
+crbrowse: crbro
+
