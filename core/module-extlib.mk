@@ -34,6 +34,8 @@ define downloadFromRepos
 			test -f $$srcfile && ln -sf $$srcfile $3 ; \
 			test -r $3 && exit 0 || \
 			$(ABS_PRINT_warning) "$1 not available from $$repo";; \
+		scp:*) srcfile=`echo "$$repo" | cut -f 2,3 -d ':'`/$1 ;\
+			scp $(SCPFLAGS) $$srcfile $3 && exit 0;;\
 		*) wget -q $(WGETFLAGS) $$repo/$1 -O $3 && exit 0 || \
 			rm -rf $3 ; \
 			 $(ABS_PRINT_warning) "$1 not available from $$repo";; \
