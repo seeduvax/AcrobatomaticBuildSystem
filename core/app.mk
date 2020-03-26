@@ -248,11 +248,11 @@ dist/$(APPNAME)_lkm-$(VERSION)-$(KVERSION)-install.bin:
 
 pubdist: dist/$(APPNAME)-$(VERSION).$(ARCH).tar.gz
 	@$(ABS_PRINT_info)  "Publishing dist archive $^ $(USER) on $(DISTREPO)"
-	@scp $^ $(DISTREPO)/$(ARCH)/$(APPNAME)-$(VERSION).$(ARCH).tar.gz
+	@scp $(SCPFLAGS) $^ $(DISTREPO)/$(ARCH)/$(APPNAME)-$(VERSION).$(ARCH).tar.gz
 
 pubinstall: dist/$(APPNAME)-$(VERSION).$(ARCH)-install.bin
 	@$(ABS_PRINT_info)  "Publishing dist archive $^ $(USER) on $(DISTREPO)"
-	@scp $^ $(DISTREPO)/$(ARCH)/$(APPNAME)-$(VERSION).$(ARCH)-install.bin
+	@scp $(SCPFLAGS) $^ $(DISTREPO)/$(ARCH)/$(APPNAME)-$(VERSION).$(ARCH)-install.bin
 
 ##  - cint: full package build, to be used for the continuous integration
 ##    process (for builds from jenkins or any similar tool).
