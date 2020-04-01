@@ -294,7 +294,7 @@ select="substring-after($text,$from)"/>
 </xsl:choose></xsl:param>
 <xsl:value-of select="$rowcolor"/>
 <xsl:param name="refName"><xsl:apply-templates select="../@id"/><xsl:value-of select="count(preceding-sibling::ref)+1"/></xsl:param>
-\textbf{<xsl:value-of select="$refName"/>}\namedlabel{<xsl:value-of select="@id"/>}{[<xsl:value-of select="$refName"/>]} &amp; 
+\textbf{<xsl:value-of select="$refName"/>}\refstepcounter{absCounter}\namedlabel{<xsl:value-of select="@id"/>}{[<xsl:value-of select="$refName"/>]} &amp; 
   <xsl:if test="@authors!=''"><xsl:apply-templates select="@authors"/>:</xsl:if>\hspace{1cm}\emph{<xsl:apply-templates select="."/>} \\
 <xsl:if test="$hhref!=''">
  <xsl:value-of select="$rowcolor"/>
