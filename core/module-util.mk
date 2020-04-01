@@ -100,8 +100,8 @@ else
 newclass:
 	@$(ABS_PRINT_info) "generating class template for $(APPNAME)::$(MODNAME)::$(CLASSNAME)"
 	@mkdir -p include/$(INC_PATH)
-	@test -f include/$(INC_PATH)/$(CLASSNAME).h || printf "/*\n\
- * @file $(CLASSNAME).h\n\
+	@test -f include/$(INC_PATH)/$(CLASSNAME).hpp || printf "/*\n\
+ * @file $(CLASSNAME).hpp\n\
  *\n\
  * Copyright %d $(COMPANY). All rights reserved.\n\
  * Use is subject to license terms.\n\
