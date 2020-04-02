@@ -1,1 +1,1 @@
-{"version":1,"ops":[{"type":1,"author":{"id":"ac09cc0780069236d0133aeafd380aa9e823e18c"},"timestamp":1585810553,"title":"Create a target for the generation of uml from heml and create them in html directory to avoid multi time uml generation","message":"","files":null}]}
+{"version":1,"ops":[{"type":4,"author":{"id":"ac09cc0780069236d0133aeafd380aa9e823e18c"},"timestamp":1585811199,"status":2}]}
