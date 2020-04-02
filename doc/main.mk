@@ -59,6 +59,7 @@ endif
 DOCBOOKS:=$(patsubst src/%.heml,$(DBDIR)/%.xml,$(HEMLS))
 HTMLS:=$(patsubst src/%.heml,$(HTMLDIR)/%.html,$(HEMLS)) $(HTMLDIR)/style.css
 IMGS:=$(patsubst src/%,$(HTMLDIR)/%,$(filter %.jpg %.png,$(SRCFILES))) $(patsubst src/%.dia,$(HTMLDIR)/%.png,$(filter %.dia,$(SRCFILES)))
+IMGSUML:=$(patsubst src/%.heml,$(OBJDIR)/%.pumlgenerated,$(HEMLS))
 ## XSL Stylesheets definition:
 ##   - HEMLTOTEX_STYLE: tex (pdf)
 ##   - HEMLTOXHTML_STYLE: html
@@ -71,9 +72,9 @@ HEMLTOXML_STYLE?=$(DOCROOT)/docbook/style.docbook.xsl $(HEMLTOXML_FLAGS)
 ## 
 ##  - all: for documentation module, the default target builds html, pdf
 ##      from heml files, and doxygen reference.
-all-impl:: $(HTMLS) $(PDFS)
+all-impl:: $(HTMLS) $(PDFS) $(IMGS) $(IMGSUML)
 
-.PRECIOUS: $(HEMLJAR) $(PUMLJAR) $(patsubst $(NDNA_EXTLIBDIR)/%,$(ABS_CACHE)/noarch/%,$(HEMLJAR) $(PUMLJAR)) $(IMGS) $(TEXDIR)/%.tex
+.PRECIOUS: $(HEMLJAR) $(PUMLJAR) $(patsubst $(NDNA_EXTLIBDIR)/%,$(ABS_CACHE)/noarch/%,$(HEMLJAR) $(PUMLJAR)) $(IMGS) $(TEXDIR)/%.tex $(OBJDIR)/%.pumlgenerated
 
 ifneq ($(DOXYGENCMD),)
 all-impl:: $(DOXDIR)
@@ -121,35 +122,43 @@ $(HTMLDIR)/%.png: src/%.dia
 	@MROOT=`pwd` ; cd $(@D) ; dia -t png $$MROOT/$^
 endif
 
+$(OBJDIR)/%.pumlgenerated: src/%.heml $(PUMLJAR)
+	@mkdir -p $(@D)
+	@mkdir -p $(HTMLDIR)/$(*D)
+	@$(ABS_PRINT_info) "Generating uml from $<"
+	@$(PUMLCMD) -in $(call absGetPath,$<) -o $(call absGetPath,$(HTMLDIR)/$(*D))
+	@touch $@
+
 # HEML transformation
 # $1 xsl file
 define absHemlTransformation
 	@$(ABS_PRINT_info) "heml to $(suffix $@) of $< using style $(1)"
 	@mkdir -p $(@D)
-	@$(PUMLCMD) -in $(call absGetPath,$<) -o $(call absGetPath,$(@D))
 	@$(HEMLCMD) -in $(call absGetPath,$<) -xsl $(call absGetPath,$(1)) -param srcdir "$(call absGetPath,$(<D))" -param srcfilename "$(call absGetPath,$(<F))" $(HEMLARGS) -param revision ""`$(call abs_scm_file_revision,$<)` -out $(call absGetPath,$@)
 endef
 
-$(HTMLDIR)/%.html: src/%.heml $(HEMLJAR) $(PUMLJAR) $(IMGS)
+$(HTMLDIR)/%.html: src/%.heml $(HEMLJAR)
 	$(call absHemlTransformation,$(HEMLTOXHTML_STYLE))
 
-$(DBDIR)/%.xml: src/%.heml $(HEMLJAR) $(PUMLJAR)
+$(DBDIR)/%.xml: src/%.heml $(HEMLJAR)
 	$(call absHemlTransformation,$(HEMLTOXML_STYLE))
 
-$(TEXDIR)/%.tex: src/%.heml $(HEMLJAR) $(PUMLJAR)
+$(TEXDIR)/%.tex: src/%.heml $(HEMLJAR)
 	$(call absHemlTransformation,$(HEMLTOTEX_STYLE))
 
 TEXINPUTS:=$(TEXINPUTS):$(ABSROOT)/doc/tex//:$(OBJDIR):$(TEXDIR):$(HTMLDIR):$(CURDIR)/src
 TEXENV=TEXINPUTS=$(TEXINPUTS):
 
-$(PDFDIR)/%.pdf: $(TEXDIR)/%.tex $(IMGS)
+$(PDFDIR)/%.pdf: $(TEXDIR)/%.tex $(IMGS) $(OBJDIR)/%.pumlgenerated
 	@$(ABS_PRINT_info) "Processing TEX $<"
 	@mkdir -p $(@D)
 	@mkdir -p $(OBJDIR)
+	@# remove previous generated elements to avoid references problems.
+	@rm -f $(OBJDIR)/$(*F).aux $(OBJDIR)/$(*F).lo* $(OBJDIR)/$(*F).out $(OBJDIR)/$(*F).toc
 ifneq ($(USER),jenkins)
 	@cd $(OBJDIR) && $(TEXENV) $(TEXFOT) pdflatex --interaction nonstopmode $< > $(OBJDIR)/tex.$(@F).log && pass=2 && \
 		while [ "`cat $(OBJDIR)/tex.$(@F).log | grep \"Rerun to get cross-references right\"`" != "" ]; do \
-			$(ABS_PRINT_info) "Pass number $$pass" && \
+			$(ABS_PRINT_info) "Pass number $$pass for $(@F)" && \
 			pass=`expr $$pass + 1` && \
 			$(TEXENV) pdflatex --interaction nonstopmode $< > $(OBJDIR)/tex.$(@F).log; \
 		done || (cat $(OBJDIR)/tex.$(@F).log && ! $(DOC_FAIL_ON_ERROR))
@@ -157,7 +166,7 @@ ifneq ($(USER),jenkins)
 else
 	@cd $(OBJDIR) && $(TEXENV) pdflatex --interaction nonstopmode $< > $(OBJDIR)/tex.$(@F).log && pass=2 && \
 		while [ "`cat $(OBJDIR)/tex.$(@F).log | grep \"Rerun to get cross-references right\"`" != "" ]; do \
-			$(ABS_PRINT_info) "Pass number $$pass" && \
+			$(ABS_PRINT_info) "Pass number $$pass for $(@F)" && \
 			pass=`expr $$pass + 1` && \
 			$(TEXENV) pdflatex --interaction nonstopmode $< > $(OBJDIR)/tex.$(@F).log; \
 		done || ($(ABS_PRINT_error) "pdf generation error see $(OBJDIR)/tex.$(@F).log for more information." && ! $(DOC_FAIL_ON_ERROR))
@@ -165,7 +174,7 @@ else
 endif
 
 ##  - html: generates html files and companion images from heml files.
-html: $(HTMLS)
+html: $(HTMLS) $(IMGS) $(IMGSUML)
 
 ##  - pdf: generates pdf files and companion images from heml files. pdf 
 ##    generation is available only from host having a latex package including
