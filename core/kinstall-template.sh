@@ -122,7 +122,7 @@ install() {
             done
         else
             echo "Installation des drivers avec init.d"
-            for execFile in `ls "$PREFIX/etc/$APP/inits/*"`; do
+            for execFile in `ls $PREFIX/etc/$APP/inits/*`; do
                 echo "Linking $execFile into init.d"
                 ln -srf "$execFile" "$PREFIX/etc/init.d/"
             done
