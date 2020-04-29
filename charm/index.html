@@ -1,0 +1,49 @@
+<!doctype html>
+<html>
+<head>
+<style t0ype="text/css">
+content {
+	color: red;
+	display: block;
+} 
+textarea {
+	z-index: 10;
+	position: fixed;
+	display: none;
+	top: 10px;
+	left: 10px;
+}
+</style>
+<script type="text/javascript" src="js/markdown_dom_parser.js"></script>
+<script type="text/javascript" src="js/html2markdown.js"></script>
+<script type="text/javascript" src="js/showdown.js"></script>
+<script type="text/javascript" src="js/wxdb.js"></script>
+</head>
+</body>
+<textarea id="editTxt">...</textarea>
+<table><tr><td>
+<h1 id="issueId">WXDB X</h1>
+</td><td>
+<h1 id="title">Undefined title</h1></td>
+<tr></tr>
+<th>Description</th>
+<td id="description">
+</td>
+<tr></tr>
+<th>Links</th><td></td>
+</tr>
+</table>
+</body>
+<script>
+
+var wxdb=new Wxdb(function() {
+	this.setNodeEdit("title","title")
+	this.setNodeEdit("description","description");
+	var shortId=this.xobj.childNodes[0].id.substring(0,7);
+	document.title="ABS/Charm: Issue "+shortId;
+	document.getElementById("issueId").innerHTML=shortId;
+});
+wxdb.downloadObj();
+
+</script>
+</html>

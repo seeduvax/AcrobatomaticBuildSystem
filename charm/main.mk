@@ -9,6 +9,17 @@ CREDITOR?=vim
 DATE=$(shell date --rfc-3339=seconds)
 CRSRCDIR:=$(PRJROOT)/_charm/src
 CRWORKDIR:=$(BUILDROOT)/charm
+BROWSER:=$(word 1,$(shell which chromium firefox chrome edge safari iexplorer))
+
+
+SRCINDEXHTML:=$(word 1,$(wildcard $(CRSRCDIR)/index.html) $(ABSROOT)/charm/index.html)
+SRCCSS:=$(word 1,$(wildcard $(CRSRCDIR)/style.css) $(ABSROOT)/charm/style.css)
+
+
+WXDB:=wxdb-0.1.0d
+WXDBDOM=net.eduvax
+NDUSELIB+=$(WXDB)
+WXDBJAR:=$(NDEXTLIBDIR)/$(WXDB)/lib/$(WXDBDOM).$(WXDB).jar
 
 include $(CRWORKDIR)/vars.mk
 $(CRWORKDIR)/vars.mk:
@@ -85,9 +96,18 @@ $(CRWORKDIR)/www/%.html: $(CRSRCDIR)/%.cr
 	@mkdir -p $(@D)
 	@xsltproc --path $(CRSRCDIR) $(ABSROOT)/charm/cr2html.xslt $^ > $@
 
+$(CRWORKDIR)/www/index.html: $(SRCINDEXHTML) $(SRCCSS)
+	@echo "Updating web resources..."
+	@mkdir -p $(@D)
+	@cp $(SRCINDEXHTML) $(SRCCSS) $(@D)
+	@cp -r $(NDEXTLIBDIR)/$(WXDB)/www/js $(@D)/js
+
+
 ##   - crbro: browse selected cr
-crbro: $(CRHTMLS)
-	@$(BROWSER) $(CRWORKDIR)/www/$(CRID).html
+crbro: $(CRWORKDIR)/www/index.html
+	@java -jar $(WXDBJAR) -d ./src -w $(CRWORKDIR)/www & pid=$$! ; \
+	$(BROWSER) http://localhost:8888/?oid=$(CRID).cr ; kill $$pid
 
 crbrowse: crbro
+
 
