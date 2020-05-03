@@ -1,3 +1,4 @@
+ifneq ($(filter cr%,$(word 1,$(MAKECMDGOALS))),)
 ifneq ($(ABS_INC_GUARD_CHARM),1)
 ABS_INC_GUARD_CHARM:=1
 ## --------------------------------------------------------------------
@@ -77,12 +78,6 @@ endif
 crcat:
 	@xsltproc --path $(CRSRCDIR) $(ABSROOT)/charm/cat-txt.xslt $(CRSRCDIR)/$(CRID).cr
 
-endif
-
-ci:
-	@fgrep -c 'state="close' $(CRSRCDIR)/$(CRID).cr > /dev/null && { echo "Current CR is closed..." ; exit 1 ;} || :
-	@sed -i 's/state=".*"/state="working"/g' $(CRSRCDIR)/$(CRID).cr
-	@sed -i 's!<cf .*/>!<cf v="$(USER) $(DATE)/>!g' $(CRSRCDIR)/$(CRID).cr
 
 # exemple de mise à jour d'un compteur dans un fichier XML avec xmlstarlet
 # xmlstarlet ed -L -u /cr/ch[1] -x 'number(/cr/ch[1])+1' 10.cr.xml
@@ -109,4 +104,5 @@ crbro: $(CRWORKDIR)/www/index.html
 
 crbrowse: crbro
 
-
+endif
+endif
