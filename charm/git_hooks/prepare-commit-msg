@@ -1,0 +1,7 @@
+#!/bin/bash
+
+PRJROOT=`git rev-parse --show-toplevel`
+CRWDIR=$PRJROOT/build/charm
+CRID=`grep '^CRID:=' $CRWDIR/vars.mk | cut -f 2 -d '='`
+CRID_SHORT=${CRID:0:7}
+fgrep -q "$CRID_SHORT" "$1" || sed -i "1i[$CRID_SHORT]" "$1"

@@ -126,4 +126,10 @@ VMEDIUM:=$(word 2,$(VERSION_FIELDS))
 VMINOR:=$(word 3,$(VERSION_FIELDS))
 VSUFFIX:=$(patsubst %,.%,$(word 4,$(VERSION_FIELDS)))
 
-BROWSER?=firefox
+BROWSER:=$(word 1,$(shell which chromium firefox chrome edge safari iexplorer))
+ifneq ($(wildcard $(PRJROOT)/_charm),)
+include $(ABSROOT)/charm/main.mk
+endif
+
+
+

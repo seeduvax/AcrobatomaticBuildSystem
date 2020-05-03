@@ -9,7 +9,6 @@ CREDITOR?=vim
 DATE=$(shell date --rfc-3339=seconds)
 CRSRCDIR:=$(PRJROOT)/_charm/src
 CRWORKDIR:=$(BUILDROOT)/charm
-BROWSER:=$(word 1,$(shell which chromium firefox chrome edge safari iexplorer))
 
 
 SRCINDEXHTML:=$(word 1,$(wildcard $(CRSRCDIR)/index.html) $(ABSROOT)/charm/index.html)
@@ -50,7 +49,7 @@ $(CRSRCDIR)/$(CR_BRANCH_TRACKING).cr:
 	$(call cr_create_file,$(CR_BRANCH_TRACKING),Release $(APPNAME) $(VMAJOR).$(VMEDIUM))
 
 ## Targets:
-##   - create new change request
+##   - crnew: create new change request
 crnew: $(CRSRCDIR)/$(CR_BRANCH_TRACKING).cr
 	$(call cr_create_file,$(CRID),$(CRTITLE),$(CR_BRANCH_TRACKING))
 	@sed -i 's!</links>!<link name="child">$(CRID)</link>\n</links>!g' $(CRSRCDIR)/$(CR_BRANCH_TRACKING).cr
@@ -60,11 +59,11 @@ crnew: $(CRSRCDIR)/$(CR_BRANCH_TRACKING).cr
 cred:
 	$(CREDITOR) $(CRSRCDIR)/$(CRID).cr
 
-##   - crls list change requests (current branch only)
+##   - crls: list change requests (current branch only)
 crls:
 	@xsltproc --path $(CRSRCDIR) $(ABSROOT)/charm/ls-txt.xslt $(CRSRCDIR)/$(CR_BRANCH_TRACKING).cr
 
-##   - crsel <CR Id> select change request
+##   - crsel: <CR Id> select change request
 ifeq ($(word 1,$(MAKECMDGOALS)),crsel)
 CRID:=$(patsubst $(CRSRCDIR)/%.cr,%,$(wildcard $(CRSRCDIR)/$(word 2,$(MAKECMDGOALS))*.cr))
 crsel:

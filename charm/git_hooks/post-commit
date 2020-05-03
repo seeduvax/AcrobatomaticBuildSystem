@@ -1,0 +1,13 @@
+#!/bin/sh
+
+PRJROOT=`git rev-parse --show-toplevel`
+
+if [ -r $PRJROOT/.git/hooks/.charm_crid ]
+then
+	CRFILE=`cat $PRJROOT/.git/hooks/.charm_crid`
+	rm $PRJROOT/.git/hooks/.charm_crid
+	sed -i -e 's/state="[a-zA-Z]*"/state="working"/g' $CRFILE
+	sed -i 's!<cf .*/>!<cf v="'"$USER"' '`date --iso-8601=seconds`'"/>!g' $CRFILE
+	git add $CRFILE
+	git commit --amend -C HEAD --no-verify
+fi
