@@ -1,9 +1,31 @@
-ifneq ($(filter cr%,$(word 1,$(MAKECMDGOALS))),)
-ifneq ($(ABS_INC_GUARD_CHARM),1)
-ABS_INC_GUARD_CHARM:=1
 ## --------------------------------------------------------------------
 ## Charm: Change request management
 ## --------------------------------------------------------------------
+
+# install git hooks
+ifneq ($(ABS_INC_GUARD_CHARM),1)
+ifeq ($(ABS_SCM_TYPE),git)
+
+$(PRJROOT)/.git/hooks/%: $(ABSROOT)/charm/git_hooks/%
+	@$(ABS_PRINT_info) "Installing charm git git hook $(patsubst $(PRJROOT)/.git/hooks/%,%,$@)."
+	@cp $^ $@
+	@chmod +x $@
+
+SCM_HOOKS:=$(patsubst $(ABSROOT)/charm/git_hooks/%,$(PRJROOT)/.git/hooks/%,$(wildcard $(ABSROOT)/charm/git_hooks/*))
+
+all: $(SCM_HOOKS)
+
+define cr_commit
+	@git add "$1"
+	@git add "$(CRSRCDIR)/$(CR_BRANCH_TRACKING).cr"
+	@git commit --no-verify -m "issue management"
+endef
+
+endif
+
+
+ifneq ($(filter cr%,$(word 1,$(MAKECMDGOALS))),)
+ABS_INC_GUARD_CHARM:=1
 ## Variables:
 ##   - CREDITOR: Change request file editor
 CREDITOR?=vim
@@ -20,6 +42,7 @@ WXDB:=wxdb-0.1.0d
 WXDBDOM=net.eduvax
 NDUSELIB+=$(WXDB)
 WXDBJAR:=$(NDEXTLIBDIR)/$(WXDB)/lib/$(WXDBDOM).$(WXDB).jar
+
 
 include $(CRWORKDIR)/vars.mk
 $(CRWORKDIR)/vars.mk:
@@ -54,6 +77,8 @@ $(CRSRCDIR)/$(CR_BRANCH_TRACKING).cr:
 crnew: $(CRSRCDIR)/$(CR_BRANCH_TRACKING).cr
 	$(call cr_create_file,$(CRID),$(CRTITLE),$(CR_BRANCH_TRACKING))
 	@sed -i 's!</links>!<link name="child">$(CRID)</link>\n</links>!g' $(CRSRCDIR)/$(CR_BRANCH_TRACKING).cr
+	@sed -i 's/CRID:=.*$$/CRID:=$(CR_BRANCH_TRACKING)/g' $(CRWORKDIR)/vars.mk
+	$(call cr_commit,$(CRSRCDIR)/$(CRID).cr)
 	@sed -i 's/CRID:=.*$$/CRID:=$(CRID)/g' $(CRWORKDIR)/vars.mk
 
 ##   - cred: edit selected change request
@@ -91,7 +116,7 @@ $(CRWORKDIR)/www/%.html: $(CRSRCDIR)/%.cr
 	@xsltproc --path $(CRSRCDIR) $(ABSROOT)/charm/cr2html.xslt $^ > $@
 
 $(CRWORKDIR)/www/index.html: $(SRCINDEXHTML) $(SRCCSS)
-	@echo "Updating web resources..."
+	@$(ABS_PRINT_info) "Updating web resources..."
 	@mkdir -p $(@D)
 	@cp $(SRCINDEXHTML) $(SRCCSS) $(@D)
 	@cp -r $(NDEXTLIBDIR)/$(WXDB)/www/js $(@D)/js
@@ -103,6 +128,7 @@ crbro: $(CRWORKDIR)/www/index.html
 	$(BROWSER) http://localhost:8888/?oid=$(CRID).cr ; kill $$pid
 
 crbrowse: crbro
+
 
 endif
 endif
