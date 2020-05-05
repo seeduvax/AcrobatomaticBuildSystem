@@ -31,7 +31,11 @@ VMEDIUM:=$(word 2,$(VERSION_FIELDS))
 VMINOR:=$(word 3,$(VERSION_FIELDS))
 VSUFFIX:=$(patsubst %,.%,$(word 4,$(VERSION_FIELDS)))
 
+ifeq ($(word 1,$(MAKECMDGOALS)),checkdep)
+ABS_STRICT_DEP_CHECK=0
+else
 ABS_STRICT_DEP_CHECK?=1
+endif
 
 ifeq ($(ABS_SCM_TYPE),null)
 VERSION:=$(VERSION)e

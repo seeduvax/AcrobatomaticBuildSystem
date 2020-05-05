@@ -57,7 +57,11 @@ REVISION:=$(shell svnversion)
 endif
 endif
 
+ifeq ($(word 1,$(MAKECMDGOALS)),checkdep)
+ABS_STRICT_DEP_CHECK=0
+else
 ABS_STRICT_DEP_CHECK?=1
+endif
 
 # identify dev version from tagged version, only when version is not overloaded.
 ifeq ($(WORKSPACE_IS_TAG),0)
