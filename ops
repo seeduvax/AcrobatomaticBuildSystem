@@ -1,1 +1,1 @@
-{"version":1,"ops":[{"type":1,"author":{"id":"5a62d4d8cba22667088fb97db0ec71b3ef99b977"},"timestamp":1588716574,"title":"disable dependencies check for target 'checkdep'","message":"","files":null}]}
+{"version":1,"ops":[{"type":4,"author":{"id":"5a62d4d8cba22667088fb97db0ec71b3ef99b977"},"timestamp":1588716600,"status":2}]}
