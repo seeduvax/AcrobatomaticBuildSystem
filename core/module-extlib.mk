@@ -117,7 +117,11 @@ ALLUSELIB+=$1
 $(call includeExtLib,$1,$2,$3,$4)
 else
 ifneq ($(word 2,$(subst -, ,$1)),$$(word 2,$$(subst -, ,$$(filter $(word 1,$(subst -, ,$1))-%,$$(ALLUSELIB)))))
+ifeq ($$(ABS_STRICT_DEP_CHECK),1)
+$$(error "$1 not imported from $2, already imported another version: $$(filter $(word 1,$(subst -, ,$1))-%,$$(ALLUSELIB))")
+else
 $$(info $$(shell $(ABS_PRINT_warning) "$1 not imported from $2, already imported another version: $$(filter $(word 1,$(subst -, ,$1))-%,$$(ALLUSELIB))"))
+endif
 else
 # same version
 $(call includeExtLib,$1,$2,$3,$4)

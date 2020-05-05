@@ -57,6 +57,8 @@ REVISION:=$(shell svnversion)
 endif
 endif
 
+ABS_STRICT_DEP_CHECK?=1
+
 # identify dev version from tagged version, only when version is not overloaded.
 ifeq ($(WORKSPACE_IS_TAG),0)
 VERSION:=$(VERSION)d
