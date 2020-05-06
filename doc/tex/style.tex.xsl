@@ -471,6 +471,8 @@ select="substring-after($text,$from)"/>
   <xsl:if test="document(@src)">
   <xsl:apply-templates select="document(@src)/*" mode="include">
 	  <xsl:with-param name="mode"><xsl:value-of select="@mode"/></xsl:with-param>
+	  <xsl:with-param name="level"><xsl:value-of select="count(ancestor-or-self::section)+count(ancestor-or-self::article)"/></xsl:with-param>
+	  <xsl:with-param name="include" select="."/>
   </xsl:apply-templates>
   </xsl:if>
 </xsl:template>

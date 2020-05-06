@@ -18,7 +18,7 @@ HTML_STYLE_BUNDLE+=$(patsubst %,$(ABSROOT)/doc/html/%.tar.gz,style impress.js hi
 # files to be processed by doxygen.
 DOXSRCFILES:=$(shell find $(PRJROOT) -name *.h -o -name *.c -o -name *.hpp -o -name *.cpp -o -name *.py -o -name *.java | fgrep -v "/build/" | fgrep -v "/dist/" | fgrep -v "$(ABSROOT)")
 
-HEMLVERSION?=1.0.1
+HEMLVERSION?=1.0.2
 HEMLARGS:=-param app $(APPNAME) -param version $(VERSION) -param date "`date --rfc-3339 s`" -param user $$USER -param host $(shell hostname)
 
 PUMLVERSION?=1.2017.12
@@ -170,7 +170,7 @@ else
 			pass=`expr $$pass + 1` && \
 			$(TEXENV) pdflatex --interaction nonstopmode $< > $(OBJDIR)/tex.$(@F).log; \
 		done || ($(ABS_PRINT_error) "pdf generation error see $(OBJDIR)/tex.$(@F).log for more information." && ! $(DOC_FAIL_ON_ERROR))
-	@mv $(patsubst $(PDFDIR)/%.pdf,$(OBJDIR)/%.pdf,$@) $(@D) || $(ABS_PRINT_error) "$@ generation failed."
+	@mv $(OBJDIR)/$(@F) $(@D) || $(ABS_PRINT_error) "$@ generation failed."
 endif
 
 ##  - html: generates html files and companion images from heml files.
