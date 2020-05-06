@@ -16,7 +16,7 @@ endif
 
 TESTRUNNER=ctrunner
 TXTXSL=xunit2txt.xsl
-TIMEOUT=300
+TIMEOUT?=300
 ifeq ($(COLORS_TCAP),yes)
 TIMEOUTCMD:=
 else
