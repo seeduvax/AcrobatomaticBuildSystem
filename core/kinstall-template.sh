@@ -117,13 +117,16 @@ install() {
                     createDefaultService $serviceFile $initFile
                 fi
                 echo "Linking $serviceFile into $PREFIX/lib/systemd/system"
-                chmod 750 $serviceFile
+                # the .service must not be executable
+                chmod 640 $serviceFile
+                chmod 750 $initFile
                 ln -srf "$serviceFile" "$PREFIX/lib/systemd/system/"
             done
         else
             echo "Installation des drivers avec init.d"
             for execFile in `ls "$PREFIX/etc/$APP/inits/*"`; do
                 echo "Linking $execFile into init.d"
+                chmod 750 $execFile
                 ln -srf "$execFile" "$PREFIX/etc/init.d/"
             done
         fi
@@ -188,7 +191,8 @@ activate() {
 			/etc/init.d/$moduleName start
 			echo "Activation finished"
 	    elif [ -f /lib/systemd/system/$moduleName.service ]; then
-	        chmod 750 /lib/systemd/system/$moduleName.service
+	        # the file must not be executable
+	        chmod 640 /lib/systemd/system/$moduleName.service
 	        systemctl daemon-reload
             echo "Enabling $moduleName"
 	        systemctl enable $moduleName
