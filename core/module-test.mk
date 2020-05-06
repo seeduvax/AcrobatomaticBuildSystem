@@ -40,13 +40,13 @@ endif
 
 # objects to be generated from test classes.
 TSRCFILES=$(shell find test/ -name '*.cpp' 2>/dev/null)
-TCPPOBJS=$(patsubst test/%.cpp,$(OBJDIR)/test/%.o,$(TSRCFILES)) 
+TCPPOBJS=$(patsubst test/%.cpp,$(OBJDIR)/test/%.o,$(TSRCFILES))
 
 # compiler options specific to test
-TCFLAGS+=
+TCFLAGS+=$(patsubst %,-I../%/include,$(TESTUSEMOD))
 
 # linker options specific to test
-TLDFLAGS+= -L$(TRDIR)/$(SODIR) $(patsubst %,-l$(APPNAME)_%,$(TESTUSEMOD)) -lcppunit
+TLDFLAGS+=-L$(TRDIR)/$(SODIR) $(patsubst %,-l$(APPNAME)_%,$(TESTUSEMOD)) -lcppunit $(patsubst %,-l%,$(TLINKLIB))
 
 # adaptation to module type
 ifeq ($(MODTYPE),library)
