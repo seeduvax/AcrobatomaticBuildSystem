@@ -1,0 +1,23 @@
+#!/bin/sh
+
+PRJROOT=`git rev-parse --show-toplevel`
+CRWDIR=$PRJROOT/build/charm
+CRID=`grep '^CRID:=' $CRWDIR/vars.mk | cut -f 2 -d '='`
+if [ "$CRID" = "" ]
+then
+	echo "No change request selected. Please choose one with: make crsel <crid>" >&2
+	exit 1
+fi
+CRFILE=$PRJROOT/_charm/src/$CRID.cr
+if [ ! -r "$CRFILE" ]
+then
+	echo "Can't find change request file $CRFILE !!!" >&2
+	exit 2
+fi
+CR_IS_CLOSED=`fgrep -c 'state="close' $CRFILE`
+if [ "$CR_IS_CLOSED" != "0" ]
+then
+	echo "Can't use selected change request: state is close." >&2
+	exit 3
+fi
+echo "$CRFILE" > $PRJROOT/.git/hooks/.charm_crid

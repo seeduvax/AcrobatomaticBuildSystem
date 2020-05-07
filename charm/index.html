@@ -1,0 +1,81 @@
+<!doctype html>
+<html>
+<head>
+<style t0ype="text/css">
+content {
+	color: red;
+	display: block;
+} 
+textarea {
+	z-index: 10;
+	position: fixed;
+	display: none;
+	top: 10px;
+	left: 10px;
+}
+</style>
+<script type="text/javascript" src="js/markdown_dom_parser.js"></script>
+<script type="text/javascript" src="js/html2markdown.js"></script>
+<script type="text/javascript" src="js/showdown.js"></script>
+<script type="text/javascript" src="js/wxdb.js"></script>
+</head>
+</body>
+<textarea id="editTxt">...</textarea>
+<table><tr><td>
+	<h1 id="issueId">WXDB X</h1>
+	</td><td>
+	<h1 id="title">Undefined title</h1></td>
+<tr></tr>
+	<th>State</th>
+	<td id="state">null</td>
+<tr></tr>
+	<th>Reporter</th>
+	<td id="reporter">null</td>
+<tr></tr>
+	<th>Creation</th>
+	<td id="creation">null</td>
+<tr></tr>
+	<th>Description</th>
+	<td id="description"></td>
+<tr></tr>
+	<th>Links</th><td id="links"></td>
+</tr>
+</table>
+</body>
+<script>
+
+function $(name) {
+	return document.getElementById(name);
+}
+function getElemText(co,name) {
+	var e=co.getElementsByTagName(name)[0];
+	if (e!=null) {
+		return e.innerHTML
+	}
+	return "null"
+}
+
+var wxdb=new Wxdb(function() {
+	this.setNodeEdit("title","title")
+	this.setNodeEdit("description","description");
+	var shortId=this.xobj.childNodes[0].getAttribute("id").substring(0,7);
+	document.title="ABS/Charm: Issue "+shortId;
+	$("issueId").innerHTML=shortId;
+	$("state").innerHTML=this.xobj.childNodes[0].getAttribute("state");
+	$("reporter").innerHTML=getElemText(this.xobj,"reporter")
+	$("creation").innerHTML=getElemText(this.xobj,"creation")
+	var links=this.xobj.getElementsByTagName("link")
+	var linksHTML="<ul>";
+	for (i=0 ; i<links.length ; i++) {
+		linksHTML=linksHTML
+				+'<li>'+links[i].getAttribute("name")
+				+': <a href="/?oid='+links[i].innerHTML+'.cr">'
+				+ links[i].textContent.substring(0,7)
+				+ '</a></li>'
+	}
+	$("links").innerHTML=linksHTML+"</ul>"
+});
+wxdb.downloadObj();
+
+</script>
+</html>
