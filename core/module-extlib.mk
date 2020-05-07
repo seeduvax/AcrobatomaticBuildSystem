@@ -62,6 +62,22 @@ $(NDEXTLIBDIR)/%/import.mk: $(ABS_CACHE)/$(ARCH)/%.$(ARCH).tar.gz
 	@tar -xzf $^ -C $(NDEXTLIBDIR) && touch $@
 	@if [ -f "$(ECLIPSE_PRJ)" ]; then chmod -R a-w $(@D); fi
 
+# unpack external lib that should not be forwarded to dist package
+$(NA_EXTLIBDIR)/%/import.mk: $(ABS_CACHE)/noarch/%.tar.gz
+	@$(ABS_PRINT_info) "Unpacking library : $(patsubst $(NA_EXTLIBDIR)/%/import.mk,%,$@)"
+	@if [ -d $(@D)  ]; then chmod -R u+w $(@D) && rm -rf $(@D); fi
+	@mkdir -p $(@D)
+	@tar -xzf $^ -C $(NA_EXTLIBDIR) && touch $@
+	@if [ -f "$(ECLIPSE_PRJ)" ]; then chmod -R a-w $(@D); fi
+	
+# unpack external lib that should not be forwarded to dist package
+$(NDNA_EXTLIBDIR)/%/import.mk: $(ABS_CACHE)/noarch/%.tar.gz
+	@$(ABS_PRINT_info) "Unpacking library : $(patsubst $(NDNA_EXTLIBDIR)/%/import.mk,%,$@)"
+	@if [ -d $(@D)  ]; then chmod -R u+w $(@D) && rm -rf $(@D); fi
+	@mkdir -p $(@D)
+	@tar -xzf $^ -C $(NDNA_EXTLIBDIR) && touch $@
+	@if [ -f "$(ECLIPSE_PRJ)" ]; then chmod -R a-w $(@D); fi
+	
 # same for java libraries
 $(NA_EXTLIBDIR)/%.jar: $(ABS_CACHE)/noarch/%.jar
 	@mkdir -p $(@D)
