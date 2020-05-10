@@ -89,6 +89,7 @@ $(NDNA_EXTLIBDIR)/%/.dir: $(ABS_CACHE)/noarch/%.tar.gz
 	@tar -xzf $^ -C $(NDNA_EXTLIBDIR) && touch $@
 
 TRANSUSELIB:=$(USELIB)
+DEV_USELIB:=$(filter-out $(DEV_USELIB_IGNORE),$(filter %d,$(USELIB)))
 ALLUSELIB:=$(TRANSUSELIB) $(NDUSELIB)
 # macro to include lib
 # $1 lib dependancy name (name-version)
@@ -116,6 +117,9 @@ $$(eval ADDEDDEPLIST:=$$(ADDEDDEPLIST) "$2"->"$1")
 ifeq ($$(filter $(word 1,$(subst -, ,$1))-%,$$(ALLUSELIB)),)
 # the lib has not been imported yet
 ALLUSELIB+=$1
+ifneq ($(filter-out $(DEV_USELIB_IGNORE),$(filter %d,$1)),)
+DEV_USELIB+=$1
+endif
 $(call includeExtLib,$1,$2,$3,$4)
 else
 ifneq ($(word 2,$(subst -, ,$1)),$$(word 2,$$(subst -, ,$$(filter $(word 1,$(subst -, ,$1))-%,$$(ALLUSELIB)))))
@@ -168,25 +172,44 @@ $(OBJS): $(EXTLIBMAKES)
 ifneq ($(MAKECMDGOALS),checkdep)
 ifeq ($(DEPENDENCIES_ERROR),true)
 ifneq ($(ABS_STRICT_DEP_CHECK),)
-$(info ================================================================)
-$(info DEPENDENCIES ERROR)
-$(info Same lib used with different version, check USELIB definitions.)
-$(info USELIB is: $(USELIB))
-$(info Launch 'make checkdep' to see dep graph.)
-$(info ================================================================)
-$(error Failing on strict dependencies checking mode.)
+$(info $(shell $(ABS_PRINT_error) "================================================================"))
+$(info $(shell $(ABS_PRINT_error) "                     ERROR"))
+$(info $(shell $(ABS_PRINT_error) "Same lib used with different version, check USELIB definitions."))
+$(info $(shell $(ABS_PRINT_error) "USELIB is: $(USELIB)"))
+$(info $(shell $(ABS_PRINT_error) "Launch 'make checkdep' to see dep graph."))
+$(info $(shell $(ABS_PRINT_error) "================================================================"))
+ABS_FATAL:=true
 else
 all-impl::
 	@$(ABS_PRINT_warning) "================================================================"
 	@$(ABS_PRINT_warning) "                           WARNING"
 	@$(ABS_PRINT_warning) "Same lib used with different version, check USELIB definitions."	
 	@$(ABS_PRINT_warning) "USELIB is: $(USELIB)"
-	@$(ABS_PRINT_warning) "Launch 'make checkdep' to see dep graph."
+	@$(ABS_PRINT_warning) "Launch 'make checkdep' to see depenedency graph."
+	@$(ABS_PRINT_warning) "================================================================"
+endif
+endif
+
+ifneq ($(DEV_USELIB),)
+ifneq ($(ABS_STRICT_DEP_CHECK),)
+$(info $(shell $(ABS_PRINT_error) "================================================================"))
+$(info $(shell $(ABS_PRINT_error) "                     ERROR"))
+$(info $(shell $(ABS_PRINT_error) "Dependencies include non tagged libraries."))
+$(info $(shell $(ABS_PRINT_error) "$(DEV_USELIB)"))
+$(info $(shell $(ABS_PRINT_error) "Launch 'make checkdep' to see the full dependency graph."))
+$(info $(shell $(ABS_PRINT_error) "================================================================"))
+ABS_FATAL:=true
+else
+all-impl::
+	@$(ABS_PRINT_warning) "================================================================"
+	@$(ABS_PRINT_warning) "                           WARNING"
+	@$(ABS_PRINT_warning) "Dependencies include non tagged libraries."	
+	@$(ABS_PRINT_warning) "$(DEV_USELIB)"
+	@$(ABS_PRINT_warning) "Launch 'make checkdep' to see the full dependency graph."
 	@$(ABS_PRINT_warning) "================================================================"
 endif
 endif
 endif
-
 
 ## Targets:
 ##  - checkdep: show currently defined dependencies (full graph including 
