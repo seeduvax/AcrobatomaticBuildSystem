@@ -46,38 +46,31 @@ $(ABS_CACHE)/%:
 	@mkdir -p $(@D)
 	$(call downloadFromRepos,$*,$(ABS_REPO),$@)
 
-$(EXTLIBDIR)/%/import.mk: $(ABS_CACHE)/$(ARCH)/%.$(ARCH).tar.gz
-	@$(ABS_PRINT_info) "Unpacking library : $(patsubst $(EXTLIBDIR)/%/import.mk,%,$@)"
+define unpackArchive
+	@$(ABS_PRINT_info) "Unpacking library : $(patsubst $(1)/%/import.mk,%,$@)"
 	@$(ABS_PRINT_debug) "$^"
 	@if [ -d $(@D)  ]; then chmod -R u+w $(@D) && rm -rf $(@D); fi
 	@mkdir -p $(@D)
-	@tar -xzf $^ -C $(EXTLIBDIR) && touch $@
+	@tar -xzf $^ -C $(1) && touch $@
 	@if [ -f "$(ECLIPSE_PRJ)" ]; then chmod -R a-w $(@D); fi
+endef
+
+# unpack arch specific external lib
+$(EXTLIBDIR)/%/import.mk: $(ABS_CACHE)/$(ARCH)/%.$(ARCH).tar.gz
+	$(call unpackArchive,$(EXTLIBDIR))
 
 # unpack external lib that should not be forwarded to dist package
 $(NDEXTLIBDIR)/%/import.mk: $(ABS_CACHE)/$(ARCH)/%.$(ARCH).tar.gz
-	@$(ABS_PRINT_info) "Unpacking library : $(patsubst $(NDEXTLIBDIR)/%/import.mk,%,$@)"
-	@if [ -d $(@D)  ]; then chmod -R u+w $(@D) && rm -rf $(@D); fi
-	@mkdir -p $(@D)
-	@tar -xzf $^ -C $(NDEXTLIBDIR) && touch $@
-	@if [ -f "$(ECLIPSE_PRJ)" ]; then chmod -R a-w $(@D); fi
+	$(call unpackArchive,$(NDEXTLIBDIR))
 
-# unpack external lib that should not be forwarded to dist package
+# unpack no arch external lib
 $(NA_EXTLIBDIR)/%/import.mk: $(ABS_CACHE)/noarch/%.tar.gz
-	@$(ABS_PRINT_info) "Unpacking library : $(patsubst $(NA_EXTLIBDIR)/%/import.mk,%,$@)"
-	@if [ -d $(@D)  ]; then chmod -R u+w $(@D) && rm -rf $(@D); fi
-	@mkdir -p $(@D)
-	@tar -xzf $^ -C $(NA_EXTLIBDIR) && touch $@
-	@if [ -f "$(ECLIPSE_PRJ)" ]; then chmod -R a-w $(@D); fi
+	$(call unpackArchive,$(NA_EXTLIBDIR))
 	
-# unpack external lib that should not be forwarded to dist package
+# unpack no arch external lib that should not be forwarded to dist package
 $(NDNA_EXTLIBDIR)/%/import.mk: $(ABS_CACHE)/noarch/%.tar.gz
-	@$(ABS_PRINT_info) "Unpacking library : $(patsubst $(NDNA_EXTLIBDIR)/%/import.mk,%,$@)"
-	@if [ -d $(@D)  ]; then chmod -R u+w $(@D) && rm -rf $(@D); fi
-	@mkdir -p $(@D)
-	@tar -xzf $^ -C $(NDNA_EXTLIBDIR) && touch $@
-	@if [ -f "$(ECLIPSE_PRJ)" ]; then chmod -R a-w $(@D); fi
-	
+	$(call unpackArchive,$(NDNA_EXTLIBDIR))
+
 # same for java libraries
 $(NA_EXTLIBDIR)/%.jar: $(ABS_CACHE)/noarch/%.jar
 	@mkdir -p $(@D)
