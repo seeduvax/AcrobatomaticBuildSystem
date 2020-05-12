@@ -16,6 +16,8 @@ NDNA_EXTLIBDIR:=$(NA_EXTLIBDIR).nodist
 ECLIPSE_PRJ=$(PRJROOT)/.project
 DEPTOOL:=$(ABSROOT)/core/deptool.bash
 
+
+
 # tell the bootstrap makefile to not define its own default download rule.
 ABS_DEPDOWNLOAD_RULE_OVERLOADED:=1
 # download files from repository
@@ -34,6 +36,8 @@ define downloadFromRepos
 			test -f $$srcfile && ln -sf $$srcfile $3 ; \
 			test -r $3 && exit 0 || \
 			$(ABS_PRINT_warning) "$1 not available from $$repo";; \
+		scp:*) srcfile=`echo "$$repo" | cut -f 2,3 -d ':'`/$1 ;\
+			scp $(SCPFLAGS) $$srcfile $3 && exit 0;;\
 		*) wget -q $(WGETFLAGS) $$repo/$1 -O $3 && exit 0 || \
 			rm -rf $3 ; \
 			 $(ABS_PRINT_warning) "$1 not available from $$repo";; \
@@ -94,6 +98,7 @@ $(NDNA_EXTLIBDIR)/%/.dir: $(ABS_CACHE)/noarch/%.tar.gz
 	@tar -xzf $^ -C $(NDNA_EXTLIBDIR) && touch $@
 
 TRANSUSELIB:=$(USELIB)
+DEV_USELIB:=$(filter-out $(DEV_USELIB_IGNORE),$(filter %d,$(USELIB)))
 ALLUSELIB:=$(TRANSUSELIB) $(NDUSELIB)
 # macro to include lib
 # $1 lib dependancy name (name-version)
@@ -121,10 +126,14 @@ $$(eval ADDEDDEPLIST:=$$(ADDEDDEPLIST) "$2"->"$1")
 ifeq ($$(filter $(word 1,$(subst -, ,$1))-%,$$(ALLUSELIB)),)
 # the lib has not been imported yet
 ALLUSELIB+=$1
+ifneq ($(filter-out $(DEV_USELIB_IGNORE),$(filter %d,$1)),)
+DEV_USELIB+=$1
+endif
 $(call includeExtLib,$1,$2,$3,$4)
 else
 ifneq ($(word 2,$(subst -, ,$1)),$$(word 2,$$(subst -, ,$$(filter $(word 1,$(subst -, ,$1))-%,$$(ALLUSELIB)))))
 $$(info $$(shell $(ABS_PRINT_warning) "$1 not imported from $2, already imported another version: $$(filter $(word 1,$(subst -, ,$1))-%,$$(ALLUSELIB))"))
+DEPENDENCIES_ERROR=true
 else
 # same version
 $(call includeExtLib,$1,$2,$3,$4)
@@ -166,43 +175,49 @@ endif
 $(OBJS): $(EXTLIBMAKES)
 
 # --------------------------------
-# USELIB content check helper vars
-# --------------------------------
-S_USELIB=$(sort $(TRANSUSELIB))
-ifneq ($(TAGRQ),)
-ifeq ($(USER),jenkins)
-D_USELIB=$(filter %d,$(S_USELIB))
-endif
-endif
-UNV_USELIB=$(foreach uselib,$(S_USELIB),$(word 1,$(subst -, ,$(uselib))))
-SUNV_USELIB=$(sort $(UNV_USELIB))
-
-# --------------------------------
-# Add message to final target when 
+# Print warning or fail according strict checking mode when
 # USELIB check has detected inconsistencies
 # --------------------------------
-ifeq ($(D_USELIB),)
+ifneq ($(MAKECMDGOALS),checkdep)
+ifeq ($(DEPENDENCIES_ERROR),true)
+ifneq ($(ABS_STRICT_DEP_CHECK),)
+$(info $(shell $(ABS_PRINT_error) "================================================================"))
+$(info $(shell $(ABS_PRINT_error) "                     ERROR"))
+$(info $(shell $(ABS_PRINT_error) "Same lib used with different version, check USELIB definitions."))
+$(info $(shell $(ABS_PRINT_error) "USELIB is: $(USELIB)"))
+$(info $(shell $(ABS_PRINT_error) "Launch 'make checkdep' to see dep graph."))
+$(info $(shell $(ABS_PRINT_error) "================================================================"))
+ABS_FATAL:=true
+else
 all-impl::
-ifneq ($(UNV_USELIB),$(SUNV_USELIB))
 	@$(ABS_PRINT_warning) "================================================================"
 	@$(ABS_PRINT_warning) "                           WARNING"
 	@$(ABS_PRINT_warning) "Same lib used with different version, check USELIB definitions."	
-	@$(ABS_PRINT_warning) "USELIB is: $(S_USELIB)"
-ifeq ($(DEBUG_USELIB),)
-	@$(ABS_PRINT_warning) "Launch 'make checkdep' to see dep graph."
-endif
+	@$(ABS_PRINT_warning) "USELIB is: $(USELIB)"
+	@$(ABS_PRINT_warning) "Launch 'make checkdep' to see depenedency graph."
 	@$(ABS_PRINT_warning) "================================================================"
-ifneq ($(DEBUG_USELIB),)
-	@make checkdep
 endif
 endif
+
+ifneq ($(DEV_USELIB),)
+ifneq ($(ABS_STRICT_DEP_CHECK),)
+$(info $(shell $(ABS_PRINT_error) "================================================================"))
+$(info $(shell $(ABS_PRINT_error) "                     ERROR"))
+$(info $(shell $(ABS_PRINT_error) "Dependencies include non tagged libraries."))
+$(info $(shell $(ABS_PRINT_error) "$(DEV_USELIB)"))
+$(info $(shell $(ABS_PRINT_error) "Launch 'make checkdep' to see the full dependency graph."))
+$(info $(shell $(ABS_PRINT_error) "================================================================"))
+ABS_FATAL:=true
 else
 all-impl::
-	@$(ABS_PRINT_error) "================================================================"
-	@$(ABS_PRINT_error) "Can't build tagged version of $(APPNAME), untagged library in use!"
-	@$(ABS_PRINT_error) "Untagged libs found are: $(D_USELIB)" 
-	@$(ABS_PRINT_error) "================================================================"
-	@exit 1
+	@$(ABS_PRINT_warning) "================================================================"
+	@$(ABS_PRINT_warning) "                           WARNING"
+	@$(ABS_PRINT_warning) "Dependencies include non tagged libraries."	
+	@$(ABS_PRINT_warning) "$(DEV_USELIB)"
+	@$(ABS_PRINT_warning) "Launch 'make checkdep' to see the full dependency graph."
+	@$(ABS_PRINT_warning) "================================================================"
+endif
+endif
 endif
 
 ## Targets:

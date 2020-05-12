@@ -9,3 +9,7 @@ include $(ABSROOT)/core/app.mk
 else
 include $(ABSROOT)/core/module.mk
 endif
+
+ifneq ($(ABS_FATAL),)
+$(error ABS aborting on fatal error)
+endif
