@@ -3,6 +3,9 @@
 ## Dependencies management
 ## ------------------------------------------------------------------------
 
+ifeq ($(filter clean%,$(MAKECMDGOALS)),)
+# do not process ext libs if target is clean...
+
 ifeq ($(TRDIR),$(BUILDROOT)/$(ARCH)/$(MODE))
 EXTLIBDIR?=$(ABSWS)/extlib/$(ARCH)
 NA_EXTLIBDIR?=$(ABSWS)/extlib/noarch
@@ -239,4 +242,5 @@ checkdep: $(BUILDROOT)/$(APPNAME)_deps.dot
 else
 checkdep:
 	@$(ABS_PRINT_info) "No dependancies set in USELIB project parameter."
+endif
 endif

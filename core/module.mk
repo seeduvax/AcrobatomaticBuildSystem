@@ -48,7 +48,9 @@ include $(PRJROOT)/app.cfg
 include $(MODROOT)/module.cfg
 
 # include workspace local parameters if any
+-include $(ABSWS)/local.cfg
 -include $(PRJROOT)/local.cfg
+-include $(CURDIR)/local.cfg
 
 ifeq ($(REVISION),)
 REVISION:=undef

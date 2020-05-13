@@ -13,7 +13,8 @@ include $(ABSROOT)/core/common.mk
 
 # re-include in case that common variables are used in this cfg.
 include $(PRJROOT)/app.cfg
--include local.cfg
+-include $(ABSWS)/local.cfg
+-include $(PRJROOT)/local.cfg
 
 JENKINS_USER?=jenkins
 DISTUSER?=$(USER)
@@ -399,5 +400,7 @@ cleanabs:
 	@$(ABS_PRINT_info) "Setting write permissions to $(ABSWS)..."
 	@chmod -R u+w $(ABSWS) 2> /dev/null
 	@$(ABS_PRINT_info) "Cleaning ABS files and cache $(ABSWS)..."
-	@rm -rf $(ABSWS)
-	@$(ABS_PRINT_info) "$(ABSWS) removed."
+	@rm -rf $(ABSWS)/extlib $(ABSWS)/cache $(ABSROOT)
+	@$(ABS_PRINT_info) "ABS cleaning completed."
+
+absclean: cleanabs
