@@ -1,0 +1,1 @@
+{"version":1,"ops":[{"type":1,"author":{"id":"2423ae637206cd47909c1584f829953d3a01cb87"},"timestamp":1589401863,"title":"User wide ABS configuration and workspace.","message":"Use ~/.abs as default ABS workspace.\nWhen there is a local.cfg file in this directory, include it, just before project's local.cfg.","files":null}]}
