@@ -155,10 +155,20 @@ $(foreach lib,$3,$(call condIncludeExtLib,$(lib),$(1)-$(2),$(EXTLIBDIR),TRANSUSE
 CFLAGS+=-I$(EXTLIBDIR)/$(1)-$(2)/include
 LDFLAGS+=-L$(EXTLIBDIR)/$(1)-$(2)/lib -L$(EXTLIBDIR)/$(1)-$(2)/lib64
 else
+ifneq ($$(filter $(1)-$(2),$$(NA_USELIB)),)
+$(foreach lib,$3,$(call condIncludeExtLib,$(lib),$(1)-$(2),$(NA_EXTLIBDIR),NA_USELIB))
+CFLAGS+=-I$(NA_EXTLIBDIR)/$(1)-$(2)/include
+else
 ifneq ($$(filter $(1)-$(2),$$(NDUSELIB)),)
 $(foreach lib,$3,$(call condIncludeExtLib,$(lib),$(1)-$(2),$(NDEXTLIBDIR),NDUSELIB))
 CFLAGS+=-I$(NDEXTLIBDIR)/$(1)-$(2)/include
 LDFLAGS+=-L$(NDEXTLIBDIR)/$(1)-$(2)/lib -L$(NDEXTLIBDIR)/$(1)-$(2)/lib64
+else
+ifneq ($$(filter $(1)-$(2),$$(NDNA_USELIB)),)
+$(foreach lib,$3,$(call condIncludeExtLib,$(lib),$(1)-$(2),$(NDNA_EXTLIBDIR),NDNA_USELIB))
+CFLAGS+=-I$(NDNA_EXTLIBDIR)/$(1)-$(2)/include
+endif
+endif
 endif
 endif
 
@@ -169,7 +179,7 @@ endef
 # we don't care importing the dependencies.
 ifneq ($(MAKECMDGOALS),clean)
 ifneq ($(MAKECMDGOALS),cleanabs)
-EXTLIBMAKES=$(patsubst %,$(EXTLIBDIR)/%/import.mk,$(TRANSUSELIB)) $(patsubst %,$(NDEXTLIBDIR)/%/import.mk,$(NDUSELIB))
+EXTLIBMAKES=$(patsubst %,$(EXTLIBDIR)/%/import.mk,$(TRANSUSELIB)) $(patsubst %,$(NDEXTLIBDIR)/%/import.mk,$(NDUSELIB)) $(patsubst %,$(NDNA_EXTLIBDIR)/%/import.mk,$(NDNA_USELIB)) $(patsubst %,$(NA_EXTLIBDIR)/%/import.mk,$(NA_USELIB))
 include $(EXTLIBMAKES)
 endif
 endif
