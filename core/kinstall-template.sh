@@ -120,14 +120,14 @@ install() {
                 # the .service must not be executable
                 chmod 640 $serviceFile
                 chmod 750 $initFile
-                ln -srf "$serviceFile" "$PREFIX/lib/systemd/system/"
+                cp "$serviceFile" "$PREFIX/lib/systemd/system/"
             done
         else
             echo "Installation des drivers avec init.d"
             for execFile in `ls $PREFIX/etc/$APP/inits/*`; do
                 echo "Linking $execFile into init.d"
                 chmod 750 $execFile
-                ln -srf "$execFile" "$PREFIX/etc/init.d/"
+                cp "$execFile" "$PREFIX/etc/init.d/"
             done
         fi
     fi
