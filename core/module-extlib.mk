@@ -6,9 +6,14 @@
 ifeq ($(filter clean%,$(MAKECMDGOALS)),)
 # do not process ext libs if target is clean...
 
+ABSWS_EXTLIBDIR=$(ABSWS)/extlib/$(ARCH)
+ABSWS_NA_EXTLIBDIR=$(ABSWS)/extlib/noarch
+ABSWS_NDEXTLIBDIR=$(ABSWS_EXTLIBDIR).nodist
+ABSWS_NDNA_EXTLIBDIR=$(ABSWS_NA_EXTLIBDIR).nodist
+
 ifeq ($(TRDIR),$(BUILDROOT)/$(ARCH)/$(MODE))
-EXTLIBDIR?=$(ABSWS)/extlib/$(ARCH)
-NA_EXTLIBDIR?=$(ABSWS)/extlib/noarch
+EXTLIBDIR?=$(BUILDROOT)/extlib/$(ARCH)
+NA_EXTLIBDIR?=$(BUILDROOT)/extlib/noarch
 else
 EXTLIBDIR?=$(TRDIR)/extlib
 NA_EXTLIBDIR?=$(TRDIR)/extlib
@@ -19,12 +24,11 @@ NDNA_EXTLIBDIR:=$(NA_EXTLIBDIR).nodist
 ECLIPSE_PRJ=$(PRJROOT)/.project
 DEPTOOL:=$(ABSROOT)/core/deptool.bash
 
-
-
 # tell the bootstrap makefile to not define its own default download rule.
 ABS_DEPDOWNLOAD_RULE_OVERLOADED:=1
 # download files from repository
 .PRECIOUS: $(ABS_CACHE)/%
+.PRECIOUS: $(ABSWS_EXTLIBDIR)/%/import.mk $(ABSWS_NDEXTLIBDIR)/%/import.mk $(ABSWS_NA_EXTLIBDIR)/%/import.mk $(ABSWS_NDNA_EXTLIBDIR)/%/import.mk
 
 # Download an archive from repositories
 # $1: File to download
@@ -63,20 +67,42 @@ define unpackArchive
 endef
 
 # unpack arch specific external lib
-$(EXTLIBDIR)/%/import.mk: $(ABS_CACHE)/$(ARCH)/%.$(ARCH).tar.gz
-	$(call unpackArchive,$(EXTLIBDIR))
+$(ABSWS_EXTLIBDIR)/%/import.mk: $(ABS_CACHE)/$(ARCH)/%.$(ARCH).tar.gz
+	$(call unpackArchive,$(ABSWS_EXTLIBDIR))
 
 # unpack external lib that should not be forwarded to dist package
-$(NDEXTLIBDIR)/%/import.mk: $(ABS_CACHE)/$(ARCH)/%.$(ARCH).tar.gz
-	$(call unpackArchive,$(NDEXTLIBDIR))
+$(ABSWS_NDEXTLIBDIR)/%/import.mk: $(ABS_CACHE)/$(ARCH)/%.$(ARCH).tar.gz
+	$(call unpackArchive,$(ABSWS_NDEXTLIBDIR))
 
 # unpack no arch external lib
-$(NA_EXTLIBDIR)/%/import.mk: $(ABS_CACHE)/noarch/%.tar.gz
-	$(call unpackArchive,$(NA_EXTLIBDIR))
+$(ABSWS_NA_EXTLIBDIR)/%/import.mk: $(ABS_CACHE)/noarch/%.tar.gz
+	$(call unpackArchive,$(ABSWS_NA_EXTLIBDIR))
 	
 # unpack no arch external lib that should not be forwarded to dist package
-$(NDNA_EXTLIBDIR)/%/import.mk: $(ABS_CACHE)/noarch/%.tar.gz
-	$(call unpackArchive,$(NDNA_EXTLIBDIR))
+$(ABSWS_NDNA_EXTLIBDIR)/%/import.mk: $(ABS_CACHE)/noarch/%.tar.gz
+	$(call unpackArchive,$(ABSWS_NDNA_EXTLIBDIR))
+	
+define extlib_linkLibrary
+	@mkdir -p `dirname $(@D)`
+	@test -d $(@D) && rm $(@D) || true
+	@ln -s $(<D) $(@D)
+endef	
+
+# unpack arch specific external lib
+$(EXTLIBDIR)/%/import.mk: $(ABSWS_EXTLIBDIR)/%/import.mk
+	$(call extlib_linkLibrary)
+
+# unpack external lib that should not be forwarded to dist package
+$(NDEXTLIBDIR)/%/import.mk: $(ABSWS_NDEXTLIBDIR)/%/import.mk
+	$(call extlib_linkLibrary)
+
+# unpack no arch external lib
+$(NA_EXTLIBDIR)/%/import.mk: $(ABSWS_NA_EXTLIBDIR)/%/import.mk
+	$(call extlib_linkLibrary)
+	
+# unpack no arch external lib that should not be forwarded to dist package
+$(NDNA_EXTLIBDIR)/%/import.mk: $(ABSWS_NDNA_EXTLIBDIR)/%/import.mk
+	$(call extlib_linkLibrary)
 
 # same for java libraries
 $(NA_EXTLIBDIR)/%.jar: $(ABS_CACHE)/noarch/%.jar
@@ -92,13 +118,19 @@ $(NDNA_EXTLIBDIR)/%.jar: $(ABS_CACHE)/noarch/%.jar
 # for now activated only for doc modules since bad side effects have 
 # been encoutered on some projects (conflicting with smart responder
 # models code generation).
-$(NA_EXTLIBDIR)/%/.dir: $(ABS_CACHE)/noarch/%.tar.gz
-	@$(ABS_PRINT_info) "Unpacking data file set : $(patsubst $(NA_EXTLIBDIR)/%/.dir,%,$@)"
-	@tar -xzf $^ -C $(NA_EXTLIBDIR) && touch $@
+$(ABSWS_NA_EXTLIBDIR)/%/.dir: $(ABS_CACHE)/noarch/%.tar.gz
+	@$(ABS_PRINT_info) "Unpacking data file set : $*"
+	@tar -xzf $^ -C $(ABSWS_NA_EXTLIBDIR) && touch $@
 
-$(NDNA_EXTLIBDIR)/%/.dir: $(ABS_CACHE)/noarch/%.tar.gz
-	@$(ABS_PRINT_info) "Unpacking data file set : $(patsubst $(NDNA_EXTLIBDIR)/%/.dir,%,$@)"
-	@tar -xzf $^ -C $(NDNA_EXTLIBDIR) && touch $@
+$(ABSWS_NDNA_EXTLIBDIR)/%/.dir: $(ABS_CACHE)/noarch/%.tar.gz
+	@$(ABS_PRINT_info) "Unpacking data file set : $*"
+	@tar -xzf $^ -C $(ABSWS_NDNA_EXTLIBDIR) && touch $@
+	
+$(NA_EXTLIBDIR)/%/.dir: $(ABSWS_NA_EXTLIBDIR)/%/.dir
+	$(call extlib_linkLibrary)
+
+$(NDNA_EXTLIBDIR)/%/.dir: $(ABSWS_NDNA_EXTLIBDIR)/%/.dir
+	$(call extlib_linkLibrary)
 
 TRANSUSELIB:=$(USELIB)
 DEV_USELIB:=$(filter-out $(DEV_USELIB_IGNORE),$(filter %d,$(USELIB)))
@@ -251,6 +283,6 @@ checkdep: $(BUILDROOT)/$(APPNAME)_deps.dot
 	@xdot $^.png 2>/dev/null || eog $^.png 2>/dev/null || xdg-open $^.png 2>/dev/null || $(ABS_PRINT_error) "No image viewer found (expected one of: xdot, eog, xdg-open)"
 else
 checkdep:
-	@$(ABS_PRINT_info) "No dependancies set in USELIB project parameter."
+	@$(ABS_PRINT_info) "No dependencies set in USELIB project parameter."
 endif
 endif
