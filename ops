@@ -1,1 +1,1 @@
-{"version":1,"ops":[{"type":1,"author":{"id":"ac09cc0780069236d0133aeafd380aa9e823e18c"},"timestamp":1589846047,"title":"Local extlib directory contains all the imported libraries. It should only contains the dependencies of the current project","message":"","files":null}]}
+{"version":1,"ops":[{"type":4,"author":{"id":"ac09cc0780069236d0133aeafd380aa9e823e18c"},"timestamp":1589846231,"status":2}]}
