@@ -371,9 +371,7 @@ select="substring-after($text,$from)"/>
 <!-- ************************************************************************
     Cross reference
 -->
-<xsl:template match="xref">
-\ref{<xsl:value-of select="."/>}
-</xsl:template>
+<xsl:template match="xref">\ref{<xsl:value-of select="."/>}</xsl:template>
 <!-- ************************************************************************
     Main
 -->
