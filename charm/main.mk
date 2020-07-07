@@ -38,10 +38,10 @@ SRCINDEXHTML:=$(word 1,$(wildcard $(CRSRCDIR)/index.html) $(ABSROOT)/charm/index
 SRCCSS:=$(word 1,$(wildcard $(CRSRCDIR)/style.css) $(ABSROOT)/charm/style.css)
 
 
-WXDB:=wxdb-0.1.0d
-WXDBDOM=net.eduvax
-NDUSELIB+=$(WXDB)
-WXDBJAR:=$(NDEXTLIBDIR)/$(WXDB)/lib/$(WXDBDOM).$(WXDB).jar
+#WXDB:=wxdb-0.1.0d
+#WXDBDOM=net.eduvax
+#NDUSELIB+=$(WXDB)
+#WXDBJAR:=$(NDEXTLIBDIR)/$(WXDB)/lib/$(WXDBDOM).$(WXDB).jar
 
 
 include $(CRWORKDIR)/vars.mk
@@ -82,8 +82,22 @@ crnew: $(CRSRCDIR)/$(CR_BRANCH_TRACKING).cr
 	@sed -i 's/CRID:=.*$$/CRID:=$(CRID)/g' $(CRWORKDIR)/vars.mk
 
 ##   - cred: edit selected change request
-cred:
-	$(CREDITOR) $(CRSRCDIR)/$(CRID).cr
+ifeq ($(word 1,$(MAKECMDGOALS)),cred)
+JAVACMD?=java
+HEMLVERSION?=1.0.2
+HEMLJAR?=$(NDNA_EXTLIBDIR)/heml-$(HEMLVERSION).jar
+HEMLCMD?=$(JAVACMD) -jar $(call absGetPath,$(HEMLJAR))
+ifneq ($(word 2,$(MAKECMDGOALS)),)
+CRID:=$(patsubst $(CRSRCDIR)/%.cr,%,$(wildcard $(CRSRCDIR)/$(word 2,$(MAKECMDGOALS))*.cr))
+
+$(word 2,$(MAKECMDGOALS)):
+
+endif
+endif
+cred: $(HEMLJAR)
+	@xsltproc --path $(CRSRCDIR) $(ABSROOT)/charm/edit-heml.xslt $(CRSRCDIR)/$(CRID).cr > $(CRWORKDIR)/edit.heml
+	@$(CREDITOR) $(CRWORKDIR)/edit.heml && \
+	$(HEMLCMD) -in $(CRWORKDIR)/edit.heml -out $(CRSRCDIR)/$(CRID).cr
 
 ##   - crls: list change requests (current branch only)
 crls:
@@ -100,6 +114,14 @@ $(word 2,$(MAKECMDGOALS)):
 endif
 
 ##   - crcat: show selected cr
+ifeq ($(word 1,$(MAKECMDGOALS)),crcat)
+ifneq ($(word 2,$(MAKECMDGOALS)),)
+CRID:=$(patsubst $(CRSRCDIR)/%.cr,%,$(wildcard $(CRSRCDIR)/$(word 2,$(MAKECMDGOALS))*.cr))
+
+$(word 2,$(MAKECMDGOALS)):
+
+endif
+endif
 crcat:
 	@xsltproc --path $(CRSRCDIR) $(ABSROOT)/charm/cat-txt.xslt $(CRSRCDIR)/$(CRID).cr
 

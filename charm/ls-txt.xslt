@@ -10,7 +10,7 @@
 </xsl:template>
 
 <xsl:template match="link">
-  <xsl:param name="src"><xsl:value-of select="."/>.cr</xsl:param>
+  <xsl:param name="src"><xsl:value-of select="normalize-space(.)"/>.cr</xsl:param>
   <xsl:apply-templates select="document($src)/cr"/>
 </xsl:template>
 </xsl:stylesheet>

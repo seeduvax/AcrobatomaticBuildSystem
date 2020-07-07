@@ -17,7 +17,8 @@ Reporter: <xsl:value-of select="reporter"/>
 </xsl:template>
 
 <xsl:template match="link"
-><xsl:param name="src"><xsl:value-of select="."/>.cr</xsl:param
-> - <xsl:value-of select="@name"/>: <xsl:value-of select="substring(.,1,7)"/><xsl:text>  </xsl:text><xsl:value-of select="document($src)/cr/title"/>
+><xsl:param name="src"><xsl:value-of select="normalize-space(.)"/>.cr</xsl:param
+> - <xsl:value-of select="@name"/>: <xsl:value-of select="substring(normalize-space(.),1,7)"/><xsl:text>  </xsl:text><xsl:value-of select="document($src)/cr/title"/><xsl:text>
+</xsl:text>
 </xsl:template>
 </xsl:stylesheet>
