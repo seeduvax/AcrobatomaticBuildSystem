@@ -3,7 +3,7 @@
 ## --------------------------------------------------------------------
 
 ABS_SCM_TYPE:=git
-ABS_GIT_DESCR:=$(shell git describe --tags)
+ABS_GIT_DESCR:=$(shell git describe --tags 2>/dev/null)
 REVISION:=$(subst $(APPNAME)-%,%,$(shell git describe --tags))
 GIT_REPOSITORY?=origin
 
