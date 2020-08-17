@@ -1,8 +1,8 @@
-PRJROOT:=$(CURDIR)
-ABSROOT=$(CURDIR)
 include app.cfg
 ifeq ($(MAKECMDGOALS),dist)
 # overloading dist
+PRJROOT:=$(CURDIR)
+ABSROOT=$(CURDIR)
 include core/common.mk
 ifeq ($(WORKSPACE_IS_TAG),0)
 VERSION:=$(VERSION)d
@@ -22,5 +22,5 @@ dist: $(DISTPACKAGES)
 $(PREFIX)/noarch/abs.%: dist/abs.%
 	cp $^ $@
 else
-include core/main.mk
+include $(PRJROOT)/core/bootstrap.mk
 endif

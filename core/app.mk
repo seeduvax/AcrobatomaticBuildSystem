@@ -76,11 +76,6 @@ DOLLAR=$$
 all: $(MODULES)
 
 
-# importing external libraries is not useful when cleaning
-ifeq ($(filter clean,$(MAKECMDGOALS)),)
-# include extern libraries management rules
-include $(ABSROOT)/core/module-extlib.mk
-endif
 
 ##  - test: builds modules, tests and launch tests.
 test: $(MODULES_TEST)

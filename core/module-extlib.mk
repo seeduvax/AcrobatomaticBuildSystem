@@ -12,8 +12,8 @@ ABSWS_NDEXTLIBDIR=$(ABSWS_EXTLIBDIR).nodist
 ABSWS_NDNA_EXTLIBDIR=$(ABSWS_NA_EXTLIBDIR).nodist
 
 ifeq ($(TRDIR),$(BUILDROOT)/$(ARCH)/$(MODE))
-EXTLIBDIR?=$(BUILDROOT)/extlib/$(ARCH)
-NA_EXTLIBDIR?=$(BUILDROOT)/extlib/noarch
+EXTLIBDIR?=$(ABSWS_EXTLIBDIR)
+NA_EXTLIBDIR?=$(ABSWS_NA_EXTLIBDIR)/extlib/noarch
 else
 EXTLIBDIR?=$(TRDIR)/extlib
 NA_EXTLIBDIR?=$(TRDIR)/extlib
@@ -110,7 +110,7 @@ $(NA_EXTLIBDIR)/%.jar: $(ABS_CACHE)/noarch/%.jar
 	@ln -sf $^ $@
 
 $(NDNA_EXTLIBDIR)/%.jar: $(ABS_CACHE)/noarch/%.jar
-	@mkdir -p $(@D)
+	mkdir -p $(@D)
 	@ln -sf $^ $@
 
 # --------------------------------------------------------------------

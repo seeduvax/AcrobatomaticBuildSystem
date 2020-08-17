@@ -1,9 +1,12 @@
+VABS:=99.99.99
+PRJDIR=$(shell pwd)
+ABSWS:=$(PRJDIR)/../.absws
+_FAKE_ABS_DOWNLOAD:=$(shell mkdir -p $(ABSWS); test -d $(ABSWS)/abs-$(VABS) || ln -sf ../../ $(ABSWS)/abs-$(VABS))
 include ../../core/common.mk
 include extlib.cfg
 
 LICENSEFILE?=none
 
-PRJDIR=$(shell pwd)
 BUILDDIR=$(PRJDIR)/../../build
 SRCDIR=$(BUILDDIR)/$(PRODUCT)-$(VERSION)
 INSTDIR=$(SRCDIR)/b/$(PRODUCT)-$(VERSION)$(VPATCH)

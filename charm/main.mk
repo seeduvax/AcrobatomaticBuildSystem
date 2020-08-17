@@ -110,6 +110,7 @@ crsel:
 	@sed -i 's/CRID:=.*$$/CRID:=$(CRID)/g' $(CRWORKDIR)/vars.mk
 
 $(word 2,$(MAKECMDGOALS)):
+	@:
 
 endif
 

@@ -147,9 +147,6 @@ ifneq ($(INCTESTS),)
 NDUSELIB+=$(TUSELIB)
 endif
 
-# include extern libraries management rules
-include $(ABSROOT)/core/module-extlib.mk
-
 # -------------------------------------------------
 # module type adaptation
 # -------------------------------------------------
