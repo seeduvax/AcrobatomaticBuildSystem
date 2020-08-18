@@ -11,12 +11,6 @@ jobs:
       - name: build abs package
         run: |
           make dist
-          export SSH_AUTH_SOCK=/tmp/ssh_agent.sock
-          mkdir -p ~/.ssh
-          ssh-agent -a $SSH_AUTH_SOCK > /dev/null
-          ssh-add - <<< "${{ secrets.SSH_PRIVATE_KEY }}"
-          echo "${{ secrets.MONETA_PUB_KEY }}" > ~/.ssh/known_hosts
-          ssh -p 17022 github@moneta.eduvax.net ls /home/httpd/www.eduvax.net/www/dist
           
       - uses: actions/upload-artifact@v2
         with:
