@@ -18,4 +18,4 @@ jobs:
           ssh-agent -a $SSH_AUTH_SOCK > /dev/null
           ssh-add - <<< "${{ secrets.SSH_PRIVATE_KEY }}"
           echo "${{ secrets.MONETA_PUB_KEY }}" > ~/.ssh/known_hosts
-          scp dist/abs-*.tar.gz github@moneta.eduvax.net:~
+          scp -p 17022 dist/abs-*.tar.gz github@moneta.eduvax.net:~
