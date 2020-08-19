@@ -4,7 +4,7 @@
 
 ABS_SCM_TYPE:=git
 ABS_GIT_DESCR:=$(shell git describe --tags 2>/dev/null)
-REVISION:=$(subst $(APPNAME)-%,%,$(shell git describe --tags))
+REVISION:=$(subst $(APPNAME)-%,%,$(shell git describe --tags 2>/dev/null))
 GIT_REPOSITORY?=origin
 
 ifeq ($(ABS_GIT_DESCR),$(APPNAME)-$(VERSION))
