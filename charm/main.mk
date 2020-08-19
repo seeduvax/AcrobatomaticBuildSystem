@@ -103,14 +103,25 @@ cred: $(HEMLJAR)
 crls:
 	@xsltproc --path $(CRSRCDIR) $(ABSROOT)/charm/ls-txt.xslt $(CRSRCDIR)/$(CR_BRANCH_TRACKING).cr
 
-##   - crsel: <CR Id> select change request
+##   - crsel [<CR Id prefix>]
+##     - without arg, show the short description of the currently selected 
+##       change request
+##     - with arg, selects the change requests found according the CR Id prefix
+##       given as argument.
 ifeq ($(word 1,$(MAKECMDGOALS)),crsel)
+CRSEL_ARG:=$(word 2,$(MAKECMDGOALS))
+ifeq ($(CRSEL_ARG),)
+# without arg show short description of current selection
+crsel:
+	@xsltproc --path $(CRSRCDIR) $(ABSROOT)/charm/cat-desc.xslt $(CRSRCDIR)/$(CRID).cr
+else
 CRID:=$(patsubst $(CRSRCDIR)/%.cr,%,$(wildcard $(CRSRCDIR)/$(word 2,$(MAKECMDGOALS))*.cr))
 crsel:
 	@sed -i 's/CRID:=.*$$/CRID:=$(CRID)/g' $(CRWORKDIR)/vars.mk
 
-$(word 2,$(MAKECMDGOALS)):
-	@:
+$(CRSEL_ARG):
+	@xsltproc --path $(CRSRCDIR) $(ABSROOT)/charm/cat-desc.xslt $(CRSRCDIR)/$(CRID).cr
+endif
 
 endif
 
