@@ -3,17 +3,15 @@
 ## --------------------------------------------------------------------
 
 ABS_SCM_TYPE:=git
-ABS_GIT_DESCR:=$(shell git describe --tags 2>/dev/null)
-REVISION:=$(subst $(APPNAME)-%,%,$(shell git describe --tags 2>/dev/null))
+ABS_GIT_DESCR:=$(shell git describe --always --dirty)
+REVISION:=$(ABS_GIT_DESCR)
 GIT_REPOSITORY?=origin
 
 ifeq ($(ABS_GIT_DESCR),$(APPNAME)-$(VERSION))
 WORKSPACE_IS_TAG:=1
+REVISION:=$(REVISION)-$(shell git rev-parse --short $(ABS_GIT_DESCR))
 else
 WORKSPACE_IS_TAG:=0
- ifneq ($(shell LANG=C git status | grep -c modified),0)
-REVISION:=$(REVISION)M
- endif
 endif
 
 define abs_scm_tag
