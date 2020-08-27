@@ -10,7 +10,7 @@
 Creation: <xsl:value-of select="creation"/>
 Reporter: <xsl:value-of select="reporter"/>
 -------------------------------------------------------------------------------
-<xsl:value-of select="description"/>
+<xsl:apply-templates select="description"/>
 -------------------------------------------------------------------------------
 <xsl:apply-templates select="links/link"/>
 -------------------------------------------------------------------------------
@@ -20,5 +20,9 @@ Reporter: <xsl:value-of select="reporter"/>
 ><xsl:param name="src"><xsl:value-of select="normalize-space(.)"/>.cr</xsl:param
 > - <xsl:value-of select="@name"/>: <xsl:value-of select="substring(normalize-space(.),1,7)"/><xsl:text>  </xsl:text><xsl:value-of select="document($src)/cr/title"/><xsl:text>
 </xsl:text>
+</xsl:template>
+
+<xsl:template match="li"
+>- <xsl:apply-templates/>
 </xsl:template>
 </xsl:stylesheet>
