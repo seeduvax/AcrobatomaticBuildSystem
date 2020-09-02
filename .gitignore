@@ -1,5 +1,7 @@
 .cproject
 .project
+.absws
 .settings/
 /dist/
 /build/
+local.cfg

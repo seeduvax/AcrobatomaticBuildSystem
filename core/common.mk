@@ -126,11 +126,8 @@ VMEDIUM:=$(word 2,$(VERSION_FIELDS))
 VMINOR:=$(word 3,$(VERSION_FIELDS))
 VSUFFIX:=$(patsubst %,.%,$(word 4,$(VERSION_FIELDS)))
 
-# importing external libraries is not useful when cleaning
-ifeq ($(filter clean,$(MAKECMDGOALS)),)
 # include extern libraries management rules
 include $(ABSROOT)/core/module-extlib.mk
-endif
 
 BROWSER:=$(word 1,$(shell which chromium firefox chrome edge safari iexplorer))
 ifneq ($(wildcard $(PRJROOT)/_charm),)

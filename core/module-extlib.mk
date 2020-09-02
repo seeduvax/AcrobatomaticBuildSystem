@@ -3,8 +3,9 @@
 ## Dependencies management
 ## ------------------------------------------------------------------------
 
-ifeq ($(filter clean%,$(MAKECMDGOALS)),)
-# do not process ext libs if target is clean...
+ifeq ($(filter clean% docker%,$(MAKECMDGOALS)),)
+# do not process ext libs if target is clean or docker..
+# the extlibs will be retrieved inside the container
 
 ABSWS_EXTLIBDIR=$(ABSWS)/extlib/$(ARCH)
 ABSWS_NA_EXTLIBDIR=$(ABSWS)/extlib/noarch
