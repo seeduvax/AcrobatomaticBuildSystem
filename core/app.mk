@@ -11,11 +11,6 @@ export ABS_FROMAPP
 
 include $(ABSROOT)/core/common.mk
 
-# re-include in case that common variables are used in this cfg.
-include $(PRJROOT)/app.cfg
--include $(ABSWS)/local.cfg
--include $(PRJROOT)/local.cfg
-
 JENKINS_USER?=jenkins
 DISTUSER?=$(USER)
 DISTHOST?=$(DISTUSER)@moneta.eduvax.net
@@ -24,8 +19,6 @@ DISTREPO?=$(DISTHOST):/home/httpd/www.eduvax.net/www/dist
 MAXJOBS:=$(shell getconf _NPROCESSORS_ONLN)
 ## - MMARGS: extra make arguments to forward to modules sub-make.
 MMARGS?=-j$(MAXJOBS)
-
-
 
 ifeq ($(ABS_SCM_TYPE),null)
 VERSION:=$(VERSION)e

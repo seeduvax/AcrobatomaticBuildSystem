@@ -15,8 +15,6 @@ ifeq ($(PRJROOT),)
 	PRJROOT:=$(shell dirname $(MODROOT))
 endif
 
-include $(ABSROOT)/core/common.mk
-
 # remove some default macros
 CC=
 CPPC=
@@ -41,15 +39,10 @@ LUA_MDL_ENABLE:=
 LUA_MDL_TYPES_FILE:=
 LUA_MDL_MODEL_HEADERS:=
 
-# include application global parameters
-include $(PRJROOT)/app.cfg
+include $(ABSROOT)/core/common.mk
 
 # include module specific parameters
 include $(MODROOT)/module.cfg
-
-# include workspace local parameters if any
--include $(ABSWS)/local.cfg
--include $(PRJROOT)/local.cfg
 -include $(CURDIR)/local.cfg
 
 ifeq ($(REVISION),)
@@ -84,8 +77,6 @@ else
 define executeFiltering
 endef
 endif
-
-
 
 ## 
 ## Common make targets:
@@ -129,8 +120,6 @@ testbuild:: all
 .PHONY: check
 check:: test
 
-
-
 # this target must not defined a rule to avoid issues during parallel builds.
 all-impl::
 
@@ -139,14 +128,6 @@ all-impl::
 # ---------------------------------------------------------------------
 # object files go in a subdirectory of build dir dedicated to the module
 OBJDIR?=$(TRDIR)/obj/$(MODNAME)
-# external libraries local repository
-INCTESTS:=$(filter test %test check %check testbuild help coverage,$(MAKECMDGOALS))
-
-ifneq ($(INCTESTS),)
-# The TUSELIB are libraries not needed for the main build but needed for the tests.
-NDUSELIB+=$(TUSELIB)
-endif
-
 # -------------------------------------------------
 # module type adaptation
 # -------------------------------------------------

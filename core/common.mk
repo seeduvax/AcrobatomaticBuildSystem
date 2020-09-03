@@ -126,6 +126,21 @@ VMEDIUM:=$(word 2,$(VERSION_FIELDS))
 VMINOR:=$(word 3,$(VERSION_FIELDS))
 VSUFFIX:=$(patsubst %,.%,$(word 4,$(VERSION_FIELDS)))
 
+# include application global parameters
+# re-include in case that common variables are used in this cfg.
+include $(PRJROOT)/app.cfg
+
+-include $(ABSWS)/local.cfg
+-include $(PRJROOT)/local.cfg
+
+# external libraries local repository
+INCTESTS:=$(filter test %test check %check testbuild help coverage,$(MAKECMDGOALS))
+
+ifneq ($(INCTESTS),)
+# The TUSELIB are libraries not needed for the main build but needed for the tests.
+NDUSELIB+=$(TUSELIB)
+endif
+
 # include extern libraries management rules
 include $(ABSROOT)/core/module-extlib.mk
 
