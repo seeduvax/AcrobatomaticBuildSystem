@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><cr id="041a9720f6bdde1560433251abeaa78e86e4a13403ba10bd3fb8799cc3e6ba49" state="open">
+<?xml version="1.0" encoding="UTF-8"?><cr id="041a9720f6bdde1560433251abeaa78e86e4a13403ba10bd3fb8799cc3e6ba49" state="closed">
     <title>Conditionnal USELIB using variable in common.mk not taken in account in good way</title>
     <reporter>fred</reporter>
     <creation>2020-09-03 05:20:09+00:00</creation>
