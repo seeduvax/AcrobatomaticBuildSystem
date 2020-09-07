@@ -3,7 +3,7 @@
 ## Dependencies management
 ## ------------------------------------------------------------------------
 
-ifeq ($(filter clean% docker%,$(MAKECMDGOALS)),)
+ifeq ($(filter clean% docker% tag,$(MAKECMDGOALS)),)
 # do not process ext libs if target is clean or docker..
 # the extlibs will be retrieved inside the container
 
