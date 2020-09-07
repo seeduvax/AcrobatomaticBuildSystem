@@ -231,17 +231,16 @@ $(info $(shell $(ABS_PRINT_error) "=============================================
 $(info $(shell $(ABS_PRINT_error) "                     ERROR"))
 $(info $(shell $(ABS_PRINT_error) "Same lib used with different version, check USELIB definitions."))
 $(info $(shell $(ABS_PRINT_error) "USELIB is: $(USELIB)"))
-$(info $(shell $(ABS_PRINT_error) "Launch 'make checkdep' to see dep graph."))
+$(info $(shell $(ABS_PRINT_error) "Launch 'make checkdep' to see dependency graph."))
 $(info $(shell $(ABS_PRINT_error) "================================================================"))
 ABS_FATAL:=true
 else
-all-impl::
-	@$(ABS_PRINT_warning) "================================================================"
-	@$(ABS_PRINT_warning) "                           WARNING"
-	@$(ABS_PRINT_warning) "Same lib used with different version, check USELIB definitions."	
-	@$(ABS_PRINT_warning) "USELIB is: $(USELIB)"
-	@$(ABS_PRINT_warning) "Launch 'make checkdep' to see depenedency graph."
-	@$(ABS_PRINT_warning) "================================================================"
+$(info $(shell $(ABS_PRINT_warning) "================================================================"))
+$(info $(shell $(ABS_PRINT_warning) "                           WARNING"))
+$(info $(shell $(ABS_PRINT_warning) "Same lib used with different version, check USELIB definitions."))
+$(info $(shell $(ABS_PRINT_warning) "USELIB is: $(USELIB)"))
+$(info $(shell $(ABS_PRINT_warning) "Launch 'make checkdep' to see dependency graph."))
+$(info $(shell $(ABS_PRINT_warning) "================================================================"))
 endif
 endif
 
@@ -255,13 +254,12 @@ $(info $(shell $(ABS_PRINT_error) "Launch 'make checkdep' to see the full depend
 $(info $(shell $(ABS_PRINT_error) "================================================================"))
 ABS_FATAL:=true
 else
-all-impl::
-	@$(ABS_PRINT_warning) "================================================================"
-	@$(ABS_PRINT_warning) "                           WARNING"
-	@$(ABS_PRINT_warning) "Dependencies include non tagged libraries."	
-	@$(ABS_PRINT_warning) "$(DEV_USELIB)"
-	@$(ABS_PRINT_warning) "Launch 'make checkdep' to see the full dependency graph."
-	@$(ABS_PRINT_warning) "================================================================"
+$(info $(shell $(ABS_PRINT_warning) "================================================================"))
+$(info $(shell $(ABS_PRINT_warning) "                           WARNING"))
+$(info $(shell $(ABS_PRINT_warning) "Dependencies include non tagged libraries."))
+$(info $(shell $(ABS_PRINT_warning) "$(DEV_USELIB)"))
+$(info $(shell $(ABS_PRINT_warning) "Launch 'make checkdep' to see the full dependency graph."))
+$(info $(shell $(ABS_PRINT_warning) "================================================================"))
 endif
 endif
 endif
