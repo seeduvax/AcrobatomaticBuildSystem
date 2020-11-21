@@ -13,3 +13,4 @@ endif
 ifneq ($(ABS_FATAL),)
 $(error ABS aborting on fatal error)
 endif
+$(eval $(abs_post_definitions))
