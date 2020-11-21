@@ -59,6 +59,7 @@ endif
 DOCBOOKS:=$(patsubst src/%.heml,$(DBDIR)/%.xml,$(HEMLS))
 HTMLS:=$(patsubst src/%.heml,$(HTMLDIR)/%.html,$(HEMLS)) $(HTMLDIR)/style.css
 IMGS:=$(patsubst src/%,$(HTMLDIR)/%,$(filter %.jpg %.png,$(SRCFILES))) $(patsubst src/%.dia,$(HTMLDIR)/%.png,$(filter %.dia,$(SRCFILES)))
+CSS:=$(patsubst src/%,$(HTMLDIR)/%,$(filter %.css,$(SRCFILES)))
 IMGSUML:=$(patsubst src/%.heml,$(OBJDIR)/%.pumlgenerated,$(HEMLS))
 ## XSL Stylesheets definition:
 ##   - HEMLTOTEX_STYLE: tex (pdf)
@@ -72,7 +73,7 @@ HEMLTOXML_STYLE?=$(DOCROOT)/docbook/style.docbook.xsl $(HEMLTOXML_FLAGS)
 ## 
 ##  - all: for documentation module, the default target builds html, pdf
 ##      from heml files, and doxygen reference.
-all-impl:: $(HTMLS) $(PDFS) $(IMGS) $(IMGSUML)
+all-impl:: $(HTMLS) $(PDFS) $(IMGS) $(IMGSUML) $(CSS)
 
 .PRECIOUS: $(HEMLJAR) $(PUMLJAR) $(patsubst $(NDNA_EXTLIBDIR)/%,$(ABS_CACHE)/noarch/%,$(HEMLJAR) $(PUMLJAR)) $(IMGS) $(TEXDIR)/%.tex $(OBJDIR)/%.pumlgenerated
 
@@ -174,7 +175,7 @@ else
 endif
 
 ##  - html: generates html files and companion images from heml files.
-html: $(HTMLS) $(IMGS) $(IMGSUML)
+html: $(HTMLS) $(IMGS) $(IMGSUML) $(CSS)
 
 ##  - pdf: generates pdf files and companion images from heml files. pdf 
 ##    generation is available only from host having a latex package including
