@@ -105,6 +105,12 @@ TRDIR?=$(BUILDROOT)/$(ARCH)/$(MODE)
 TTARGETDIR?=$(TRDIR)/test
 VERSION_OVERLOADED:=$(filter VERSION=%,$(MAKEOVERRIDES))
 
+VERSION_FIELDS:=$(subst ., ,$(VERSION))
+VMAJOR:=$(word 1,$(VERSION_FIELDS))
+VMEDIUM:=$(word 2,$(VERSION_FIELDS))
+VMINOR:=$(word 3,$(VERSION_FIELDS))
+VSUFFIX:=$(patsubst %,.%,$(word 4,$(VERSION_FIELDS)))
+
 ABS_SCM_TYPE:=null
 ifneq ($(wildcard $(PRJROOT)/.git),)
 ABS_SCM_TYPE:=git
@@ -119,12 +125,6 @@ WORKSPACE_IS_TAG:=1
 endif
 
 KVERSION?=$(shell uname -r)
-
-VERSION_FIELDS:=$(subst ., ,$(VERSION))
-VMAJOR:=$(word 1,$(VERSION_FIELDS))
-VMEDIUM:=$(word 2,$(VERSION_FIELDS))
-VMINOR:=$(word 3,$(VERSION_FIELDS))
-VSUFFIX:=$(patsubst %,.%,$(word 4,$(VERSION_FIELDS)))
 
 # include application global parameters
 # re-include in case that common variables are used in this cfg.

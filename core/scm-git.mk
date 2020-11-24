@@ -7,7 +7,7 @@ ABS_GIT_DESCR:=$(shell git describe --always --dirty)
 REVISION:=$(ABS_GIT_DESCR)
 GIT_REPOSITORY?=origin
 
-ifeq ($(ABS_GIT_DESCR),$(APPNAME)-$(VERSION))
+ifeq ($(ABS_GIT_DESCR),$(APPNAME)-$(VMAJOR).$(VMEDIUM).$(VMINOR))
 WORKSPACE_IS_TAG:=1
 REVISION:=$(REVISION)-$(shell git rev-parse --short $(ABS_GIT_DESCR))
 else
