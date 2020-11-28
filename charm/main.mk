@@ -113,7 +113,7 @@ CRSEL_ARG:=$(word 2,$(MAKECMDGOALS))
 ifeq ($(CRSEL_ARG),)
 # without arg show short description of current selection
 crsel:
-	@xsltproc --path $(CRSRCDIR) $(ABSROOT)/charm/cat-desc.xslt $(CRSRCDIR)/$(CRID).cr
+	@test -r $(CRSRCDIR)/$(CRID).cr && xsltproc --path $(CRSRCDIR) $(ABSROOT)/charm/cat-desc.xslt $(CRSRCDIR)/$(CRID).cr || :
 else
 CRID:=$(patsubst $(CRSRCDIR)/%.cr,%,$(wildcard $(CRSRCDIR)/$(word 2,$(MAKECMDGOALS))*.cr))
 crsel:
@@ -164,5 +164,37 @@ crbro: $(CRWORKDIR)/www/index.html
 crbrowse: crbro
 
 
+##   - crresolve: set cr state to resolved
+ifeq ($(word 1,$(MAKECMDGOALS)),crresolve)
+ifneq ($(word 2,$(MAKECMDGOALS)),)
+CRID:=$(patsubst $(CRSRCDIR)/%.cr,%,$(wildcard $(CRSRCDIR)/$(word 2,$(MAKECMDGOALS))*.cr))
+
+$(word 2,$(MAKECMDGOALS)):
+	@:
+
+endif
+endif
+crresolve:
+	@echo "Setting $(CRID) to resolved state..."
+	@sed -i 's!state="[a-zA-Z]*"!state="resolved"!g' $(CRSRCDIR)/$(CRID).cr
+
+##   - crclose: set cr state to closed
+ifeq ($(word 1,$(MAKECMDGOALS)),crclose)
+TAG_VERSION:=$(patsubst %d,%,$(VERSION))
+TAG_VERSION?=$(VERSION)
+ifneq ($(word 2,$(MAKECMDGOALS)),)
+CRID:=$(patsubst $(CRSRCDIR)/%.cr,%,$(wildcard $(CRSRCDIR)/$(word 2,$(MAKECMDGOALS))*.cr))
+
+$(word 2,$(MAKECMDGOALS)):
+	@:
+
+endif
+endif
+crclose:
+	@echo "Setting $(CRID) to closed state..."
+	@sed -i 's!state="[a-zA-Z]*"!state="closed" delivered="$(APPNAME)-$(TAG_VERSION)"!g' $(CRSRCDIR)/$(CRID).cr
+
+crCloseResolved:
+	@for cr in `make crls | fgrep "[resolved]" | cut -f 1 -d ' '`; do make crclose $$cr; done
 endif
 endif
