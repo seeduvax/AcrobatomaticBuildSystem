@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<cr id="824a47de2cea4762b7d6d79c25d3a335e27690e720413f717c206d00b46cd27b" state="working">
+<cr id="824a47de2cea4762b7d6d79c25d3a335e27690e720413f717c206d00b46cd27b" state="closed" delivered="abs-3.1.7">
 <title>Update HEML version</title>
 <reporter>sdevaux</reporter>
 <creation>2020-11-28 17:23:44+01:00</creation>
