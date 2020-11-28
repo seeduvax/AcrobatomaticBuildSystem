@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<cr id="abd603d1d03bcf5d38601b1e4c51f25b483e42d69f8b2f652b8c7be3f85b6fe4" state="working">
+<cr id="abd603d1d03bcf5d38601b1e4c51f25b483e42d69f8b2f652b8c7be3f85b6fe4" state="closed" delivered="abs-3.1.7">
 <title>enable adding rules at the end.</title>
 <reporter>sdevaux</reporter>
 <creation>2020-11-21 17:34:21+01:00</creation>

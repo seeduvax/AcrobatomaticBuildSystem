@@ -7,6 +7,7 @@
   {abstract ABS release note. Acrobatomatic Build System is a generic software project build tool. It is first based on make files a few shell script helpers. Any project following the proposed default directory layout should be compatible with ABS.}
   {keywords release, configuration, version, ABS, buildscripts, make, executable generation}
   {history
+    {edition %version=2 %date=2020-11-28 %%Release abs-3.1}
     {edition %version=1 %date=2020-03-03 %%Release abs-3.0}
     {edition %%For ArianeGroup users, some preliminary ABS releases were configuration managed and released integrated with the first internal project using it. The internal document reference was RD_TEA332-1618}
   }
@@ -14,11 +15,11 @@
   {table
 {?table %fields=th,td
 Product name % Acrobatomatic Build System (ABS)
-Version % abs-3.0
-Parent version % abs-2.2
+Version % abs-3.1
+Parent version % abs-3.0
 repository URL % https://github.com/seeduvax/AcrobatomaticBuildSystem.git
-Tag % abs-3.0.25
-Tracking Issue % 8b4d566
+Tag % abs-3.1.6
+Tracking Issue % b895f70
 }
   }
 }
@@ -44,7 +45,7 @@ Tracking Issue % 8b4d566
  }
 {?table
 Software Definition File % 170983b % 4, 2019-06-13 % Acrobatomatic Build System - generic make files and companion scripts
-Software Test Report % RD_TEA332-2599 % 1, 2019-06-13 % ABS 2.2 test report
+Software Test Report %  % 1, 2020 % 
 Software Executable Generation Procedure % % % See dedicated section in this document
 Software Installation Procedure % % % See dedicated section in this document
 Software Release Document % % % This document
@@ -104,65 +105,23 @@ About the use of GPL licensed products: ABS does not link itself with any produc
  {th Id}{th State}{th Summary}
 }
 {?table
-00f2b2b % [closed] % Add git support
-844f0b7 % [closed] % Import doc module
-170983b % [closed] % ABS design and user manual
-cb844d9 % [closed] % ABS training slides
-fde8c48 % [closed] % Pretty impress support
-dcfa3de % [closed] % native code coverage
-0a1c375 % [closed] % docker.* targets to perform build from a docker image
-ad288cc % [closed] % Regression on backslash handling in user name
-06b33f2 % [closed] % Change readonly permissions before cleaning ABS cache
-b4a7ea8 % [closed] % Test First Commit
-f3175eb % [closed] % Downloading a dependency fails when mixing file:// URLS
-c46dbae % [closed] % remove remaining reference and part feature related to klocwork
-a32e52c % [closed] % The LIGHT_INSTALLER variable exclude include directory from tar.gz files
-1c715ec % [closed] % Add a variable (NDUSELIB and TUSELIB) to import libraries that will not be deployed with the application
-b4d6742 % [closed] % Add the possibility to add additionnal args for the docker container
-34c7121 % [closed] % The tag not working when the root of repository doesn't contains tags directory, the tags directory is in a subdirectory
-9fb6b08 % [closed] % When executing some matlab function (for example make_rtw) during the compilation of a project, the docker container is exited!
-23c6163 % [closed] % Extract download part into a macro to permit the download of elements from others targets than $(ABS_CACHE)/%
-56edb0f % [closed] % Linux modules compilation fails when user id contains a '/' character
-9f82cb7 % [closed] % remove jenkins user reference for pubdist / pubinstall targets
-c19718a % [closed] % Add a variable to permit to fail a compilation on a pdf generation error
-fa09962 % [closed] % python module's unit test execution no longer works
-9de453f % [closed] % Set PATH env var for run and test target.
-03be2cd % [closed] % The documentation is not compiling anymore due to a suppression of the HEML variable in main.mk file in doc module
-2342515 % [closed] % Improve the installation to inform user of existing installation directory only if contains files.
-7af6667 % [closed] % Improve the installation script to deactivate the verbosity of files extraction.
-c96f36d % [closed] % add macro feature to expand installation path in some installed files
-a4c3d94 % [closed] % force recursive make of module dependencies to ensure up to date used modules.
-e3df8b4 % [closed] % Take into account the systemctl mechanism for drivers installation
-2a2e8c4 % [closed] % The extlib directory is included into the installation binary. It should not
-9431831 % [closed] % Remove X.Y version aliasing over X.Y.Z
-f1bfcab % [closed] % Remove the .abs from the install binary
-77681ce % [closed] % The branch target is not working
-659b621 % [closed] % Create the cross reference link for applicable documents
-5b150e4 % [closed] % Create a xsl template to format a text from a variable for tex compatibility
-c5c6beb % [closed] % distinstall proceeds even when extradist.sh fails
-a6dfdfb % [closed] % Include the src filename information in xsl process from documentation generation
-554bf37 % [closed] % checkdep target display indirect depedencies as direct
-11f8268 % [closed] % Add custom docker command + parse MAKEARGS within inner make command
-8c83fe0 % [closed] % Remove the table without captions from the table numbering.
-759135b % [closed] % compiler option -O3 set in release mode should be overloadable
-5a089dd % [closed] % Enable use of requirement reference in every kind of section.
-ded2e0f % [closed] % fix pyrun target for python modules
-e1d18d9 % [closed] % Restore configuration management indexing to support release note generation
-01d71eb % [closed] % Add short alias name for vinfo var when app name is module name
-1aeaf12 % [closed] % open	bad naming of new branch for a git workspace.
-?}
+708fe2c % [closed] % Hide git error message appearing when no tag has been set yet
+3ed84c7 % [working] % charm - change request management tools
+9cadd6d % [open] % User wide ABS configuration and workspace.
+fc01267 % [closed] % Do copy instead of symbolique link while installing drivers
+a1dbdc3 % [closed] % Local extlib directory contains all the imported libraries. It should only contains the dependencies of the current project
+9327a9d % [working] % Complete revision identification with dirty and better tag id
+ad2ad60 % [closed] % Prevent the extlibs module execution when make goal is docker
+041a972 % [closed] % Conditionnal USELIB using variable in common.mk not taken in account in good way
+f97fdbb % [closed] % The PDF are not generated when there is an issue with dependencies
+efeaa1a % [working] % [doc] css files shall be handled as image.
+abd603d % [working] % enable adding rules at the end.
+de95a54 % [working] % tag status incorrect when a suffix is added to VERSION
+}
 }
   }
   {section %title=Issues not fixed
-{table
-{tr
- {th Id}{th State}{th Summary}
-}
-{?table
-3ed84c7 % [open] % charm - change request management tools
-?}
-}
-This new feature is just started, and not yet ready for use. It is implemented as an additional module that is not yet built when packaging the distributable archives. The implementation will continue with next release and the new module will be inserted in build target when good enough for a preliminary use.
+No remaining open issuers.
   }
   {section %title=Known limitations
 None
@@ -208,6 +167,7 @@ ln -sf abs.core-X.Y.Z.tar.gz abs.core-X.Y.tar.gz!}
   {section %title=Detailed changes log
     {include %src=../build/scm/log.xml}
   }
+{#
   {section %title=Product Sources
 {table %type=wide
 {tr
@@ -216,5 +176,6 @@ ln -sf abs.core-X.Y.Z.tar.gz abs.core-X.Y.tar.gz!}
 {?table %src=../build/scm/file-list.txt}
 }
   }
+#}
 }
 }

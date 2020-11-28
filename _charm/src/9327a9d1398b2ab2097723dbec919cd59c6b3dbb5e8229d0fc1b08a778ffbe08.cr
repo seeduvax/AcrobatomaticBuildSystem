@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><cr id="9327a9d1398b2ab2097723dbec919cd59c6b3dbb5e8229d0fc1b08a778ffbe08" state="working">
+<?xml version="1.0" encoding="UTF-8"?><cr id="9327a9d1398b2ab2097723dbec919cd59c6b3dbb5e8229d0fc1b08a778ffbe08" state="closed" delivered="abs-3.1.7">
     <title>Complete revision identification with dirty and better tag id</title>
     <reporter>sdevaux</reporter>
     <creation>2020-08-27 16:41:07+02:00</creation>

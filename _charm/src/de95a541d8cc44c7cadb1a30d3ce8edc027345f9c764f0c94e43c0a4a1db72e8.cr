@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<cr id="de95a541d8cc44c7cadb1a30d3ce8edc027345f9c764f0c94e43c0a4a1db72e8" state="working">
+<cr id="de95a541d8cc44c7cadb1a30d3ce8edc027345f9c764f0c94e43c0a4a1db72e8" state="closed" delivered="abs-3.1.7">
 <title>tag status incorrect when a suffix is added to VERSION</title>
 <reporter>sdevaux</reporter>
 <creation>2020-11-24 11:38:05+01:00</creation>

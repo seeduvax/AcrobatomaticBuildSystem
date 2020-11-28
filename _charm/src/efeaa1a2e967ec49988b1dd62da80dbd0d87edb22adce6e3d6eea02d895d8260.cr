@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<cr id="efeaa1a2e967ec49988b1dd62da80dbd0d87edb22adce6e3d6eea02d895d8260" state="working">
+<cr id="efeaa1a2e967ec49988b1dd62da80dbd0d87edb22adce6e3d6eea02d895d8260" state="closed" delivered="abs-3.1.7">
 <title>[doc] css files shall be handled as image.</title>
 <reporter>sdevaux</reporter>
 <creation>2020-11-21 17:33:03+01:00</creation>
