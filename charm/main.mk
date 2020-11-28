@@ -84,7 +84,7 @@ crnew: $(CRSRCDIR)/$(CR_BRANCH_TRACKING).cr
 ##   - cred: edit selected change request
 ifeq ($(word 1,$(MAKECMDGOALS)),cred)
 JAVACMD?=java
-HEMLVERSION?=1.0.2
+HEMLVERSION?=1.0.3
 HEMLJAR?=$(NDNA_EXTLIBDIR)/heml-$(HEMLVERSION).jar
 HEMLCMD?=$(JAVACMD) -jar $(call absGetPath,$(HEMLJAR))
 ifneq ($(word 2,$(MAKECMDGOALS)),)
