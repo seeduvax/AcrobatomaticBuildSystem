@@ -1,4 +1,5 @@
 # Acrobatomatic Build System
+![logo](_doc/src/abslogo128.png "ABS logo")
 ---
 
 ## What
