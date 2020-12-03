@@ -1,13 +1,13 @@
 {?set %encoding=utf-8}
 {document 
-  {title ABS 3.0 test report}
-  {reference 99c28db}
+  {title ABS 3.1 test report}
+  {reference 4b0aade}
   {author %%Sébastien Devaux}
   {copyright %year=2020 %holder=Sébastien DEVAUX}
   {abstract Test report from the application of the validation plan as described in abs definition file (170983b, edition 1)}
   {keywords validation, report, abs, buidlscripts}
   {history
-    {edition %version=1 %date=2020-03-03 %%First issue of document}
+    {edition %version=1 %date=2020-11-30 %%First issue of document}
   }
   {section %title=References
     {references %title=Applicable documents %id=A
@@ -18,10 +18,12 @@
     }
   }
   {section %title=Validation context
-The validation was performed March 3rd 2020 according to the validation plan found in ABS definition file {xref ABSDef}.
+The validation was performed November 11th 2020 according to the validation plan found in ABS definition file {xref ABSDef}.
   - Operator: S. Devaux
-  - Means: Linux PC running Debian GNU/Linux 8
-  - Validated Software: abs-3.0.24
+  - Means: 
+     - Linux PC running Debian GNU/Linux 10
+     - Raspberry Pi 3B running Raspbian OS 9
+  - Validated Software: abs-3.1.7
   }
   {section %title=Test results
 {table 
