@@ -79,7 +79,6 @@ $(TARGETDIR)/$(MODNAME).Manifest: $(JCLASSES)
 	@$(ABS_PRINT_info) "Creating manifest file..."
 	@mkdir -p $(@D)
 	@echo "Main-Class: $(MAINCLASS)" > $@
-	@echo "Class-Path: $(patsubst %,%.jar,$(USEJAR)) ../res" >> $@
 	@echo "Implementation-Version: $(VERSION)-$(REVISION)" >> $@
 	@echo "Implementation-Vendor: $(COMPANY)" >> $@
 	@echo "Copyright: $(COPYRIGHT)" >> $@
@@ -88,6 +87,7 @@ $(TARGETDIR)/$(MODNAME).Manifest: $(JCLASSES)
 	@echo "Build-User: $(USER)" >> $@
 	@echo "Build-Option: $(MODE) $(DEFINES)" >> $@
 	@echo "Build-Id: $(BUILDNUM)" >> $@
+	@printf "Class-Path: $(patsubst %, %.jar\n,$(USEJAR))  ../res\n\n\n" >> $@
 
 # Jar archive
 $(TARGETFILE): $(TARGETDIR)/$(MODNAME).Manifest $(RESFILES)
