@@ -49,7 +49,7 @@ $(BUILDROOT)/scm/log.xml:
 	@mkdir -p $(@D)
 	@echo '<?xml version="1.0" encoding="utf-8"?>' > $@
 	@echo "<log>"  >> $@
-	@git log $(APPNAME)-$(VPARENT)..$(APPNAME)-$(VERSION) --pretty=format:'<logentry revision="%h"><author>%an</author><date>%ad</date><msg>%B</msg></logentry>' >> $@
+	@git log $(APPNAME)-$(VPARENT)..$(APPNAME)-$(VERSION) --pretty=format:'<logentry revision="%h"><author>%an</author><date>%ad</date><msg>%B</msg></logentry>' | sed -e 's/&/&amp;/g' >> $@
 	@echo "</log>" >> $@
 ## Targets:
 ## - scm-release: build configuration management indexes
