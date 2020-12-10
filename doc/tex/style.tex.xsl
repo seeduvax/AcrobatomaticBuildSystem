@@ -347,8 +347,9 @@ select="substring-after($text,$from)"/>
  </xsl:choose></xsl:param>
 \lstset{language=<xsl:value-of select="$lng"/>}
 \begin{lstlisting}[<xsl:if 
-    test="@title!=''">caption=<xsl:apply-templates select="@title"/></xsl:if><xsl:if test="@size!=''">basicstyle=\<xsl:value-of select="@size"/></xsl:if>]<xsl:value-of select="."
-/>\end{lstlisting}
+    test="@title!=''">caption=<xsl:apply-templates select="@title"/></xsl:if><xsl:if test="@size!=''">basicstyle=\<xsl:value-of select="@size"/></xsl:if>]<xsl:text>
+</xsl:text><xsl:value-of select="pre/text()"/><xsl:text>
+</xsl:text>\end{lstlisting}
 </xsl:template>
 <!-- **************************************************
      Notes
