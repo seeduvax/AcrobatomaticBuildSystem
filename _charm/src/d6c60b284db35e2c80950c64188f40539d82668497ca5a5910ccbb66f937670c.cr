@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<cr id="d6c60b284db35e2c80950c64188f40539d82668497ca5a5910ccbb66f937670c" state="working">
+<cr id="d6c60b284db35e2c80950c64188f40539d82668497ca5a5910ccbb66f937670c" state="closed" delivered="abs-3.1.8">
 <title>amp char makes release note processing fail when present in git commit message.</title>
 <reporter>sdevaux</reporter>
 <creation>2020-12-09 18:49:11+01:00</creation>

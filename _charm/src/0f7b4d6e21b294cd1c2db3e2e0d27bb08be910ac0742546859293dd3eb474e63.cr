@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<cr id="0f7b4d6e21b294cd1c2db3e2e0d27bb08be910ac0742546859293dd3eb474e63" state="working">
+<cr id="0f7b4d6e21b294cd1c2db3e2e0d27bb08be910ac0742546859293dd3eb474e63" state="closed" delivered="abs-3.1.8">
 <title>Exception when building jar file with very long classpath</title>
 <reporter>sdevaux</reporter>
 <creation>2020-12-08 17:48:22+01:00</creation>

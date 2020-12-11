@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<cr id="98fedd57bc1f6ad56844e1c1b46e82bd4c7068be42e45297c69ba2dea7f2de09" state="working">
+<cr id="98fedd57bc1f6ad56844e1c1b46e82bd4c7068be42e45297c69ba2dea7f2de09" state="closed" delivered="abs-3.1.8">
 <title>Improper 1st line indent in code listing pdf rendering</title>
 <reporter>sdevaux</reporter>
 <creation>2020-12-10 11:05:41+01:00</creation>

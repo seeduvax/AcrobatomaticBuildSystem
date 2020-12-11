@@ -194,6 +194,7 @@ crclose:
 	@echo "Setting $(CRID) to closed state..."
 	@sed -i 's!state="[a-zA-Z]*"!state="closed" delivered="$(APPNAME)-$(TAG_VERSION)"!g' $(CRSRCDIR)/$(CRID).cr
 
+##   - crCloseResolved: close all resolved cr
 crCloseResolved:
 	@for cr in `make crls | fgrep "[resolved]" | cut -f 1 -d ' '`; do make crclose $$cr; done
 endif
