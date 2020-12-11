@@ -7,8 +7,8 @@
   {abstract ABS release note. Acrobatomatic Build System is a generic software project build tool. It is first based on make files a few shell script helpers. Any project following the proposed default directory layout should be compatible with ABS.}
   {keywords release, configuration, version, ABS, buildscripts, make, executable generation}
   {history
-    {edition %version=2 %date=2020-11-28 %%Release abs-3.1}
-    {edition %version=1 %date=2020-03-03 %%Release abs-3.0}
+    {edition %version=3.1 %date=2020-11-28 %%Release abs-3.1}
+    {edition %version=3.0 %date=2020-03-03 %%Release abs-3.0}
     {edition %%For ArianeGroup users, some preliminary ABS releases were configuration managed and released integrated with the first internal project using it. The internal document reference was RD_TEA332-1618}
   }
 {section %title=Product identification

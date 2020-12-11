@@ -101,7 +101,7 @@ To go really generic, we need to find a way to identify the intermediate files j
   - source files are in the {kw src} directory.
   - intermediate files go in the {kw obj} directory.
 Here is the GNU makefile:
-{code %language=make
+{code %language=makefile
 {!TARGET=cmd
 CC=gcc
 SRCFILES:=$(wildcard src/*)
@@ -118,7 +118,7 @@ Another interesting feature of GNU make is when the include directive is used, i
   - download and extract the ABS packages from a remote repository.
   - include the ABS main script 
 This bootstrap Makefile structure is the following:
-{code %language=make
+{code %language=makefile
 {!# include application specific parameters
 include app.cfg
 # include the main ABS makefile

@@ -29,8 +29,10 @@ digraph tree {
   splines=ortho;
   node [ shape=folder, fillcolor="#EEEEFF", style=filled];  
   edge [ arrowhead=none ];
-  ws [ label="workspace", fillcolor="#FFDDAA" ];
-  abscach [ label="abs-cache", fillcolor="#FFDDAA"];
+  home [ label="~", fillcolor="#FFDDAA" ];
+  ws [ label=".../workspace", fillcolor="#FFDDAA" ];
+  cache [ label="cache", fillcolor="#FFDDAA"];
+  extlib [ label="extlib", fillcolor="#FFDDAA"];
   root [label="appname-X.Y"];
   abs [label=".abs", fillcolor="#FFDDAA"];
   build [fillcolor="#FFDDAA"];
@@ -38,14 +40,21 @@ digraph tree {
   app_cfg [label="app.cfg", shape=note];
   Makefile [shape=note];
   module [label="module", shape=folder];
-  ws -> abscach [ arrowtail=none, splines=ortho];
+  loccfgh [ label="local.cfg", shape=note, fillcolor="#FFBBAA"];
+  loccfga [ label="local.cfg", shape=note, fillcolor="#FFBBAA"];
+
+  home -> abs [ arrowtail=none, splines=ortho];
+  abs -> cache
+  abs -> extlib
+  abs -> loccfgh
+  home -> ws 
   ws -> root;
-  root -> abs;
   root -> build;
   root -> app_cfg;
   root -> Makefile;
   root -> module;
   root -> dist;
+  root -> loccfga;
   mod_cfg [label="module.cfg", shape=note];
   MMakefile [label="Makefile", shape=note];
   module -> mod_cfg;
@@ -57,7 +66,7 @@ digraph tree {
 @enduml
 #}
 Never add to revision control:
-  - {kw .abs}, {kw abs-cache}: ABS local copy
+  - {kw .abs}, {kw abs-cache}, {kw local.cfg}: ABS local copy and configuration
   - {kw build}: workspace build output directory
   - {kw dist}: deliverable packages output directory
 Project configuration files:
@@ -119,11 +128,11 @@ test % build and run unit tests
 }
   }
   {slide %title=Exercise 1 - explore sampleprj (1/2)
-Checkout sampleprj-0.4 branch:
+Checkout abs:
 {code %language=sh
 {!$ cd <workspace>
-$ svn co https://sdengrle.public.infrapub.fr.st.space.corp/svn/rle/rd_tea332/branches/sampleprj-0.4
-$ cd sampleprj-0.4!}}
+$ git clone https://github.com/seeduvax/AcrobatomaticBuildSystem.git --single-branch -b abs-3.1 abs-3.1
+$ cd abs-3.1/sampleprj!}}
 Build project, run some tests...
 {code %language=sh
 {!$ make
@@ -139,12 +148,12 @@ Do not commit, sampleprj is used for ABS validation.
   {slide %title=Exercise 1 - explore sampleprj (2/2)
 Go back to the project root and remove your local changes
 {code %language=sh
-{!$ cd <workspace>/sampleprj-0.4
-$ svn revert!}}
+{!$ cd <workspace>/abs-3.1/sampleprj
+$ git checkout .!}}
 Build installation package and install software to a temporary location
 {code %language=sh
 {!$ make distinstall
-$ ./dist/sampleprj-0.4.X.<arch>-install.bin <workspace>/temp/sampleprj!}}
+$ ./dist/sampleprj-X.Y.Z.<arch>-install.bin <workspace>/temp/sampleprj!}}
 Explore installation and launch installed application
 {code %language=sh
 {!$ ls <workspace>/temp/sampleprj/*
@@ -244,25 +253,12 @@ Short naming:
    }
 }
 {section
-   {slide %title=Coding style, Coding rules
-{layout %col=2
-C++ coding, {em "Simplified C++"}:
-    - Java like style, create explicit methods (equals, clone, ...), don't use operator overload, variadic, functor, ...
-    - interface = abstract classes, avoid multiple inheritance.
-    - avoid copy constructors / assignment overload troubles): use pointers, avoid ambiguous references.
-Naming rules:
-    - one class = one header + one implementation file
-    - namespace = {kw app_name::module_name}
-    - identifiers: {kw ClassName}, {kw localVarName}, {kw pLocalPointer}, {kw _classVarName}, {kw _pClassPointerVarName}, ...
-    - comments to be parsed by {em Doxygen}: use {em javadoc} syntax ({kw @param}, {kw @return}, etc)
-}
-   }
    {slide %title=Project documentation
-Project documents shall be managed as any source code file:
+Project documents can be managed as any source code file:
   - Create a {kw _doc} module to store the documents.
   - Document source files in {kw _doc/src} directory.
-  - Specific ABS module type for documentation.
-  - Write documents using the {a %href=http://www.eduvax.net/jdev/net.eduvax.heml/ %%heml} format (some kind of markdown/XML).
+  - set {kw MODTYPE} to {kw doc} in the {kw _doc} module configuration file.
+  - Write documents using the {a %href=https://github.com/seeduvax/heml/ %%heml} format (some kind of markdown/XML).
   - invoke {kw make} from your {kw _doc} module to generate {kw html} and {kw pdf} files from your {kw heml} sources. 
 {note
 Current presentation has been written using this feature!
@@ -272,7 +268,7 @@ Current presentation has been written using this feature!
 {layout %col=2
 Edit and render {kw heml} example from {kw sampleprj} :
 {code %language=sh
-{!$ cd <workspace>/sampleprj-0.4/_doc/
+{!$ cd <workspace>/abs-3.1/sampleprj/_doc/
 $ gvim src/example1.heml
 $ make!}}
 Document header:
