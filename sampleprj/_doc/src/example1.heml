@@ -2,9 +2,6 @@
 {document 
  {title Document example}
  {reference XXX-000-YYY}
- {date 2018-04-30}
- {version 2}
- {revision $Rev: 7971 $}
  {abstract heml document example file, just a show case of document editing and processing capabilites.}
  {keywords documentation, word processing, pdf} 
  {author %sigle=ACME %%Sebastien DEVAUX}
@@ -62,7 +59,7 @@ Some complementary detail to take care, special cautions...
   {section %title=Tables
 {table %title=Table example %xref=TableEX
 {tr 
-	{th col1} {th col2} {th col3 section {xref SCode} }
+	{th col1} {th col2} {th col3 }
 }
 {?table %fields=th,td,td
 1 % 2 % 3

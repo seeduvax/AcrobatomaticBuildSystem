@@ -41,10 +41,6 @@ LUA_MDL_MODEL_HEADERS:=
 
 include $(ABSROOT)/core/common.mk
 
-# include module specific parameters
-include $(MODROOT)/module.cfg
--include $(CURDIR)/local.cfg
-
 ifeq ($(REVISION),)
 REVISION:=undef
 ifeq ($(ABS_SCM_TYPE),svn)

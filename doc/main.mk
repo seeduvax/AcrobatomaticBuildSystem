@@ -147,8 +147,12 @@ $(DBDIR)/%.xml: src/%.heml $(HEMLJAR)
 $(TEXDIR)/%.tex: src/%.heml $(HEMLJAR)
 	$(call absHemlTransformation,$(HEMLTOTEX_STYLE))
 
-TEXINPUTS:=$(TEXINPUTS):$(ABSROOT)/doc/tex//:$(OBJDIR):$(TEXDIR):$(HTMLDIR):$(CURDIR)/src
-TEXENV=TEXINPUTS=$(TEXINPUTS):
+TEXDEFAULTINPUTS?=:
+ifneq ($(TEXINPUTS),)
+TEXINPUTS:=$(TEXINPUTS):
+endif
+TEXINPUTS:=$(TEXINPUTS)$(ABSROOT)/doc/tex//:$(OBJDIR):$(TEXDIR):$(HTMLDIR):$(CURDIR)/src$(TEXDEFAULTINPUTS)
+TEXENV=TEXINPUTS=$(TEXINPUTS)
 
 $(PDFDIR)/%.pdf: $(TEXDIR)/%.tex $(IMGS) $(OBJDIR)/%.pumlgenerated
 	@$(ABS_PRINT_info) "Processing TEX $<"

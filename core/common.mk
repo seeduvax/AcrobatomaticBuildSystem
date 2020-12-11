@@ -129,6 +129,9 @@ KVERSION?=$(shell uname -r)
 # include application global parameters
 # re-include in case that common variables are used in this cfg.
 include $(PRJROOT)/app.cfg
+ifneq ($(MODROOT),)
+include $(MODROOT)/module.cfg
+endif
 
 -include $(ABSWS)/local.cfg
 -include $(PRJROOT)/local.cfg
@@ -148,6 +151,4 @@ BROWSER:=$(word 1,$(shell which chromium firefox chrome edge safari iexplorer))
 ifneq ($(wildcard $(PRJROOT)/_charm),)
 include $(ABSROOT)/charm/main.mk
 endif
-
-
 
