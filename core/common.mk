@@ -147,7 +147,8 @@ endif
 # include extern libraries management rules
 include $(ABSROOT)/core/module-extlib.mk
 
-BROWSER:=$(word 1,$(shell which chromium firefox chrome edge safari iexplorer))
+# BROWSER was introduced for charm but is not really needed yet...
+#BROWSER:=$(word 1,$(shell which chromium firefox chrome edge safari iexplorer firefox-esr 2>/dev/null))
 ifneq ($(wildcard $(PRJROOT)/_charm),)
 include $(ABSROOT)/charm/main.mk
 endif
