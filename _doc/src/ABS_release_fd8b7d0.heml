@@ -18,7 +18,7 @@ Product name % Acrobatomatic Build System (ABS)
 Version % abs-3.1
 Parent version % abs-3.0
 repository URL % https://github.com/seeduvax/AcrobatomaticBuildSystem.git
-Tag % abs-3.1.6
+Tag % abs-3.1.9
 Tracking Issue % b895f70
 }
   }
@@ -70,10 +70,10 @@ No specific tooling is needed to maintain buildscripts. Make files, and shell sc
   {section %title=Dependencies
 ABS handles software project build process and was originally designed fro GNU/Linux systems but has demonstrated capabilities for any Posix like system including windows with the help of posix compatibility tools such as Cygwin or MinGW.  Buidlscripts is currently validated with the following systems:
   - RedHawk Linux 7.2
-  - Debian Linux 8.2
   - Debian Linux 9.3
+  - Debian Linux 10.5
   - SUSE Linux 12
-  - Windows 7/Cygwin
+  - Windows 10/Cygwin
 {table
 {tr
  {th Tool}{th Version}{th License}{th Comments}
@@ -167,7 +167,6 @@ ln -sf abs.core-X.Y.Z.tar.gz abs.core-X.Y.tar.gz!}
   {section %title=Detailed changes log
     {include %src=../build/scm/log.xml}
   }
-{#
   {section %title=Product Sources
 {table %type=wide
 {tr
@@ -176,6 +175,5 @@ ln -sf abs.core-X.Y.Z.tar.gz abs.core-X.Y.tar.gz!}
 {?table %src=../build/scm/file-list.txt}
 }
   }
-#}
 }
 }

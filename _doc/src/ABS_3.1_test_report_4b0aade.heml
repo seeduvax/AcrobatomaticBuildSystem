@@ -23,7 +23,7 @@ The validation was performed November 11th 2020 according to the validation plan
   - Means: 
      - Linux PC running Debian GNU/Linux 10
      - Raspberry Pi 3B running Raspbian OS 9
-  - Validated Software: abs-3.1.7
+  - Validated Software: abs-3.1.9
   }
   {section %title=Test results
 {table 

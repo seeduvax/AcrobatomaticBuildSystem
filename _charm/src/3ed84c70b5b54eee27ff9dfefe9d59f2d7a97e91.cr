@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<cr id="3ed84c70b5b54eee27ff9dfefe9d59f2d7a97e91" state="working">
+<cr id="3ed84c70b5b54eee27ff9dfefe9d59f2d7a97e91" state="resolved">
 <title>charm - change request management tools</title>
 <reporter>Sebastien Devaux</reporter>
 <creation>Sat Feb 22 14:20:42 2020 +2200</creation>

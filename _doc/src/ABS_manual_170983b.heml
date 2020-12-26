@@ -101,7 +101,7 @@ To go really generic, we need to find a way to identify the intermediate files j
   - source files are in the {kw src} directory.
   - intermediate files go in the {kw obj} directory.
 Here is the GNU makefile:
-{code %language=makefile
+{code %language=make
 {!TARGET=cmd
 CC=gcc
 SRCFILES:=$(wildcard src/*)
@@ -118,7 +118,7 @@ Another interesting feature of GNU make is when the include directive is used, i
   - download and extract the ABS packages from a remote repository.
   - include the ABS main script 
 This bootstrap Makefile structure is the following:
-{code %language=makefile
+{code %language=make
 {!# include application specific parameters
 include app.cfg
 # include the main ABS makefile
@@ -686,8 +686,7 @@ equality assertion failed
 - Total Failures: 1
 - Total Errors: 0
 - Total Disabled: 0
-- Total time: 0.000108472 s (0.108472 ms)
-!}}
+- Total time: 0.000108472 s (0.108472 ms)!}}
 Of course, the exact timings may be different.
       }
       {operation
@@ -859,8 +858,7 @@ Cppunit that is used as the unit test engine for C/C++ modules, can use the symb
 $ make check RUNARGS="+f N4test11TestExampleE"
 [...] only test from TestExample test class are done.
 $ make check RUNARGS="-f testCaseSuccess"
-[...] all test are done except methods named testCaseSuccess (whatever is the enclosing test class)
-!}}
+[...] all test are done except methods named testCaseSuccess (whatever is the enclosing test class)!}}
 }
   - {kw make debug}: same as {kw make run} but inside a {em gdb} session. Once {kw gdb} shell is ready, invoke {kw runapp} to start running the module in the debugger.
   - {kw make debugcheck}: same as {kw make check} but inside a {em gdb} session. Once {kw gdb} shell is ready, invoke {kw runtests} to start running the tests in the debugger.
@@ -904,8 +902,7 @@ mastol_luad:
      $Attr: build.date=mer. mai 10 10:10:21 CEST 2017 $
      $Attr: build.host=apollo $
      $Attr: build.user=m026258 $
-     $Attr: build.id=null $
-!}} 
+     $Attr: build.id=null $!}} 
 Some criteria to know the binary was produced through the validated process by continuous integration system are:
   - version has no {kw d} suffix.
   - revision has no {kw M} suffix.
