@@ -68,21 +68,31 @@ DOLLAR=$$
 ##  - all (default): builds all modules. Useful variable: NOBUILD.
 all: $(MODULES)
 
-
-
 ##  - test: builds modules, tests and launch tests.
+ifneq ($(shell ls $(PRJROOT)/*/test 2>/dev/null),)
 test: $(MODULES_TEST)
 	@rm -rf build/unit_test_results
 	@mkdir -p build/unit_test_results
-	@cp build/*/$(MODE)/test/*.xml build/unit_test_results
+	@cp $(TTARGETDIR)/*.xml build/unit_test_results
 
 ##  - valgrindtest: builds modules, tests and launch tests using valgind.
 valgrindtest: $(MODULES_VALGRINDTEST)
 	@rm -rf build/unit_test_results
 	@mkdir -p build/unit_test_results
 	cp $(TTARGETDIR)/*.xml build/unit_test_results
+else
+test: $(MODULES_TEST)
+	@$(ABS_PRINT_error) "No test found in this project."
+	@$(ABS_PRINT_error) "To create a test in your project. Go to the module directory of "
+	@$(ABS_PRINT_error) "the class to be tested and invoke:"
+	@$(ABS_PRINT_error) "	make newtest <NameOfClassToTest>"
+	@$(ABS_PRINT_error) "and edit edit the file created in the test directory."
 
-##  - test: builds modules and tests.
+valgrindtest: test
+
+endif
+
+##  - testbuild: builds modules and tests.
 testbuild: $(MODULES_TESTBUILD)
 
 ##  - All: clean and build all
