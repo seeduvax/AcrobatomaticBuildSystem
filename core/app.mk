@@ -167,6 +167,13 @@ help:
 	@grep "^## " $(MAKEFILE_LIST) | sed -e 's/^.*## //'
 
 _extra_import_defs_=$(subst !,\n,$(shell echo '$(extra_import_defs)'))
+define __cariage_return__
+!!
+!!
+endef
+_carriage_retrurn_:=$(patsubst !!,,$(__carriage_return__))
+_extra_import_defs_:=$(subst !,\n,$(extra_import_defs))
+_extra_import_defs_:=$(subst $(__carriage_return__),\n,$(_extra_import_defs_))
 
 dist/$(APPNAME)-$(VERSION)/import.mk:
 	@rm -rf dist
