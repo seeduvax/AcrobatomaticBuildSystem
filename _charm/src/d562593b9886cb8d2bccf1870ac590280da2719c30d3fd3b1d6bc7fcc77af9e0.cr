@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><cr id="d562593b9886cb8d2bccf1870ac590280da2719c30d3fd3b1d6bc7fcc77af9e0" state="working">
+<?xml version="1.0" encoding="UTF-8"?><cr id="d562593b9886cb8d2bccf1870ac590280da2719c30d3fd3b1d6bc7fcc77af9e0" state="resolved">
     <title>whitespace are improperly added into the generated import.mk when applying extra_import_defs configuration</title>
     <reporter>sdevaux</reporter>
     <creation>2021-01-26 17:15:06+01:00</creation>
