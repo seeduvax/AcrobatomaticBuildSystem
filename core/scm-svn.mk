@@ -28,7 +28,7 @@ define abs_scm_branch
 @svn copy $(SVNFLAGS) $(SVNURL)@$(TAG_REVISION) $(SVNPRJROOT)/branches/$(APPNAME)-$(NEW_BRANCH) -m "$(I) [open branch $(NEW_BRANCH) from $(TAG_VERSION)] $(M)" && \
  svn co $(SVNPRJROOT)/branches/$(APPNAME)-$(NEW_BRANCH) tmp.$(APPNAME)-$(NEW_BRANCH) && \
  cd tmp.$(APPNAME)-$(NEW_BRANCH) && \
- printf '1,$$s/^VERSION=.*$$/VERSION=$(NEW_BRANCH).0/g\n1,$$s/VPARENT=.*$$/VPARENT=$(TAG_VERSION)/g\n1,$$s/VISSUE=.*$$/VISSUE=$(I)/g\nwq\n' | ed app.cfg && \
+ sed -i 's/^VERSION=.*$$/VERSION=$(NEW_BRANCH).0/g;s/VPARENT=.*$$/VPARENT=$(TAG_VERSION)/g;s/VISSUE=.*$$/VISSUE=$(I)/g' app.cfg && \
  svn commit $(SVNFLAGS) -m "$(I) [open branch $(NEW_BRANCH) from $(TAG_VERSION)] $(M)" && \
  cd - && \
  rm -rf tmp.$(APPNAME)-$(NEW_BRANCH)
