@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<cr id="ff4c22d8a4e463af5f67ba25c2b19ccae6c97dbdef5fcd3949679a85bea9067c" state="open">
+<cr id="ff4c22d8a4e463af5f67ba25c2b19ccae6c97dbdef5fcd3949679a85bea9067c" state="resolved">
 <title>cint and test targets are failing in a project without any test.</title>
 <reporter>sdevaux</reporter>
 <creation>2021-01-07 09:26:28+01:00</creation>

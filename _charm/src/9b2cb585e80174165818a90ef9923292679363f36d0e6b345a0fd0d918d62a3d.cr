@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<cr id="9b2cb585e80174165818a90ef9923292679363f36d0e6b345a0fd0d918d62a3d" state="open">
+<cr id="9b2cb585e80174165818a90ef9923292679363f36d0e6b345a0fd0d918d62a3d" state="working">
 <title>Release abs 3.2</title>
 <reporter>sdevaux</reporter>
 <creation>2020-12-26 21:48:34+01:00</creation>
@@ -11,5 +11,5 @@
 <link name="child">273739c2a03d295d822a721e05036d11c48aba74f360e2c91cda9788d27dd442</link>
 <link name="child">d562593b9886cb8d2bccf1870ac590280da2719c30d3fd3b1d6bc7fcc77af9e0</link>
 </links>
-<cf v="null"/>
+<cf v="sdevaux 2021-02-02T11:21:52+01:00"/>
 </cr>
