@@ -30,6 +30,14 @@ export ABS_PRINT_warning
 export ABS_PRINT_error
 export ABS_PRINT
 
+# some vars to store some particular chars for their use in macros.
+define _carriage_return_
+!!
+!!
+endef
+_carriage_return_:=$(patsubst !!,,$(_carriage_return_))
+_space_=$(subst ,, )
+
 ##  - LIB_REPO: dependencies repositories. local file path or URL. Repositories
 ##       shall be list according the expected search order. Use ',' char as
 ##       separator.

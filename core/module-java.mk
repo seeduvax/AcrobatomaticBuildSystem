@@ -38,7 +38,7 @@ TARGETDIR=$(TRDIR)/lib
 TARGETFILE=$(TARGETDIR)/$(TARGET)
 # Java default settings
 JCLASSES:=$(patsubst src/%.java,$(OBJDIR)/%.class,$(filter %.java, $(SRCFILES)))
-CLASSPATH:=$(subst !!,,$(subst !! ,:,$(patsubst %,$(NA_EXTLIBDIR)/%.jar!!,$(USEJAR)) $(patsubst $(TARGETDIR)/$(DOMAIN).$(APPNAME).$(APPNAME).%,$(TARGETDIR)/$(DOMAIN).$(APPNAME).%,$(patsubst %,$(TARGETDIR)/$(DOMAIN).$(APPNAME).%-$(VERSION).jar!!,$(USEJMOD)))))
+CLASSPATH:=$(subst $(_space_),:,$(patsubst %,$(NA_EXTLIBDIR)/%.jar,$(USEJAR)) $(patsubst $(TARGETDIR)/$(DOMAIN).$(APPNAME).$(APPNAME).%,$(TARGETDIR)/$(DOMAIN).$(APPNAME).%,$(patsubst %,$(TARGETDIR)/$(DOMAIN).$(APPNAME).%-$(VERSION).jar,$(USEJMOD))))
 ifeq ($(ISWINDOWS),true)
 CLASSPATH:=$(shell cygpath -mp $(CLASSPATH))
 endif

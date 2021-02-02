@@ -167,12 +167,6 @@ help:
 	@grep "^## " $(MAKEFILE_LIST) | sed -e 's/^.*## //'
 
 _extra_import_defs_=$(subst !,\n,$(shell echo '$(extra_import_defs)'))
-define __carriage_return__
-!!
-!!
-endef
-_space_=$(subst ,, )
-_carriage_return_:=$(patsubst !!,,$(__carriage_return__))
 _extra_import_defs_:=$(subst $(_space_)!,\n,$(extra_import_defs))
 _extra_import_defs_:=$(subst !,\n,$(_extra_import_defs_))
 _extra_import_defs_:=$(subst $(_carriage_return_),\n,$(_extra_import_defs_))
@@ -310,7 +304,7 @@ branch:
 	@$(ABS_PRINT_error) "Can't create branch, new branch spec is missing"
 	@$(ABS_PRINT_error) "    make branch <X.Y> I=<issue> M='<msg>'"
 else
-NEW_BRANCH:
+$(NEW_BRANCH):
 	@:
 ifeq ($(I),)
 branch:

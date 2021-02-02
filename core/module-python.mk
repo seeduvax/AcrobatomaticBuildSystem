@@ -32,15 +32,10 @@ PDB=pdb
 # - extlib/<extern app>/lib/python: 
 #   	from USELIB declaration in app.cfg
 PY_APP_PATH=$(TRDIR)/lib/python
-LIST_PYTHONPATH=$(PY_APP_PATH)!!
-LIST_PYTHONPATH+=$(patsubst %,:$(EXTLIBDIR)/%/lib/python!!,$(USELIB))
-PY_PATH+=$(subst !!,,$(subst !! ,,$(LIST_PYTHONPATH)))
+PY_PATH:=$(PY_APP_PATH)$(subst $(_space_),,$(patsubst %,:$(EXTLIBDIR)/%/lib/python,$(USELIB)))
 # LD_LIBRARY_PATH used at dynamic library import
-LIB_APP_PATH=$(TRDIR)/lib
-LIST_LIBPATH=$(LIB_APP_PATH)!!
-LIST_LIBPATH+=$(patsubst %,:$(EXTLIBDIR)/%/lib!!,$(USELIB))
-LIB_PATH+=$(subst !!,,$(subst !! ,,$(LIST_LIBPATH)))
-RUNPATH:=$(TRDIR)/bin:$(subst !!,,$(subst !! ,,$(patsubst %,:$(EXTLIBDIR)/%/bin!!,$(USELIB)))):$(PATH)
+LIB_PATH:=$(TRDIR)lib$(subst $(_space_),,$(patsubst %,:$(EXTLIBDIR)/%/lib,$(USELIB)))
+RUNPATH:=$(TRDIR)/bin$(subst $(_space_),,$(patsubst %,:$(EXTLIBDIR)/%/bin,$(USELIB))):$(PATH)
 # app package dir
 PY_APPDIR=$(PY_APP_PATH)/$(APPNAME)
 # sub package dir
