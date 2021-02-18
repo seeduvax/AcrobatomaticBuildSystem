@@ -74,17 +74,6 @@ RUNPATH:=$(TRDIR)/bin$(subst $(_space_),,$(patsubst %,:$(EXTLIBDIR)/%/bin,$(USEL
 
 LDRUNP?=$$ORIGIN/../lib
 
-
-# ---------------------------------------------------------------------
-# Variable for Ada support with gnat.
-# Not really C/C++ but still a source to object compiler.
-# ---------------------------------------------------------------------
-ADAFLAGS+=$(FILTER -I,$(CFLAGS))
-ADAC?=gnatmake
-ADAOBJS+=$(patsubst src/%.adb,$(OBJDIR)/%.o,$(filter %.adb,$(SRCFILES)))
-OBJS+=$(ADAOBJS)
-
-
 # ---------------------------------------------------------------------
 # Compilation flags by compilation modes
 # ---------------------------------------------------------------------
