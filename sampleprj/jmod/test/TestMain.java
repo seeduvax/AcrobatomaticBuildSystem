@@ -3,7 +3,7 @@ import org.junit.*;
 import static org.junit.Assert.*;
 import static org.junit.Assume.*;
 import static org.hamcrest.CoreMatchers.*;
-import fr.example.BuildScriptTester.jmod.Main;
+import fr.example.sampleprj.jmod.Main;
 
 /**
  *

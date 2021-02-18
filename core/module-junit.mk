@@ -11,7 +11,7 @@ TXTXSL=xunit2txt.xsl
 
 TESTCLASSFILES=$(patsubst %.java,$(OBJDIR)/%.class,$(shell find test -name "Test*.java" 2>/dev/null))
 TESTCLASSFILES+=$(patsubst src/%.java,$(OBJDIR)/%.class,$(filter %.java,$(SRCFILES)))
-TESTCLASSPATH=$(OBJDIR)$(PATH_SEP)$(NA_EXTLIBDIR)/$(JUNIT).jar$(PATH_SEP)$(CLASSPATH)
+TESTCLASSPATH=$(OBJDIR)$(PATH_SEP)$(JARIMGDIR)$(PATH_SEP)$(NA_EXTLIBDIR)/$(JUNIT).jar$(PATH_SEP)$(CLASSPATH)
 JUFLAGS=-classpath "$(TESTCLASSPATH)" -d $(OBJDIR) -sourcepath ".$(PATH_SEP)src$(PATH_SEP)$(OBJDIR)"
 TTARGETDIR=$(TRDIR)/test
 $(OBJDIR)/test/%.class: test/%.java
