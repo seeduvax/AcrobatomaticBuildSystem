@@ -36,20 +36,26 @@ TARGET=$(DOMAIN).$(APPNAME).$(MODNAME)-$(VERSION).$(TARGET_EXT)
 endif
 TARGETDIR=$(TRDIR)/lib
 TARGETFILE=$(TARGETDIR)/$(TARGET)
+
+# Jar preparation directory
+JARIMGDIR:=$(OBJDIR)/jar
+# Default dir to recieve generated java code
+JGENSRCDIR:=$(OBJDIR)/gjava
+
 # Java default settings
-JCLASSES:=$(patsubst src/%.java,$(OBJDIR)/%.class,$(filter %.java, $(SRCFILES)))
+JCLASSES:=$(patsubst src/%.java,$(JARIMGDIR)/%.class,$(filter %.java, $(SRCFILES)))
 CLASSPATH:=$(subst $(_space_),:,$(patsubst %,$(NA_EXTLIBDIR)/%.jar,$(USEJAR)) $(patsubst $(TARGETDIR)/$(DOMAIN).$(APPNAME).$(APPNAME).%,$(TARGETDIR)/$(DOMAIN).$(APPNAME).%,$(patsubst %,$(TARGETDIR)/$(DOMAIN).$(APPNAME).%-$(VERSION).jar,$(USEJMOD))))
 ifeq ($(ISWINDOWS),true)
 CLASSPATH:=$(shell cygpath -mp $(CLASSPATH))
 endif
 ifeq ($(ISWINDOWS),true)
-JFLAGS+=-cp "${CLASSPATH}" -d `cygpath -m $(OBJDIR)`
-JCFLAGS:=$(JFLAGS) -sourcepath "src;$(shell cygpath -m $(OBJDIR))"
+JFLAGS+=-cp "${CLASSPATH}" -d `cygpath -m $(JARIMGDIR)`
+JCFLAGS:=$(JFLAGS) -sourcepath "src;$(shell cygpath -m $(JARIMGDIR));$(shell cygpath -m $(JGENSRCDIR))"
 else
-JFLAGS+=-cp ".null:${CLASSPATH}" -d $(OBJDIR)
-JCFLAGS:=$(JFLAGS) -sourcepath "src:$(OBJDIR)"
+JFLAGS+=-cp ".null:${CLASSPATH}" -d $(JARIMGDIR)
+JCFLAGS:=$(JFLAGS) -sourcepath "src:$(JARIMGDIR):$(JGENSRCDIR)"
 endif
-RESFILES=$(patsubst src/%,$(OBJDIR)/%,$(filter-out %.java src/test/%,$(SRCFILES)))
+RESFILES=$(patsubst src/%,$(JARIMGDIR)/%,$(filter-out %.java src/test/%,$(SRCFILES)))
 
 # ---------------------------------------------------------------------
 # Default target : build target file
@@ -60,14 +66,14 @@ all-impl:: $(TARGETFILE)
 # Main transformation rules
 # ---------------------------------------------------------------------
 # Java file compilation
-$(OBJDIR)/%.class: src/%.java
+$(JARIMGDIR)/%.class: src/%.java
 	@$(ABS_PRINT_info) "Compiling $< ..."
-	@mkdir -p $(OBJDIR)
+	@mkdir -p $(JARIMGDIR)
 	@echo `date --rfc-3339 s`'> $(JC) $(JCFLAGS) $<' >> $(TRDIR)/build.log
 	@$(JC) $(JCFLAGS) $(if $(ISWINDOWS),`cygpath -m $<`,$<) || ( echo 'Failed: JFLAGS=$(JCFLAGS)' ; exit 1 )
 
 # Resource file copy
-$(OBJDIR)/%: src/%
+$(JARIMGDIR)/%: src/%
 	@$(ABS_PRINT_info) "Installing resource $< ..."
 	@mkdir -p $(@D)
 	@cp $< $@
@@ -94,15 +100,15 @@ $(TARGETFILE): $(TARGETDIR)/$(MODNAME).Manifest $(RESFILES)
 	@$(ABS_PRINT_info) "Building archive $@ ..."
 	@mkdir -p $(TARGETDIR)
 ifeq ($(ISWINDOWS),true)
-	@echo `date --rfc-3339 s`'> $(JAR) cf $@ -C $(OBJDIR) .' >> $(TRDIR)/build.log
-	@$(JAR) cf `cygpath -m $@` -C `cygpath -m $(OBJDIR)` .
+	@echo `date --rfc-3339 s`'> $(JAR) cf $@ -C $(JARIMGDIR) .' >> $(TRDIR)/build.log
+	@$(JAR) cf `cygpath -m $@` -C `cygpath -m $(JARIMGDIR)` .
 else
 ifeq ($(JAR),dx)
-	@echo `date --rfc-3339 s`'> $(JAR) --dex --output $@ $(OBJDIR)' >> $(TRDIR)/build.log
-	@$(JAR) --dex --output $@ $(OBJDIR)
+	@echo `date --rfc-3339 s`'> $(JAR) --dex --output $@ $(JARIMGDIR)' >> $(TRDIR)/build.log
+	@$(JAR) --dex --output $@ $(JARIMGDIR)
 else
-	@echo `date --rfc-3339 s`'> $(JAR) cf $@ -C $(OBJDIR) .' >> $(TRDIR)/build.log
-	@$(JAR) cf $@ -C $(OBJDIR) .
+	@echo `date --rfc-3339 s`'> $(JAR) cf $@ -C $(JARIMGDIR) .' >> $(TRDIR)/build.log
+	@$(JAR) cf $@ -C $(JARIMGDIR) .
 endif
 endif
 	@echo `date --rfc-3339 s`'$(JAR) umf $(TARGETDIR)/Manifest $@' >> $(TRDIR)/build.log
