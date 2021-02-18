@@ -1,4 +1,6 @@
-package fr.example.BuildScriptTester.jmod;
+package fr.example.sampleprj.jmod;
+
+import res.Const;
 
 /**
  *
@@ -9,5 +11,6 @@ public class Main {
     } 
     public static void main(String[] args) {
         System.out.println("Java runs !");
+        System.out.println("Version="+Const.version);
     }
 }
