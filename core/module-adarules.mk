@@ -1,6 +1,5 @@
 
 ADAFLAGS?=$(CFLAGS)
-$(info GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGggggg)
 
 ADAC?=$(CC)
 ADAOBJS+=$(patsubst src/%.adb,$(OBJDIR)/%.o,$(filter-out $(patsubst %,src/%,$(DISABLE_SRC)),$(filter %.adb,$(SRCFILES))))
