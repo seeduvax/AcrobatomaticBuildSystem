@@ -205,6 +205,10 @@ endif
 endif
 endif
 
+$(NA_EXTLIBDIR)/%.jar: $(EXTLIBDIR)/$(1)-$(2)/lib/%.jar
+	@$$(ABS_PRINT_info) "Importing jar lib $$(@F)..."
+	@ln -sf $$^ $$@
+
 endef
 
 # list of import makefile from external libraries declared in module

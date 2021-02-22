@@ -81,7 +81,7 @@ $(JARIMGDIR)/%: src/%
 # external dependancies and module dependancies.
 $(JCLASSES): $(patsubst %,$(NA_EXTLIBDIR)/%.jar,$(USEJAR)) $(patsubst %,$(TARGETDIR)/$(DOMAIN).$(APPNAME).%-$(VERSION).jar,$(USEJMOD))
 
-$(TARGETDIR)/$(MODNAME).Manifest: $(JCLASSES)
+$(OBJDIR)/$(MODNAME).Manifest: $(JCLASSES)
 	@$(ABS_PRINT_info) "Creating manifest file..."
 	@mkdir -p $(@D)
 	@echo "Main-Class: $(MAINCLASS)" > $@
@@ -96,7 +96,7 @@ $(TARGETDIR)/$(MODNAME).Manifest: $(JCLASSES)
 	@printf "Class-Path: $(patsubst %, %.jar\n,$(USEJAR))  ../res\n\n\n" >> $@
 
 # Jar archive
-$(TARGETFILE): $(TARGETDIR)/$(MODNAME).Manifest $(RESFILES)
+$(TARGETFILE): $(OBJDIR)/$(MODNAME).Manifest $(RESFILES)
 	@$(ABS_PRINT_info) "Building archive $@ ..."
 	@mkdir -p $(TARGETDIR)
 ifeq ($(ISWINDOWS),true)
@@ -111,12 +111,12 @@ else
 	@$(JAR) cf $@ -C $(JARIMGDIR) .
 endif
 endif
-	@echo `date --rfc-3339 s`'$(JAR) umf $(TARGETDIR)/Manifest $@' >> $(TRDIR)/build.log
+	@echo `date --rfc-3339 s`'$(JAR) umf $(OBJDIR)/$(MODNAME).Manifest $@' >> $(TRDIR)/build.log
 ifeq ($(ISWINDOWS),true)
-	@$(JAR) umf `cygpath -m $(TARGETDIR)/$(MODNAME).Manifest` `cygpath -m $@`
+	@$(JAR) umf `cygpath -m $(OBJDIR)/$(MODNAME).Manifest` `cygpath -m $@`
 else
 ifneq ($(JAR),dx)
-	@$(JAR) umf $(TARGETDIR)/$(MODNAME).Manifest $@
+	@$(JAR) umf $(OBJDIR)/$(MODNAME).Manifest $@
 endif
 endif
 
