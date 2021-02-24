@@ -18,7 +18,7 @@ RESSRC:=$(filter src/embedded_lua/%.lua src/res/%,$(SRCFILES))
 GENSRC+=$(patsubst src/%,$(OBJDIR)/%.c,$(RESSRC))
 GENOBJS+=$(patsubst %.c,%.o,$(filter %.c,$(GENSRC)))
 GENOBJS+=$(patsubst %.cpp,%.o,$(filter %.cpp,$(GENSRC)))
-GENOBJS+=$(patsubst %.adb,%.o,$(filter %.ada,$(GENSRC)))
+GENOBJS+=$(patsubst %.adb,%.o,$(filter %.adb,$(GENSRC)))
 
 # All objs: C et CCP files + generated
 OBJS+=$(COBJS) $(CPPOBJS) $(GENOBJS) $(OBJDIR)/vinfo.o
