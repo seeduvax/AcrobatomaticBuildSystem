@@ -16,7 +16,9 @@ COBJS+=$(patsubst src/%.c,$(OBJDIR)/%.o,$(filter-out $(patsubst %,src/%,$(DISABL
 CPPOBJS+=$(patsubst src/%.cpp,$(OBJDIR)/%.o,$(filter-out $(patsubst %,src/%,$(DISABLE_SRC)),$(filter %.cpp,$(SRCFILES))))
 RESSRC:=$(filter src/embedded_lua/%.lua src/res/%,$(SRCFILES))
 GENSRC+=$(patsubst src/%,$(OBJDIR)/%.c,$(RESSRC))
-GENOBJS+=$(patsubst %.c,%.o,$(GENSRC))
+GENOBJS+=$(patsubst %.c,%.o,$(filter %.c,$(GENSRC)))
+GENOBJS+=$(patsubst %.cpp,%.o,$(filter %.cpp,$(GENSRC)))
+GENOBJS+=$(patsubst %.adb,%.o,$(filter %.ada,$(GENSRC)))
 
 # All objs: C et CCP files + generated
 OBJS+=$(COBJS) $(CPPOBJS) $(GENOBJS) $(OBJDIR)/vinfo.o
@@ -96,6 +98,7 @@ $(VINFO): module.cfg $(PRJROOT)/app.cfg $(SRCFILES)
 ifneq ($(GENSRC),)
 # dependencies management.
 $(GENSRC):
+
 endif
 
 $(RES_HEADER):
