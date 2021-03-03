@@ -166,10 +166,11 @@ endif
 help:
 	@grep "^## " $(MAKEFILE_LIST) | sed -e 's/^.*## //'
 
-_extra_import_defs_=$(subst !,\n,$(shell echo '$(extra_import_defs)'))
+_extra_import_defs_=$(subst !,\n,$(extra_import_defs))
 _extra_import_defs_:=$(subst $(_space_)!,\n,$(extra_import_defs))
 _extra_import_defs_:=$(subst !,\n,$(_extra_import_defs_))
 _extra_import_defs_:=$(subst $(_carriage_return_),\n,$(_extra_import_defs_))
+$(eval _extra_import_defs_:=$(_extra_import_defs_))
 
 dist/$(APPNAME)-$(VERSION)/import.mk:
 	@rm -rf dist
