@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<cr id="b8ed9cf58b05e605de7479f4bc2092d187a816b0951c955e8f139aea1b955baa" state="working">
+<cr id="b8ed9cf58b05e605de7479f4bc2092d187a816b0951c955e8f139aea1b955baa" state="closed" delivered="abs-3.2.3">
 <title>Add code generation handling capability to java modules</title>
 <reporter>sdevaux</reporter>
 <creation>2021-02-17 16:50:08+01:00</creation>

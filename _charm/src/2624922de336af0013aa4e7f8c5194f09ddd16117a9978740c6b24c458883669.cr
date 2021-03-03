@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><cr id="2624922de336af0013aa4e7f8c5194f09ddd16117a9978740c6b24c458883669" state="working">
+<?xml version="1.0" encoding="UTF-8"?><cr id="2624922de336af0013aa4e7f8c5194f09ddd16117a9978740c6b24c458883669" state="closed" delivered="abs-3.2.3">
     <title>ada compilation is confused by abs layout</title>
     <reporter>sdevaux</reporter>
     <creation>2021-02-18 18:23:43+01:00</creation>
