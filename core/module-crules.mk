@@ -159,11 +159,13 @@ debug:: all
 
 else
 # run application
+# TODO cygwin compat
 run:: all
 	@$(ABS_PRINT_info) "Starting $(TARGETFILE) $(RUNARGS)"
 	@PATH=$(RUNPATH) LD_LIBRARY_PATH=$(LDLIBP) $(TARGETFILE) $(RUNARGS)
 
 # run application with gdb
+# TODO cygwin compat
 debug:: $(TARGETFILE)
 	@printf "define runapp\nrun $(RUNARGS)\nend\n" > cmd.gdb
 	@printf "\e[1;4mUse runapp command to launch app from gdb\n\e[37;37;0m"

@@ -1,5 +1,9 @@
 # default C flags
+ifneq ($(ISWINDOWS),true)
 CFLAGS+=-Iinclude -fPIC -I$(TRDIR)/include
+else
+CFLAGS+=-Iinclude -I$(TRDIR)/include -Wa,-mbig-obj
+endif
 
 # default C/C++ commands and flags
 ifeq ($(CC),)
@@ -11,14 +15,16 @@ endif
 ifeq ($(LD),)
 LD=g++
 endif
-ifeq ($(findstring Win,$(ARCH)),Win)
-SOEXT?=dll
-SOPFX?=
-SODIR?=bin
+ifeq ($(ISWINDOWS),true)
+SOEXT?=dll.a
+SOPFX?=lib
+SODIR?=lib
+BINEXT=.exe
 else
 SOEXT?=so
 SOPFX?=lib
 SODIR?=lib
+BINEXT=
 endif
 
 CC_VERSION:=$(shell $(CC) -dumpversion)
@@ -37,7 +43,6 @@ endif
 ifeq ($(MODTYPE),library) 
 # target is a library
 # build a shared library
-	LDFLAGS+= -shared
 # name of shared library file
 ifeq ($(APPNAME),$(MODNAME))
 	TARGET=$(SOPFX)$(APPNAME).$(SOEXT)
@@ -46,26 +51,38 @@ else
 endif
 # shared lib goes into lib subdir of build dir.
 	TARGETDIR=$(TRDIR)/$(SODIR)
+# cygwin specifics
+ifeq ($(ISWINDOWS),true)
+	CYGTARGETDIR=$(TRDIR)/bin
+ifeq ($(APPNAME),$(MODNAME))
+	CYGTARGET=cyg$(APPNAME).dll
+else
+	CYGTARGET=cyg$(APPNAME)_$(MODNAME).dll
+endif
+else
+	LDFLAGS+= -shared
+endif
 else
 # target is an executable
 # executable file name
 ifeq ($(APPNAME),$(MODNAME))
-	TARGET=$(APPNAME)
+	TARGET=$(APPNAME)$(BINEXT)
 else
-	TARGET=$(APPNAME)_$(MODNAME)
+	TARGET=$(APPNAME)_$(MODNAME)$(BINEXT)
 endif
 # executable file goes in bin subdir of build dir.
 	TARGETDIR=$(TRDIR)/bin
 endif
+
 # target full path
 TARGETFILE=$(TARGETDIR)/$(TARGET)
 
 # LDFLAGSUSEMOD permit to get the created .so that are not MODTYPE library.
 # this variable must be evaluated at the use time because at declaration time, the dependencies are not generated yet.
-LDFLAGSUSEMOD=$(foreach mod,$(USEMOD),$(if $(wildcard $(TRDIR)/$(SODIR)/lib$(APPNAME)_$(mod).so),-l$(APPNAME)_$(mod),)$(if $(wildcard $(TRDIR)/$(SODIR)/lib$(mod).*),-l$(mod),))
+LDFLAGSUSEMOD=$(foreach mod,$(USEMOD),$(if $(wildcard $(TRDIR)/$(SODIR)/lib$(APPNAME)_$(mod).$(SOEXT)),-l$(APPNAME)_$(mod),)$(if $(wildcard $(TRDIR)/$(SODIR)/lib$(mod).*),-l$(mod),))
 
 # add paths to used modules' headers & libs.
-CFLAGS+= $(patsubst %,-I$(PRJROOT)/%/include,$(USEMOD)) 
+CFLAGS+= $(patsubst %,-I$(PRJROOT)/%/include,$(USEMOD))
 LDFLAGS+= -L$(TRDIR)/$(SODIR) $(LDFLAGSUSEMOD)
 LDFLAGS+=$(patsubst %,-l%,$(LINKLIB))
 # library dir list (to be forwarded to LD_LIBRARY_PATH env var befor running the app)
@@ -106,9 +123,19 @@ define cxx-command
    && ( cp $@.d $@.d.tmp ; sed -e 's/#.*//' -e 's/^[^:]*: *//' -e 's/ *\\$$//' -e '/^$$/ d' -e 's/$$/ :/' $@.d.tmp >> $@.d ; rm $@.d.tmp ) 
 endef
 
+ifneq ($(ISWINDOWS),true)
 define ld-command
 @$(ABS_PRINT_info) "Linking $@ ..."
 @mkdir -p $(TARGETDIR)
 @echo `date --rfc-3339 s`"> LD_RUN_PATH='$(LDRUNP)' LD_LIBRARY_PATH=$(LDLIBP) $(LD) -o $@ $(OBJS) $(LDFLAGS)" >> $(TRDIR)/build.log
-@LD_RUN_PATH='$(LDRUNP)' LD_LIBRARY_PATH=$(LDLIBP) $(LD) -o $@ $(OBJS) $(LDFLAGS) 
+@LD_RUN_PATH='$(LDRUNP)' LD_LIBRARY_PATH=$(LDLIBP) $(LD) -o $@ $(OBJS) $(LDFLAGS)
 endef
+else
+define ld-command
+@$(ABS_PRINT_info) "Linking $@ ..."
+@mkdir -p $(TARGETDIR) $(CYGTARGETDIR)
+@echo `date --rfc-3339 s`"> $(LD) -shared -o $(CYGTARGETDIR)/$(CYGTARGET) -Wl,--out-implib=$@ -Wl,--export-all-symbols -Wl,--enable-auto-import -Wl,--whole-archive $(OBJS) -Wl,--no-whole-archive $(LDFLAGS)" >> $(TRDIR)/build.log
+@$(LD) -shared -o $(CYGTARGETDIR)/$(CYGTARGET) -Wl,--out-implib=$@\
+	-Wl,--export-all-symbols -Wl,--enable-auto-import -Wl,--whole-archive $(OBJS) -Wl,--no-whole-archive $(LDFLAGS)
+endef
+endif

@@ -33,6 +33,9 @@ VALGRIND=valgrind
 # Target definition.
 TTARGETDIR=$(TRDIR)/test
 TTARGETFILE=$(TTARGETDIR)/t_$(TARGET)
+ifeq ($(ISWINDOWS),true)
+TCYGTARGET=$(TTARGETDIR)/t_$(CYGTARGET)
+endif
 
 ifeq ($(VALGRIND_XML),true)
 	VALGRIND_ARGS+=--xml=yes --xml-file=$(TTARGETDIR)/$(MODNAME)_valgrind_result.xml
@@ -102,11 +105,22 @@ ifneq ($(filter exe library,$(MODTYPE)),)
 TTARGETFILEDEP:=$(TARGETFILE)
 endif
 
+ifneq ($(ISWINDOWS),true)
+define ld-test
+@$(LD) -o $@ $(TCPPOBJS) $(LDFLAGS) $(TLDFLAGS)
+endef
+else
+define ld-test
+@$(ABS_PRINT_info) "Linking $(TCYGTARGET) ..."
+@$(LD) -shared -o $(TCYGTARGET) -Wl,--out-implib=$@\
+	-Wl,--export-all-symbols -Wl,--enable-auto-import -Wl,--whole-archive $(TCPPOBJS) -Wl,--no-whole-archive $(LDFLAGS) $(TLDFLAGS)
+endef
+endif
+
 # link test target from test objects.
 $(TTARGETFILE): $(TCPPOBJS) $(TTARGETFILEDEP)
 	@mkdir -p $(TTARGETDIR)
-	@$(ABS_PRINT_info) "Linking $@ ..."
-	@$(LD) -o $@ $(TCPPOBJS) $(LDFLAGS) $(TLDFLAGS)
+	@$(ld-test)
 
 # ---------------------------------------------------------------------
 # Extra dependencies
@@ -132,7 +146,7 @@ $(FILTERED_DIRECTORY)/%: test/%
 	@mkdir -p $(@D)
 	@cp $< $@
 	@/bin/bash -c "echo \"Filtering $@ ...\"; $(call filterCmds, $@)"
-	
+
 # ---------------------------------------------------------------------
 ## 
 ## Test targets:
@@ -141,15 +155,33 @@ $(FILTERED_DIRECTORY)/%: test/%
 .PHONY:	testbuild
 testbuild::	$(TTARGETFILE) $(FILTERED_TEST_FILES_OUTPUT)
 
-define run-test 
+define pre-test
 @( [ -d test ] && mkdir -p $(TTARGETDIR) ) || true 
-@( [ -d test ] && rm -f $(TTARGETDIR)/$(APPNAME)_$(MODNAME).xml ) || true 
+@( [ -d test ] && rm -f $(TTARGETDIR)/$(APPNAME)_$(MODNAME).xml ) || true
+endef
+
+ifneq ($(ISWINDOWS),true)
+define exec-test
 @( [ -d test ] && PATH="$(RUNPATH)" LD_LIBRARY_PATH="$(TLDLIBP)" TRDIR="$(TRDIR)" TTARGETDIR="$(TTARGETDIR)" $1 $(patsubst %,$(EXTLIBDIR)/%/bin/$(TESTRUNNER),$(CPPUNIT)) -x $(TTARGETDIR)/$(APPNAME)_$(MODNAME).xml $(TTARGETFILE) $(RUNARGS) $(patsubst %,+f %,$(T)) $(TARGS) 2>&1 | tee $(TTARGETDIR)/$(APPNAME)_$(MODNAME).stdout ) || true
+endef
+else
+define exec-test
+@( [ -d test ] && PATH="$(RUNPATH):$(TLDLIBP)" LD_LIBRARY_PATH="$(TLDLIBP)" TRDIR="$(TRDIR)" TTARGETDIR="$(TTARGETDIR)" $1 $(patsubst %,$(EXTLIBDIR)/%/bin/$(TESTRUNNER),$(CPPUNIT)) -x $(TTARGETDIR)/$(APPNAME)_$(MODNAME).xml $(TCYGTARGET) $(RUNARGS) $(patsubst %,+f %,$(T)) $(TARGS) 2>&1 | tee $(TTARGETDIR)/$(APPNAME)_$(MODNAME).stdout ) || true
+endef
+endif
+
+define post-test
 @( [ -d test -a ! -r $(TTARGETDIR)/$(APPNAME)_$(MODNAME).xml ] && $(ABS_PRINT_error) "no test report, test runner exited abnormally." ) || true 
 @( [ -d test -a -r $(TTARGETDIR)/$(APPNAME)_$(MODNAME).xml ] && xsltproc $(ABSROOT)/core/$(TXTXSL) $(TTARGETDIR)/$(APPNAME)_$(MODNAME).xml ) || true
 @if [ -d test ]; then [ -s $(TTARGETDIR)/$(APPNAME)_$(MODNAME).xml ]; else true; fi
 endef
-	
+
+define run-test 
+$(pre-test)
+$(exec-test)
+$(post-test)
+endef
+
 ##  - test: alias for check
 test:: testbuild
 	$(call run-test, $(TIMEOUTCMD))
@@ -164,6 +196,7 @@ valgrindtest:: testbuild
 	$(call run-test, $(VALGRIND) $(VALGRIND_ARGS))
 
 ##  - debugcheck [RUNARGS="<arg> [<arg>]*": run test from gdb debugger
+# TODO add cygwin support
 .PHONY: debugcheck
 debugcheck: testbuild
 	@printf "define runtests\nrun $(TTARGETFILE) $(RUNARGS) $(patsubst %,+f %,$(T)) $(TARGS)\nend\n" > cmd.gdb
