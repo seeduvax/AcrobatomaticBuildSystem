@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><cr id="25292ece55198d0eea88054717137ac3791d7cb8e06b1d1f532d50e8da870b0b" state="working">
+<?xml version="1.0" encoding="UTF-8"?><cr id="25292ece55198d0eea88054717137ac3791d7cb8e06b1d1f532d50e8da870b0b" state="resolved">
     <title>Add option to compile cpp using sanitizers</title>
     <reporter>fred</reporter>
     <creation>2021-03-24 23:21:14+00:00</creation>
