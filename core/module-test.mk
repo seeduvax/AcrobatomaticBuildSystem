@@ -26,6 +26,13 @@ endif
 CFLAGS+=-I$(EXTLIBDIR)/$(CPPUNIT)/include
 LDFLAGS+=-L$(EXTLIBDIR)/$(CPPUNIT)/$(SODIR)
 
+# sanitizer
+ifeq ($(ACTIVATE_SANITIZER),true)
+CFLAGS+=-fsanitize=address -fsanitize=undefined -fno-omit-frame-pointer
+LDFLAGS+=-fsanitize=address -fsanitize=undefined
+TLDPRELOAD+=$(shell /sbin/ldconfig -p | grep libasan | sed -E 's/.*(libasan.so.[0-9]+).*/\1/g' | head -n 1)
+endif
+
 # valgrind
 VALGRIND=valgrind
 
@@ -107,6 +114,7 @@ endif
 
 ifneq ($(ISWINDOWS),true)
 define ld-test
+@$(ABS_PRINT_info) "Linking $@ ..."
 @$(LD) -o $@ $(TCPPOBJS) $(LDFLAGS) $(TLDFLAGS)
 endef
 else
@@ -162,11 +170,11 @@ endef
 
 ifneq ($(ISWINDOWS),true)
 define exec-test
-@( [ -d test ] && PATH="$(RUNPATH)" LD_LIBRARY_PATH="$(TLDLIBP)" TRDIR="$(TRDIR)" TTARGETDIR="$(TTARGETDIR)" $1 $(patsubst %,$(EXTLIBDIR)/%/bin/$(TESTRUNNER),$(CPPUNIT)) -x $(TTARGETDIR)/$(APPNAME)_$(MODNAME).xml $(TTARGETFILE) $(RUNARGS) $(patsubst %,+f %,$(T)) $(TARGS) 2>&1 | tee $(TTARGETDIR)/$(APPNAME)_$(MODNAME).stdout ) || true
+@( [ -d test ] && PATH="$(RUNPATH)" LD_LIBRARY_PATH="$(TLDLIBP)" TRDIR="$(TRDIR)" TTARGETDIR="$(TTARGETDIR)" LD_PRELOAD="$(TLDPRELOAD)" $1 $(patsubst %,$(EXTLIBDIR)/%/bin/$(TESTRUNNER),$(CPPUNIT)) -x $(TTARGETDIR)/$(APPNAME)_$(MODNAME).xml $(TTARGETFILE) $(RUNARGS) $(patsubst %,+f %,$(T)) $(TARGS) 2>&1 | tee $(TTARGETDIR)/$(APPNAME)_$(MODNAME).stdout ) || true
 endef
 else
 define exec-test
-@( [ -d test ] && PATH="$(RUNPATH):$(TLDLIBP)" LD_LIBRARY_PATH="$(TLDLIBP)" TRDIR="$(TRDIR)" TTARGETDIR="$(TTARGETDIR)" $1 $(patsubst %,$(EXTLIBDIR)/%/bin/$(TESTRUNNER),$(CPPUNIT)) -x $(TTARGETDIR)/$(APPNAME)_$(MODNAME).xml $(TCYGTARGET) $(RUNARGS) $(patsubst %,+f %,$(T)) $(TARGS) 2>&1 | tee $(TTARGETDIR)/$(APPNAME)_$(MODNAME).stdout ) || true
+@( [ -d test ] && PATH="$(RUNPATH):$(TLDLIBP)" LD_LIBRARY_PATH="$(TLDLIBP)" TRDIR="$(TRDIR)" TTARGETDIR="$(TTARGETDIR)" LD_PRELOAD="$(TLDPRELOAD)" $1 $(patsubst %,$(EXTLIBDIR)/%/bin/$(TESTRUNNER),$(CPPUNIT)) -x $(TTARGETDIR)/$(APPNAME)_$(MODNAME).xml $(TCYGTARGET) $(RUNARGS) $(patsubst %,+f %,$(T)) $(TARGS) 2>&1 | tee $(TTARGETDIR)/$(APPNAME)_$(MODNAME).stdout ) || true
 endef
 endif
 
@@ -192,8 +200,15 @@ check:: test
 
 ##  - valgrindtest: run tests from valgrind for profiling.
 .PHONY: valgrindtest
+ifeq ($(ACTIVATE_SANITIZER),true)
+valgrindtest:: testbuild
+	@$(ABS_PRINT_error) "Cannot run valgrind with ACTIVATE_SANITIZER=true"
+
+else
 valgrindtest:: testbuild
 	$(call run-test, $(VALGRIND) $(VALGRIND_ARGS))
+
+endif
 
 ##  - debugcheck [RUNARGS="<arg> [<arg>]*": run test from gdb debugger
 # TODO add cygwin support
