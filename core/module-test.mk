@@ -28,8 +28,10 @@ LDFLAGS+=-L$(EXTLIBDIR)/$(CPPUNIT)/$(SODIR)
 
 # sanitizer
 ifeq ($(ACTIVATE_SANITIZER),true)
-CFLAGS+=-fsanitize=address -fsanitize=undefined -fno-omit-frame-pointer
-LDFLAGS+=-fsanitize=address -fsanitize=undefined
+SANITIZERS+=address undefined
+SANITIZERS_ARGS=$(patsubst %,-fsanitize=%,$(SANITIZERS))
+CFLAGS+=$(SANITIZERS_ARGS) -fno-omit-frame-pointer
+LDFLAGS+=$(SANITIZERS_ARGS)
 TLDPRELOAD+=$(shell /sbin/ldconfig -p | grep libasan | sed -E 's/.*(libasan.so.[0-9]+).*/\1/g' | head -n 1)
 endif
 
