@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<cr id="53d40eb9c59e31dcf61753fbcef7335d39d64d9f1fe93d8dbc629a04206dea8e" state="working">
+<cr id="53d40eb9c59e31dcf61753fbcef7335d39d64d9f1fe93d8dbc629a04206dea8e" state="resolved">
 <title>Improve the prepare commit message for charm issue</title>
 <reporter>fred</reporter>
 <creation>2021-03-26 21:35:43+00:00</creation>
