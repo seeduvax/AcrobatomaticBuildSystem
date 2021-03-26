@@ -29,15 +29,21 @@ LDFLAGS+=-L$(EXTLIBDIR)/$(CPPUNIT)/$(SODIR)
 # sanitizer
 ifeq ($(ACTIVATE_SANITIZER),true)
 SANITIZERS+=address undefined
+TLDPRELOAD+=$(shell /sbin/ldconfig -p | grep libasan | sed -E 's/.*(libasan.so.[0-9]+).*/\1/g' | head -n 1)
+else ifeq ($(ACTIVATE_SANITIZER),thread)
+SANITIZERS+=thread
+TLDPRELOAD+=$(shell /sbin/ldconfig -p | grep libtsan | sed -E 's/.*(libtsan.so.[0-9]+).*/\1/g' | head -n 1)
+ACTIVATE_SANITIZER:=true
+endif
+
+ifeq ($(ACTIVATE_SANITIZER),true)
 SANITIZERS_ARGS=$(patsubst %,-fsanitize=%,$(SANITIZERS))
 CFLAGS+=$(SANITIZERS_ARGS) -fno-omit-frame-pointer
 LDFLAGS+=$(SANITIZERS_ARGS)
-TLDPRELOAD+=$(shell /sbin/ldconfig -p | grep libasan | sed -E 's/.*(libasan.so.[0-9]+).*/\1/g' | head -n 1)
 endif
 
 # valgrind
 VALGRIND=valgrind
-
 
 # Target definition.
 TTARGETDIR=$(TRDIR)/test
