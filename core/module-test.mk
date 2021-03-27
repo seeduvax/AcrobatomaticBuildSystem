@@ -1,12 +1,22 @@
 ## 
 ## --------------------------------------------------------------------
 ## C/C++ Unit test services
+## ------------------------------------------------------------------------
 ## 
 ## Test services variables
 ## 
-##  - CPPUNIT: cppunit version. Default is set accorging your gcc version
+## - CPPUNIT: cppunit version. Default is set accorging your gcc version
 ##    - 1.14.0 for gcc >= 6.0
 ##    - 1.12.1 for gcc < 6.0
+## 
+## - ACTIVATE_SANITIZER: activate the compiler sanitizer
+##     - true: address sanitizer (leak memory detector)
+##     - thread: thread sanitizer (data race detector). Incompatible with address sanitizer
+## To disable the leak detection on sources compiled with address sanitizer, use the environment variable asan_options=detect_leaks=0
+## The sources must be compiled with test or testbuild targets to enjoy the full capacity of sanitizers
+## 
+## ------------------------------------------------------------------------
+## 
 CC_VERSION_GE6:=$(shell [ `echo "$(CC_VERSION)" | cut -f1 -d.` -ge 6 ] && echo true || echo false)
 ifeq ($(CC_VERSION_GE6),true)
 CPPUNIT?=cppunit-1.14.0
@@ -27,12 +37,20 @@ CFLAGS+=-I$(EXTLIBDIR)/$(CPPUNIT)/include
 LDFLAGS+=-L$(EXTLIBDIR)/$(CPPUNIT)/$(SODIR)
 
 # sanitizer
+# Only in test module to not impact the generated library in distribution targets.
 ifeq ($(ACTIVATE_SANITIZER),true)
 SANITIZERS+=address undefined
-TLDPRELOAD+=$(shell /sbin/ldconfig -p | grep libasan | sed -E 's/.*(libasan.so.[0-9]+).*/\1/g' | head -n 1)
+ifneq ($(filter clang%,$(CPPC)),)
+#-shared-libasan needed for clang
+CFLAGS+=-shared-libasan
+LDFLAGS+=-shared-libasan
+TLDPRELOAD+=$(shell $(CPPC) $(CFLAGS) --print-file-name=libclang_rt.asan-x86_64.so)
+else
+TLDPRELOAD+=$(shell $(CPPC) $(CFLAGS) --print-file-name=libasan.so)
+endif #ifneq ($(filter clang%,$(CPPC)),)
 else ifeq ($(ACTIVATE_SANITIZER),thread)
 SANITIZERS+=thread
-TLDPRELOAD+=$(shell /sbin/ldconfig -p | grep libtsan | sed -E 's/.*(libtsan.so.[0-9]+).*/\1/g' | head -n 1)
+TLDPRELOAD+=$(shell $(CPPC) $(CFLAGS) --print-file-name=libtsan.so)
 ACTIVATE_SANITIZER:=true
 endif
 
@@ -41,6 +59,7 @@ SANITIZERS_ARGS=$(patsubst %,-fsanitize=%,$(SANITIZERS))
 CFLAGS+=$(SANITIZERS_ARGS) -fno-omit-frame-pointer
 LDFLAGS+=$(SANITIZERS_ARGS)
 endif
+TLDPRELOADFORMATTED=$(subst $(_space_),:,$(TLDPRELOAD))
 
 # valgrind
 VALGRIND=valgrind
@@ -178,11 +197,11 @@ endef
 
 ifneq ($(ISWINDOWS),true)
 define exec-test
-@( [ -d test ] && PATH="$(RUNPATH)" LD_LIBRARY_PATH="$(TLDLIBP)" TRDIR="$(TRDIR)" TTARGETDIR="$(TTARGETDIR)" LD_PRELOAD="$(TLDPRELOAD)" $1 $(patsubst %,$(EXTLIBDIR)/%/bin/$(TESTRUNNER),$(CPPUNIT)) -x $(TTARGETDIR)/$(APPNAME)_$(MODNAME).xml $(TTARGETFILE) $(RUNARGS) $(patsubst %,+f %,$(T)) $(TARGS) 2>&1 | tee $(TTARGETDIR)/$(APPNAME)_$(MODNAME).stdout ) || true
+@( [ -d test ] && PATH="$(RUNPATH)" LD_LIBRARY_PATH="$(TLDLIBP)" TRDIR="$(TRDIR)" TTARGETDIR="$(TTARGETDIR)" LD_PRELOAD="$(TLDPRELOADFORMATTED)" $1 $(patsubst %,$(EXTLIBDIR)/%/bin/$(TESTRUNNER),$(CPPUNIT)) -x $(TTARGETDIR)/$(APPNAME)_$(MODNAME).xml $(TTARGETFILE) $(RUNARGS) $(patsubst %,+f %,$(T)) $(TARGS) 2>&1 | tee $(TTARGETDIR)/$(APPNAME)_$(MODNAME).stdout ) || true
 endef
 else
 define exec-test
-@( [ -d test ] && PATH="$(RUNPATH):$(TLDLIBP)" LD_LIBRARY_PATH="$(TLDLIBP)" TRDIR="$(TRDIR)" TTARGETDIR="$(TTARGETDIR)" LD_PRELOAD="$(TLDPRELOAD)" $1 $(patsubst %,$(EXTLIBDIR)/%/bin/$(TESTRUNNER),$(CPPUNIT)) -x $(TTARGETDIR)/$(APPNAME)_$(MODNAME).xml $(TCYGTARGET) $(RUNARGS) $(patsubst %,+f %,$(T)) $(TARGS) 2>&1 | tee $(TTARGETDIR)/$(APPNAME)_$(MODNAME).stdout ) || true
+@( [ -d test ] && PATH="$(RUNPATH):$(TLDLIBP)" LD_LIBRARY_PATH="$(TLDLIBP)" TRDIR="$(TRDIR)" TTARGETDIR="$(TTARGETDIR)" LD_PRELOAD="$(TLDPRELOADFORMATTED)" $1 $(patsubst %,$(EXTLIBDIR)/%/bin/$(TESTRUNNER),$(CPPUNIT)) -x $(TTARGETDIR)/$(APPNAME)_$(MODNAME).xml $(TCYGTARGET) $(RUNARGS) $(patsubst %,+f %,$(T)) $(TARGS) 2>&1 | tee $(TTARGETDIR)/$(APPNAME)_$(MODNAME).stdout ) || true
 endef
 endif
 
