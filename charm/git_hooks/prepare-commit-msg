@@ -3,4 +3,5 @@
 PRJROOT=`git rev-parse --show-toplevel`
 CRWDIR=$PRJROOT/build/charm
 CRID=`grep '^CRID:=' $CRWDIR/vars.mk | cut -f 2 -d '=' | cut -c 1-7`
-fgrep -q "#$CRID " "$1" || sed -E  -i "1s/(.*)/#$CRID \1/g" "$1"
+# a space before CRID to avoid the remove of line by git amend. (# is consider as a comment)
+fgrep -q " #$CRID " "$1" || sed -E  -i "1s/(.*)/ #$CRID \1/g" "$1"
