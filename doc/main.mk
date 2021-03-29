@@ -63,6 +63,8 @@ CSS:=$(patsubst src/%,$(HTMLDIR)/%,$(filter %.css,$(SRCFILES)))
 
 ABSDOCDIR:=$(dir $(lastword $(MAKEFILE_LIST)))
 
+-include $(patsubst src/%.heml,$(OBJDIR)/%.heml.d,$(HEML))
+
 $(OBJDIR)/hemldeps.mk: $(HEMLS)
 	@mkdir -p $(@D)
 	@$(ABSDOCDIR)/hemldeps.sh $(HEMLS) > $@
@@ -152,13 +154,13 @@ define absHemlTransformation
 endef
 
 $(HTMLDIR)/%.html: src/%.heml $(HEMLJAR)
-	$(call absHemlTransformation,$(HEMLTOXHTML_STYLE))
+	$(call absHemlTransformation,$(HEMLTOXHTML_STYLE) -dep $(patsubst src/%.heml,$(OBJDIR)/%.heml.d,$<))
 
 $(DBDIR)/%.xml: src/%.heml $(HEMLJAR)
-	$(call absHemlTransformation,$(HEMLTOXML_STYLE))
+	$(call absHemlTransformation,$(HEMLTOXML_STYLE) -dep $(patsubst src/%.heml,$(OBJDIR)/%.heml.d,$<))
 
 $(TEXDIR)/%.tex: src/%.heml $(HEMLJAR)
-	$(call absHemlTransformation,$(HEMLTOTEX_STYLE))
+	$(call absHemlTransformation,$(HEMLTOTEX_STYLE) -dep $(patsubst src/%.heml,$(OBJDIR)/%.heml.d,$<))
 
 TEXDEFAULTINPUTS?=:
 ifneq ($(TEXINPUTS),)
