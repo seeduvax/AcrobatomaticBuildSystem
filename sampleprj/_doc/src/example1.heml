@@ -1,4 +1,5 @@
-{?set %encoding=utf-8}
+{?set %encoding=utf-8
+      %line=wrap}
 {document 
  {title Document example}
  {reference XXX-000-YYY}
@@ -13,11 +14,18 @@ Added test procedure section (§{xref SecTest})
  }
 {section %title=section title.
   {section %title=subsection 1.1 title
-Paragraphe Paragraphe dfqskdjfh lqsdkflqskdfhlqskdflkqsdjfl qksdf lkqs dflk qsldkf lqsdkfl qskdf lqskdflkqsdj flk qsdlfk qlskdf lqskd flkqsd fl qsdlfk qlsdkf lqskdflqskd flkqsdj flkq sdlkf qlskdflk qsd flkqsd $plop.
-Paragraphe Paragraphe dfqskdjfh lqsdkflqskdfhlqskdflkqsdjfl qksdf lkqs dflk qsldkf lqsdkfl qskdf lqskdflkqsdj flk qsdlfk qlskdf lqskd flkqsd fl qsdlfk qlsdkf lqskdflqskd flkqsdj flkq sdlkf qlskdflk qsd flkqsd.
+Paragraphe Paragraphe dfqskdjfh lqsdkflqskdfhlqskdflkqsdjfl qksdf lkqs dflk
+qsldkf lqsdkfl qskdf lqskdflkqsdj flk qsdlfk qlskdf lqskd flkqsd fl qsdlfk
+qlsdkf lqskdflqskd flkqsdj flkq sdlkf qlskdflk qsd flkqsd $plop.
+
+Paragraphe Paragraphe dfqskdjfh lqsdkflqskdfhlqskdflkqsdjfl qksdf lkqs dflk
+qsldkf lqsdkfl qskdf lqskdflkqsdj flk qsdlfk qlskdf lqskd flkqsd fl qsdlfk
+qlsdkf lqskdflqskd flkqsdj flkq sdlkf qlskdflk qsd flkqsd.
   }
   {section %title=subsection 1.2 title
-Paragraphe Paragraphe dfqskdjfh lqsdkflqskdfhlqskdflkqsdjfl qksdf lkqs dflk qsldkf lqsdkfl qskdf lqskdflkqsdj flk qsdlfk qlskdf lqskd flkqsd fl qsdlfk qlsdkf lqskdflqskd flkqsdj flkq sdlkf qlskdflk qsd flkqsd.
+Paragraphe Paragraphe dfqskdjfh lqsdkflqskdfhlqskdflkqsdjfl qksdf lkqs dflk
+qsldkf lqsdkfl qskdf lqskdflkqsdj flk qsdlfk qlskdf lqskd flkqsd fl qsdlfk
+qlsdkf lqskdflqskd flkqsdj flkq sdlkf qlskdflk qsd flkqsd.
   - enum 1
   - enum 2
     - enum 2.1
@@ -25,6 +33,7 @@ Paragraphe Paragraphe dfqskdjfh lqsdkflqskdfhlqskdflkqsdjfl qksdf lkqs dflk qsld
   - enum 3
   }
 }
+{?include %src=src/incsection.heml.inc}
 {section %title=Miscellaneous examples 
   {references %title=References %id=X
 {ref %id=AA %authors=Max Power %edition=1 %date=1972 %ref=ISBN-11221-42 %%1st reference title}
@@ -45,9 +54,11 @@ This is not a requirement, but just companion text to provide a better understan
 {req %id=req.3 %%Each requirement shall have a unique identifier}
   }
   {section %title=Highlights
-Paragraphe may have {em some emphasis} content or enclosed {kw keyword} in the text. As well this is a citation:
+Paragraphe may have {em some emphasis} content or enclosed {kw keyword} in the
+text. As well this is a citation:
 {q Science is what we understand well enough to explain to a computer. Art is everything else we do.}
 blabla {todo to complete the doc add the missing parts.} blabla. Covers: {req req.2}.
+
 Let's go to {a %href=http://kernel.org %%the linux kernel archives}.
 {note %title=information box
 Some complementary informations, advices, best practices... See doc {xref CC} and {xref BB} for more details.
@@ -111,7 +122,8 @@ A % Very long text in one colomn to check it will resize everything automaticall
 }
   }
   {section %title=figure / uml
-You should see below a simple UML class diagram showing two classes and an inheritance link {req req.2}:
+You should see below a simple UML class diagram showing two classes and an
+inheritance link {req req.2}:
 {fig %title=uml %src=uml.png %xref=FigUML}
 {#
 @startuml uml.png
