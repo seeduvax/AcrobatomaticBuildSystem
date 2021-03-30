@@ -1,5 +1,10 @@
 #!/bin/sh
 
+if [ "$*" = "" ]
+then
+	exit 1
+fi
+
 IFS=": "
 fgrep "@startum" $* | while read srcFile staruml img
 do
