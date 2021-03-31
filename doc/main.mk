@@ -18,7 +18,7 @@ HTML_STYLE_BUNDLE+=$(patsubst %,$(ABSROOT)/doc/html/%.tar.gz,style impress.js hi
 # files to be processed by doxygen.
 DOXSRCFILES:=$(shell find $(PRJROOT) -name *.h -o -name *.c -o -name *.hpp -o -name *.cpp -o -name *.py -o -name *.java | fgrep -v "/build/" | fgrep -v "/dist/" | fgrep -v "$(ABSROOT)")
 
-HEMLVERSION?=1.0.4
+HEMLVERSION?=1.0.5
 HEMLARGS:=-param app $(APPNAME) -param version $(VERSION) -param date "`date --rfc-3339 s`" -param user $$USER -param host $(shell hostname)
 
 PUMLVERSION?=1.2017.12
@@ -63,7 +63,10 @@ CSS:=$(patsubst src/%,$(HTMLDIR)/%,$(filter %.css,$(SRCFILES)))
 
 ABSDOCDIR:=$(dir $(lastword $(MAKEFILE_LIST)))
 
--include $(patsubst src/%.heml,$(OBJDIR)/%.heml.d,$(HEMLS))
+-include $(patsubst src/%.heml,$(OBJDIR)/%.html.d,$(HEMLS))
+ifeq ($(HASLATEX),true)
+-include $(patsubst src/%.heml,$(OBJDIR)/%.tex.d,$(HEMLS))
+endif
 
 $(OBJDIR)/hemldeps.mk: $(HEMLS)
 	@mkdir -p $(@D)
@@ -154,13 +157,13 @@ define absHemlTransformation
 endef
 
 $(HTMLDIR)/%.html: src/%.heml $(HEMLJAR)
-	$(call absHemlTransformation,$(HEMLTOXHTML_STYLE) -dep $(patsubst src/%.heml,$(OBJDIR)/%.heml.d,$<))
+	$(call absHemlTransformation,$(HEMLTOXHTML_STYLE) -dep $(patsubst $(HTMLDIR)/%,$(OBJDIR)/%.d,$@))
 
 $(DBDIR)/%.xml: src/%.heml $(HEMLJAR)
-	$(call absHemlTransformation,$(HEMLTOXML_STYLE) -dep $(patsubst src/%.heml,$(OBJDIR)/%.heml.d,$<))
+	$(call absHemlTransformation,$(HEMLTOXML_STYLE) -dep $(patsubst $(DBDIR)/%,$(OBJDIR)/%.d,$@))
 
 $(TEXDIR)/%.tex: src/%.heml $(HEMLJAR)
-	$(call absHemlTransformation,$(HEMLTOTEX_STYLE) -dep $(patsubst src/%.heml,$(OBJDIR)/%.heml.d,$<))
+	$(call absHemlTransformation,$(HEMLTOTEX_STYLE) -dep $(patsubst $(TEXDIR)/%,$(OBJDIR)/%.d,$@))
 
 TEXDEFAULTINPUTS?=:
 ifneq ($(TEXINPUTS),)
