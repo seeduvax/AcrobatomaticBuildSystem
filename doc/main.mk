@@ -2,7 +2,6 @@
 ## --------------------------------------------------------------------
 ## Documentation services
 ## 
-
 MODNAME?=_doc
 DOCDIR:=$(TRDIR)/share/doc/$(APPNAME)
 PDFDIR:=$(DOCDIR)/pdf
@@ -18,7 +17,7 @@ HTML_STYLE_BUNDLE+=$(patsubst %,$(ABSROOT)/doc/html/%.tar.gz,style impress.js hi
 # files to be processed by doxygen.
 DOXSRCFILES:=$(shell find $(PRJROOT) -name *.h -o -name *.c -o -name *.hpp -o -name *.cpp -o -name *.py -o -name *.java | fgrep -v "/build/" | fgrep -v "/dist/" | fgrep -v "$(ABSROOT)")
 
-HEMLVERSION?=1.0.5
+HEMLVERSION?=1.0.6
 HEMLARGS:=-param app $(APPNAME) -param version $(VERSION) -param date "`date --rfc-3339 s`" -param user $$USER -param host $(shell hostname)
 
 PUMLVERSION?=1.2017.12
@@ -63,16 +62,18 @@ CSS:=$(patsubst src/%,$(HTMLDIR)/%,$(filter %.css,$(SRCFILES)))
 
 ABSDOCDIR:=$(dir $(lastword $(MAKEFILE_LIST)))
 
+ifneq ($(MAKECMDGOALS),clean)
 -include $(patsubst src/%.heml,$(OBJDIR)/%.html.d,$(HEMLS))
 ifeq ($(HASLATEX),true)
 -include $(patsubst src/%.heml,$(OBJDIR)/%.tex.d,$(HEMLS))
 endif
 
-$(OBJDIR)/hemldeps.mk: $(HEMLS)
+$(OBJDIR)/pumldeps.mk: $(SRCFILES)
 	@mkdir -p $(@D)
-	@$(ABSDOCDIR)/hemldeps.sh $(HEMLS) > $@
+	@$(ABSDOCDIR)/pumldeps.sh $(SRCFILES) > $@
 
-include $(OBJDIR)/hemldeps.mk
+include $(OBJDIR)/pumldeps.mk
+endif
 
 ## XSL Stylesheets definition:
 ##   - HEMLTOTEX_STYLE: tex (pdf)
@@ -141,7 +142,7 @@ $(HTMLDIR)/%.png: src/%.dia
 	@MROOT=`pwd` ; cd $(@D) ; dia -t png $$MROOT/$^
 endif
 
-$(OBJDIR)/%.pumlgenerated: src/%.heml $(PUMLJAR)
+$(OBJDIR)/%.pumlgenerated: src/% $(PUMLJAR)
 	@mkdir -p $(@D)
 	@mkdir -p $(HTMLDIR)/$(*D)
 	@$(ABS_PRINT_info) "Generating uml from $<"
@@ -162,7 +163,7 @@ $(HTMLDIR)/%.html: src/%.heml $(HEMLJAR)
 $(DBDIR)/%.xml: src/%.heml $(HEMLJAR)
 	$(call absHemlTransformation,$(HEMLTOXML_STYLE) -dep $(patsubst $(DBDIR)/%,$(OBJDIR)/%.d,$@))
 
-$(TEXDIR)/%.tex: src/%.heml $(HEMLJAR)
+$(TEXDIR)/%.tex: src/%.heml $(HEMLJAR) $(IMGS)
 	$(call absHemlTransformation,$(HEMLTOTEX_STYLE) -dep $(patsubst $(TEXDIR)/%,$(OBJDIR)/%.d,$@))
 
 TEXDEFAULTINPUTS?=:
@@ -172,7 +173,7 @@ endif
 TEXINPUTS:=$(TEXINPUTS)$(ABSROOT)/doc/tex//:$(OBJDIR):$(TEXDIR):$(HTMLDIR):$(CURDIR)/src$(TEXDEFAULTINPUTS)
 TEXENV=TEXINPUTS=$(TEXINPUTS)
 
-$(PDFDIR)/%.pdf: $(TEXDIR)/%.tex $(IMGS) $(OBJDIR)/%.pumlgenerated
+$(PDFDIR)/%.pdf: $(TEXDIR)/%.tex
 	@$(ABS_PRINT_info) "Processing TEX $<"
 	@mkdir -p $(@D)
 	@mkdir -p $(OBJDIR)
@@ -197,7 +198,7 @@ else
 endif
 
 ##  - html: generates html files and companion images from heml files.
-html: $(HTMLS) $(IMGS) $(CSS)
+html: $(HTMLS)
 
 ##  - pdf: generates pdf files and companion images from heml files. pdf 
 ##    generation is available only from host having a latex package including
@@ -213,7 +214,8 @@ docbook: $(DOCBOOKS)
 
 
 clean::
-	rm -rf $(DOCDIR)
+	@$(ABS_PRINT_info) "Deleting generated doc dir <builddir>/share/doc/$(APPNAME)"
+	@rm -rf $(DOCDIR)
 
 ##  - odoc L=<libname>: open application document directory in browser
 odoc:
