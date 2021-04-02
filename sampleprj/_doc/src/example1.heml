@@ -125,8 +125,7 @@ A % Very long text in one colomn to check it will resize everything automaticall
 You should see below a simple UML class diagram showing two classes and an
 inheritance link {req req.2}:
 {fig %title=uml %src=uml.png %xref=FigUML}
-{#
-@startuml uml.png
+{# @startuml uml.png
 Parent <|-- Child
 @enduml
 #}
@@ -135,7 +134,7 @@ You should see below the rendering of src/diaSample.dia:
 You should see below a directed graph:
 {fig %title=digraph %src=digraph.png}
 {#
-@startdot digraph.png
+@startdot digraph.png 
 digraph G {
 	node [ shape=box, style="rounded,dashed,filled" ];
 	edge [ color=blue ];
@@ -145,7 +144,7 @@ digraph G {
 	"Node 1" -> "Node 2";
 	"Node 2" -> "Node 3";
 	"Node 3" -> "Node 1";
-}
+} 
 @enddot
 #}
   }
