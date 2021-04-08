@@ -63,12 +63,15 @@ $(OBJDIR)/$(LKMNAME)_main__.c: src/$(LKMNAME).c
 $(OBJDIR)/%.c: src/%.c
 	$(forward-command)
 
+$(OBJDIR)/%.obj: src/%.obj
+	$(forward-command)
+
 $(OBJDIR)/%.h: src/%.h
 	mkdir -p $(@D)
 	cp $^ $@
 
-LKMSRC=$(subst /$(LKMNAME).c,/$(LKMNAME)_main__.c,$(patsubst src/%,$(OBJDIR)/%,$(shell find src -name "*.c" $(patsubst %, -a -not -name %,$(DISABLE_SRC)))))
-LKMOBJ=$(patsubst $(OBJDIR)/%.c,%.o,$(LKMSRC))
+LKMSRC=$(subst /$(LKMNAME).c,/$(LKMNAME)_main__.c,$(patsubst src/%,$(OBJDIR)/%,$(shell find src -name "*.c" -o -name "*.obj" $(patsubst %, -a -not -name %,$(DISABLE_SRC)))))
+LKMOBJ=$(patsubst $(OBJDIR)/%.obj,%.obj,$(patsubst $(OBJDIR)/%.c,%.o,$(LKMSRC)))
 LKMH=$(patsubst src/%,$(OBJDIR)/%,$(shell find src -name "*.h"))
 
 
