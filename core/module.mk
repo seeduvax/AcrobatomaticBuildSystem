@@ -130,7 +130,8 @@ OBJDIR?=$(TRDIR)/obj/$(MODNAME)
 
 MODULE_TYPES_MAP+=$(ABSROOT)/core/module-%.mk:linuxmodule,java,python,library,exe,fileset,absext,arduino \
     $(ABSROOT)/%/main.mk:doc \
-    $(ABSROOT)/core/module-java.mk:jar
+    $(ABSROOT)/core/module-java.mk:jar \
+	$(ABSROOT)/%/main.mk:fpga
 
 comma:=,
 define findModTypeInMap
