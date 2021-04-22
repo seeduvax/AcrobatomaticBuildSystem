@@ -16,7 +16,7 @@ $(OBJDIR)/%.qsf: $(QUARTUS_QSF_TEMPLATE)
 $(OBJDIR)/srcfiles.qsf:
 	@mkdir -p $(@D)
 	@echo 'set_global_assignment -name TOP_LEVEL_ENTITY "$(TOP_LEVEL_ENTITY)"' > $@
-	@for file in `find src -name "*.vhd"`;\
+	@for file in $(VHDLSRC);\
 	do echo "set_global_assignment -name VHDL_FILE $(CURDIR)/$$file" >> $@ ;\
 	done
 
@@ -39,7 +39,7 @@ $(TRDIR)/lib/%.rbf: $(OBJDIR)/%.sof
 	@$(QUARTUS_CPF) -c $(QUARTUS_CPFFLAGS) $< $@
 
 
-all: $(TRDIR)/lib/$(MODNAME).rbf
+rbf: $(TRDIR)/lib/$(MODNAME).rbf
 
 .PHONY: toplevel
 toplevel:
