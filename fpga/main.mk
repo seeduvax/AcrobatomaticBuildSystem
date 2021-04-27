@@ -14,7 +14,7 @@ endif
 define HDLCOMP
 	@$(ABS_PRINT_info) "Compiling HDL $<..."
 	@mkdir -p $(@D)
-	@$(VHDLC) -a --workdir=$(@D) --ieee=synopsys $<
+	@$(VHDLC) -a --workdir=$(@D) --ieee=synopsys $(VHDLCFLAGS) $<
 endef
 
 $(OBJDIR)/sim/%.o: src/%.vhdl
@@ -32,10 +32,10 @@ $(OBJDIR)/sim/sim_%.o: test/%.vhdl $(OBJHDL)
 $(OBJDIR)/sim/sim_%: $(OBJDIR)/sim/sim_%.o
 	@$(ABS_PRINT_info) "Building HDL simulation $(@F)..."
 	@mkdir -p $(@D)
-	@$(VHDLC) -e --ieee=synopsys --workdir=$(@D) -Wl,-lgnat -Wl,-o$@ $(patsubst sim_%,%,$(@F))
+	@$(VHDLC) -e --ieee=synopsys --workdir=$(@D) $(VHDLCFLAGS) -Wl,-lgnat -Wl,-o$@ $(patsubst sim_%,%,$(@F))
 $(OBJDIR)/sim/sim_%.ghw: $(OBJDIR)/sim/sim_%
 	@$(ABS_PRINT_info) "Running HDL simulation $(<F)..."
-	@$< --stop-time=20ms --wave=$@
+	@$< --wave=$@
 
 ifeq ($(word 1,$(MAKECMDGOALS)),viewsim)
 SIMNAME:=$(word 2,$(MAKECMDGOALS))
