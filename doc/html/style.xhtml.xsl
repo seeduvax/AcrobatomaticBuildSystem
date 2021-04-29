@@ -111,6 +111,25 @@
 		<pre><code class="{@language}"><xsl:apply-templates select="pre/text()"/></code></pre>
 	</div>	
 </xsl:template>
+<!--******************************
+	Comment
+-->
+<xsl:template match="comment">
+  <div class="comment_{@state}">#rmk.<xsl:value-of select="@id"/>
+  <div class="comment_content">
+<ul>
+      <p><b>[<xsl:value-of select="@state"/>] - From: <xsl:value-of select="@author"/></b></p>
+      <xsl:apply-templates select="*"/>
+</ul>
+  </div>
+  </div>
+</xsl:template>
+<xsl:template match="reply">
+  <ul>
+  <p>From: <xsl:value-of select="@author"/></p>
+  <xsl:apply-templates select="*"/>
+  </ul>
+</xsl:template>
 
 <!--******************************
 	inclusion d'un fichier texte
@@ -590,7 +609,7 @@ include(<xsl:value-of select="@src"/>.txt)
 	</xsl:if>
 <xsl:choose>
 	<xsl:when test="$content-template='section'">
-		<xsl:apply-templates select="toc|section|xhtml"/>
+		<xsl:apply-templates select="toc|section|xhtml|comment"/>
 	</xsl:when>
 	<xsl:otherwise>
 		<xsl:apply-templates/>

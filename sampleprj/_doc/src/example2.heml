@@ -21,12 +21,6 @@ qlsdkf lqskdflqskd flkqsdj flkq sdlkf qlskdflk qsd flkqsd $plop.
 Paragraphe Paragraphe dfqskdjfh lqsdkflqskdfhlqskdflkqsdjfl qksdf lkqs dflk
 qsldkf lqsdkfl qskdf lqskdflkqsdj flk qsdlfk qlskdf lqskd flkqsd fl qsdlfk
 qlsdkf lqskdflqskd flkqsdj flkq sdlkf qlskdflk qsd flkqsd.
-{comment %author=me %id=ME-1 %state=open
-WTF! this text above means nothing!
-  {reply %author=you
-     Don't care. No meaning needed. Just text layout example.
-  }
-}
   }
   {section %title=subsection 1.2 title
 Paragraphe Paragraphe dfqskdjfh lqsdkflqskdfhlqskdflkqsdjfl qksdf lkqs dflk
@@ -35,15 +29,9 @@ qlsdkf lqskdflqskd flkqsdj flkq sdlkf qlskdflk qsd flkqsd.
   - enum 1
   - enum 2
     - enum 2.1
-      {comment %author=me %id=ME-3 %state=open
-      Comment inside an enum
-      }
     - enum 2.2
   - enum 3
   }
-}
-{comment %author=me %id=ME-2 %state=closed
-Add here an include example
 }
 {?include %src=src/incsection.heml.inc}
 {section %title=Miscellaneous examples 
@@ -143,9 +131,6 @@ Parent <|-- Child
 #}
 You should see below the rendering of src/diaSample.dia:
 {fig %title=dia diagram %src=diaSample.png %xref=FigDia}
-{comment %author=me %id=ME-21 %state=open
-to check comment index sorting.
-}
 You should see below a directed graph:
 {fig %title=digraph %src=digraph.png}
 {#

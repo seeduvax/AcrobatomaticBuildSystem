@@ -179,6 +179,27 @@ select="substring-after($text,$from)"/>
 \hl{<xsl:apply-templates/>}
 </xsl:template>
 <!--************************************************
+   comments
+-->
+<xsl:template match="comment">
+\HEMLcommentref{<xsl:value-of select="@id"/>}
+</xsl:template>
+
+<xsl:template match="comment" mode="detail">
+Comment \#<xsl:value-of select="@id"/> [<xsl:value-of select="@state"/>] <xsl:value-of select="@author"/>
+
+<xsl:apply-templates/>
+</xsl:template>
+
+<xsl:template match="reply">
+\begin{HEMLitemize}
+<xsl:value-of select="@author"/>
+
+<xsl:apply-templates/>
+\end{HEMLitemize}
+</xsl:template>
+
+<!--************************************************
      	figure
 -->
 <xsl:template match="fig">
@@ -461,8 +482,14 @@ select="substring-after($text,$from)"/>
     \maketitle
     \input{code.sty}
     
-    <xsl:apply-templates select="section"/>
+    <xsl:apply-templates select="section|comment"/>
     <xsl:apply-templates select="appendices"/>
+
+    <xsl:if test="count(.//comment)&gt;0">
+	<xsl:apply-templates select=".//comment" mode="detail">
+		<xsl:sort select="@id" data-type="number"/>
+        </xsl:apply-templates>
+    </xsl:if>
     \end{document}
 </xsl:template>
 

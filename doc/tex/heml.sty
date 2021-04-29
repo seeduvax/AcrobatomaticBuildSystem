@@ -34,8 +34,8 @@
 \setlength{\hoffset}{-1in}
 \setlength{\voffset}{-1in}
 \setlength{\oddsidemargin}{1.5cm}
-\setlength{\marginparsep}{0cm}
-\setlength{\marginparwidth}{0cm}
+\setlength{\marginparsep}{0.1cm}
+\setlength{\marginparwidth}{1.3cm}
 \setlength{\textwidth}{18cm}
 \setlength{\topmargin}{0.5cm}
 \setlength{\textheight}{25.3cm}
@@ -131,6 +131,21 @@
 
 \end{tcolorbox}
 }
+\newcommand{\HEMLcommentref}[1]{\marginpar{
+\begin{tcolorbox}[
+    left=0.1cm,
+    right=0.1cm,
+    top=0.1cm,
+    bottom=0.1cm,
+    colback=black!10,
+    colframe=white,
+    width=\dimexpr\textwidth\relax,
+    enlarge left by=0mm,
+    boxsep=0cm,
+    arc=0pt,outer arc=0pt]
+{\tiny #1}
+\end{tcolorbox}
+}}
 
 \newcommand{\HEMLoperationBegin}{
 \begin{tcolorbox}[left=0.1cm,
