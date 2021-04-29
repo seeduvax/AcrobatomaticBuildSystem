@@ -104,6 +104,8 @@
 \newcommand{\HEMLdraft}{false}
 \definecolor{darkred}{rgb}{0.55, 0.0, 0.0}
 \newcommand{\HEMLkw}[1]{\texttt{\textcolor{darkred}{#1}}}
+
+
 \newcommand\HEMLfigScale{0.5}
 \definecolor{darkblue}{rgb}{0.0, 0.0, 0.55}
 \newcommand{\HEMLreqReference}[1]{\colorbox{yellow!10}{\textbf{\textcolor{darkblue}{#1}}}}
@@ -279,6 +281,11 @@
 
 \renewcommand{\familydefault}{\sfdefault}
 \renewcommand*\contentsname{Summary}
+
+% TBC / TBD
+\newcommand{\HEMLtbd}[2]{\colorbox{orange!12}{#1 [TBD#2]\label{tbd.#2}}}
+\newcommand{\HEMLtbc}[2]{\colorbox{orange!12}{#1 [TBC#2]\label{tbc.#2}}}
+\newcommand{\HEMLtbindexhead}{\section{Incompletness}}
 
 % Pictures
 \newcommand{\HEMLPicture}[2]{\ifthenelse{\equal{#1}{undefined}} {} {\includegraphics[#2]{#1}} }

@@ -81,6 +81,7 @@ Some complementary informations, advices, best practices... See doc {xref CC} an
 {note %type=warning %title=warning box
 Some complementary detail to take care, special cautions...
 }
+Sometime there are things we are unsure but a guess is done: {tbc next human flight to the moon will lift off in 2025}, while others are not yet known: {tbd next human on the moon name}.
   }
   {section %title=Tables
 {table %title=Table example %xref=TableEX
@@ -210,9 +211,12 @@ No error on 1st action.
     {assert
 Action 2 result is 42.
     }
+{tbd the question that match 42 answer.}
   }
 }
+{appendices
 {section %title=Requirement references
   {index %type=req}
+}
 }
 }

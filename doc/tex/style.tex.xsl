@@ -145,8 +145,6 @@ select="substring-after($text,$from)"/>
         Appendices
 -->
 <xsl:template match="appendices">
-\clearpage
-\appendix
 <xsl:apply-templates select="section" mode="appendix"/>
 </xsl:template>
 
@@ -177,6 +175,22 @@ select="substring-after($text,$from)"/>
 </xsl:template>
 <xsl:template match="todo">
 \hl{<xsl:apply-templates/>}
+</xsl:template>
+<!--************************************************
+   TBC/TBD
+-->
+<xsl:template match="tbc">
+\HEMLtbc{<xsl:apply-templates/>}{<xsl:value-of select="count(preceding::tbc)+1"/>}
+</xsl:template>
+<xsl:template match="tbd">
+\HEMLtbd{<xsl:apply-templates/>}{<xsl:value-of select="count(preceding::tbd)+1"/>}
+</xsl:template>
+<xsl:template match="tbc" mode="index">
+TBC<xsl:value-of select="count(preceding::tbc)+1"/> &amp; \pageref{tbc.<xsl:value-of select="count(preceding::tbc)+1"/>} &amp; <xsl:apply-templates/> \\
+
+</xsl:template>
+<xsl:template match="tbd" mode="index">
+TBD<xsl:value-of select="count(preceding::tbd)+1"/> &amp; \pageref{tbd.<xsl:value-of select="count(preceding::tbd)+1"/>} &amp; <xsl:apply-templates/> \\
 </xsl:template>
 <!--************************************************
    comments
@@ -480,12 +494,29 @@ select="substring-after($text,$from)"/>
     \input{code.sty}
     
     <xsl:apply-templates select="section|comment"/>
-    <xsl:apply-templates select="appendices"/>
-    <xsl:if test="count(.//comment)&gt;0">
-        <xsl:if test="count(appendices)=0">
+    <xsl:if test="count(appendices) + count(.//comment) + count(.//tbc) + count(.//tbd)&gt;0">
             \clearpage
             \appendix
+    </xsl:if>
+    <xsl:apply-templates select="appendices"/> 
+    <xsl:if test="count(.//tbc) + count(.//tbd) &gt; 0">
+        \HEMLtbindexhead
+        <xsl:if test="count(.//tbc) &gt; 0">
+\begin{HEMLtable}{|X[-1]|X[-1]|X[-1]}{}
+\textbf{ref} &amp; \textbf{page} &amp; \textbf{summary}
+\endhead
+           <xsl:apply-templates select=".//tbc" mode="index"/>
+\end{HEMLtable}
         </xsl:if>
+        <xsl:if test="count(.//tbd) &gt; 0">
+\begin{HEMLtable}{|X[-1]|X[-1]|X[-1]}{}
+\textbf{ref} &amp; \textbf{page} &amp; \textbf{summary}
+\endhead
+           <xsl:apply-templates select=".//tbd" mode="index"/>
+\end{HEMLtable}
+        </xsl:if>
+    </xsl:if>
+    <xsl:if test="count(.//comment)&gt;0">
         \HEMLcommentdetailhead
 	<xsl:apply-templates select=".//comment" mode="detail">
 		<xsl:sort select="@id"/>
