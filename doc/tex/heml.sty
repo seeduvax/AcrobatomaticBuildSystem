@@ -131,21 +131,68 @@
 
 \end{tcolorbox}
 }
-\newcommand{\HEMLcommentref}[1]{\marginpar{
+
+\newcommand{\HEMLcommentcolor}{orange!14}
+\newcommand{\HEMLcommentref}[2]{
+\ifthenelse{\equal{#2}{open}}{
+\renewcommand{\HEMLcommentcolor}{orange!14}
+}{
+\renewcommand{\HEMLcommentcolor}{green!14}
+}
+\marginpar{
 \begin{tcolorbox}[
     left=0.1cm,
     right=0.1cm,
     top=0.1cm,
     bottom=0.1cm,
-    colback=black!10,
-    colframe=white,
-    width=\dimexpr\textwidth\relax,
     enlarge left by=0mm,
+    colback=\HEMLcommentcolor,
     boxsep=0cm,
     arc=0pt,outer arc=0pt]
-{\tiny #1}
+{\small #1}
+\label{comment.#1}
 \end{tcolorbox}
 }}
+\newcommand{\HEMLcommentdetailhead}{\section{Comments and discussions}}
+\newcommand{\HEMLcommentdetailbegin}[3]{
+\ifthenelse{\equal{#2}{open}}{
+\renewcommand{\HEMLcommentcolor}{orange!14}
+}{
+\renewcommand{\HEMLcommentcolor}{green!14}
+}
+\begin{tcolorbox}[
+    left=0.5cm,
+    right=0.1cm,
+    top=0.1cm,
+    bottom=0.1cm,
+    leftrule=2mm,
+    coltitle=black,
+    colframe=black!30,
+    colbacktitle=\HEMLcommentcolor,
+    colback=white,
+    boxsep=0cm,
+    title=\##1 - p\pageref{comment.#1} - #2 - #3]
+}
+\newcommand{\HEMLcommentdetailend}{
+\end{tcolorbox}
+}
+\newcommand{\HEMLreplybegin}[1]{
+\begin{tcolorbox}[
+    left=0.5cm,
+    right=0.1cm,
+    top=0.1cm,
+    bottom=0.1cm,
+    leftrule=2mm,
+    colback=white,
+    colframe=black!30,
+    colbacktitle=\HEMLcommentcolor,
+    coltitle=black,
+    boxsep=0cm,
+    title=#1]
+}
+\newcommand{\HEMLreplyend}{
+\end{tcolorbox}
+}
 
 \newcommand{\HEMLoperationBegin}{
 \begin{tcolorbox}[left=0.1cm,

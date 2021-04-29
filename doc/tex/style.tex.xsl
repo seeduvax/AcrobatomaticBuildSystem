@@ -182,21 +182,18 @@ select="substring-after($text,$from)"/>
    comments
 -->
 <xsl:template match="comment">
-\HEMLcommentref{<xsl:value-of select="@id"/>}
+\HEMLcommentref{<xsl:value-of select="@id"/>}{<xsl:value-of select="@state"/>}
 </xsl:template>
-
 <xsl:template match="comment" mode="detail">
-Comment \#<xsl:value-of select="@id"/> [<xsl:value-of select="@state"/>] <xsl:value-of select="@author"/>
+\HEMLcommentdetailbegin{<xsl:value-of select="@id"/>}{<xsl:value-of select="@state"/>}{<xsl:value-of select="@author"/>}
 
 <xsl:apply-templates/>
+\HEMLcommentdetailend
 </xsl:template>
-
 <xsl:template match="reply">
-\begin{HEMLitemize}
-<xsl:value-of select="@author"/>
-
+\HEMLreplybegin{<xsl:value-of select="@author"/>}
 <xsl:apply-templates/>
-\end{HEMLitemize}
+\HEMLreplyend
 </xsl:template>
 
 <!--************************************************
@@ -484,10 +481,14 @@ Comment \#<xsl:value-of select="@id"/> [<xsl:value-of select="@state"/>] <xsl:va
     
     <xsl:apply-templates select="section|comment"/>
     <xsl:apply-templates select="appendices"/>
-
     <xsl:if test="count(.//comment)&gt;0">
+        <xsl:if test="count(appendices)=0">
+            \clearpage
+            \appendix
+        </xsl:if>
+        \HEMLcommentdetailhead
 	<xsl:apply-templates select=".//comment" mode="detail">
-		<xsl:sort select="@id" data-type="number"/>
+		<xsl:sort select="@id"/>
         </xsl:apply-templates>
     </xsl:if>
     \end{document}
