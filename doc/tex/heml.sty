@@ -135,11 +135,12 @@
 }
 
 \newcommand{\HEMLcommentcolor}{orange!14}
+\newcommand{\HEMLcommentfrcolor}{orange!14}
 \newcommand{\HEMLcommentref}[2]{
 \ifthenelse{\equal{#2}{open}}{
-\renewcommand{\HEMLcommentcolor}{orange!14}
+\renewcommand{\HEMLcommentcolor}{orange!30}
 }{
-\renewcommand{\HEMLcommentcolor}{green!14}
+\renewcommand{\HEMLcommentcolor}{green!30}
 }
 \marginpar{
 \begin{tcolorbox}[
@@ -158,9 +159,11 @@
 \newcommand{\HEMLcommentdetailhead}{\section{Comments and discussions}}
 \newcommand{\HEMLcommentdetailbegin}[3]{
 \ifthenelse{\equal{#2}{open}}{
-\renewcommand{\HEMLcommentcolor}{orange!14}
+\renewcommand{\HEMLcommentfrcolor}{orange!60}
+\renewcommand{\HEMLcommentcolor}{orange!30}
 }{
-\renewcommand{\HEMLcommentcolor}{green!14}
+\renewcommand{\HEMLcommentfrcolor}{green!60}
+\renewcommand{\HEMLcommentcolor}{green!30}
 }
 \begin{tcolorbox}[
     left=0.5cm,
@@ -169,11 +172,11 @@
     bottom=0.1cm,
     leftrule=2mm,
     coltitle=black,
-    colframe=black!30,
+    colframe=\HEMLcommentfrcolor,
     colbacktitle=\HEMLcommentcolor,
     colback=white,
     boxsep=0cm,
-    title=\##1 - p\pageref{comment.#1} - #2 - #3]
+    title=\textbf{\##1} #3: {\S}\ref{comment.#1}{,} p\pageref{comment.#1} {[}#2{]}]
 }
 \newcommand{\HEMLcommentdetailend}{
 \end{tcolorbox}
@@ -186,7 +189,7 @@
     bottom=0.1cm,
     leftrule=2mm,
     colback=white,
-    colframe=black!30,
+    colframe=\HEMLcommentfrcolor,
     colbacktitle=\HEMLcommentcolor,
     coltitle=black,
     boxsep=0cm,
@@ -283,8 +286,8 @@
 \renewcommand*\contentsname{Summary}
 
 % TBC / TBD
-\newcommand{\HEMLtbd}[2]{\colorbox{orange!12}{#1 [TBD#2]\label{tbd.#2}}}
-\newcommand{\HEMLtbc}[2]{\colorbox{orange!12}{#1 [TBC#2]\label{tbc.#2}}}
+\newcommand{\HEMLtbd}[2]{\label{tbd.#2}\colorbox{orange!12}{#1 [TBD#2]}}
+\newcommand{\HEMLtbc}[2]{\label{tbc.#2}\colorbox{orange!12}{#1 [TBC#2]}}
 \newcommand{\HEMLtbindexhead}{\section{Incompletness}}
 
 % Pictures

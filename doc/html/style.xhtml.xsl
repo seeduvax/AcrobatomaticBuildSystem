@@ -23,6 +23,7 @@
 </xsl:call-template></xsl:param>
 <xsl:param name="hasToc"><xsl:value-of select="count(/document/section)&gt;2"/></xsl:param>
 <xsl:param name="buildinfo"><xsl:value-of select="$date"/> / <xsl:value-of select="$user"/>@<xsl:value-of select="$host"/></xsl:param>
+<xsl:param name="showComments">true</xsl:param>
 
 <!--********************************************
 !-->
@@ -87,6 +88,12 @@
 <xsl:template match="todo">
 <span class="todo"><xsl:apply-templates/></span>
 </xsl:template>
+<xsl:template match="tbc">
+<span class="todo"><xsl:apply-templates/> [TBC<xsl:value-of select="count(preceding::tbc)+1"/>]</span>
+</xsl:template>
+<xsl:template match="tbd">
+<span class="todo"><xsl:apply-templates/> [TBD<xsl:value-of select="count(preceding::tbd)+1"/>]</span>
+</xsl:template>
 <!--******************************
 	Boite/cadre
 -->
@@ -115,6 +122,7 @@
 	Comment
 -->
 <xsl:template match="comment">
+<xsl:if test="$showComments='true'">
   <div class="comment_{@state}">#rmk.<xsl:value-of select="@id"/>
   <div class="comment_content">
 <ul>
@@ -123,12 +131,15 @@
 </ul>
   </div>
   </div>
+</xsl:if>
 </xsl:template>
 <xsl:template match="reply">
+<xsl:if test="$showComments='true'">
   <ul>
   <p>From: <xsl:value-of select="@author"/></p>
   <xsl:apply-templates select="*"/>
   </ul>
+</xsl:if>
 </xsl:template>
 
 <!--******************************
@@ -615,6 +626,7 @@ include(<xsl:value-of select="@src"/>.txt)
 		<xsl:apply-templates/>
 	</xsl:otherwise>
 </xsl:choose>	
+
 </div>
 </xsl:template>
 <!-- #######################################################

@@ -150,12 +150,13 @@ $(OBJDIR)/%.pumlgenerated: src/% $(PUMLJAR)
 	@$(PUMLCMD) -in $(call absGetPath,$<) -o $(call absGetPath,$(HTMLDIR)/$(*D))
 	@touch $@
 
+COMMENTS?=true
 # HEML transformation
 # $1 xsl file
 define absHemlTransformation
 	@$(ABS_PRINT_info) "heml to $(suffix $@) of $< using style $(1)"
 	@mkdir -p $(@D)
-	@$(HEMLCMD) -in $(call absGetPath,$<) -xsl $(call absGetPath,$(1)) -param srcdir "$(call absGetPath,$(<D))" -param srcfilename "$(call absGetPath,$(<F))" $(HEMLARGS) -param revision ""`$(call abs_scm_file_revision,$<)` -out $(call absGetPath,$@)
+	@$(HEMLCMD) -in $(call absGetPath,$<) -xsl $(call absGetPath,$(1)) -param srcdir "$(call absGetPath,$(<D))" -param srcfilename "$(call absGetPath,$(<F))" $(HEMLARGS) -param revision ""`$(call abs_scm_file_revision,$<)` -param showComments ""$(COMMENTS) -out $(call absGetPath,$@)
 endef
 
 $(HTMLDIR)/%.html: src/%.heml $(HEMLJAR)

@@ -18,6 +18,7 @@
  <xsl:when test="substring($version,string-length($version))='d'">true</xsl:when>
  <xsl:otherwise>false</xsl:otherwise>
 </xsl:choose></xsl:param>
+<xsl:param name="showComments">true</xsl:param>
 
 <!--************************************************
      Str replace template
@@ -173,36 +174,53 @@ select="substring-after($text,$from)"/>
 <xsl:apply-templates/>
  \end{quote}
 </xsl:template>
-<xsl:template match="todo">
-\hl{<xsl:apply-templates/>}
-</xsl:template>
+<xsl:template match="todo"
+>\hl{<xsl:apply-templates/>}</xsl:template>
 <!--************************************************
    TBC/TBD
 -->
-<xsl:template match="tbc">
-\HEMLtbc{<xsl:apply-templates/>}{<xsl:value-of select="count(preceding::tbc)+1"/>}
-</xsl:template>
-<xsl:template match="tbd">
-\HEMLtbd{<xsl:apply-templates/>}{<xsl:value-of select="count(preceding::tbd)+1"/>}
-</xsl:template>
+<xsl:template match="tbc"
+>\HEMLtbc{<xsl:apply-templates/>}{<xsl:value-of select="count(preceding::tbc)+1"/>}</xsl:template>
+<xsl:template match="tbd"
+> \HEMLtbd{<xsl:apply-templates/>}{<xsl:value-of select="count(preceding::tbd)+1"/>}</xsl:template>
 <xsl:template match="tbc" mode="index">
-TBC<xsl:value-of select="count(preceding::tbc)+1"/> &amp; \pageref{tbc.<xsl:value-of select="count(preceding::tbc)+1"/>} &amp; <xsl:apply-templates/> \\
-
+<xsl:choose>
+  <xsl:when test="position() mod 2 = 1">
+\HEMLoddRow
+  </xsl:when>
+  <xsl:otherwise>
+\HEMLevenRow
+  </xsl:otherwise>
+</xsl:choose>
+TBC<xsl:value-of select="count(preceding::tbc)+1"/> &amp; \S\ref{tbc.<xsl:value-of select="count(preceding::tbc)+1"/>}, p\pageref{tbc.<xsl:value-of select="count(preceding::tbc)+1"/>} &amp; <xsl:apply-templates/> \\
 </xsl:template>
 <xsl:template match="tbd" mode="index">
-TBD<xsl:value-of select="count(preceding::tbd)+1"/> &amp; \pageref{tbd.<xsl:value-of select="count(preceding::tbd)+1"/>} &amp; <xsl:apply-templates/> \\
+<xsl:choose>
+  <xsl:when test="position() mod 2 = 1">
+\HEMLoddRow
+  </xsl:when>
+  <xsl:otherwise>
+\HEMLevenRow
+  </xsl:otherwise>
+</xsl:choose>
+TBD<xsl:value-of select="count(preceding::tbd)+1"/> &amp; \S\ref{tbd.<xsl:value-of select="count(preceding::tbd)+1"/>}, p\pageref{tbd.<xsl:value-of select="count(preceding::tbd)+1"/>} &amp; <xsl:apply-templates/> \\
 </xsl:template>
 <!--************************************************
    comments
 -->
 <xsl:template match="comment">
+<xsl:if test="$showComments='true'">
 \HEMLcommentref{<xsl:value-of select="@id"/>}{<xsl:value-of select="@state"/>}
+</xsl:if>
 </xsl:template>
 <xsl:template match="comment" mode="detail">
+<xsl:if test="$showComments='true'">
 \HEMLcommentdetailbegin{<xsl:value-of select="@id"/>}{<xsl:value-of select="@state"/>}{<xsl:value-of select="@author"/>}
 
 <xsl:apply-templates/>
+
 \HEMLcommentdetailend
+</xsl:if>
 </xsl:template>
 <xsl:template match="reply">
 \HEMLreplybegin{<xsl:value-of select="@author"/>}
@@ -502,21 +520,24 @@ TBD<xsl:value-of select="count(preceding::tbd)+1"/> &amp; \pageref{tbd.<xsl:valu
     <xsl:if test="count(.//tbc) + count(.//tbd) &gt; 0">
         \HEMLtbindexhead
         <xsl:if test="count(.//tbc) &gt; 0">
-\begin{HEMLtable}{|X[-1]|X[-1]|X[-1]}{}
-\textbf{ref} &amp; \textbf{page} &amp; \textbf{summary}
+\begin{HEMLtable}{|X[-1]|X[-1]|X[-1]|}{}
+\HEMLoddHeadCell \textbf{ref} &amp; \HEMLoddHeadCell \textbf{location} &amp; \HEMLoddHeadCell \textbf{entitled}
 \endhead
            <xsl:apply-templates select=".//tbc" mode="index"/>
+\HEMLtableTail
 \end{HEMLtable}
         </xsl:if>
         <xsl:if test="count(.//tbd) &gt; 0">
-\begin{HEMLtable}{|X[-1]|X[-1]|X[-1]}{}
-\textbf{ref} &amp; \textbf{page} &amp; \textbf{summary}
+\begin{HEMLtable}{|X[-1]|X[-1]|X[-1]|}{}
+\HEMLoddHeadCell \textbf{ref} &amp; \HEMLoddHeadCell \textbf{location} &amp; \HEMLoddHeadCell \textbf{entitled}
 \endhead
            <xsl:apply-templates select=".//tbd" mode="index"/>
+\HEMLtableTail
 \end{HEMLtable}
         </xsl:if>
+	\newpage
     </xsl:if>
-    <xsl:if test="count(.//comment)&gt;0">
+    <xsl:if test="$showComments='true' and count(.//comment)&gt;0">
         \HEMLcommentdetailhead
 	<xsl:apply-templates select=".//comment" mode="detail">
 		<xsl:sort select="@id"/>
