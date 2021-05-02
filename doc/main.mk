@@ -57,7 +57,6 @@ PDFS:=$(patsubst src/%.heml,$(PDFDIR)/%.pdf,$(HEMLS))
 endif
 DOCBOOKS:=$(patsubst src/%.heml,$(DBDIR)/%.xml,$(HEMLS))
 HTMLS:=$(patsubst src/%.heml,$(HTMLDIR)/%.html,$(HEMLS)) $(HTMLDIR)/style.css
-IMGS:=$(patsubst src/%,$(HTMLDIR)/%,$(filter %.jpg %.png,$(SRCFILES))) $(patsubst src/%.dia,$(HTMLDIR)/%.png,$(filter %.dia,$(SRCFILES)))
 CSS:=$(patsubst src/%,$(HTMLDIR)/%,$(filter %.css,$(SRCFILES)))
 
 ABSDOCDIR:=$(dir $(lastword $(MAKEFILE_LIST)))
@@ -75,7 +74,8 @@ $(OBJDIR)/pumldeps.mk: $(SRCFILES)
 include $(OBJDIR)/pumldeps.mk
 
 ifeq ($(wildcard $(OBJDIR)/*.html.d)$(wildcard $(OBJDIR)/*.tex.d),)
-IMGS+=$(PUMLGENIMGS)
+# when no generation has been done yet, add all images as deps.
+IMGS:=$(patsubst src/%,$(HTMLDIR)/%,$(filter %.jpg %.png,$(SRCFILES))) $(patsubst src/%.dia,$(HTMLDIR)/%.png,$(filter %.dia,$(SRCFILES))) $(PUMLGENIMGS)
 endif
 endif
 
