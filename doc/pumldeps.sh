@@ -11,8 +11,7 @@ do
 	cat << EOF
 \$(HTMLDIR)/$img: \$(patsubst src/%,\$(OBJDIR)/%.pumlgenerated,$srcFile)
 
-IMGS+=\$(HTMLDIR)/$img
-
+PUMLGENIMGS+=\$(HTMLDIR)/$img
 EOF
 done
 }
