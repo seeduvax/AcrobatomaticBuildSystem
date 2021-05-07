@@ -68,18 +68,29 @@ DOLLAR=$$
 ##  - all (default): builds all modules. Useful variable: NOBUILD.
 all: $(MODULES)
 
+$(info !!!!!!!!! $(TTARGETDIR))
+$(info !!!!!!!!! $(MODE))
 ##  - test: builds modules, tests and launch tests.
 ifneq ($(shell ls $(PRJROOT)/*/test 2>/dev/null),)
-test: $(MODULES_TEST)
+define test-synthesis
 	@rm -rf build/unit_test_results
 	@mkdir -p build/unit_test_results
 	@cp $(TTARGETDIR)/*.xml build/unit_test_results
+endef
+define test-summary
+	@$(ABS_PRINT_info) "#### #### Tests summary #### ####"
+	@for report in $(TTARGETDIR)/*.xml; do $(ABS_PRINT_info) "Test result: "`basename $$report` ; xsltproc --stringparam mode short $(ABSROOT)/core/xunit2txt.xsl $$report;  done
+endef
+
+test: $(MODULES_TEST)
+	$(test-synthesis)
+ifeq ($(MAKECMDGOALS),test)
+	$(test-summary)
+endif
 
 ##  - valgrindtest: builds modules, tests and launch tests using valgind.
 valgrindtest: $(MODULES_VALGRINDTEST)
-	@rm -rf build/unit_test_results
-	@mkdir -p build/unit_test_results
-	cp $(TTARGETDIR)/*.xml build/unit_test_results
+	$(test-synthesis)
 else
 test: $(MODULES_TEST)
 	@$(ABS_PRINT_error) "No test found in this project."
@@ -131,13 +142,13 @@ mod.%::
 include $(TRDIR)/obj/.moddeps.mk
 
 testmod.%:
-	make $(MMARGS) -C $* test
+	make $(MMARGS) MODE=$(MODE) -C $* test
 
 valgrindtestmod.%:
-	make $(MMARGS) -C $* valgrindtest
+	make $(MMARGS) MODE=$(MODE) -C $* valgrindtest
 
 testbuildmod.%:
-	make $(MMARGS) -C $* testbuild
+	make $(MMARGS) MODE=$(MODE) -C $* testbuild
 
 warnnobuild.%:
 	@$(ABS_PRINT_warning) "module $* build is disabled."
@@ -263,6 +274,7 @@ cint:
 	@$(ABS_PRINT_info) "Test Target: $(CINT_TEST_TARGET)"
 	@$(ABS_PRINT_info) "Pub Target: $(CINT_PUB_TARGET)"
 	@$(CINTMAKECMD) clean && $(CINTMAKECMD) $(CINT_TEST_TARGET) && $(CINTMAKECMD) $(CINT_PUB_TARGET)
+	$(test-summary)
 
 ifneq ($(IMPORT_ABSMOD),)
 include $(patsubst %,$(ABSROOT)/%/main.mk,$(IMPORT_ABSMOD))
