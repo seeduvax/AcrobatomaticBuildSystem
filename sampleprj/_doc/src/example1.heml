@@ -145,6 +145,7 @@ inheritance link {req req.2}:
 Parent <|-- Child
 @enduml
 #}
+{fig %title=uml from subdir %src=subdir/subdiruml.png}
 You should see below the rendering of src/diaSample.dia:
 {fig %title=dia diagram %src=diaSample.png %xref=FigDia}
 {comment %author=me %id=ME-21 %state=open

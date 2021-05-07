@@ -8,10 +8,13 @@ fi
 catdeps() {
 fgrep "$@" module.cfg | sed -e 's/:.*@/ /g' | while read srcFile startuml img endofline
 do
+	imgp=`dirname $srcFile`
+	imgp=`echo $imgp/$img | sed -e 's:src/::g'`
 	cat << EOF
-\$(HTMLDIR)/$img: \$(patsubst src/%,\$(OBJDIR)/%.pumlgenerated,$srcFile)
+\$(HTMLDIR)/$imgp: \$(patsubst src/%,\$(OBJDIR)/%.pumlgenerated,$srcFile)
 
-PUMLGENIMGS+=\$(HTMLDIR)/$img
+PUMLGENIMGS+=\$(HTMLDIR)/$imgp
+
 EOF
 done
 }

@@ -1,0 +1,8 @@
+{?set %encoding=utf-8}
+{document
+  {title simple doc to test subdir issues if any.}
+  {section %title=Section
+ djflkqsdjflk qjsdlkfj qlskdjf lqksdj flqs jdfl kqjdslfkj qlsdkfj
+{fig %src=subdiruml.png %title=local image}
+  }
+}

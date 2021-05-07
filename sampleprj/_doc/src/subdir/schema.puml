@@ -1,0 +1,5 @@
+@startuml subdiruml.png
+class SubDir
+class Plop
+SubDir *- Plop
+@enduml

@@ -152,7 +152,8 @@ $(OBJDIR)/%.pumlgenerated: src/% $(PUMLJAR)
 	@mkdir -p $(HTMLDIR)/$(*D)
 	@$(ABS_PRINT_info) "Generating uml from $<"
 	@$(PUMLCMD) -in $(call absGetPath,$<) -o $(call absGetPath,$(HTMLDIR)/$(*D))
-	@touch $@
+	@date > $@
+	@echo "$<" >> $@
 
 COMMENTS?=true
 # HEML transformation
@@ -161,7 +162,7 @@ define absHemlTransformation
 	@$(ABS_PRINT_info) "heml to $(suffix $@) of $< using style $(1)"
 	@mkdir -p $(@D)
 	@mkdir -p $(patsubst src/%,$(OBJDIR)/%,$(<D))
-	@$(HEMLCMD) -in $(call absGetPath,$<) -xsl $(call absGetPath,$(1)) -param srcdir "$(call absGetPath,$(<D))" -param srcfilename "$(call absGetPath,$(<F))" $(HEMLARGS) -param revision ""`$(call abs_scm_file_revision,$<)` -param showComments ""$(COMMENTS) -out $(call absGetPath,$@) -depattr fig:src:$(patsubts src/%,$(HTMLDIR)/%,$(<D))
+	@$(HEMLCMD) -in $(call absGetPath,$<) -xsl $(call absGetPath,$(1)) -param srcdir "$(call absGetPath,$(<D))" -param srcfilename "$(call absGetPath,$(<F))" $(HEMLARGS) -param revision ""`$(call abs_scm_file_revision,$<)` -param showComments ""$(COMMENTS) -out $(call absGetPath,$@) -depattr fig:src:$(patsubst %/,%,$(patsubst src%,$(HTMLDIR)/%,$(<D)))
 endef
 
 $(HTMLDIR)/%.html: src/%.heml $(HEMLJAR)
