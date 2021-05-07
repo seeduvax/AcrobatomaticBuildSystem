@@ -68,8 +68,6 @@ DOLLAR=$$
 ##  - all (default): builds all modules. Useful variable: NOBUILD.
 all: $(MODULES)
 
-$(info !!!!!!!!! $(TTARGETDIR))
-$(info !!!!!!!!! $(MODE))
 ##  - test: builds modules, tests and launch tests.
 ifneq ($(shell ls $(PRJROOT)/*/test 2>/dev/null),)
 define test-synthesis
