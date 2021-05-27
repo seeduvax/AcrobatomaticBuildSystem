@@ -170,6 +170,7 @@ else
 ifneq ($(word 2,$(subst -, ,$1)),$$(word 2,$$(subst -, ,$$(filter $(word 1,$(subst -, ,$1))-%,$$(ALLUSELIB)))))
 $$(info $$(shell $(ABS_PRINT_warning) "$1 not imported from $2, already imported another version: $$(filter $(word 1,$(subst -, ,$1))-%,$$(ALLUSELIB))"))
 DEPENDENCIES_ERROR=true
+$$(eval ADDEDDEPLIST:=$$(ADDEDDEPLIST)[color="red"] "$1"[color="red"])
 else
 # same version
 $(call includeExtLib,$1,$2,$3,$4)
@@ -275,16 +276,16 @@ endif
 ifneq ($(USELIB),)
 $(BUILDROOT)/$(APPNAME)_deps.dot: $(PRJROOT)/app.cfg
 	@$(ABS_PRINT_info) "Generating project dependency graph."
-	@echo "digraph deps {" > $@
-	@printf ' $(foreach dep,$(USELIB),"$(APPNAME)-$(VERSION)"->"$(dep)"\n)' >> $@
-	@printf ' $(foreach dep,$(ADDEDDEPLIST),$(dep)\n)' >> $@
+	@printf 'digraph deps {\ngraph [rankdir="LR",ranksep=1];\nnode [width=2, shape=box, style="rounded"];\n' > $@
+	@printf ' $(foreach dep,$(USELIB),"$(APPNAME)-$(VERSION)"->"$(dep)";\n)' | sed -e 's/d";$$/d"\[color="orange"\];/g'>> $@
+	@printf ' $(foreach dep,$(ADDEDDEPLIST),$(dep);\n)' | sort -u | sed -e 's/d";$$/d"\[color="orange"\];/g'>> $@
 	@echo "}" >> $@
 	@dot -Tpng $@ > $@.png
 
 checkdep: $(BUILDROOT)/$(APPNAME)_deps.dot
 	@$(ABS_PRINT_info) "Launching image viewer to display the generated dependency graph $^.png."
 	@$(ABS_PRINT_info) "Close image viewer to continue or hit Ctrl-C to stop here."
-	@xdot $^.png 2>/dev/null || eog $^.png 2>/dev/null || xdg-open $^.png 2>/dev/null || $(ABS_PRINT_error) "No image viewer found (expected one of: xdot, eog, xdg-open)"
+	@xdot $^ 2>/dev/null || eog $^.png 2>/dev/null || xdg-open $^.png 2>/dev/null || $(ABS_PRINT_error) "No image viewer found (expected one of: xdot, eog, xdg-open)"
 else
 checkdep:
 	@$(ABS_PRINT_info) "No dependencies set in USELIB project parameter."
