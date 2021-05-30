@@ -20,7 +20,7 @@ DOXSRCFILES:=$(shell find $(PRJROOT) -name *.h -o -name *.c -o -name *.hpp -o -n
 HEMLVERSION?=1.0.8
 HEMLARGS:=-param app $(APPNAME) -param version $(VERSION) -param date "`date --rfc-3339 s`" -param user $$USER -param host $(shell hostname)
 
-PUMLVERSION?=1.2017.12
+PUMLVERSION?=1.2021.6
 PUMLJAR?=$(NDNA_EXTLIBDIR)/plantuml.$(PUMLVERSION).jar
 HEMLJAR?=$(NDNA_EXTLIBDIR)/heml-$(HEMLVERSION).jar
 HEMLCMD?=$(JAVACMD) -jar $(call absGetPath,$(HEMLJAR))
