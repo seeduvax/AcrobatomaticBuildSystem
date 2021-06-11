@@ -16,18 +16,29 @@ endif
 
 define abs_scm_tag
 @git tag -a $(APPNAME)-$(TAG_VERSION) $(TAG_REVISION) -m "#$(VISSUE) $(M)" && \
- git push $(GIT_REPOSITORY) $(APPNAME)-$(TAG_VERSION)
+ git push $(GIT_REPOSITORY) $(APPNAME)-$(TAG_VERSION) || (\
+ git tag -d $(APPNAME)-$(TAG_VERSION) ;\
+ $(ABS_PRINT_error) "Tag push to $(GIT_REPOSITORY) failed. Tag removed." ;\
+ exit 1 )
 endef
 
 define abs_scm_commit
-@git commit -a -m "$1" && git push --all $(GIT_REPOSITORY)
+@git commit -a -m "$1" && ( git push --all $(GIT_REPOSITORY) || (\
+ $(ABS_PRINT_error) "Changes commit succeed but push to $(GIT_REPOSITORY)) failed." ;\
+ $(ABS_PRINT_error) "Push shall be invoked again with the following command:" ;\
+ $(ABS_PRINT_error) "    git push --all $(GIT_REPOSITORY)" ;\
+ exit 1) )
 endef
 
 define abs_scm_branch
 git checkout -b $(APPNAME)-$(NEW_BRANCH) && \
  sed -i 's/^VERSION=.*$$/VERSION=$(NEW_BRANCH).0/g;s/VPARENT=.*$$/VPARENT=$(TAG_VERSION)/g;s/VISSUE=.*$$/VISSUE=$(I)/g' app.cfg && \
  git commit app.cfg -m "#$(I) [open branch $(NEW_BRANCH) from $(TAG_VERSION)] $(M)" && \
- git push --all $(GIT_REPOSITORY)
+ ( git push --all $(GIT_REPOSITORY) || (
+   $(ABS_PRINT_error) "New branch and version update commit succeed but push to $(GIT_REPOSITORY)) failed." ;\
+   $(ABS_PRINT_error) "Push shall be invoked again with the following command:" ;\
+   $(ABS_PRINT_error) "    git push --all $(GIT_REPOSITORY)" ;\
+   exit 1) )
 endef
 
 define abs_scm_file_revision
