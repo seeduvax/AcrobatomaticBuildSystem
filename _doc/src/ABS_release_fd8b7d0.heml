@@ -1,12 +1,13 @@
 {?set %encoding=utf-8}
 {document
-  {title Release note - ABS 3.0}
+  {title Release note - ABS 3.2}
   {reference fd8b7d0}
   {author %%Sebastien DEVAUX}
-  {copyright %year=2020 %holder=Sébastien DEVAUX / ArianGroup SAS}
+  {copyright %year=2020-2021 %holder=Sébastien DEVAUX / ArianGroup SAS}
   {abstract ABS release note. Acrobatomatic Build System is a generic software project build tool. It is first based on make files a few shell script helpers. Any project following the proposed default directory layout should be compatible with ABS.}
-  {keywords release, configuration, version, ABS, buildscripts, make, executable generation}
+  {keywords release, configuration, version, ABS, build scripts, make, executable generation}
   {history
+    {edition %version=3.2 %date=2020-06-15 %%Release abs-3.2}
     {edition %version=3.1 %date=2020-11-28 %%Release abs-3.1}
     {edition %version=3.0 %date=2020-03-03 %%Release abs-3.0}
     {edition %%For ArianeGroup users, some preliminary ABS releases were configuration managed and released integrated with the first internal project using it. The internal document reference was RD_TEA332-1618}
@@ -15,11 +16,11 @@
   {table
 {?table %fields=th,td
 Product name % Acrobatomatic Build System (ABS)
-Version % abs-3.1
-Parent version % abs-3.0
+Version % abs-3.2
+Parent version % abs-3.1.9
 repository URL % https://github.com/seeduvax/AcrobatomaticBuildSystem.git
-Tag % abs-3.1.9
-Tracking Issue % b895f70
+Tag % abs-3.2.12
+Tracking Issue % 9b2cb58
 }
   }
 }
@@ -45,7 +46,6 @@ Tracking Issue % b895f70
  }
 {?table
 Software Definition File % 170983b % 4, 2019-06-13 % Acrobatomatic Build System - generic make files and companion scripts
-Software Test Report %  % 1, 2020 % 
 Software Executable Generation Procedure % % % See dedicated section in this document
 Software Installation Procedure % % % See dedicated section in this document
 Software Release Document % % % This document
@@ -65,15 +65,22 @@ This software is provided by the copyright holders and contributors "as is" and 
 See the license file for the complete disclamer.
   }
   {section %title=Tools
-No specific tooling is needed to maintain buildscripts. Make files, and shell scripts are ASCII files and any text editor can be used to edit any file. Prefer editors with advanced programming features like syntax highlighting to edit efficiently those files.
+No specific tooling is needed to maintain ABS. Make files, and shell scripts are ASCII files and any text editor can be used to edit any file. Prefer editors with advanced programming features like syntax highlighting to edit efficiently those files.
   }
   {section %title=Dependencies
-ABS handles software project build process and was originally designed fro GNU/Linux systems but has demonstrated capabilities for any Posix like system including windows with the help of posix compatibility tools such as Cygwin or MinGW.  Buidlscripts is currently validated with the following systems:
+ABS handles software project build process and was originally designed fro GNU/Linux systems but has demonstrated capabilities for any Posix like system including windows with the help of posix compatibility tools such as Cygwin or MinGW. ABS is currently validated with the following systems:
   - RedHawk Linux 7.2
   - Debian Linux 9.3
   - Debian Linux 10.5
   - SUSE Linux 12
+  - Raspberry Pi OS
+
+Some feedback was reported of use with:
   - Windows 10/Cygwin
+  - Raspberry Pi OS 10
+  - Android within termux application.
+
+But those configurations may experience more trouble since are not include in the formal test process.
 {table
 {tr
  {th Tool}{th Version}{th License}{th Comments}
@@ -91,6 +98,7 @@ OpenSSH % 4.3 or next % BSD % Any ssh and scp commands implementation should be 
 GNU m4 % 1.4.5 or next % GPL V3 % 
 Doxygen % 1.6.1 or next % GPL V2.0 % 
 subversion % 1.6 or next % Apache V2.0 % 
+git % 2.0 or next % GPL 2.0 % 
 curl % 7.19.7 or next % MIT % Optional, wget may be used as a replacement for most HTTP related functions.
 Graphviz (dot) % 2.38.0 or next % Eclipse Public License % Optional, for checkdep target only
 }
@@ -105,23 +113,36 @@ About the use of GPL licensed products: ABS does not link itself with any produc
  {th Id}{th State}{th Summary}
 }
 {?table
-708fe2c % [closed] % Hide git error message appearing when no tag has been set yet
-3ed84c7 % [working] % charm - change request management tools
-9cadd6d % [open] % User wide ABS configuration and workspace.
-fc01267 % [closed] % Do copy instead of symbolique link while installing drivers
-a1dbdc3 % [closed] % Local extlib directory contains all the imported libraries. It should only contains the dependencies of the current project
-9327a9d % [working] % Complete revision identification with dirty and better tag id
-ad2ad60 % [closed] % Prevent the extlibs module execution when make goal is docker
-041a972 % [closed] % Conditionnal USELIB using variable in common.mk not taken in account in good way
-f97fdbb % [closed] % The PDF are not generated when there is an issue with dependencies
-efeaa1a % [working] % [doc] css files shall be handled as image.
-abd603d % [working] % enable adding rules at the end.
-de95a54 % [working] % tag status incorrect when a suffix is added to VERSION
+113b92b % [closed] % Remove use of ed command
+ff4c22d % [closed] % cint and test targets are failing in a project without any test.
+273739c % [closed] % fix regular expression when creating new branch
+d562593 % [closed] % whitespace are improperly added into the generated import.mk when applying extra_import_defs configuration
+b8ed9cf % [closed] % Add code generation handling capability to java modules
+2624922 % [closed] % ada compilation is confused by abs layout
+32ae373 % [closed] % jar files from abs dist package can not be used by other app managed with abs.
+76680dc % [closed] % Add Cygwin as target OS
+e2f125b % [closed] % Need finer dependency management to process heml files
+25292ec % [closed] % Add option to compile cpp using sanitizers
+53d40eb % [closed] % Improve the prepare commit message for charm issue
+daf31d7 % [closed] % Use space instead of tabulation for new class
+912acbe % [closed] % FPGA and de10nano support extension
+9a11314 % [closed] % heml tag set and style to support doc review and comments.
+9d8f8c8 % [closed] % Display a summary of test at the end of application level targets that run tests.
+a9bc2e1 % [closed] % add colors and remove duplicate links from the dependency graph
+9391998 % [closed] % Missing information on git push failure when creating tags and branches
 }
 }
   }
   {section %title=Issues not fixed
-No remaining open issuers.
+{table
+{tr
+ {th Id}{th State}{th Summary}
+}
+{?table
+e01dc23 % [open] % Add .ko rule from src/*.obj
+}
+}
+For this single issue, the user request is not yet fully analyzed and nothing was started for its implementation. This is not a bug but an improvement request.
   }
   {section %title=Known limitations
 None
