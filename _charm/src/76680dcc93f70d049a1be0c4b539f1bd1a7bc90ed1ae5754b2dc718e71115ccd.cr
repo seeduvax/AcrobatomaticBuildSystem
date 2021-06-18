@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<cr id="76680dcc93f70d049a1be0c4b539f1bd1a7bc90ed1ae5754b2dc718e71115ccd" state="resolved">
+<cr id="76680dcc93f70d049a1be0c4b539f1bd1a7bc90ed1ae5754b2dc718e71115ccd" state="closed" delivered="abs-3.2.12">
 <title>Add Cygwin as target OS</title>
 <reporter>flohgh</reporter>
 <creation>2021-03-17 16:49:51+01:00</creation>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<cr id="e2f125bbfce65de7c5de98006d05df82883c31f20a5efc5fcb3d435778a33fa2" state="resolved">
+<cr id="e2f125bbfce65de7c5de98006d05df82883c31f20a5efc5fcb3d435778a33fa2" state="closed" delivered="abs-3.2.12">
 <title>Need finer dependency management to process heml files</title>
 <reporter>sdevaux</reporter>
 <creation>2021-03-15 13:32:39+01:00</creation>

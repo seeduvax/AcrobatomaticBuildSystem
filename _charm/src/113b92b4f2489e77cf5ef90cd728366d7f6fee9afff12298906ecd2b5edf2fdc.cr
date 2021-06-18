@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<cr id="113b92b4f2489e77cf5ef90cd728366d7f6fee9afff12298906ecd2b5edf2fdc" state="resolved">
+<cr id="113b92b4f2489e77cf5ef90cd728366d7f6fee9afff12298906ecd2b5edf2fdc" state="closed" delivered="abs-3.2.12">
 <title>Remove use of ed command</title>
 <reporter>sdevaux</reporter>
 <creation>2020-12-26 21:48:34+01:00</creation>
