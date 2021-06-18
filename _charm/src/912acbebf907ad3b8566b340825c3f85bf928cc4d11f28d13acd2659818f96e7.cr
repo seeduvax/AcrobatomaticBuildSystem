@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<cr id="912acbebf907ad3b8566b340825c3f85bf928cc4d11f28d13acd2659818f96e7" state="working">
+<cr id="912acbebf907ad3b8566b340825c3f85bf928cc4d11f28d13acd2659818f96e7" state="resolved">
 <title>FPGA and de10nano support extension</title>
 <reporter>sdevaux</reporter>
 <creation>2021-04-21 14:47:53+02:00</creation>

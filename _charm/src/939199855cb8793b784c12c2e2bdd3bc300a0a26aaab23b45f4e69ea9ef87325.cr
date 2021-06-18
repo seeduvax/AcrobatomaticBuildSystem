@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<cr id="939199855cb8793b784c12c2e2bdd3bc300a0a26aaab23b45f4e69ea9ef87325" state="working">
+<cr id="939199855cb8793b784c12c2e2bdd3bc300a0a26aaab23b45f4e69ea9ef87325" state="resolved">
 <title>Missing information on git push failure when creating tags and branches</title>
 <reporter>sdevaux</reporter>
 <creation>2021-06-11 13:00:06+02:00</creation>

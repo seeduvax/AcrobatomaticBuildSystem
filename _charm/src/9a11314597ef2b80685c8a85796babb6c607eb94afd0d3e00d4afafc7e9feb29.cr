@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<cr id="9a11314597ef2b80685c8a85796babb6c607eb94afd0d3e00d4afafc7e9feb29" state="working">
+<cr id="9a11314597ef2b80685c8a85796babb6c607eb94afd0d3e00d4afafc7e9feb29" state="resolved">
 <title>heml tag set and style to support doc review and comments.</title>
 <reporter>sdevaux</reporter>
 <creation>2021-04-29 13:13:26+02:00</creation>

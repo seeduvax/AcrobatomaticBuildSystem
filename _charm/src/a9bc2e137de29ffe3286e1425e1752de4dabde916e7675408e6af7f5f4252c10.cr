@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<cr id="a9bc2e137de29ffe3286e1425e1752de4dabde916e7675408e6af7f5f4252c10" state="working">
+<cr id="a9bc2e137de29ffe3286e1425e1752de4dabde916e7675408e6af7f5f4252c10" state="resolved">
 <title>add colors and remove duplicate links from the dependency graph</title>
 <reporter>sdevaux</reporter>
 <creation>2021-05-27 12:17:59+02:00</creation>
