@@ -152,6 +152,7 @@ ifneq ($(INCTESTS),)
 NDUSELIB+=$(TUSELIB)
 endif
 
+include $(ABSROOT)/core/profiler.mk
 # include extern libraries management rules
 include $(ABSROOT)/core/module-extlib.mk
 

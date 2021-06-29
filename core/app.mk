@@ -28,6 +28,7 @@ VERSION:=$(VERSION)d
 else
 MODE=release
 endif
+VERSION:=$(VERSION)$(VFLAVOR)
 ##  - PREFIX: installation prefix (default is /opt/<appname>-<version>)
 PREFIX=/opt/$(APPNAME)-$(VERSION)
 

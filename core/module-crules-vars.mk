@@ -1,4 +1,5 @@
 # default C flags
+CFLAGS+=-I$(ABSROOT)/core/include
 ifneq ($(ISWINDOWS),true)
 CFLAGS+=-Iinclude -fPIC -I$(TRDIR)/include
 else
