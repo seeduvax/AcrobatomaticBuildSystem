@@ -19,7 +19,7 @@ Product name % Acrobatomatic Build System (ABS)
 Version % abs-3.2
 Parent version % abs-3.1.9
 repository URL % https://github.com/seeduvax/AcrobatomaticBuildSystem.git
-Tag % abs-3.2.12
+Tag % abs-3.2.13
 Tracking Issue % 9b2cb58
 }
   }
