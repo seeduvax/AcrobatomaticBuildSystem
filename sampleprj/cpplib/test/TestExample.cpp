@@ -22,12 +22,14 @@ private:
 
 public:
     void setUp() {
+        PROFILER_START;
         PROFILER_FRAME("TestExample")
         PROFILER_FUNCTION;
     }
 
     void tearDown() {
         PROFILER_FUNCTION;
+        PROFILER_STOP;
     }
 
     void testCaseSuccess() {
