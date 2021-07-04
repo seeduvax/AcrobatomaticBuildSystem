@@ -12,8 +12,7 @@
 #define PROFILER_THREAD(name)
 #define PROFILER_FRAME(name) FrameMarkNamed(name);
 #define PROFILER_PLOT(name,value) TracyPlot(name,value);
-#define PROFILER_START
-#define PROFILER_STOP
+#define PROFILER_SETUP
 #endif
 #endif
 
@@ -28,40 +27,47 @@
 #define PROFILER_THREAD(name) EASY_THREAD(name);
 #define PROFILER_FRAME(name) EASY_NONSCOPED_BLOCK(name);EASY_END_BLOCK;
 #define PROFILER_PLOT(...)
-#define PROFILER_START           \
-{\
-   if (!profiler::isEnabled()) {\
-       if (std::getenv("PROFILER_EVENT_TRACING")!=nullptr) {\
-           EASY_SET_EVENT_TRACING_ENABLED(true);\
-           EASY_SET_LOW_PRIORITY_EVENT_TRACING(false);\
-           std::cout << "==P== ENABLE EVENT TRACING : cs_profiling_info.log" << std::endl;\
-       }\
-       if (std::getenv("PROFILER_NETWORK")==nullptr) {\
-           std::cout << "==P== ENABLE PROFILER" << std::endl;\
-           EASY_PROFILER_ENABLE;\
-       } else {\
-           std::cout << "==P== ENABLE PROFILER NETWORK" << std::endl;\
-           profiler::startListen();\
-       }\
-  } else {\
-       std::cout << "==P== PROFILER IS ALREADY ENABLED" << std::endl;\
-  }\
-}
 
-#define PROFILER_STOP           \
-{\
-   if (profiler::isEnabled()) {\
-      EASY_SET_EVENT_TRACING_ENABLED(false);\
-       std::cout << "==P== STOPPING PROFILER" << std::endl;\
-       EASY_PROFILER_DISABLE;\
-       const char* profFile = std::getenv("PROFILER_FILE");\
-       if (profFile==nullptr) profFile = "profiler.prof";\
-       profiler::dumpBlocksToFile(profFile);\
-       std::cout << "==P== PROFILER FILE GENERATED : " << profFile << std::endl;\
-  } else {\
-       std::cout << "==P== PROFILER IS ALREADY STOPPED" << std::endl;\
-  }\
-}
+#include <iostream>
+#define PROFILER_SETUP \
+namespace AcrobatomaticBuildSystem {\
+class EasyProfilerActivator {\
+public:\
+    EasyProfilerActivator() {\
+       if (!profiler::isEnabled()) {\
+           if (std::getenv("PROFILER_EVENT_TRACING")!=nullptr) {\
+               EASY_SET_EVENT_TRACING_ENABLED(true);\
+               EASY_SET_LOW_PRIORITY_EVENT_TRACING(false);\
+               std::cout << "==P== ENABLE EVENT TRACING : cs_profiling_info.log" << std::endl;\
+           }\
+           if (std::getenv("PROFILER_NETWORK")==nullptr) {\
+               std::cout << "==P== ENABLE PROFILER" << std::endl;\
+               EASY_PROFILER_ENABLE;\
+           } else {\
+               std::cout << "==P== ENABLE PROFILER NETWORK" << std::endl;\
+               profiler::startListen();\
+           }\
+      } else {\
+           std::cout << "==P== PROFILER IS ALREADY ENABLED" << std::endl;\
+      }\
+    }\
+    ~EasyProfilerActivator() {\
+       if (profiler::isEnabled()) {\
+          EASY_SET_EVENT_TRACING_ENABLED(false);\
+           std::cout << "==P== STOPPING PROFILER" << std::endl;\
+           EASY_PROFILER_DISABLE;\
+           const char* profFile = std::getenv("PROFILER_FILE");\
+           if (profFile==nullptr) profFile = "profiler.prof";\
+           profiler::dumpBlocksToFile(profFile);\
+           std::cout << "==P== PROFILER FILE GENERATED : " << profFile << std::endl;\
+      } else {\
+           std::cout << "==P== PROFILER IS ALREADY STOPPED" << std::endl;\
+      }\
+    }\
+    static EasyProfilerActivator _instance;\
+};\
+EasyProfilerActivator EasyProfilerActivator::_instance;\
+} // namespace abs
 #endif
 #endif
 
