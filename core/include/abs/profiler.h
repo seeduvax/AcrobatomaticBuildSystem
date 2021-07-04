@@ -16,7 +16,7 @@
 #endif
 #endif
 
-#ifdef PROFILER_EASY
+#ifdef BUILD_WITH_EASY_PROFILER
 #ifdef __cplusplus
 #include "easy/profiler.h"
 #include <cstdlib>

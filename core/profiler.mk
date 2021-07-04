@@ -36,7 +36,7 @@ profiler: tracy
 
 endif
 ifneq ($(filter easy_profiler-%,$(PROFILERTOOL)),)
-CFLAGS+=-DPROFILER_EASY -DPROFILER_COLOR=Green
+CFLAGS+=-DBUILD_WITH_EASY_PROFILER -DPROFILER_COLOR=Green
 LINKLIB=easy_profiler
 
 easy_profiler:
