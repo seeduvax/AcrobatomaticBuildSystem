@@ -38,10 +38,11 @@ endif
 ifneq ($(filter easy_profiler-%,$(PROFILERTOOL)),)
 CFLAGS+=-DBUILD_WITH_EASY_PROFILER -DPROFILER_COLOR=Green
 LINKLIB=easy_profiler
+RUNTIME_ENV+=PROFILER_FILE=$(TRDIR)/test/$(MODNAME)-$(shell date '+%Y-%m-%d_%H-%M-%S').prof
 
 easy_profiler:
 	@$(ABS_PRINT_info) "Launching easy profiler gui..."
-	@LD_LIBRARY_PATH=$(EXTLIBDIR)/$(PROFILERTOOL)/lib $(EXTLIBDIR)/$(PROFILERTOOL)/bin/profiler_gui &
+	@LD_LIBRARY_PATH=$(EXTLIBDIR)/$(PROFILERTOOL)/lib $(EXTLIBDIR)/$(PROFILERTOOL)/bin/profiler_gui $(word 1,$(shell ls -t $(TRDIR)/test/$(MODNAME)-*.prof)) &
 
 profiler: easy_profiler
 
