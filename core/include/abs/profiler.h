@@ -19,6 +19,7 @@
 #ifdef BUILD_WITH_EASY_PROFILER
 #ifdef __cplusplus
 #include "easy/profiler.h"
+#include "easy/arbitrary_value.h"
 #include <cstdlib>
 #define PROFILER_FUNCTION EASY_FUNCTION(profiler::colors:: PROFILER_COLOR);
 #define PROFILER_REGION(name) EASY_BLOCK(name, profiler::colors:: PROFILER_COLOR);
@@ -26,7 +27,7 @@
 #define PROFILER_REGION_END EASY_END_BLOCK;
 #define PROFILER_THREAD(name) EASY_THREAD(name);
 #define PROFILER_FRAME(name) EASY_NONSCOPED_BLOCK(name);EASY_END_BLOCK;
-#define PROFILER_PLOT(...)
+#define PROFILER_PLOT(name, value) EASY_VALUE(name, value);
 
 #include <iostream>
 #define PROFILER_SETUP \

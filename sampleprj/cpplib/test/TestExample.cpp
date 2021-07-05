@@ -32,14 +32,14 @@ public:
 
     void testCaseSuccess() {
         PROFILER_FUNCTION;
-        PROFILER_PLOT("test",0.0);
+        PROFILER_PLOT("testPlot",0.0);
         Example ex;
         ex.helloWorld();
         std::cout << "in test case of " 
             << MACRO_STRVALUE(__APPNAME__) << "::" 
             << MACRO_STRVALUE(__MODNAME__) << std::endl;
         CPPUNIT_ASSERT_EQUAL(1,1);
-        PROFILER_PLOT("test",1.0);
+        PROFILER_PLOT("testPlot",1.0);
     }
 
     void testCaseFail() {
