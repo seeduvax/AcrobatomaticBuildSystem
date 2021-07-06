@@ -161,8 +161,8 @@ else
 # run application
 # TODO cygwin compat
 run:: all
-	@$(ABS_PRINT_info) "Starting $(TARGETFILE) $(RUNARGS)"
-	@PATH=$(RUNPATH) LD_LIBRARY_PATH=$(LDLIBP) $(RUNTIME_ENV) $(TARGETFILE) $(RUNARGS)
+	@$(ABS_PRINT_info) "Starting $(TARGETFILE) $(RUNARGS)" 
+	@$(RUNTIME_PROLOG) PATH=$(RUNPATH) LD_LIBRARY_PATH=$(LDLIBP) $(RUNTIME_ENV) $(TARGETFILE) $(RUNARGS)
 
 # run application with gdb
 # TODO cygwin compat
