@@ -4,15 +4,28 @@
 #ifdef TRACY_ENABLE
 #ifdef __cplusplus
 #include "Tracy.hpp"
+#include "TracyC.h"
 #include <string.h>
-#define PROFILER_FUNCTION ZoneScoped;
+
+#define GRAY 0x404040
+#define RED 0x800000
+#define GREEN 0x008000
+#define BLUE 0x000080
+#define LIGHT(x) 0x707070 | x
+#define DARK(x) x / 2
+class TracyRegionContext {
+public:
+static TracyCZoneCtx _ctx;
+};
+#define PROFILER_FUNCTION ZoneScoped; ZoneColor(0);
+#define PROFILER_FUNCTION_COL(color) ZoneScoped; ZoneColor(tracy::Color:: color);
 #define PROFILER_REGION(name) ZoneScoped; ZoneName(name,strnlen(name,256));
-#define PROFILER_REGION_BEGIN(name)
-#define PROFILER_REGION_END
-#define PROFILER_THREAD(name)
+#define PROFILER_REGION_BEGIN(name) TracyCZoneN(TracyRegionContext_ctx,name,true); TracyRegionContext::_ctx=TracyRegionContext_ctx;
+#define PROFILER_REGION_END TracyCZoneEnd(TracyRegionContext::_ctx)
+#define PROFILER_THREAD(name) tracy::SetThreadName(name);
 #define PROFILER_FRAME(name) FrameMarkNamed(name);
 #define PROFILER_PLOT(name,value) TracyPlot(name,value);
-#define PROFILER_SETUP
+#define PROFILER_SETUP TracyCZoneCtx TracyRegionContext::_ctx;
 #endif
 #endif
 
@@ -22,11 +35,12 @@
 #include "easy/arbitrary_value.h"
 #include <cstdlib>
 #define PROFILER_FUNCTION EASY_FUNCTION(profiler::colors:: PROFILER_COLOR);
+#define PROFILER_FUNCTION_COL(c) EASY_FUNCTION(profiler::colors:: c);
 #define PROFILER_REGION(name) EASY_BLOCK(name, profiler::colors:: PROFILER_COLOR);
-#define PROFILER_REGION_BEGIN(name) EASY_NONSCOPED_BLOCK(name);
+#define PROFILER_REGION_BEGIN(name) EASY_NONSCOPED_BLOCK(name, profiler::colors:: PROFILER_COLOR);
 #define PROFILER_REGION_END EASY_END_BLOCK;
 #define PROFILER_THREAD(name) EASY_THREAD(name);
-#define PROFILER_FRAME(name) EASY_NONSCOPED_BLOCK(name);EASY_END_BLOCK;
+#define PROFILER_FRAME(name) EASY_NONSCOPED_BLOCK(name,profiler::colors::White); EASY_END_BLOCK;
 #define PROFILER_PLOT(name, value) EASY_VALUE(name, value);
 
 #include <iostream>

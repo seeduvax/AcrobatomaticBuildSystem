@@ -16,6 +16,9 @@ class TestExample: public CppUnit::TestFixture {
 CPPUNIT_TEST_SUITE( TestExample );
 CPPUNIT_TEST( testCaseSuccess );
 CPPUNIT_CONDITIONAL_TEST( IS_INTERACTIVE , testCaseFail );
+#ifdef PROFILER_ENABLED
+CPPUNIT_TEST( testProfiler );
+#endif
 CPPUNIT_TEST_SUITE_END();
 
 private:
@@ -23,11 +26,11 @@ private:
 public:
     void setUp() {
         PROFILER_FRAME("TestExample")
-        PROFILER_FUNCTION;
+        PROFILER_FUNCTION_COL(Grey);
     }
 
     void tearDown() {
-        PROFILER_FUNCTION;
+        PROFILER_FUNCTION_COL(Grey);
     }
 
     void testCaseSuccess() {
@@ -45,6 +48,29 @@ public:
     void testCaseFail() {
         PROFILER_FUNCTION;
         CPPUNIT_ASSERT_EQUAL(0,1);
+    }
+
+    void funcProfA() {
+        PROFILER_REGION_BEGIN("ManualScoppedRegion");
+    }
+
+    void funcProfB() {
+        PROFILER_REGION_END;
+    }
+
+    void testProfiler() {
+        PROFILER_FUNCTION_COL(Red);
+        PROFILER_PLOT("testPlot",0.2);
+        usleep(50);
+        PROFILER_PLOT("testPlot",0.4);
+        funcProfA();
+        PROFILER_PLOT("testPlot",0.1);
+        usleep(100);
+        PROFILER_PLOT("testPlot",0.5);
+        funcProfB();
+        PROFILER_PLOT("testPlot",0.3);
+        usleep(50);
+        PROFILER_PLOT("testPlot",0.8);
     }
 };
 

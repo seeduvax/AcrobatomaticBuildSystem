@@ -12,7 +12,7 @@ namespace BuildScriptTester {
 // ..........................................................
 //
 void Example::helloWorld() {
-    PROFILER_FUNCTION;
+    PROFILER_FUNCTION_COL(Blue);
     char str[1024];
 	printf("Hello world from " MACRO_STRVALUE(__APPNAME__) "::" MACRO_STRVALUE(__MODNAME__) "!\n" );
     printf("len=%d\n",sampleprj_cpplib_res_text_dat_len);

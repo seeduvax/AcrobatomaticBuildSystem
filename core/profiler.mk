@@ -16,36 +16,39 @@ ifeq ($(MAKECMDGOALS),tracy)
 PROFILER=true
 endif
 PROFILER?=false
-## - PROFILERTOOL: profiler tool to be used. Currently only few properly 
+## - PROFILER_TOOL: profiler tool to be used. Currently only few properly 
 ##   packaged profiler are supported:
 ##     - tracy-0.7.8 (default)
 ##     - easy_profiler-2.1.0
-
-PROFILERTOOL?=tracy-0.7.8
+PROFILER_TOOL?=tracy-0.7.8
 ifeq ($(PROFILER),true)
 PROFILER_FILE=$(TRDIR)/test/$(MODNAME)-$(shell date '+%Y-%m-%d_%H-%M-%S').prof
-USELIB+=$(PROFILERTOOL)
-ifneq ($(filter tracy-%,$(PROFILERTOOL)),)
+USELIB+=$(PROFILER_TOOL)
+CFLAGS+=-DPROFILER_ENABLED
+ifneq ($(filter tracy-%,$(PROFILER_TOOL)),)
 CFLAGS+=-DTRACY_ENABLE
 LINKLIB+=tracy_cli
 LDFLAGS+=-pthread -ldl
-RUNTIME_PROLOG+=$(EXTLIBDIR)/$(PROFILERTOOL)/bin/tracy-capture -o $(PROFILER_FILE) & sleep 2 ;
+RUNTIME_PROLOG+=( sleep 1 ; $(EXTLIBDIR)/$(PROFILER_TOOL)/bin/tracy-capture -f -o $(PROFILER_FILE) ) &
+RUNTIME_EPILOG+=sleep 1; test -r $(PROFILER_FILE) && make PROFILER=true profiler PROFILER_ARGS=$(PROFILER_FILE) || $(ABS_PRINT_warning) "Profiler record is missing. Check profiling configuration"
+RUNTIME_ENV+=TRACY_NO_EXIT=1
 
 tracy:
 	@$(ABS_PRINT_info) "Launching tracy profiler gui..."
-	@$(EXTLIBDIR)/$(PROFILERTOOL)/bin/tracy $(word 1,$(shell ls -t $(TRDIR)/test/$(MODNAME)-*.prof)) &
+	@$(EXTLIBDIR)/$(PROFILER_TOOL)/bin/tracy $(PROFILER_ARGS) &
 
 profiler: tracy
 
 endif
-ifneq ($(filter easy_profiler-%,$(PROFILERTOOL)),)
+ifneq ($(filter easy_profiler-%,$(PROFILER_TOOL)),)
 CFLAGS+=-DBUILD_WITH_EASY_PROFILER -DPROFILER_COLOR=Green
 LINKLIB=easy_profiler
 RUNTIME_ENV+=PROFILER_FILE=$(PROFILER_FILE)
+RUNTIME_EPILOG+=test -r $(PROFILER_FILE) && make PROFILER=true profiler PROFILER_ARGS=$(PROFILER_FILE) || $(ABS_PRINT_warning) "Profiler record is missing. Check profiling configuration"
 
 easy_profiler:
 	@$(ABS_PRINT_info) "Launching easy profiler gui..."
-	@LD_LIBRARY_PATH=$(EXTLIBDIR)/$(PROFILERTOOL)/lib $(EXTLIBDIR)/$(PROFILERTOOL)/bin/profiler_gui $(word 1,$(shell ls -t $(TRDIR)/test/$(MODNAME)-*.prof)) &
+	@LD_LIBRARY_PATH=$(EXTLIBDIR)/$(PROFILER_TOOL)/lib $(EXTLIBDIR)/$(PROFILER_TOOL)/bin/profiler_gui $(PROFILER_ARGS) &
 
 profiler: easy_profiler
 
