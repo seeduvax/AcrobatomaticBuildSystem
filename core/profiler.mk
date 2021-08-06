@@ -3,7 +3,7 @@
 ## C/C++ profiler services
 ## ------------------------------------------------------------------------
 ##
-ifeq ($(ABS_FROMAPP),true)
+ifeq ($(wildcard app.cfg),app.cfg)
 ifeq ($(PROFILER),true)
 VFLAVOR+=.prof
 endif
@@ -12,7 +12,7 @@ else
 ##
 ## - PROFILER: profiler service activation switch. Set to true to activate
 ##   profiler support. Default is false
-ifeq ($(MAKECMDGOALS),tracy)
+ifeq ($(MAKECMDGOALS),profiler)
 PROFILER=true
 endif
 PROFILER?=false
@@ -22,10 +22,11 @@ PROFILER?=false
 ##     - easy_profiler-2.1.0
 PROFILER_TOOL?=tracy-0.7.8
 ifeq ($(PROFILER),true)
-PROFILER_FILE=$(TRDIR)/test/$(MODNAME)-$(shell date '+%Y-%m-%d_%H-%M-%S').prof
+PROFILER_FILE:=$(TRDIR)/test/$(MODNAME)
 USELIB+=$(PROFILER_TOOL)
 CFLAGS+=-DPROFILER_ENABLED
 ifneq ($(filter tracy-%,$(PROFILER_TOOL)),)
+PROFILER_FILE:=$(PROFILER_FILE).tracy
 CFLAGS+=-DTRACY_ENABLE
 LINKLIB+=tracy_cli
 LDFLAGS+=-pthread -ldl
@@ -41,6 +42,7 @@ profiler: tracy
 
 endif
 ifneq ($(filter easy_profiler-%,$(PROFILER_TOOL)),)
+PROFILER_FILE:=$(PROFILER_FILE).prof
 CFLAGS+=-DBUILD_WITH_EASY_PROFILER -DPROFILER_COLOR=Green
 LINKLIB=easy_profiler
 RUNTIME_ENV+=PROFILER_FILE=$(PROFILER_FILE)
