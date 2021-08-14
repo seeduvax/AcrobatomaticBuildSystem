@@ -1,5 +1,5 @@
 #ifndef __ABS_PROFILER_H__
-#define __ABS_PROFILER_H___
+#define __ABS_PROFILER_H__
 
 #ifdef TRACY_ENABLE
 #ifdef __cplusplus
