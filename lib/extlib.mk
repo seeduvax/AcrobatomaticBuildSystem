@@ -19,6 +19,7 @@ PATCHES=$(patsubst %,.apply.%,$(wildcard *.patch))
 SRCARCH=$(BUILDDIR)/$(PRODUCT)-$(VERSION)-src.tar.gz
 HASPRODUCTMK=$(shell test -r product.mk && echo 1 || echo 0)
 DEPS=$(patsubst %,$(BUILDDIR)/%.$(ARCH).tar.gz,$(USELIB))
+HASCONFIGURE?=0
 
 all: $(DISTARCH)
 
@@ -53,7 +54,7 @@ $(SRCDIR)/configure: $(SRCDIR)
 
 $(SRCDIR)/Makefile: $(SRCDIR)/configure
 	@cd ${@D} ;\
-	./configure --prefix $(SRCDIR)/b/$(PRODUCT)-$(VERSION) $(ACFLAGS)
+	./configure --prefix $(INSTDIR) $(ACFLAGS)
 	$(POSTCONFIGURE)
 endif
 
