@@ -3,7 +3,10 @@ PRJDIR=$(shell pwd)
 ABSWS:=$(PRJDIR)/../.absws
 PRJROOT:=$(PRJDIR)/../..
 _FAKE_ABS_DOWNLOAD:=$(shell mkdir -p $(ABSWS); test -d $(ABSWS)/abs-$(VABS) || ln -sf ../../ $(ABSWS)/abs-$(VABS))
-#include ../../core/common.mk
+
+all:
+
+include ../../core/common.mk
 include extlib.cfg
 
 LICENSEFILE?=none

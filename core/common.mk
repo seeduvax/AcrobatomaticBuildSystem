@@ -154,7 +154,9 @@ endif
 
 include $(ABSROOT)/core/profiler.mk
 # include extern libraries management rules
+ifneq ($(USELIB),)
 include $(ABSROOT)/core/module-extlib.mk
+endif
 
 # BROWSER was introduced for charm but is not really needed yet...
 #BROWSER:=$(word 1,$(shell which chromium firefox chrome edge safari iexplorer firefox-esr 2>/dev/null))
