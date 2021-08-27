@@ -30,8 +30,10 @@ $(BUILDDIR)/%.$(ARCH).tar.gz:
 	make -C $(patsubst $(BUILDDIR)/%.$(ARCH).tar.gz,../%,$@)
 
 $(SRCARCH):
-	mkdir -p $(@D)
-	wget $(SRCURL) -O $(SRCARCH)
+	@echo "Downloading source archive from $(SRCURL) ..."
+	@mkdir -p $(@D)
+	@wget $(SRCURL) -O $(SRCARCH) || rm $(SRCARCH)
+	@test -r $(SRCARCH)
 
 $(SRCDIR): $(SRCARCH) $(DEPS)
 	@mkdir -p $@
@@ -43,7 +45,7 @@ $(SRCDIR): $(SRCARCH) $(DEPS)
 	@echo "Applying patch $<"
 	@cd $(SRCDIR) ; patch -p 1 < $(PRJDIR)/$< | tee $@
 
-ifeq ($(HASPRODUCTMK),1)
+ifeq ($(wildcard product.mk),product.mk)
 $(SRCDIR)/Makefile: $(SRCDIR) product.mk
 	cp product.mk $@
 	@cd ${@D} ;\
