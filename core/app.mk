@@ -273,7 +273,6 @@ cint:
 	@$(ABS_PRINT_info) "Test Target: $(CINT_TEST_TARGET)"
 	@$(ABS_PRINT_info) "Pub Target: $(CINT_PUB_TARGET)"
 	@$(CINTMAKECMD) clean && $(CINTMAKECMD) $(CINT_TEST_TARGET) && $(CINTMAKECMD) $(CINT_PUB_TARGET)
-	$(test-summary)
 
 ifneq ($(IMPORT_ABSMOD),)
 include $(patsubst %,$(ABSROOT)/%/main.mk,$(IMPORT_ABSMOD))
