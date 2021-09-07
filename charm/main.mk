@@ -5,6 +5,7 @@
 # install git hooks
 ifneq ($(ABS_INC_GUARD_CHARM),1)
 ifeq ($(ABS_SCM_TYPE),git)
+ifneq ($(wildcard $(PRJROOT)/.git/hooks),)
 
 $(PRJROOT)/.git/hooks/%: $(ABSROOT)/charm/git_hooks/%
 	@$(ABS_PRINT_info) "Installing charm git git hook $(patsubst $(PRJROOT)/.git/hooks/%,%,$@)."
@@ -197,5 +198,6 @@ crclose:
 ##   - crCloseResolved: close all resolved cr
 crCloseResolved:
 	@for cr in `make crls | fgrep "[resolved]" | cut -f 1 -d ' '`; do make crclose $$cr; done
+endif
 endif
 endif
