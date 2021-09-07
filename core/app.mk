@@ -81,6 +81,9 @@ define test-summary
 	@for report in $(TTARGETDIR)/*.xml; do $(ABS_PRINT_info) "Test result: "`basename $$report` ; xsltproc --stringparam mode short $(ABSROOT)/core/xunit2txt.xsl $$report;  done
 endef
 
+testsummary:
+	$(test-summary)
+
 test: $(MODULES_TEST)
 	$(test-synthesis)
 ifeq ($(MAKECMDGOALS),test)
@@ -272,7 +275,7 @@ cint:
 	@$(ABS_PRINT_info) "Starting full build..."
 	@$(ABS_PRINT_info) "Test Target: $(CINT_TEST_TARGET)"
 	@$(ABS_PRINT_info) "Pub Target: $(CINT_PUB_TARGET)"
-	@$(CINTMAKECMD) clean && $(CINTMAKECMD) $(CINT_TEST_TARGET) && $(CINTMAKECMD) $(CINT_PUB_TARGET)
+	@$(CINTMAKECMD) clean && $(CINTMAKECMD) $(CINT_TEST_TARGET) && $(CINTMAKECMD) $(CINT_PUB_TARGET) && $(CINTMAKECMD) testsummary
 
 ifneq ($(IMPORT_ABSMOD),)
 include $(patsubst %,$(ABSROOT)/%/main.mk,$(IMPORT_ABSMOD))
@@ -413,3 +416,4 @@ cleanabs:
 	@$(ABS_PRINT_info) "ABS cleaning completed."
 
 absclean: cleanabs
+
