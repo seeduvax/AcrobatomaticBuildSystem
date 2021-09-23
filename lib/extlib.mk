@@ -1,4 +1,5 @@
 VABS:=99.99.99
+INCLUDE_EXTLIB:=false
 PRJDIR=$(shell pwd)
 ABSWS:=$(PRJDIR)/../.absws
 PRJROOT:=$(PRJDIR)/../..

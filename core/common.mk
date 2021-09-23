@@ -154,7 +154,7 @@ endif
 
 include $(ABSROOT)/core/profiler.mk
 # include extern libraries management rules
-ifneq ($(USELIB),)
+ifneq ($(INCLUDE_EXTLIB),false)
 include $(ABSROOT)/core/module-extlib.mk
 endif
 
