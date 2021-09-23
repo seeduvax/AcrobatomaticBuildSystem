@@ -434,7 +434,7 @@ TBD<xsl:value-of select="count(preceding::tbd)+1"/> &amp; \S\ref{tbd.<xsl:value-
     <xsl:call-template name="mainArticleInclude"/>
     \renewcommand{\HEMLsrcFileName}{<xsl:call-template name="formatText"><xsl:with-param name="text" select="$srcfilename"/></xsl:call-template>}
     \renewcommand{\HEMLdraft}{<xsl:value-of select="$draftStatus"/>}
-    \renewcommand{\HEMLbuildinfo}{<xsl:value-of select="$buildinfo"/>}
+    \renewcommand{\HEMLbuildinfo}{<xsl:call-template name="formatText"><xsl:with-param name="text" select="$buildinfo"/></xsl:call-template>}
     \renewcommand{\HEMLorgName}{<xsl:value-of select="author/@sigle"/>}
     \renewcommand{\HEMLserviceName}{<xsl:value-of select="author/@service"/>}
     \renewcommand{\HEMLreference}{<xsl:apply-templates select="reference"/>}
@@ -830,7 +830,7 @@ Checksum function: <xsl:value-of select="@type"/>
 <!-- Presentation main -->
 <xsl:template match="/presentation">
 \input{<xsl:value-of select="$slideStyle"/>}
-\renewcommand{\HEMLbuildinfo}{<xsl:value-of select="$buildinfo"/>}
+\renewcommand{\HEMLbuildinfo}{<xsl:call-template name="formatText"><xsl:with-param name="text" select="$buildinfo"/></xsl:call-template>}
 \renewcommand{\HEMLorgName}{<xsl:value-of select="author/@sigle"/>}
 \renewcommand{\HEMLreference}{<xsl:apply-templates select="reference"/>}
 \renewcommand{\HEMLauthor}{<xsl:value-of select="author|authors"/>}
