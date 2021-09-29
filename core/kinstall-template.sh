@@ -175,6 +175,8 @@ changeGroups() {
         for initFile in `ls $PREFIX/etc/$APP/*.conf`; do
             echo "Changing group in $initFile"
             sed -i -E "s/DEVGROUP=.*/DEVGROUP=$NEW_GROUP/g" $initFile
+            #remove comment if exists.
+            sed -i -E "s/#DEVGROUP=/DEVGROUP=/g" $initFile
         done
     fi
 }
