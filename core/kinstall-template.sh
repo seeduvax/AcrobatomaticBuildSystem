@@ -63,7 +63,7 @@ install() {
 	if [ "$PKVERSION" != "$KVERSION" ]
 	then
 		echo "Warning! current kernel version ($KVERSION) doesn't match package target version ($PKVERSION)."
-		echo "Continue (y/n)?."
+		echo "Continue (y/N) ?"
 		read rep
 		if [ "$rep" != "y" -a "$rep" != "Y" ]
 		then
@@ -77,7 +77,7 @@ install() {
 	echo "Welcome to $APP $VERSION installation."
 	if [ -r "$PREFIX" ]
 	then
-		echo "Warning: target directory already exists. Continue (y/n) ?"
+		echo "Warning: target directory already exists. Continue (y/N) ?"
 		read rep
 		if [ "$rep" != "y" -a "$rep" != "Y" ]
 		then
@@ -174,7 +174,7 @@ changeGroups() {
     if [ -d "$PREFIX/etc/$APP" ]; then
         for initFile in `ls $PREFIX/etc/$APP/*.conf`; do
             echo "Changing group in $initFile"
-            sed -ie "s/DEVGROUP=.*/DEVGROUP=$NEW_GROUP/g" $initFile
+            sed -i -E "s/DEVGROUP=.*/DEVGROUP=$NEW_GROUP/g" $initFile
         done
     fi
 }
