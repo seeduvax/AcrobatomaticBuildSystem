@@ -2,8 +2,9 @@ FPGA_EXT_PATH:=$(dir $(lastword $(MAKEFILE_LIST)))
 VHDLC?=ghdl
 
 VHDLSRC:=$(filter %.vhd,$(SRCFILES)) $(filter %.vhdl,$(SRCFILES))
-OBJHDL:=$(patsubst src/%.vhdl,$(OBJDIR)/sim/%.o,$(filter %.vhdl,$(VHDLSRC))) \
-		$(patsubst src/%.vhd,$(OBJDIR)/sim/%.o,$(filter %.vhd,$(VHDLSRC)))
+OBJHDL:=$(patsubst src/%.vhdl,$(OBJDIR)/%.o,$(filter %.vhdl,$(VHDLSRC))) \
+		$(patsubst src/%.vhd,$(OBJDIR)/%.o,$(filter %.vhd,$(VHDLSRC)))
+VHDLLIBS:=$(patsubst %,-P$(TRDIR)/obj/%,$(USEMOD))
 
 ifeq ($(BOARD),de10nano)
 include $(FPGA_EXT_PATH)/de10nano/main.mk
@@ -14,26 +15,26 @@ endif
 define HDLCOMP
 	@$(ABS_PRINT_info) "Compiling HDL $<..."
 	@mkdir -p $(@D)
-	@$(VHDLC) -a --workdir=$(@D) --ieee=synopsys $(VHDLCFLAGS) $<
+	@$(VHDLC) -a --work=$(MODNAME) --workdir=$(@D) --ieee=synopsys $(VHDLLIBS) $(VHDLCFLAGS) $<
 endef
 
-$(OBJDIR)/sim/%.o: src/%.vhdl
+$(OBJDIR)/%.o: src/%.vhdl
 	$(HDLCOMP)
 
-$(OBJDIR)/sim/%.o: src/%.vhd
+$(OBJDIR)/%.o: src/%.vhd
 	$(HDLCOMP)
 
-$(OBJDIR)/sim/sim_%.o: test/%.vhdl $(OBJHDL)
+$(OBJDIR)/sim_%.o: test/%.vhdl $(OBJHDL)
 	$(HDLCOMP)
 
-$(OBJDIR)/sim/sim_%.o: test/%.vhdl $(OBJHDL)
+$(OBJDIR)/sim_%.o: test/%.vhdl $(OBJHDL)
 	$(HDLCOMP)
 
-$(OBJDIR)/sim/sim_%: $(OBJDIR)/sim/sim_%.o
+$(OBJDIR)/sim_%: $(OBJDIR)/sim_%.o
 	@$(ABS_PRINT_info) "Building HDL simulation $(@F)..."
 	@mkdir -p $(@D)
-	@$(VHDLC) -e --ieee=synopsys --workdir=$(@D) $(VHDLCFLAGS) -Wl,-lgnat -Wl,-o$@ $(patsubst sim_%,%,$(@F))
-$(OBJDIR)/sim/sim_%.ghw: $(OBJDIR)/sim/sim_%
+	@$(VHDLC) -e --ieee=synopsys --work=$(MODNAME) --workdir=$(@D) $(VHDLLIBS) $(VHDLCFLAGS) -Wl,-lgnat -Wl,-o$@ $(patsubst sim_%,%,$(@F))
+$(OBJDIR)/sim_%.ghw: $(OBJDIR)/sim_%
 	@$(ABS_PRINT_info) "Running HDL simulation $(<F)..."
 	@$< --wave=$@
 
@@ -43,13 +44,13 @@ SIMNAME:=$(word 2,$(MAKECMDGOALS))
 $(SIMNAME):
 	@:
 
-SIMRESFILE:=$(OBJDIR)/sim/sim_$(SIMNAME).ghw
+SIMRESFILE:=$(OBJDIR)/sim_$(SIMNAME).ghw
 
 viewsim: $(SIMRESFILE)
 	gtkwave $(SIMRESFILE)
 
 endif
 
-test:: $(patsubst test/%.vhdl,$(OBJDIR)/sim/sim_%.ghw,$(wildcard test/*.vhdl)) \
-       $(patsubst test/%.vhd,$(OBJDIR)/sim/sim_%.ghw,$(wildcard test/*.vhd))
+test:: $(patsubst test/%.vhdl,$(OBJDIR)/sim_%.ghw,$(wildcard test/*.vhdl)) \
+       $(patsubst test/%.vhd,$(OBJDIR)/sim_%.ghw,$(wildcard test/*.vhd))
 
