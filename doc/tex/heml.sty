@@ -286,8 +286,10 @@
 \renewcommand*\contentsname{Summary}
 
 % TBC / TBD
-\newcommand{\HEMLtbd}[2]{\label{tbd.#2}\colorbox{orange!12}{#1 [TBD#2]}}
-\newcommand{\HEMLtbc}[2]{\label{tbc.#2}\colorbox{orange!12}{#1 [TBC#2]}}
+\definecolor{HEMLcolTBD}{rgb}{1.0,0.8,0.4}
+\definecolor{HEMLcolTBC}{rgb}{1.0,0.9,0.3}
+\newcommand{\HEMLtbd}[2]{\label{tbd.#2}\sethlcolor{HEMLcolTBD}\hl{#1 [TBD#2]}}
+\newcommand{\HEMLtbc}[2]{\label{tbc.#2}\sethlcolor{HEMLcolTBC}\hl{#1 [TBC#2]}}
 \newcommand{\HEMLtbindexhead}{\section{Incompletness}}
 
 % Pictures

@@ -70,9 +70,11 @@ This is not a requirement, but just companion text to provide a better understan
   }
   {section %title=Highlights
 Paragraphe may have {em some emphasis} content or enclosed {kw keyword} in the
-text. As well this is a citation:
-{q Science is what we understand well enough to explain to a computer. Art is everything else we do.}
-blabla {todo to complete the doc add the missing parts.} blabla. Covers: {req req.2}.
+text. As well this is a citation: {q Science is what we understand well enough
+to explain to a computer. Art is everything else we do.} blabla {todo to
+complete the doc add the missing parts. additional sentance to make the todo
+section long enough to not fit in the current line and check it is properly
+wrapped on next.} blabla. Covers: {req req.2}.
 
 Let's go to {a %href=http://kernel.org %%the linux kernel archives}.
 {note %title=information box
@@ -81,7 +83,15 @@ Some complementary informations, advices, best practices... See doc {xref CC} an
 {note %type=warning %title=warning box
 Some complementary detail to take care, special cautions...
 }
-Sometime there are things we are unsure but a guess is done: {tbc next human flight to the moon will lift off in 2025}, while others are not yet known: {tbd next human on the moon name}.
+Sometime there are things we are unsure but a guess is done: {tbc next human
+flight to the moon will lift off in 2025}, while others are not yet 
+known: {tbd next human on the moon name. And here again a long enough sentence
+is needed to check line wrap}.
+  - {tbc tbc sentence as a bullet}
+
+{tbc tbc as a standalone paragraph.}
+
+%{tbc tbc starting a new pargraph.} And the paragraphe complement.
   }
   {section %title=Tables
 {table %title=Table example %xref=TableEX
