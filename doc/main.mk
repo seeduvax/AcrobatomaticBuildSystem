@@ -17,11 +17,13 @@ HTML_STYLE_BUNDLE+=$(patsubst %,$(ABSROOT)/doc/html/%.tar.gz,style impress.js hi
 # files to be processed by doxygen.
 DOXSRCFILES:=$(shell find $(PRJROOT) -name *.h -o -name *.c -o -name *.hpp -o -name *.cpp -o -name *.py -o -name *.java | fgrep -v "/build/" | fgrep -v "/dist/" | fgrep -v "$(ABSROOT)")
 
-HEMLVERSION?=1.0.8
+HEMLVERSION?=1.0.9
 HEMLARGS:=-param app $(APPNAME) -param version $(VERSION) -param date "`date --rfc-3339 s`" -param user $$USER -param host $(shell hostname)
 
 PUMLVERSION?=1.2021.6
+LUAJVERSION?=3.0.1
 PUMLJAR?=$(NDNA_EXTLIBDIR)/plantuml.$(PUMLVERSION).jar
+LUAJJAR?=$(NDNA_EXTLIBDIR)/luaj-jse-$(LUAJVERSION).jar
 HEMLJAR?=$(NDNA_EXTLIBDIR)/heml-$(HEMLVERSION).jar
 HEMLCMD?=$(JAVACMD) -jar $(call absGetPath,$(HEMLJAR))
 PUMLCMD?=$(JAVACMD) -jar $(call absGetPath,$(PUMLJAR))
@@ -97,7 +99,7 @@ $(HTMLS) $(PDFS): $(IMGS)
 
 $(HTMLS): $(CSS)
 
-.PRECIOUS: $(HEMLJAR) $(PUMLJAR) $(patsubst $(NDNA_EXTLIBDIR)/%,$(ABS_CACHE)/noarch/%,$(HEMLJAR) $(PUMLJAR)) $(IMGS) $(TEXDIR)/%.tex $(OBJDIR)/%.pumlgenerated
+.PRECIOUS: $(HEMLJAR) $(LUAJJAR) $(PUMLJAR) $(patsubst $(NDNA_EXTLIBDIR)/%,$(ABS_CACHE)/noarch/%,$(HEMLJAR) $(PUMLJAR)) $(IMGS) $(TEXDIR)/%.tex $(OBJDIR)/%.pumlgenerated
 
 ifneq ($(DOXYGENCMD),)
 all-impl:: $(DOXDIR)
@@ -165,13 +167,13 @@ define absHemlTransformation
 	@$(HEMLCMD) -in $(call absGetPath,$<) -xsl $(call absGetPath,$(1)) -param srcdir "$(call absGetPath,$(<D))" -param srcfilename "$(call absGetPath,$(<F))" $(HEMLARGS) -param revision ""`$(call abs_scm_file_revision,$<)` -param showComments ""$(COMMENTS) -out $(call absGetPath,$@) -depattr fig:src:$(patsubst %/,%,$(patsubst src%,$(HTMLDIR)/%,$(<D)))
 endef
 
-$(HTMLDIR)/%.html: src/%.heml $(HEMLJAR)
+$(HTMLDIR)/%.html: src/%.heml $(HEMLJAR) $(LUAJJAR)
 	$(call absHemlTransformation,$(HEMLTOXHTML_STYLE) -dep $(patsubst $(HTMLDIR)/%,$(OBJDIR)/%.d,$@))
 
-$(DBDIR)/%.xml: src/%.heml $(HEMLJAR)
+$(DBDIR)/%.xml: src/%.heml $(HEMLJAR) $(LUAJJAR)
 	$(call absHemlTransformation,$(HEMLTOXML_STYLE) -dep $(patsubst $(DBDIR)/%,$(OBJDIR)/%.d,$@))
 
-$(TEXDIR)/%.tex: src/%.heml $(HEMLJAR) $(IMGS)
+$(TEXDIR)/%.tex: src/%.heml $(HEMLJAR) $(LUAJJAR) $(IMGS)
 	$(call absHemlTransformation,$(HEMLTOTEX_STYLE) -dep $(patsubst $(TEXDIR)/%,$(OBJDIR)/%.d,$@))
 
 TEXDEFAULTINPUTS?=:

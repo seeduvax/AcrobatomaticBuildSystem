@@ -397,7 +397,7 @@ TBD<xsl:value-of select="count(preceding::tbd)+1"/> &amp; \S\ref{tbd.<xsl:value-
  </xsl:choose></xsl:param>
 \lstset{language=<xsl:value-of select="$lng"/>}
 \begin{lstlisting}[<xsl:if 
-    test="@title!=''">caption=<xsl:apply-templates select="@title"/></xsl:if><xsl:if test="@size!=''">basicstyle=\<xsl:value-of select="@size"/></xsl:if>]<xsl:text>
+    test="@title!=''">caption=<xsl:apply-templates select="@title"/>,</xsl:if><xsl:if test="@size!=''">basicstyle=\<xsl:value-of select="@size"/>,</xsl:if><xsl:if test="@xref!=''">label=<xsl:value-of select="@xref"/></xsl:if>]<xsl:text>
 </xsl:text><xsl:value-of select="pre/text()"/><xsl:text>
 </xsl:text>\end{lstlisting}
 </xsl:template>
@@ -512,36 +512,10 @@ TBD<xsl:value-of select="count(preceding::tbd)+1"/> &amp; \S\ref{tbd.<xsl:value-
     \input{code.sty}
     
     <xsl:apply-templates select="section|comment"/>
-    <xsl:if test="count(appendices) + count(.//comment) + count(.//tbc) + count(.//tbd)&gt;0">
+    <xsl:if test="count(appendices)&gt;0">
             \clearpage
             \appendix
-    </xsl:if>
-    <xsl:apply-templates select="appendices"/> 
-    <xsl:if test="count(.//tbc) + count(.//tbd) &gt; 0">
-        \HEMLtbindexhead
-        <xsl:if test="count(.//tbc) &gt; 0">
-\begin{HEMLtable}{|X[-1]|X[-1]|X[-1]|}{}
-\HEMLoddHeadCell \textbf{ref} &amp; \HEMLoddHeadCell \textbf{location} &amp; \HEMLoddHeadCell \textbf{entitled}
-\endhead
-           <xsl:apply-templates select=".//tbc" mode="index"/>
-\HEMLtableTail
-\end{HEMLtable}
-        </xsl:if>
-        <xsl:if test="count(.//tbd) &gt; 0">
-\begin{HEMLtable}{|X[-1]|X[-1]|X[-1]|}{}
-\HEMLoddHeadCell \textbf{ref} &amp; \HEMLoddHeadCell \textbf{location} &amp; \HEMLoddHeadCell \textbf{entitled}
-\endhead
-           <xsl:apply-templates select=".//tbd" mode="index"/>
-\HEMLtableTail
-\end{HEMLtable}
-        </xsl:if>
-	\newpage
-    </xsl:if>
-    <xsl:if test="$showComments='true' and count(.//comment)&gt;0">
-        \HEMLcommentdetailhead
-	<xsl:apply-templates select=".//comment" mode="detail">
-		<xsl:sort select="@id"/>
-        </xsl:apply-templates>
+        <xsl:apply-templates select="appendices"/> 
     </xsl:if>
     \end{document}
 </xsl:template>
@@ -795,6 +769,28 @@ Checksum function: <xsl:value-of select="@type"/>
   Assert <xsl:value-of select="$num"/>
 </xsl:template>
 
+<xsl:template match="index[@type='tbc']">
+\begin{HEMLtable}{|X[-1]|X[-1]|X[-1]|}{}
+\HEMLoddHeadCell \textbf{ref} &amp; \HEMLoddHeadCell \textbf{location} &amp; \HEMLoddHeadCell \textbf{entitled}
+\endhead
+           <xsl:apply-templates select="//tbc" mode="index"/>
+\HEMLtableTail
+\end{HEMLtable}
+</xsl:template>
+<xsl:template match="index[@type='tbd']">
+\begin{HEMLtable}{|X[-1]|X[-1]|X[-1]|}{}
+\HEMLoddHeadCell \textbf{ref} &amp; \HEMLoddHeadCell \textbf{location} &amp; \HEMLoddHeadCell \textbf{entitled}
+\endhead
+           <xsl:apply-templates select="//tbd" mode="index"/>
+\HEMLtableTail
+\end{HEMLtable}
+</xsl:template>
+<xsl:template match="index[@type='comment']">
+WTF WTF
+    <xsl:apply-templates select="//comment" mode="detail">
+        <xsl:sort select="@id"/>
+    </xsl:apply-templates>
+</xsl:template>
 <!--
      ##########################################################################
                 Presentation/slides transformations

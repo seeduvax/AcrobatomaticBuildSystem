@@ -229,5 +229,24 @@ Action 2 result is 42.
 {section %title=Requirement references
   {index %type=req}
 }
+{section %title=Open points
+  {index %type=tbd}
+  {index %type=tbc}
+}
+{?script
+hideComment=parameters:get("showComments")~="true"
+if hideComment then
+    parser:activate(false)
+end
+?}
+{section %title=Discussion
+  {index %type=comment}
+}
+{?script
+if hideComment then
+    parser:activate(true)
+end
+?}
+
 }
 }

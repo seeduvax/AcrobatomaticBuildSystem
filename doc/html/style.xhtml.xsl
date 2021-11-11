@@ -89,10 +89,12 @@
 <span class="todo"><xsl:apply-templates/></span>
 </xsl:template>
 <xsl:template match="tbc">
-<span class="todo"><xsl:apply-templates/> [TBC<xsl:value-of select="count(preceding::tbc)+1"/>]</span>
+  <xsl:param name="num"><xsl:value-of select="count(preceding::tbc)+1"/></xsl:param>
+<span class="tbc"><xsl:apply-templates/> [<a name="TBC{$num}">TBC<xsl:value-of select="$num"/>]</a></span>
 </xsl:template>
 <xsl:template match="tbd">
-<span class="todo"><xsl:apply-templates/> [TBD<xsl:value-of select="count(preceding::tbd)+1"/>]</span>
+  <xsl:param name="num"><xsl:value-of select="count(preceding::tbd)+1"/></xsl:param>
+<span class="tbd"><xsl:apply-templates/> [<a name="TBD{$num}">TBD<xsl:value-of select="count(preceding::tbd)+1"/></a>]</span>
 </xsl:template>
 <!--******************************
 	Boite/cadre
@@ -123,7 +125,7 @@
 -->
 <xsl:template match="comment">
 <xsl:if test="$showComments='true'">
-  <div class="comment_{@state}">#rmk.<xsl:value-of select="@id"/>
+  <div class="comment_{@state}"><a name="rmk.{@id}">#rmk.<xsl:value-of select="@id"/></a>
   <div class="comment_content">
 <ul>
       <p><b>[<xsl:value-of select="@state"/>] - From: <xsl:value-of select="@author"/></b></p>
@@ -266,6 +268,49 @@ include(<xsl:value-of select="@src"/>.txt)
 <xsl:param name="num"><xsl:number count="section|references|definitions|check|assert" level="multiple" format="1.1"/></xsl:param>
   Assert <a href="#{$num}"><xsl:value-of select="$num"/></a>
 </xsl:template>
+
+<xsl:template match="index[@type='tbc']">
+  <table>
+  <tr><th>Ref</th><th>Entitled</th></tr>
+  <xsl:apply-templates select="//tbc" mode="index"/>
+  </table>
+</xsl:template>
+<xsl:template match="tbc" mode="index">
+  <xsl:param name="num"><xsl:value-of select="count(preceding::tbc)+1"/></xsl:param>
+  <tr>
+    <td><a href="#TBC{$num}">TBC<xsl:value-of select="$num"/></a></td>
+    <td><xsl:apply-templates/></td>
+  </tr>
+</xsl:template>
+
+<xsl:template match="index[@type='tbd']">
+  <table>
+  <tr><th>Ref</th><th>Entitled</th></tr>
+  <xsl:apply-templates select="//tbd" mode="index"/>
+  </table>
+</xsl:template>
+<xsl:template match="tbd" mode="index">
+  <xsl:param name="num"><xsl:value-of select="count(preceding::tbd)+1"/></xsl:param>
+  <tr>
+    <td><a href="#TBD{$num}">TBD<xsl:value-of select="$num"/></a></td>
+    <td><xsl:apply-templates/></td>
+  </tr>
+</xsl:template>
+
+<xsl:template match="index[@type='comment']">
+  <xsl:apply-templates select="//comment" mode="detail">
+    <xsl:sort select="@id"/>
+  </xsl:apply-templates>
+</xsl:template>
+<xsl:template match="comment" mode="detail">
+  <div class="comment_detail_{@state}">
+<ul>
+      <p><b><a href="#rmk.{@id}"><xsl:value-of select="@id"/></a> [<xsl:value-of select="@state"/>] - From: <xsl:value-of select="@author"/></b></p>
+      <xsl:apply-templates select="*"/>
+</ul>
+  </div>
+</xsl:template>
+
 <!--************************************************
     Checks
 -->
@@ -626,8 +671,13 @@ include(<xsl:value-of select="@src"/>.txt)
 		<xsl:apply-templates/>
 	</xsl:otherwise>
 </xsl:choose>	
-
+	<xsl:apply-templates select="appendices"/>
 </div>
+</xsl:template>
+<xsl:template match="appendices">
+<hr/>
+<h1>Appendices</h1>
+<xsl:apply-templates select="*"/>
 </xsl:template>
 <!-- #######################################################
 	pied de page
@@ -705,6 +755,12 @@ Copyright (c) <xsl:value-of select="./text()"/> <xsl:value-of select="@year"/><x
 		&#160;<xsl:value-of select="title"/></a></h3>
 	<xsl:if test="count(section)&gt;0">
 		<ul><xsl:apply-templates select="section" mode="summary">
+			<xsl:with-param name="chapterFile"><xsl:value-of select="$chapterFile"/></xsl:with-param>
+		</xsl:apply-templates></ul>
+	</xsl:if>
+	<xsl:if test="count(appendices)&gt;0">
+<p>WTF WTF</p>
+		<ul><xsl:apply-templates select="appendices/section" mode="summary">
 			<xsl:with-param name="chapterFile"><xsl:value-of select="$chapterFile"/></xsl:with-param>
 		</xsl:apply-templates></ul>
 	</xsl:if>
