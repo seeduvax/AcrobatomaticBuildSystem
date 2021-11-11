@@ -90,11 +90,11 @@
 </xsl:template>
 <xsl:template match="tbc">
   <xsl:param name="num"><xsl:value-of select="count(preceding::tbc)+1"/></xsl:param>
-<span class="tbc"><xsl:apply-templates/> [<a name="TBC{$num}">TBC<xsl:value-of select="$num"/>]</a></span>
+<a name="TBC{$num}"/><span class="tbc"><xsl:apply-templates/> [TBC<xsl:value-of select="$num"/>]</span>
 </xsl:template>
 <xsl:template match="tbd">
   <xsl:param name="num"><xsl:value-of select="count(preceding::tbd)+1"/></xsl:param>
-<span class="tbd"><xsl:apply-templates/> [<a name="TBD{$num}">TBD<xsl:value-of select="count(preceding::tbd)+1"/></a>]</span>
+<a name="TBD{$num}"/><span class="tbd"><xsl:apply-templates/> [TBD<xsl:value-of select="count(preceding::tbd)+1"/>]</span>
 </xsl:template>
 <!--******************************
 	Boite/cadre
@@ -277,7 +277,11 @@ include(<xsl:value-of select="@src"/>.txt)
 </xsl:template>
 <xsl:template match="tbc" mode="index">
   <xsl:param name="num"><xsl:value-of select="count(preceding::tbc)+1"/></xsl:param>
-  <tr>
+  <xsl:variable name="trclass"><xsl:choose>
+	<xsl:when test="(position() + 1) mod 2 = 0">even</xsl:when>
+	<xsl:otherwise>odd</xsl:otherwise>
+  </xsl:choose></xsl:variable>
+  <tr class="{$trclass}">
     <td><a href="#TBC{$num}">TBC<xsl:value-of select="$num"/></a></td>
     <td><xsl:apply-templates/></td>
   </tr>
@@ -291,7 +295,11 @@ include(<xsl:value-of select="@src"/>.txt)
 </xsl:template>
 <xsl:template match="tbd" mode="index">
   <xsl:param name="num"><xsl:value-of select="count(preceding::tbd)+1"/></xsl:param>
-  <tr>
+  <xsl:variable name="trclass"><xsl:choose>
+	<xsl:when test="(position() + 1) mod 2 = 0">even</xsl:when>
+	<xsl:otherwise>odd</xsl:otherwise>
+  </xsl:choose></xsl:variable>
+  <tr class="{$trclass}">
     <td><a href="#TBD{$num}">TBD<xsl:value-of select="$num"/></a></td>
     <td><xsl:apply-templates/></td>
   </tr>
@@ -511,6 +519,7 @@ include(<xsl:value-of select="@src"/>.txt)
 	<xsl:param name="title"></xsl:param>
 	<xsl:param name="level">2</xsl:param>
 	<xsl:param name="xref">none</xsl:param>
+	<xsl:param name="ref"><xsl:if test="count(ancestor::appendices)&gt;0">A</xsl:if><xsl:number count="section|references|definitions|check" level="multiple" format="1.1"/></xsl:param>
 	<div class="section-head">
 		<xsl:if test="$xref!=''"><a name="{$xref}"></a></xsl:if>
 	<xsl:choose>
@@ -521,11 +530,8 @@ include(<xsl:value-of select="@src"/>.txt)
 					<a name="{$id}"><xsl:value-of select="$id"/></a>
 				</xsl:if>
 				<xsl:if test="$hasToc!=0">
-				<a><xsl:attribute name="name">
-					<xsl:number count="section|references|definitions|check" level="multiple" format="1.1"/>
-				</xsl:attribute></a>
-				<a href="#top">
-					<xsl:number count="section|references|definitions|check" level="multiple" format="1.1"/></a>&#160;
+				<a name="{$ref}"/>
+				<a href="#top"><xsl:value-of select="$ref"/></a>&#160;
 				</xsl:if>	
 				<xsl:value-of select="$title"/>
 			</xsl:element>	
@@ -562,7 +568,7 @@ include(<xsl:value-of select="@src"/>.txt)
 	Table des matières
 -->
 <xsl:template match="section|references|definitions" mode="summary">
-<xsl:param name="num"><xsl:number count="section|references|definitions|check" level="multiple" format="1.1"/></xsl:param>
+<xsl:param name="num"><xsl:if test="count(ancestor::appendices)">A</xsl:if><xsl:number count="section|references|definitions|check" level="multiple" format="1.1"/></xsl:param>
 	<li><a href="#{$num}"><xsl:value-of select="$num"/>&#160;<xsl:value-of select="@title"/></a>
 	<xsl:if test="count(section|references|definitions|check)&gt;0">
 		<ul>
@@ -580,7 +586,7 @@ include(<xsl:value-of select="@src"/>.txt)
 <div class="toc">
 <h3>Summary</h3>
 <ul>
-<xsl:apply-templates select="/document/section" mode="summary"/>
+<xsl:apply-templates select="//section" mode="summary"/>
 </ul>
 </div>
 <br/>
@@ -593,30 +599,6 @@ include(<xsl:value-of select="@src"/>.txt)
 <p><xsl:apply-templates/>.</p>
 </xsl:template>
 
-<!-- #######################################################
-	index document
-<xsl:template match="index">
-<div class="index">
-<table>
-	<xsl:apply-templates/>
-</table>
-</div>
-</xsl:template>
-<xsl:template match="document">
-<tr>
-<td valign="top"><a href="{content/@file}">
-	<xsl:value-of select="ref"/>
-</a></td>
-<td>
-	<xsl:apply-templates select="title"/>
-	<xsl:apply-templates select="att"/>
-</td>
-</tr>
-</xsl:template>
-<xsl:template match="att">
-	<li><xsl:apply-templates/> <a href="{@file}">[Ouvrir]</a></li> 
-</xsl:template>
--->
 <!-- #######################################################
 	blog
 -->
@@ -676,7 +658,6 @@ include(<xsl:value-of select="@src"/>.txt)
 </xsl:template>
 <xsl:template match="appendices">
 <hr/>
-<h1>Appendices</h1>
 <xsl:apply-templates select="*"/>
 </xsl:template>
 <!-- #######################################################
@@ -743,34 +724,6 @@ Copyright (c) <xsl:value-of select="./text()"/> <xsl:value-of select="@year"/><x
 		<xsl:with-param name="content-template">section</xsl:with-param>
 	</xsl:call-template>
 	</xsl:if>
-</xsl:template>
-<!--**********************************************
-	sommaire
--->
-<xsl:template match="document" mode="summary">
-	<div class="toc">
-	<xsl:param name="chapterFile"/>
-	<xsl:param name="id"/>
-	<h3><a href="{$chapterFile}"> Chapitre&#160;<xsl:value-of select="$id"/>&#160;: 
-		&#160;<xsl:value-of select="title"/></a></h3>
-	<xsl:if test="count(section)&gt;0">
-		<ul><xsl:apply-templates select="section" mode="summary">
-			<xsl:with-param name="chapterFile"><xsl:value-of select="$chapterFile"/></xsl:with-param>
-		</xsl:apply-templates></ul>
-	</xsl:if>
-	<xsl:if test="count(appendices)&gt;0">
-<p>WTF WTF</p>
-		<ul><xsl:apply-templates select="appendices/section" mode="summary">
-			<xsl:with-param name="chapterFile"><xsl:value-of select="$chapterFile"/></xsl:with-param>
-		</xsl:apply-templates></ul>
-	</xsl:if>
-	</div>
-</xsl:template>
-<xsl:template match="summary/include">
-	<xsl:apply-templates select="document(concat(@href,'.xml'),/)/document" mode="summary">
-		<xsl:with-param name="chapterFile"><xsl:value-of select="@href"/>.html</xsl:with-param>
-		<xsl:with-param name="id"><xsl:number count="include" format="I"/></xsl:with-param>
-	</xsl:apply-templates>
 </xsl:template>
 <!--
      ##########################################################################
