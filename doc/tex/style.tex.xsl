@@ -786,7 +786,6 @@ Checksum function: <xsl:value-of select="@type"/>
 \end{HEMLtable}
 </xsl:template>
 <xsl:template match="index[@type='comment']">
-WTF WTF
     <xsl:apply-templates select="//comment" mode="detail">
         <xsl:sort select="@id"/>
     </xsl:apply-templates>
