@@ -16,7 +16,7 @@
 <!-- ############################################################## -->
 <xsl:template match="testsuites|testsuite" mode="stat"
 >- Tests: <xsl:value-of select="@tests"/>
-- Total Successes: <xsl:value-of select="count(//testcase[@status='pass'])"/>
+- Total Successes: <xsl:value-of select="count(//testcase[count(skipped)=0 and count(error)=0 and count(failure)=0])"/>
 - Total Failures: <xsl:value-of select="@failures"/>
 - Total Errors: <xsl:value-of select="@errors"/>
 - Total Disabled: <xsl:value-of select="count(//skipped)"/>
@@ -27,29 +27,26 @@
 <xsl:template match="/">
 <xsl:choose>
 <xsl:when test="$mode='short'"
->Successes: <xsl:value-of select="count(//testcase[@status='pass'])"
+>Successes: <xsl:value-of select="count(//testcase[count(skipped)=0 and count(error)=0 and count(failure)=0])"
 />, Failures: <xsl:value-of select="testsuites/@failures"
 />, Errors: <xsl:value-of select="testsuites/@errors"
 />, Disabled: <xsl:value-of select="count(//skipped)"/><xsl:text>
 </xsl:text>
-<xsl:apply-templates select=".//testcase[@status='failure' or @status='error']"/>
-<xsl:apply-templates select=".//testcase[not(@status) and count(failure)&gt;0]"/>
+<xsl:apply-templates select=".//testcase[count(failure)!=0 or count(error)!=0]"/>
 </xsl:when>
 <xsl:otherwise>
 # ---------------------------------------------------------------------
 # Successful tests
 # ---------------------------------------------------------------------
-<xsl:apply-templates select=".//testcase[@status='pass']"/>
-<xsl:apply-templates select=".//testcase[not(@status) and count(failure)=0]"/>
+<xsl:apply-templates select=".//testcase[count(error)=0 and count(failure)=0]"/>
 # ---------------------------------------------------------------------
 # Disabled tests
 # ---------------------------------------------------------------------
-<xsl:apply-templates select=".//testcase[@status='skipped']"/>
+<xsl:apply-templates select=".//testcase[count(skipped)!=0]"/>
 # ---------------------------------------------------------------------
 # Failed tests
 # ---------------------------------------------------------------------
-<xsl:apply-templates select=".//testcase[@status='failure' or @status='error']"/>
-<xsl:apply-templates select=".//testcase[not(@status) and count(failure)&gt;0]"/>
+<xsl:apply-templates select=".//testcase[count(failure)!=0 or count(error)!=0]"/>
 # ---------------------------------------------------------------------
 # Statistics
 # ---------------------------------------------------------------------
