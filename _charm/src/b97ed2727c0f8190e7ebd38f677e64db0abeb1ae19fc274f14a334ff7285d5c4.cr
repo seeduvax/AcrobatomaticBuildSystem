@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<cr id="b97ed2727c0f8190e7ebd38f677e64db0abeb1ae19fc274f14a334ff7285d5c4" state="working">
+<cr id="b97ed2727c0f8190e7ebd38f677e64db0abeb1ae19fc274f14a334ff7285d5c4" state="closed" delivered="abs-3.3.5">
 <title>add lua abs packager.</title>
 <reporter>sdevaux</reporter>
 <creation>2021-08-26 14:03:55+02:00</creation>

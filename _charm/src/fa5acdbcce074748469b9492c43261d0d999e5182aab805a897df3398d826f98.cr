@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><cr id="fa5acdbcce074748469b9492c43261d0d999e5182aab805a897df3398d826f98" state="working">
+<?xml version="1.0" encoding="UTF-8"?><cr id="fa5acdbcce074748469b9492c43261d0d999e5182aab805a897df3398d826f98" state="closed" delivered="abs-3.3.5">
     <title>Profiling tools</title>
     <reporter>sdevaux</reporter>
     <creation>2021-06-29 12:28:14+02:00</creation>

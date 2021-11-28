@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<cr id="4856f497f1848fd167d5c5f6102cdc803689fcee276f51299600ac2175ef8b44" state="working">
+<cr id="4856f497f1848fd167d5c5f6102cdc803689fcee276f51299600ac2175ef8b44" state="closed" delivered="abs-3.3.5">
 <title>TBC/TBD sentances are not properly line wrapped when rendiring heml doc in pdf.</title>
 <reporter>m026258</reporter>
 <creation>2021-10-11 17:07:21+02:00</creation>

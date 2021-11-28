@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<cr id="30875d14fbe639c69fb1b57f01458f9bee51d554f97e75a822d71849dcda55cc" state="working">
+<cr id="30875d14fbe639c69fb1b57f01458f9bee51d554f97e75a822d71849dcda55cc" state="closed" delivered="abs-3.3.5">
 <title>TestSummary macro not working on cint target which requires release MOD</title>
 <reporter>x007707</reporter>
 <creation>2021-09-07 17:21:04+02:00</creation>
