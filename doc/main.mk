@@ -235,3 +235,19 @@ else
 	@xdg-open "$(TRDIR)/share/doc/$(APPNAME)" &
 endif
 
+
+ifeq ($(word 1,$(MAKECMDGOALS)),testreport)
+goalarg:=$(word 2,$(MAKECMDGOALS))
+
+testreport: $(patsubst %.heml,%.report-template.heml,$(goalarg))
+
+HEMLTESTREPORT_STYLE?=$(DOCROOT)/testreport.xsl
+
+%.report-template.heml: %.heml
+	$(call absHemlTransformation,$(HEMLTESTREPORT_STYLE) )
+
+$(goalarg):
+	:
+
+endif
+
