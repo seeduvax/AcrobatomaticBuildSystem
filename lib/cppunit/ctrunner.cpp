@@ -215,8 +215,11 @@ private:
 	struct Node * _cNode;
 	string _path;
 	char _hostname[64];
-	void addTimeAttribute(XmlElement* e,double time) {
+	void addTimeAttribute(XmlElement* e,double time,bool f33) {
 		ostringstream s;
+        if (f33) {
+            s << std::fixed << std::setprecision(3);
+        }
 		s << time;
 		e->addAttribute("time",s.str().c_str());
 	}
@@ -252,7 +255,7 @@ private:
 			_cNode->node->addAttribute("failures",_cNode->failures);
 			_cNode->node->addAttribute("errors",_cNode->errors);
 		}
-		addTimeAttribute(_cNode->node,_cNode->time);
+    	addTimeAttribute(_cNode->node,_cNode->time,!leaf);
 		delete _cNode;
 		_cNode=parent;
 	}
@@ -289,8 +292,10 @@ public:
 				else {
 					_cNode->failures=1;
 				}
+/*
 				_cNode->node->addAttribute("status",
 					_controller->isError()?"error":"failure");
+*/
 				XmlElement* failureNode=new XmlElement(
 					_controller->isError()?"error":"failure");
 				_cNode->node->addElement(failureNode);
@@ -304,7 +309,7 @@ public:
 				}
 			}
 			else {
-				_cNode->node->addAttribute("status","pass");
+//				_cNode->node->addAttribute("status","pass");
 			}
 		}
 		popNode(true);
