@@ -236,15 +236,17 @@ else
 endif
 
 
-ifeq ($(word 1,$(MAKECMDGOALS)),testreport)
+ifeq ($(word 1,$(MAKECMDGOALS)),procreport)
 goalarg:=$(word 2,$(MAKECMDGOALS))
 
-testreport: $(patsubst %.heml,%.report-template.heml,$(goalarg))
+procreport: procreport.heml
 
-HEMLTESTREPORT_STYLE?=$(DOCROOT)/testreport.xsl
+HEMLTESTREPORT_STYLE?=$(DOCROOT)/procreport.xsl
 
-%.report-template.heml: %.heml
+.PHONY: procreport.heml
+procreport.heml: $(goalarg)
 	$(call absHemlTransformation,$(HEMLTESTREPORT_STYLE) )
+	@$(ABS_PRINT_info) "Generated report template in: $@"
 
 $(goalarg):
 	:

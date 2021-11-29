@@ -750,7 +750,9 @@ Checksum function: <xsl:value-of select="@type"/>
 </xsl:template>
 <xsl:template match="report/check">
 \begin{HEMLtable}{|X[-1]|X[-1]|X[-1]|}{}
-\HEMLoddHeadCell &amp; \HEMLoddHeadCell \textbf{Procedure <xsl:value-of select="@id"/> [<xsl:value-of select="../check/@reference"/> {\S}<xsl:value-of select="@ref"/>]: <xsl:value-of select="@title"/>} &amp; \HEMLoddHeadCell \\
+\HEMLoddHeadCell &amp; \HEMLoddHeadCell \textbf{Procedure <xsl:value-of select="@id"/> [<xsl:value-of select="../context/@reference"/> {\S}<xsl:value-of select="@ref"/>]: <xsl:value-of select="@title"/>}<xsl:text>
+
+</xsl:text><xsl:apply-templates select="req"/> &amp; \HEMLoddHeadCell \\
 \HEMLevenHeadCell \textbf{step} &amp; \HEMLevenHeadCell \textbf{Comment} &amp; \HEMLevenHeadCell \textbf{Status} \\
 \endhead
 <xsl:apply-templates select="operation|assert"/>
@@ -796,14 +798,27 @@ Operation \#<xsl:value-of select="@id"/> &amp;
 Assert \#<xsl:value-of select="@id"/> &amp;
 \emph{<xsl:value-of select="@summary"/>}<xsl:text>
 
-</xsl:text><xsl:apply-templates/>
+</xsl:text><xsl:apply-templates select="req"/><xsl:text>
+
+</xsl:text><xsl:apply-templates select="*[not(self::req)]"/>
 &amp; \textbf{\color{<xsl:value-of select="$statusColor"/>}<xsl:value-of select="@status"/>} \\
 </xsl:template>
+
 <xsl:template match="report/check" mode="synthesis">
 <xsl:param name="failures"><xsl:value-of select="count(assert[translate(@status,$upperCase,$lowerCase)!='ok' and translate(@status,$upperCase,$lowerCase)!='pass'])"/></xsl:param>
-\textbf{<xsl:value-of select="@id"/> [<xsl:value-of select="../check/@reference"/> {\S}<xsl:value-of select="@ref"/>]} &amp;
 <xsl:choose>
-   <xsl:when test="$failures!=0">\textbf{\color{hemlKoTextColor}Failures: <xsl:value-of select="$failures"/>}</xsl:when>
+  <xsl:when test="position() mod 2 = 0">
+\HEMLoddRow
+  </xsl:when>
+  <xsl:otherwise>
+\HEMLevenRow
+  </xsl:otherwise>
+</xsl:choose>
+\textbf{<xsl:value-of select="@id"/> [<xsl:value-of select="../context/@reference"/> {\S}<xsl:value-of select="@ref"/>]} &amp;
+<xsl:choose>
+   <xsl:when test="$failures!=0">\textbf{\color{hemlKoTextColor}Failures: <xsl:value-of select="$failures"/>}<xsl:text>
+
+Unchecked requirements: <xsl:apply-templates select="req|assert[translate(@status,$upperCase,$lowerCase)!='ok' and translate(@status,$upperCase,$lowerCase)!='pass']/req"/></xsl:text></xsl:when>
    <xsl:otherwise>\textbf{\color{hemlOkTextColor}Pass}</xsl:otherwise>
 </xsl:choose> \\
 </xsl:template>

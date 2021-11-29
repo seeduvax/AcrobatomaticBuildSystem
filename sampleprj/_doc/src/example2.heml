@@ -46,7 +46,14 @@ Even after making operation twice, no results was obtained.
   }
 
 }
-
+{check %title=Test example 3
+       %id=Test2
+       %ref=added
+  {assert %id=1
+          %summary=fake successful assert
+          %status=ok
+  }
+}
 }
 }
 }
