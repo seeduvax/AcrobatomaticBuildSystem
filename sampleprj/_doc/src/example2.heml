@@ -4,4 +4,49 @@
  {title Document example}
  {reference XXX-000-YYY}
 {?include %src=src/incsection.heml.inc}
+
+{section %title=Test report
+
+Here are the details of the test execution.
+
+{report 
+  {context %reference=XXX-000-YYY
+       %edition=2
+       %date=2018-04-30
+       %operator=Myself
+Used reference configuration.
+  }
+  
+{check %title=Test example 1
+       %id=Test1
+       %ref=4.1
+    {req req.1}
+    {req req.2}
+  {operation %id=1
+             %summary=1st action to be performed 
+             %status=Done
+  }
+
+  {assert %id=1
+          %summary=No error on 1st action. 
+          %status=OK
+  }
+
+  {operation %id=2
+             %summary=2nd action 
+             %status=adapted
+2nd action was made twice.
+  }
+
+  {assert %id=2
+          %summary=Action 2 result is 42. 
+          %status=failed
+    {req req.3}
+Even after making operation twice, no results was obtained.
+  }
+
+}
+
+}
+}
 }

@@ -19,6 +19,8 @@
  <xsl:otherwise>false</xsl:otherwise>
 </xsl:choose></xsl:param>
 <xsl:param name="showComments">true</xsl:param>
+<xsl:variable name="upperCase">ABCDEFGHIJKLMNOPQRSTUVWXYZ</xsl:variable>
+<xsl:variable name="lowerCase">abcdefghijklmnopqrstuvwxyz</xsl:variable>
 
 <!--************************************************
      Str replace template
@@ -722,6 +724,88 @@ Checksum function: <xsl:value-of select="@type"/>
 </xsl:text>
 </xsl:if> 
 \HEMLassertEnd
+</xsl:template>
+
+<!-- **********************************************************
+     Procedures and check reports
+-->     
+<xsl:template match="report">
+  <xsl:apply-templates/>
+\begin{HEMLtable}{|X[-1]|X[-1]|}{}
+  <xsl:apply-templates select="check" mode="synthesis"/>
+\HEMLtableTail
+\end{HEMLtable}
+  
+</xsl:template>
+<xsl:template match="report/context">
+\begin{HEMLtable}{|X[-1]|X[-1]|}{}
+\HEMLoddRow
+\textbf{Procedures specification} &amp; <xsl:value-of select="@reference"/>, edition: <xsl:value-of select="@edition"/><xsl:text> </xsl:text><xsl:value-of select="@date"/> \\
+\HEMLevenRow
+\textbf{Operator} &amp; <xsl:value-of select="@operator"/> \\
+\HEMLoddRow
+ &amp; <xsl:apply-templates/> \\
+\HEMLtableTail
+\end{HEMLtable}
+</xsl:template>
+<xsl:template match="report/check">
+\begin{HEMLtable}{|X[-1]|X[-1]|X[-1]|}{}
+\HEMLoddHeadCell &amp; \HEMLoddHeadCell \textbf{Procedure <xsl:value-of select="@id"/> [<xsl:value-of select="../check/@reference"/> {\S}<xsl:value-of select="@ref"/>]: <xsl:value-of select="@title"/>} &amp; \HEMLoddHeadCell \\
+\HEMLevenHeadCell \textbf{step} &amp; \HEMLevenHeadCell \textbf{Comment} &amp; \HEMLevenHeadCell \textbf{Status} \\
+\endhead
+<xsl:apply-templates select="operation|assert"/>
+\HEMLtableTail
+\end{HEMLtable}
+</xsl:template>
+
+<xsl:template match="report/check/operation">
+<xsl:param name="lStatus"><xsl:value-of select="translate(@status,$upperCase,$lowerCase)"/></xsl:param>
+<xsl:param name="statusColor"><xsl:choose>
+  <xsl:when test="$lStatus='ok' or $lStatus='done'">hemlOkTextColor</xsl:when>
+  <xsl:otherwise>hemlWarnTextColor</xsl:otherwise>
+</xsl:choose></xsl:param>
+<xsl:choose>
+  <xsl:when test="(count(preceding-sibling::operation) + count(preceding-sibling::assert)) mod 2 = 1">
+\HEMLoddRow
+  </xsl:when>
+  <xsl:otherwise>
+\HEMLevenRow
+  </xsl:otherwise>
+</xsl:choose>
+Operation \#<xsl:value-of select="@id"/> &amp;
+\emph{<xsl:value-of select="@summary"/>}<xsl:text>
+
+</xsl:text><xsl:apply-templates/>
+&amp; \textbf{\color{<xsl:value-of select="$statusColor"/>}<xsl:value-of select="@status"/>} \\
+</xsl:template>
+<xsl:template match="report/check/assert">
+<xsl:param name="lStatus"><xsl:value-of select="translate(@status,$upperCase,$lowerCase)"/></xsl:param>
+<xsl:param name="statusColor"><xsl:choose>
+  <xsl:when test="$lStatus='pass' or $lStatus='ok'">hemlOkTextColor</xsl:when>
+  <xsl:when test="$lStatus='ko' or $lStatus='nok' or starts-with($lStatus,'fail') or starts-with($lStatus,'err')">hemlKoTextColor</xsl:when>
+  <xsl:otherwise>hemlWarnTextColor</xsl:otherwise>
+</xsl:choose></xsl:param>
+<xsl:choose>
+  <xsl:when test="(count(preceding-sibling::operation) + count(preceding-sibling::assert)) mod 2 = 1">
+\HEMLoddRow
+  </xsl:when>
+  <xsl:otherwise>
+\HEMLevenRow
+  </xsl:otherwise>
+</xsl:choose>
+Assert \#<xsl:value-of select="@id"/> &amp;
+\emph{<xsl:value-of select="@summary"/>}<xsl:text>
+
+</xsl:text><xsl:apply-templates/>
+&amp; \textbf{\color{<xsl:value-of select="$statusColor"/>}<xsl:value-of select="@status"/>} \\
+</xsl:template>
+<xsl:template match="report/check" mode="synthesis">
+<xsl:param name="failures"><xsl:value-of select="count(assert[translate(@status,$upperCase,$lowerCase)!='ok' and translate(@status,$upperCase,$lowerCase)!='pass'])"/></xsl:param>
+\textbf{<xsl:value-of select="@id"/> [<xsl:value-of select="../check/@reference"/> {\S}<xsl:value-of select="@ref"/>]} &amp;
+<xsl:choose>
+   <xsl:when test="$failures!=0">\textbf{\color{hemlKoTextColor}Failures: <xsl:value-of select="$failures"/>}</xsl:when>
+   <xsl:otherwise>\textbf{\color{hemlOkTextColor}Pass}</xsl:otherwise>
+</xsl:choose> \\
 </xsl:template>
 <!-- **********************************************************
      indexs
