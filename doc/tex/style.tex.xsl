@@ -740,17 +740,21 @@ Checksum function: <xsl:value-of select="@type"/>
 <xsl:template match="report/context">
 \begin{HEMLtable}{|X[-1]|X[-1]|}{}
 \HEMLoddRow
-\textbf{Procedures specification} &amp; <xsl:value-of select="@reference"/>, edition: <xsl:value-of select="@edition"/><xsl:text> </xsl:text><xsl:value-of select="@date"/> \\
+\textbf{Procedures specification} &amp; <xsl:call-template name="formatText"><xsl:with-param name="text" select="@reference"/></xsl:call-template>, edition: <xsl:value-of select="@edition"/> \\
 \HEMLevenRow
-\textbf{Operator} &amp; <xsl:value-of select="@operator"/> \\
+\textbf{Operator} &amp; <xsl:call-template name="formatText"><xsl:with-param name="text" select="@operator"/></xsl:call-template> \\
 \HEMLoddRow
- &amp; <xsl:apply-templates/> \\
+\textbf{Start} &amp; <xsl:call-template name="formatText"><xsl:with-param name="text" select="@start"/></xsl:call-template> \\
+\HEMLevenRow
+\textbf{End} &amp; <xsl:call-template name="formatText"><xsl:with-param name="text" select="@end"/></xsl:call-template> \\
+\HEMLoddRow
+\textbf{Comments} &amp; <xsl:apply-templates/> \\
 \HEMLtableTail
 \end{HEMLtable}
 </xsl:template>
 <xsl:template match="report/check">
 \begin{HEMLtable}{|X[-1]|X[-1]|X[-1]|}{}
-\HEMLoddHeadCell &amp; \HEMLoddHeadCell \textbf{Procedure <xsl:value-of select="@id"/> [<xsl:value-of select="../context/@reference"/> {\S}<xsl:value-of select="@ref"/>]: <xsl:value-of select="@title"/>}<xsl:text>
+\HEMLoddHeadCell &amp; \HEMLoddHeadCell \textbf{Procedure <xsl:value-of select="@id"/> [<xsl:call-template name="formatText"><xsl:with-param name="text" select="../context/@reference"/></xsl:call-template> {\S}<xsl:value-of select="@ref"/>]: <xsl:value-of select="@title"/>}<xsl:text>
 
 </xsl:text><xsl:apply-templates select="req"/> &amp; \HEMLoddHeadCell \\
 \HEMLevenHeadCell \textbf{step} &amp; \HEMLevenHeadCell \textbf{Comment} &amp; \HEMLevenHeadCell \textbf{Status} \\
@@ -814,7 +818,7 @@ Assert \#<xsl:value-of select="@id"/> &amp;
 \HEMLevenRow
   </xsl:otherwise>
 </xsl:choose>
-\textbf{<xsl:value-of select="@id"/> [<xsl:value-of select="../context/@reference"/> {\S}<xsl:value-of select="@ref"/>]} &amp;
+\textbf{<xsl:value-of select="@id"/> [<xsl:call-template name="formatText"><xsl:with-param name="text" select="../context/@reference"/></xsl:call-template> {\S}<xsl:value-of select="@ref"/>]} &amp;
 <xsl:choose>
    <xsl:when test="$failures!=0">\textbf{\color{hemlKoTextColor}Failures: <xsl:value-of select="$failures"/>}<xsl:text>
 

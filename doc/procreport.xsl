@@ -2,9 +2,6 @@
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 <xsl:output method="text"
 	    encoding="utf-8"/>
-
-
-
 <xsl:template match="/document">
 {# ----------------------------------------------------------------------------
 Procedure execution report fill instructions
@@ -17,7 +14,7 @@ Define status for each operation/assert entry
     - done: when operation has be done as specified.
     - adapted: when operation has been done but not exactly as specified.
     - skipped: when operation has not been done.
-  - status caluses for assert:
+  - status values for assert:
     - pass: observations match the expectations.
     - n/a: no observation because of previous operation was skipped.
     - failed: observations do not match the expectation.
@@ -36,8 +33,9 @@ generation and traceability.
 ---------------------------------------------------------------------------- #}
 {report 
   {context %reference=<xsl:value-of select="reference"/>
-           %edition=<xsl:value-of select="history/edition[1]/@version"/>
-           %date=<xsl:value-of select="history/edition[1]/@date"/>
+           %edition=<xsl:value-of select="history/edition[1]/@version"/>, <xsl:value-of select="history/edition[1]/@date"/>
+           %start=
+           %end=
   }
   <xsl:apply-templates select="//check"/>
 }
