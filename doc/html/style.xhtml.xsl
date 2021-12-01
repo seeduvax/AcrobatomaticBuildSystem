@@ -24,6 +24,8 @@
 <xsl:param name="hasToc"><xsl:value-of select="count(/document/section)&gt;2"/></xsl:param>
 <xsl:param name="buildinfo"><xsl:value-of select="$date"/> / <xsl:value-of select="$user"/>@<xsl:value-of select="$host"/></xsl:param>
 <xsl:param name="showComments">true</xsl:param>
+<xsl:variable name="upperCase">ABCDEFGHIJKLMNOPQRSTUVWXYZ</xsl:variable>
+<xsl:variable name="lowerCase">abcdefghijklmnopqrstuvwxyz</xsl:variable>
 
 <!--********************************************
 !-->
@@ -352,6 +354,127 @@ include(<xsl:value-of select="@src"/>.txt)
 </xsl:if>
 </div>
 </xsl:template>
+
+<!--************************************************
+     Procedure execution report
+-->
+<!-- report root -->
+<xsl:template match="report">
+  <xsl:apply-templates/>
+<div class="table">
+<table>
+  <xsl:apply-templates select="check" mode="synthesis"/>
+</table>
+</div>
+  
+</xsl:template>
+
+<!-- report context -->
+<xsl:template match="report/context">
+<div class="table">
+<table>
+  <tr class="odd">
+    <th>Procedures specification</th><td><xsl:value-of select="@reference"/>, edition: <xsl:value-of select="@edition"/></td>
+  </tr><tr class="even">
+    <th>Operator</th><td><xsl:value-of select="@operator"/></td>
+  </tr><tr class="odd">
+    <th>Start</th><td><xsl:value-of select="@start"/></td>
+  </tr><tr class="even">
+    <th>End</th><td><xsl:value-of select="@end"/></td>
+  </tr><tr class="odd">
+    <th>Comments</th><td><xsl:apply-templates/></td>
+  </tr>
+</table>
+</div>
+</xsl:template>
+
+<!-- test procedure in report -->
+<xsl:template match="report/check">
+<div class="table">
+<table>
+  <tr class="odd">
+    <th></th><th>Procedure <xsl:value-of select="@id"/> [<xsl:value-of select="../context/@reference"/> §<xsl:value-of select="@ref"/>]: <xsl:value-of select="@title"/><br/>
+<xsl:apply-templates select="req"/></th><th></th>
+  </tr><tr class="even">
+     <th>step</th><th>Comment</th><th>Status</th>
+  </tr>
+<xsl:apply-templates select="operation|assert"/>
+</table>
+</div>
+</xsl:template>
+
+<!-- operation in report -->
+<xsl:template match="report/check/operation">
+<xsl:param name="lStatus"><xsl:value-of select="translate(@status,$upperCase,$lowerCase)"/></xsl:param>
+<xsl:param name="statusColor"><xsl:choose>
+  <xsl:when test="$lStatus='ok' or $lStatus='done'">hemlOkTextColor</xsl:when>
+  <xsl:otherwise>hemlWarnTextColor</xsl:otherwise>
+</xsl:choose></xsl:param>
+<tr>
+<xsl:choose>
+  <xsl:when test="(count(preceding-sibling::operation) + count(preceding-sibling::assert)) mod 2 = 1">
+    <xsl:attribute name="class">odd</xsl:attribute>
+  </xsl:when>
+  <xsl:otherwise>
+    <xsl:attribute name="class">even</xsl:attribute>
+  </xsl:otherwise>
+</xsl:choose>
+    <td>Operation \#<xsl:value-of select="@id"/></td>
+    <td><i><xsl:value-of select="@summary"/></i><br/>
+        <xsl:apply-templates/>
+    </td>
+    <td><xsl:value-of select="$statusColor"/> <xsl:value-of select="@status"/></td>
+</tr>
+</xsl:template>
+
+<!-- assert in report -->
+<xsl:template match="report/check/assert">
+<xsl:param name="lStatus"><xsl:value-of select="translate(@status,$upperCase,$lowerCase)"/></xsl:param>
+<xsl:param name="statusColor"><xsl:choose>
+  <xsl:when test="$lStatus='pass' or $lStatus='ok'">hemlOkTextColor</xsl:when>
+  <xsl:when test="$lStatus='ko' or $lStatus='nok' or starts-with($lStatus,'fail') or starts-with($lStatus,'err')">hemlKoTextColor</xsl:when>
+  <xsl:otherwise>hemlWarnTextColor</xsl:otherwise>
+</xsl:choose></xsl:param>
+<tr>
+<xsl:choose>
+  <xsl:when test="(count(preceding-sibling::operation) + count(preceding-sibling::assert)) mod 2 = 1">
+    <xsl:attribute name="class">odd</xsl:attribute>
+  </xsl:when>
+  <xsl:otherwise>
+    <xsl:attribute name="class">even</xsl:attribute>
+  </xsl:otherwise>
+</xsl:choose>
+    <td>Assert \#<xsl:value-of select="@id"/></td>
+    <td><i><xsl:value-of select="@summary"/></i><br/>
+        <xsl:apply-templates select="req"/><br/>
+        <xsl:apply-templates select="*[not(self::req)]"/></td>
+    <td><xsl:value-of select="$statusColor"/>: <xsl:value-of select="@status"/></td>
+</tr>
+</xsl:template>
+
+<!-- in report test exec synthesis -->
+<xsl:template match="report/check" mode="synthesis">
+<xsl:param name="failures"><xsl:value-of select="count(assert[translate(@status,$upperCase,$lowerCase)!='ok' and translate(@status,$upperCase,$lowerCase)!='pass'])"/></xsl:param>
+<tr>
+<xsl:choose>
+  <xsl:when test="position() mod 2 = 0">
+    <xsl:attribute name="class">odd</xsl:attribute>
+  </xsl:when>
+  <xsl:otherwise>
+    <xsl:attribute name="class">even</xsl:attribute>
+  </xsl:otherwise>
+</xsl:choose>
+  <td><xsl:value-of select="@id"/> [<xsl:value-of select="../context/@reference"/> §<xsl:value-of select="@ref"/>]</td>
+  <td>
+<xsl:choose>
+   <xsl:when test="$failures!=0">Failures: <xsl:value-of select="$failures"/><br/>
+Unchecked requirements: <xsl:apply-templates select="req|assert[translate(@status,$upperCase,$lowerCase)!='ok' and translate(@status,$upperCase,$lowerCase)!='pass']/req"/></xsl:when>
+   <xsl:otherwise>Pass</xsl:otherwise>
+</xsl:choose>
+  </td>
+</tr>
+</xsl:template>
+
 <!--************************************************
      Definition table
 -->
