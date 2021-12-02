@@ -132,10 +132,8 @@ $(TRDIR)/obj/.moddeps.mk:
 	@$(ABS_PRINT_info) "Gererating module dependencies file."
 	@mkdir -p $(@D)
 	@for mod in $(patsubst mod.%,%,$(MODULES_DEPS)) ; do \
-	for element in mod testmod testbuildmod valgrindtestmod; do \
-	echo "$$element.$$mod:: "'$$(patsubst %,'`echo $$element`.%','`grep 'USE\(LK\)*MOD=' $$mod/module.cfg | cut -d '=' -f 2`")" >> $@ ; \
-	echo >> $@ ; \
-	done; \
+	echo "mod.$$mod:: "'$$(patsubst %,'`echo mod`.%','`grep 'USE\(LK\)*MOD=' $$mod/module.cfg | cut -d '=' -f 2`")" >> $@ ; \
+	echo >> $@; \
 	done
 
 mod.%::
@@ -143,13 +141,14 @@ mod.%::
 
 include $(TRDIR)/obj/.moddeps.mk
 
-testmod.%:
+# depends on mod.% to compile dependencies of module.
+testmod.%: mod.%
 	make $(MMARGS) MODE=$(MODE) -C $* test
 
-valgrindtestmod.%:
+valgrindtestmod.%: mod.%
 	make $(MMARGS) MODE=$(MODE) -C $* valgrindtest
 
-testbuildmod.%:
+testbuildmod.%: mod.%
 	make $(MMARGS) MODE=$(MODE) -C $* testbuild
 
 warnnobuild.%:
@@ -227,7 +226,7 @@ install: dist/$(APPNAME)-$(VERSION)/import.mk
 	@$(ABS_PRINT_info)  "Copying dependencies..."
 	@for lib in `ls dist/$(APPNAME)-$(VERSION)/extlib/ | fgrep -v cppunit-` ; do \
 	$(ABS_PRINT_info) "  Processing $$lib..." ; \
-	test -d dist/$(APPNAME)-$(VERSION)/extlib/$$lib && (tar -hC dist/$(APPNAME)-$(VERSION)/extlib/ -cf - $(DISTTARFLAGS) --exclude=import.mk --mode=755 $$lib | tar -C $(PREFIX) --strip-components=1 -xf - ) || cp dist/$(APPNAME)-$(VERSION)/extlib/$$lib $(PREFIX)/lib ; \
+	test -d dist/$(APPNAME)-$(VERSION)/extlib/$$lib && (tar -C dist/$(APPNAME)-$(VERSION)/extlib/$$file -cf - $(DISTTARFLAGS) --exclude=import.mk --mode=755 . | tar -C $(PREFIX) -xf - ) || cp dist/$(APPNAME)-$(VERSION)/extlib/$$lib $(PREFIX)/lib ; \
 	done
 
 dist/$(APPNAME)-$(VERSION).$(ARCH)-install.bin:
