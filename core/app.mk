@@ -208,9 +208,6 @@ DISTTAR:=tar cvzf dist/$(APPNAME)-$(VERSION).$(ARCH).tar.gz -C dist $(DISTTARFLA
 dist/$(APPNAME)-$(VERSION).$(ARCH).tar.gz: dist/$(APPNAME)-$(VERSION)/import.mk
 	@$(DISTTAR)
 
-##  - dist: creates binary package
-dist: dist/$(APPNAME)-$(VERSION).$(ARCH).tar.gz
-
 ##  - echoDID: displays package identifier
 echoDID:
 	@echo $(APPNAME)-$(VERSION).$(ARCH)
@@ -239,10 +236,29 @@ dist/$(APPNAME)-$(VERSION).$(ARCH)-install.bin:
 	chmod +x "$@"
 
 ##  - distinstall: builds installation package.
+##  - kdistinstall: builds linux kernel modules installation package
+##  - dist: creates binary package
+ifeq ($(ACTIVATE_SANITIZER),true)
+dist:
+	@$(ABS_PRINT_warning) "Cannot execute dist target if ACTIVATE_SANITIZER=true"
+	@false
+
+distinstall:
+	@$(ABS_PRINT_warning) "Cannot execute distinstall target if ACTIVATE_SANITIZER=true"
+	@false
+
+kdistinstall:
+	@$(ABS_PRINT_warning) "Cannot execute kdistinstall target if ACTIVATE_SANITIZER=true"
+	@false
+
+else
+dist: dist/$(APPNAME)-$(VERSION).$(ARCH).tar.gz
+
 distinstall: dist/$(APPNAME)-$(VERSION).$(ARCH)-install.bin
 
-##  - kdistinstall: builds linux kernel modules installation package
 kdistinstall: dist/$(APPNAME)_lkm-$(VERSION)-$(KVERSION)-install.bin
+
+endif
 
 KMODULES:=$(filter-out $(patsubst %,mod.%,$(NOBUILD)),$(patsubst %,mod.%,$(shell ls | grep _lkm)))
 dist/$(APPNAME)_lkm-$(VERSION)-$(KVERSION)-install.bin:
@@ -253,11 +269,11 @@ dist/$(APPNAME)_lkm-$(VERSION)-$(KVERSION)-install.bin:
 	chmod +x "$@"
 	rm dist/arch.tar.gz
 
-pubdist: dist/$(APPNAME)-$(VERSION).$(ARCH).tar.gz
+pubdist: dist
 	@$(ABS_PRINT_info)  "Publishing dist archive $^ $(USER) on $(DISTREPO)"
 	@scp $(SCPFLAGS) $^ $(DISTREPO)/$(ARCH)/$(APPNAME)-$(VERSION).$(ARCH).tar.gz
 
-pubinstall: dist/$(APPNAME)-$(VERSION).$(ARCH)-install.bin
+pubinstall: distinstall
 	@$(ABS_PRINT_info)  "Publishing dist archive $^ $(USER) on $(DISTREPO)"
 	@scp $(SCPFLAGS) $^ $(DISTREPO)/$(ARCH)/$(APPNAME)-$(VERSION).$(ARCH)-install.bin
 

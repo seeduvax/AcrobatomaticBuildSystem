@@ -9,12 +9,6 @@
 ##    - 1.14.0 for gcc >= 6.0
 ##    - 1.12.1 for gcc < 6.0
 ## 
-## - ACTIVATE_SANITIZER: activate the compiler sanitizer
-##     - true: address sanitizer (leak memory detector)
-##     - thread: thread sanitizer (data race detector). Incompatible with address sanitizer
-## To disable the leak detection on sources compiled with address sanitizer, use the environment variable asan_options=detect_leaks=0
-## The sources must be compiled with test or testbuild targets to enjoy the full capacity of sanitizers
-## 
 ## ------------------------------------------------------------------------
 ## 
 CC_VERSION_GE6:=$(shell [ `echo "$(CC_VERSION)" | cut -f1 -d.` -ge 6 ] && echo true || echo false)
@@ -35,31 +29,6 @@ endif
 
 CFLAGS+=-I$(EXTLIBDIR)/$(CPPUNIT)/include
 LDFLAGS+=-L$(EXTLIBDIR)/$(CPPUNIT)/$(SODIR)
-
-# sanitizer
-# Only in test module to not impact the generated library in distribution targets.
-ifeq ($(ACTIVATE_SANITIZER),true)
-SANITIZERS+=address undefined
-ifneq ($(filter clang%,$(CPPC)),)
-#-shared-libasan needed for clang
-CFLAGS+=-shared-libasan
-LDFLAGS+=-shared-libasan
-TLDPRELOAD+=$(shell $(CPPC) $(CFLAGS) --print-file-name=libclang_rt.asan-x86_64.so)
-else
-TLDPRELOAD+=$(shell $(CPPC) $(CFLAGS) --print-file-name=libasan.so)
-endif #ifneq ($(filter clang%,$(CPPC)),)
-else ifeq ($(ACTIVATE_SANITIZER),thread)
-SANITIZERS+=thread
-TLDPRELOAD+=$(shell $(CPPC) $(CFLAGS) --print-file-name=libtsan.so)
-ACTIVATE_SANITIZER:=true
-endif
-
-ifeq ($(ACTIVATE_SANITIZER),true)
-SANITIZERS_ARGS=$(patsubst %,-fsanitize=%,$(SANITIZERS))
-CFLAGS+=$(SANITIZERS_ARGS) -fno-omit-frame-pointer
-LDFLAGS+=$(SANITIZERS_ARGS)
-endif
-TLDPRELOADFORMATTED=$(subst $(_space_),:,$(TLDPRELOAD))
 
 # valgrind
 VALGRIND=valgrind

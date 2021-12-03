@@ -107,6 +107,39 @@ RELEASECFLAGS?=-O3
 CFLAGS+= -D_$(APPNAME)_$(MODNAME)_release $(IDENTCFLAGS) $(RELEASECFLAGS)
 endif
 
+
+## - ACTIVATE_SANITIZER: activate the compiler sanitizer
+##     - true: address sanitizer (leak memory detector)
+##     - thread: thread sanitizer (data race detector). Incompatible with address sanitizer
+## To disable the leak detection on sources compiled with address sanitizer, use the environment variable asan_options=detect_leaks=0
+## /!\ Must not be used to compile production binaries.
+## 
+
+# sanitizer
+ifeq ($(ACTIVATE_SANITIZER),true)
+SANITIZERS+=address undefined
+ifneq ($(filter clang%,$(CPPC)),)
+#-shared-libasan needed for clang
+CFLAGS+=-shared-libasan
+LDFLAGS+=-shared-libasan
+TLDPRELOAD+=$(shell $(CPPC) $(CFLAGS) --print-file-name=libclang_rt.asan-x86_64.so)
+else
+TLDPRELOAD+=$(shell $(CPPC) $(CFLAGS) --print-file-name=libasan.so)
+endif #ifneq ($(filter clang%,$(CPPC)),)
+else ifeq ($(ACTIVATE_SANITIZER),thread)
+SANITIZERS+=thread
+TLDPRELOAD+=$(shell $(CPPC) $(CFLAGS) --print-file-name=libtsan.so)
+ACTIVATE_SANITIZER:=true
+endif
+
+ifeq ($(ACTIVATE_SANITIZER),true)
+SANITIZERS_ARGS=$(patsubst %,-fsanitize=%,$(SANITIZERS))
+CFLAGS+=$(SANITIZERS_ARGS) -fno-omit-frame-pointer
+LDFLAGS+=$(SANITIZERS_ARGS)
+endif
+TLDPRELOADFORMATTED=$(subst $(_space_),:,$(TLDPRELOAD))
+
+
 define cc-command
 @$(ABS_PRINT_info) "Compiling $< ..."
 @mkdir -p $(@D)
