@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<cr id="2d847ef26b9903085695935ce94e1cb664523f69ef267f49fce948942b46286b" state="working" delivered="abs-3.3.6">
+<cr id="2d847ef26b9903085695935ce94e1cb664523f69ef267f49fce948942b46286b" state="closed" delivered="abs-3.3.6" delivered="abs-3.3.6">
 <title>Tests are executed even if NOTEST is set if another module depends on this module</title>
 <reporter>m096258</reporter>
 <creation>2021-12-02 13:39:54+01:00</creation>
