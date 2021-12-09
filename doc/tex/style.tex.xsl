@@ -865,7 +865,7 @@ Unchecked requirements: <xsl:apply-templates select="req|assert[translate(@statu
 </xsl:template>
 <xsl:template match="check|procedure" mode="index">
 <xsl:param name="num"><xsl:number count="section|references|definitions|check|procedure" level="multiple" format="1.1"/></xsl:param>
-  <xsl:value-of select="name()"/> <xsl:value-of select="$num"/>
+  <xsl:value-of select="name()"/><xsl:text> </xsl:text><xsl:value-of select="$num"/>
 </xsl:template>
 <xsl:template match="assert" mode="index">
 <xsl:param name="num"><xsl:number count="section|references|definitions|check|procedure|assert" level="multiple" format="1.1"/></xsl:param>
