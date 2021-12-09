@@ -9,7 +9,14 @@ Procedure execution report fill instructions
 Copy/paste this template into your heml report document (all from '{report' to 
 final '}').
 
-Define status for each operation/assert entry
+Fill context:
+  - start: procedure execution start date
+  - end: procedure execution end date
+  - operator: name of operator running the procedure
+  - free text insinde context element: anything to be reported describing the
+    test execution detailed context: specific means and configuration.
+
+During execution, define status for each operation/assert entry
   - status values for operation:
     - done: when operation has be done as specified.
     - adapted: when operation has been done but not exactly as specified.
@@ -36,14 +43,15 @@ generation and traceability.
            %edition=<xsl:value-of select="history/edition[1]/@version"/>, <xsl:value-of select="history/edition[1]/@date"/>
            %start=
            %end=
+           %operator=
   }
-  <xsl:apply-templates select="//check"/>
+  <xsl:apply-templates select="//check|//procedure"/>
 }
 </xsl:template>
 
-<xsl:template match="check">
-<xsl:param name="num"><xsl:number count="section|references|definitions|check" level="multiple" format="1.1"/></xsl:param>
-{check %title=<xsl:value-of select="@title"/>
+<xsl:template match="check|procedure">
+<xsl:param name="num"><xsl:number count="section|references|definitions|check|procedure" level="multiple" format="1.1"/></xsl:param>
+{<xsl:value-of select="name()"/> %title=<xsl:value-of select="@title"/>
        %id=<xsl:value-of select="@id"/>
        %ref=<xsl:value-of select="$num"/>
 <xsl:apply-templates select="operation|assert|req"/>

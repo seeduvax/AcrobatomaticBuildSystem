@@ -47,11 +47,15 @@ Even after making operation twice, no results was obtained.
   }
 
 }
-{check %title=Test example 3
-       %id=Test2
+{procedure %title=Operational procedure
+       %id=Proc1
        %ref=added
+  {operation %id=1
+          %summary=Power system on.
+          %status=done
+  }
   {assert %id=1
-          %summary=fake successful assert
+          %summary=System in operating state.
           %status=ok
   }
 }

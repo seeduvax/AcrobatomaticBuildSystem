@@ -19,7 +19,7 @@
 <xsl:param name="slidesCss">slides.css</xsl:param>
 <xsl:param name="context">Component <xsl:value-of select="$app"/>-<xsl:value-of select="$version"/></xsl:param>
 <xsl:param name="root">.<xsl:call-template name="getbackpath">
-  <xsl:with-param name="in"><xsl:value-of select="$srcdir"/></xsl:with-param> 
+  <xsl:with-param name="in"><xsl:value-of select="$srcdir"/></xsl:with-param>
 </xsl:call-template></xsl:param>
 <xsl:param name="hasToc"><xsl:value-of select="count(/document/section)&gt;2"/></xsl:param>
 <xsl:param name="buildinfo"><xsl:value-of select="$date"/> / <xsl:value-of select="$user"/>@<xsl:value-of select="$host"/></xsl:param>
@@ -37,7 +37,7 @@
      </xsl:call-template></xsl:when>
      <xsl:otherwise></xsl:otherwise>
    </xsl:choose>
-</xsl:template>     
+</xsl:template>
 <!--********************************************
 	Structures de base
 -->	
@@ -50,7 +50,7 @@
 </xsl:template>
 <xsl:template match="tr">
 <xsl:choose>
-   <!-- TODO understand why position() returns 2, 4, 6, 8, etc... 
+   <!-- TODO understand why position() returns 2, 4, 6, 8, etc...
         div 2 should not be needed -->
     <xsl:when test="(position() div 2) mod 2 = 0"><tr class="even"><xsl:apply-templates/></tr></xsl:when>
     <xsl:otherwise><tr class="odd"><xsl:apply-templates/></tr></xsl:otherwise>
@@ -217,7 +217,7 @@ include(<xsl:value-of select="@src"/>.txt)
 <xsl:when test="@id!=''">
 <div class="req">
 <table><tr>
-<th><a name="req.{@id}"><xsl:value-of select="@id"/></a></th><td><xsl:value-of select="."/></td> 
+<th><a name="req.{@id}"><xsl:value-of select="@id"/></a></th><td><xsl:value-of select="."/></td>
 </tr></table>
 </div>
 </xsl:when>
@@ -255,19 +255,19 @@ include(<xsl:value-of select="@src"/>.txt)
       </xsl:when>
       <xsl:otherwise>No reference.</xsl:otherwise>
     </xsl:choose>
-  </td></tr>  
+  </td></tr>
 </xsl:if>
 </xsl:template>
 <xsl:template match="*" mode="index">
 <xsl:param name="num"><xsl:number count="section|references|definitions" level="multiple" format="1.1"/></xsl:param>
 <a href="#{$num}">§<xsl:value-of select="$num"/> </a>
 </xsl:template>
-<xsl:template match="check" mode="index">
-<xsl:param name="num"><xsl:number count="section|references|definitions|check" level="multiple" format="1.1"/></xsl:param>
+<xsl:template match="check|procedure" mode="index">
+<xsl:param name="num"><xsl:number count="section|references|definitions|check|procedure" level="multiple" format="1.1"/></xsl:param>
   Check <a href="#{$num}"><xsl:value-of select="$num"/></a>
 </xsl:template>
 <xsl:template match="assert" mode="index">
-<xsl:param name="num"><xsl:number count="section|references|definitions|check|assert" level="multiple" format="1.1"/></xsl:param>
+<xsl:param name="num"><xsl:number count="section|references|definitions|check|procedure|assert" level="multiple" format="1.1"/></xsl:param>
   Assert <a href="#{$num}"><xsl:value-of select="$num"/></a>
 </xsl:template>
 
@@ -324,15 +324,15 @@ include(<xsl:value-of select="@src"/>.txt)
 <!--************************************************
     Checks
 -->
-<xsl:template match="check">
+<xsl:template match="check|procedure">
 <xsl:call-template name="sectionHead">
-	<xsl:with-param name="title">Control procedure <xsl:value-of select="@id"/> - <xsl:value-of select="@title"/></xsl:with-param> 
-	<xsl:with-param name="level"><xsl:value-of select="count(ancestor-or-self::section)+count(ancestor-or-self::article)+2"/></xsl:with-param> 
-	<xsl:with-param name="xref"><xsl:value-of select="@xref"/></xsl:with-param> 
+	<xsl:with-param name="title"><xsl:if test="name()='check'">Control </xsl:if>Procedure <xsl:value-of select="@id"/> - <xsl:value-of select="@title"/></xsl:with-param>
+	<xsl:with-param name="level"><xsl:value-of select="count(ancestor-or-self::section)+count(ancestor-or-self::article)+2"/></xsl:with-param>
+	<xsl:with-param name="xref"><xsl:value-of select="@xref"/></xsl:with-param>
 </xsl:call-template>	
 <xsl:if test="count(req)&gt;0">
 <div class="chkreq">
-<h5>Checked requirements</h5>
+<h5>Covered requirements</h5>
  <xsl:apply-templates select="req" mode="ref"/>
 </div>
 </xsl:if>
@@ -345,7 +345,7 @@ include(<xsl:value-of select="@src"/>.txt)
 </div>
 </xsl:template>
 <xsl:template match="assert">
-  <xsl:param name="aid"><xsl:number count="section|references|definitions|check|assert" level="multiple" format="1.1"/></xsl:param>
+  <xsl:param name="aid"><xsl:number count="section|references|definitions|check|procedure|assert" level="multiple" format="1.1"/></xsl:param>
 <div class="assert">
 <h5><a name="{$aid}">Assert #<xsl:value-of select="count(preceding-sibling::assert)+1"/></a> <xsl:value-of select="@id"/> <xsl:value-of select="@title"/></h5>
 <xsl:apply-templates select="*[not(self::req)]"/>
@@ -363,10 +363,10 @@ include(<xsl:value-of select="@src"/>.txt)
   <xsl:apply-templates/>
 <div class="table">
 <table>
-  <xsl:apply-templates select="check" mode="synthesis"/>
+  <xsl:apply-templates select="check|procedure" mode="synthesis"/>
 </table>
 </div>
-  
+
 </xsl:template>
 
 <!-- report context -->
@@ -389,7 +389,7 @@ include(<xsl:value-of select="@src"/>.txt)
 </xsl:template>
 
 <!-- test procedure in report -->
-<xsl:template match="report/check">
+<xsl:template match="report/check|report/procedure">
 <div class="table">
 <table>
   <tr class="odd">
@@ -404,11 +404,11 @@ include(<xsl:value-of select="@src"/>.txt)
 </xsl:template>
 
 <!-- operation in report -->
-<xsl:template match="report/check/operation">
+<xsl:template match="report/check/operation|report/procedure/operation">
 <xsl:param name="lStatus"><xsl:value-of select="translate(@status,$upperCase,$lowerCase)"/></xsl:param>
-<xsl:param name="statusColor"><xsl:choose>
-  <xsl:when test="$lStatus='ok' or $lStatus='done'">hemlOkTextColor</xsl:when>
-  <xsl:otherwise>hemlWarnTextColor</xsl:otherwise>
+<xsl:param name="statusStyle"><xsl:choose>
+  <xsl:when test="$lStatus='ok' or $lStatus='done'">OK</xsl:when>
+  <xsl:otherwise>Warn</xsl:otherwise>
 </xsl:choose></xsl:param>
 <tr>
 <xsl:choose>
@@ -419,21 +419,21 @@ include(<xsl:value-of select="@src"/>.txt)
     <xsl:attribute name="class">even</xsl:attribute>
   </xsl:otherwise>
 </xsl:choose>
-    <td>Operation \#<xsl:value-of select="@id"/></td>
+    <td>Operation #<xsl:value-of select="@id"/></td>
     <td><i><xsl:value-of select="@summary"/></i><br/>
         <xsl:apply-templates/>
     </td>
-    <td><xsl:value-of select="$statusColor"/> <xsl:value-of select="@status"/></td>
+    <td><div class="status{$statusStyle}"><xsl:value-of select="@status"/></div></td>
 </tr>
 </xsl:template>
 
 <!-- assert in report -->
-<xsl:template match="report/check/assert">
+<xsl:template match="report/check/assert|report/procedure/assert">
 <xsl:param name="lStatus"><xsl:value-of select="translate(@status,$upperCase,$lowerCase)"/></xsl:param>
-<xsl:param name="statusColor"><xsl:choose>
-  <xsl:when test="$lStatus='pass' or $lStatus='ok'">hemlOkTextColor</xsl:when>
-  <xsl:when test="$lStatus='ko' or $lStatus='nok' or starts-with($lStatus,'fail') or starts-with($lStatus,'err')">hemlKoTextColor</xsl:when>
-  <xsl:otherwise>hemlWarnTextColor</xsl:otherwise>
+<xsl:param name="statusStyle"><xsl:choose>
+  <xsl:when test="$lStatus='pass' or $lStatus='ok'">OK</xsl:when>
+  <xsl:when test="$lStatus='ko' or $lStatus='nok' or starts-with($lStatus,'fail') or starts-with($lStatus,'err')">KO</xsl:when>
+  <xsl:otherwise>Warn</xsl:otherwise>
 </xsl:choose></xsl:param>
 <tr>
 <xsl:choose>
@@ -444,16 +444,16 @@ include(<xsl:value-of select="@src"/>.txt)
     <xsl:attribute name="class">even</xsl:attribute>
   </xsl:otherwise>
 </xsl:choose>
-    <td>Assert \#<xsl:value-of select="@id"/></td>
+    <td>Assert #<xsl:value-of select="@id"/></td>
     <td><i><xsl:value-of select="@summary"/></i><br/>
         <xsl:apply-templates select="req"/><br/>
         <xsl:apply-templates select="*[not(self::req)]"/></td>
-    <td><xsl:value-of select="$statusColor"/>: <xsl:value-of select="@status"/></td>
+    <td><div class="status{$statusStyle}"><xsl:value-of select="@status"/></div></td>
 </tr>
 </xsl:template>
 
 <!-- in report test exec synthesis -->
-<xsl:template match="report/check" mode="synthesis">
+<xsl:template match="report/check|report/procedure" mode="synthesis">
 <xsl:param name="failures"><xsl:value-of select="count(assert[translate(@status,$upperCase,$lowerCase)!='ok' and translate(@status,$upperCase,$lowerCase)!='pass'])"/></xsl:param>
 <tr>
 <xsl:choose>
@@ -464,12 +464,12 @@ include(<xsl:value-of select="@src"/>.txt)
     <xsl:attribute name="class">even</xsl:attribute>
   </xsl:otherwise>
 </xsl:choose>
-  <td><xsl:value-of select="@id"/> [<xsl:value-of select="../context/@reference"/> §<xsl:value-of select="@ref"/>]</td>
+  <th><xsl:value-of select="@id"/> [<xsl:value-of select="../context/@reference"/> §<xsl:value-of select="@ref"/>]</th>
   <td>
 <xsl:choose>
-   <xsl:when test="$failures!=0">Failures: <xsl:value-of select="$failures"/><br/>
+   <xsl:when test="$failures!=0"><div class="statusKO">Failures: <xsl:value-of select="$failures"/></div><br/>
 Unchecked requirements: <xsl:apply-templates select="req|assert[translate(@status,$upperCase,$lowerCase)!='ok' and translate(@status,$upperCase,$lowerCase)!='pass']/req"/></xsl:when>
-   <xsl:otherwise>Pass</xsl:otherwise>
+   <xsl:otherwise><div class="statusOK">Pass</div></xsl:otherwise>
 </xsl:choose>
   </td>
 </tr>
@@ -480,9 +480,9 @@ Unchecked requirements: <xsl:apply-templates select="req|assert[translate(@statu
 -->
 <xsl:template match="definitions">
 <xsl:call-template name="sectionHead">
-	<xsl:with-param name="title"><xsl:value-of select="@title"/></xsl:with-param> 
-	<xsl:with-param name="level"><xsl:value-of select="count(ancestor-or-self::section)+count(ancestor-or-self::article)+2"/></xsl:with-param> 
-	<xsl:with-param name="xref"><xsl:value-of select="@xref"/></xsl:with-param> 
+	<xsl:with-param name="title"><xsl:value-of select="@title"/></xsl:with-param>
+	<xsl:with-param name="level"><xsl:value-of select="count(ancestor-or-self::section)+count(ancestor-or-self::article)+2"/></xsl:with-param>
+	<xsl:with-param name="xref"><xsl:value-of select="@xref"/></xsl:with-param>
 </xsl:call-template>	
 <table class="def">
 <xsl:apply-templates select="def">
@@ -502,9 +502,9 @@ Unchecked requirements: <xsl:apply-templates select="req|assert[translate(@statu
 -->
 <xsl:template match="references">
 <xsl:call-template name="sectionHead">
-	<xsl:with-param name="title"><xsl:value-of select="@title"/></xsl:with-param> 
-	<xsl:with-param name="level"><xsl:value-of select="count(ancestor-or-self::section)+count(ancestor-or-self::article)+2"/></xsl:with-param> 
-	<xsl:with-param name="xref"><xsl:value-of select="@xref"/></xsl:with-param> 
+	<xsl:with-param name="title"><xsl:value-of select="@title"/></xsl:with-param>
+	<xsl:with-param name="level"><xsl:value-of select="count(ancestor-or-self::section)+count(ancestor-or-self::article)+2"/></xsl:with-param>
+	<xsl:with-param name="xref"><xsl:value-of select="@xref"/></xsl:with-param>
 </xsl:call-template>	
 <table class="ref">
 <tr><th> </th><th>Authors <i>Title</i><br/>Reference <i>Edition</i></th></tr>
@@ -543,8 +543,8 @@ Unchecked requirements: <xsl:apply-templates select="req|assert[translate(@statu
 <xsl:apply-templates select="//*[@xref=$refvalue]" mode="xref"/>
 <xsl:apply-templates select="//ref[@id=$refvalue]" mode="xref"/>
 </xsl:template>
-<xsl:template match="section|references|definitions|check|operation|assert" mode="xref">
-<xsl:param name="num"><xsl:number count="section|references|definitions|check|operation|assert" level="multiple" format="1.1"/></xsl:param>
+<xsl:template match="section|references|definitions|check|procedure|operation|assert" mode="xref">
+<xsl:param name="num"><xsl:number count="section|references|definitions|check|procedure|operation|assert" level="multiple" format="1.1"/></xsl:param>
 <a href="#{$num}"><xsl:value-of select="$num"/></a>
 </xsl:template>
 <xsl:template match="table" mode="xref">
@@ -642,7 +642,7 @@ Unchecked requirements: <xsl:apply-templates select="req|assert[translate(@statu
 	<xsl:param name="title"></xsl:param>
 	<xsl:param name="level">2</xsl:param>
 	<xsl:param name="xref">none</xsl:param>
-	<xsl:param name="ref"><xsl:if test="count(ancestor::appendices)&gt;0">A</xsl:if><xsl:number count="section|references|definitions|check" level="multiple" format="1.1"/></xsl:param>
+	<xsl:param name="ref"><xsl:if test="count(ancestor::appendices)&gt;0">A</xsl:if><xsl:number count="section|references|definitions|check|procedure" level="multiple" format="1.1"/></xsl:param>
 	<div class="section-head">
 		<xsl:if test="$xref!=''"><a name="{$xref}"></a></xsl:if>
 	<xsl:choose>
@@ -670,17 +670,17 @@ Unchecked requirements: <xsl:apply-templates select="req|assert[translate(@statu
 	<xsl:choose>
 		<xsl:when test="count(ancestor::chapter)&gt;0">
 			<xsl:call-template name="sectionHead">
-				<xsl:with-param name="id"><xsl:number level="multiple" count="section|article"/></xsl:with-param> 
-				<xsl:with-param name="title"><xsl:value-of select="@title"/></xsl:with-param> 
-				<xsl:with-param name="level"><xsl:value-of select="count(ancestor-or-self::section)+count(ancestor-or-self::article)+1"/></xsl:with-param> 
-				<xsl:with-param name="xref"><xsl:value-of select="@xref"/></xsl:with-param> 
+				<xsl:with-param name="id"><xsl:number level="multiple" count="section|article"/></xsl:with-param>
+				<xsl:with-param name="title"><xsl:value-of select="@title"/></xsl:with-param>
+				<xsl:with-param name="level"><xsl:value-of select="count(ancestor-or-self::section)+count(ancestor-or-self::article)+1"/></xsl:with-param>
+				<xsl:with-param name="xref"><xsl:value-of select="@xref"/></xsl:with-param>
 			</xsl:call-template>	
 		</xsl:when>
 		<xsl:otherwise>
 			<xsl:call-template name="sectionHead">
-				<xsl:with-param name="title"><xsl:value-of select="@title"/></xsl:with-param> 
-				<xsl:with-param name="level"><xsl:value-of select="count(ancestor-or-self::section)+count(ancestor-or-self::article)+1"/></xsl:with-param> 
-				<xsl:with-param name="xref"><xsl:value-of select="@xref"/></xsl:with-param> 
+				<xsl:with-param name="title"><xsl:value-of select="@title"/></xsl:with-param>
+				<xsl:with-param name="level"><xsl:value-of select="count(ancestor-or-self::section)+count(ancestor-or-self::article)+1"/></xsl:with-param>
+				<xsl:with-param name="xref"><xsl:value-of select="@xref"/></xsl:with-param>
 			</xsl:call-template>	
 		</xsl:otherwise>
 	</xsl:choose>
@@ -691,18 +691,18 @@ Unchecked requirements: <xsl:apply-templates select="req|assert[translate(@statu
 	Table des matières
 -->
 <xsl:template match="section|references|definitions" mode="summary">
-<xsl:param name="num"><xsl:if test="count(ancestor::appendices)">A</xsl:if><xsl:number count="section|references|definitions|check" level="multiple" format="1.1"/></xsl:param>
+<xsl:param name="num"><xsl:if test="count(ancestor::appendices)">A</xsl:if><xsl:number count="section|references|definitions|check|procedure" level="multiple" format="1.1"/></xsl:param>
 	<li><a href="#{$num}"><xsl:value-of select="$num"/>&#160;<xsl:value-of select="@title"/></a>
-	<xsl:if test="count(section|references|definitions|check)&gt;0">
+	<xsl:if test="count(section|references|definitions|check|procedure)&gt;0">
 		<ul>
-			<xsl:apply-templates select="section|references|definitions|check" mode="summary"/>
+			<xsl:apply-templates select="section|references|definitions|check|procedure" mode="summary"/>
 		</ul>
 	</xsl:if>
 	</li>
 </xsl:template>
-<xsl:template match="check" mode="summary">
-<xsl:param name="num"><xsl:number count="section|references|definitions|check" level="multiple" format="1.1"/></xsl:param>
-	<li><a href="#{$num}"><xsl:value-of select="$num"/>&#160;Control procedure <xsl:value-of select="@id"/> <xsl:value-of select="@title"/></a>
+<xsl:template match="check|procedure" mode="summary">
+<xsl:param name="num"><xsl:number count="section|references|definitions|check|procedure" level="multiple" format="1.1"/></xsl:param>
+	<li><a href="#{$num}"><xsl:value-of select="$num"/>&#160;<xsl:if test="name()='check'">Control </xsl:if>Procedure <xsl:value-of select="@id"/><xsl:text> - </xsl:text><xsl:value-of select="@title"/></a>
 	</li>
 </xsl:template>
 <xsl:template name="toc">
@@ -727,7 +727,7 @@ Unchecked requirements: <xsl:apply-templates select="req|assert[translate(@statu
 -->
 <xsl:template match="blog">
 <div class="blog">
-	<xsl:apply-templates select="document(@index)/blog/entry"/> 
+	<xsl:apply-templates select="document(@index)/blog/entry"/>
 </div>
 </xsl:template>
 <xsl:template match="entry">
@@ -812,7 +812,7 @@ Copyright (c) <xsl:value-of select="./text()"/> <xsl:value-of select="@year"/><x
 </script>
 <script>hljs.initHighlightingOnLoad();</script>
 <link rel="stylesheet" href="{$root}/{$mainCss}"/>
-</head>	
+</head>
 <body>
 	<a name="top"/>
 <!-- en tete page -->
@@ -911,7 +911,7 @@ Copyright (c) <xsl:value-of select="./text()"/> <xsl:value-of select="@year"/><x
 </script>
 <script>hljs.initHighlightingOnLoad();</script>
 <link rel="stylesheet" href="{$root}/{$slidesCss}"/>
-</head>	
+</head>
 <body>
 <div id="impress">
 <div class="step slide title" data-x="0" data-y="0" data-z="0" data-rel-x="0" data-rel-y="0" data-rel-z="0">
