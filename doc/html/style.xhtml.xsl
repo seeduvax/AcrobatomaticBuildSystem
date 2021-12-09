@@ -264,11 +264,11 @@ include(<xsl:value-of select="@src"/>.txt)
 </xsl:template>
 <xsl:template match="check|procedure" mode="index">
 <xsl:param name="num"><xsl:number count="section|references|definitions|check|procedure" level="multiple" format="1.1"/></xsl:param>
-  Check <a href="#{$num}"><xsl:value-of select="$num"/></a>
+  <xsl:value-of select="name()"/> <a href="#{$num}"><xsl:value-of select="$num"/></a>
 </xsl:template>
 <xsl:template match="assert" mode="index">
 <xsl:param name="num"><xsl:number count="section|references|definitions|check|procedure|assert" level="multiple" format="1.1"/></xsl:param>
-  Assert <a href="#{$num}"><xsl:value-of select="$num"/></a>
+  assert <a href="#{$num}"><xsl:value-of select="$num"/></a>
 </xsl:template>
 
 <xsl:template match="index[@type='tbc']">
@@ -467,8 +467,8 @@ include(<xsl:value-of select="@src"/>.txt)
   <th><xsl:value-of select="@id"/> [<xsl:value-of select="../context/@reference"/> §<xsl:value-of select="@ref"/>]</th>
   <td>
 <xsl:choose>
-   <xsl:when test="$failures!=0"><div class="statusKO">Failures: <xsl:value-of select="$failures"/></div><br/>
-Unchecked requirements: <xsl:apply-templates select="req|assert[translate(@status,$upperCase,$lowerCase)!='ok' and translate(@status,$upperCase,$lowerCase)!='pass']/req"/></xsl:when>
+   <xsl:when test="$failures!=0"><div class="statusKO">Failures: <xsl:value-of select="$failures"/></div><xsl:if test="count(.//req)&gt;0"><br/>
+Unchecked requirements: <xsl:apply-templates select="req|assert[translate(@status,$upperCase,$lowerCase)!='ok' and translate(@status,$upperCase,$lowerCase)!='pass']/req"/></xsl:if></xsl:when>
    <xsl:otherwise><div class="statusOK">Pass</div></xsl:otherwise>
 </xsl:choose>
   </td>

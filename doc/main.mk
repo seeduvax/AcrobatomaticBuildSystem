@@ -190,19 +190,19 @@ $(PDFDIR)/%.pdf: $(TEXDIR)/%.tex
 	@# remove previous generated elements to avoid references problems.
 	@rm -f $(OBJDIR)/$(*F).aux $(OBJDIR)/$(*F).lo* $(OBJDIR)/$(*F).out $(OBJDIR)/$(*F).toc
 ifneq ($(USER),jenkins)
-	@cd $(OBJDIR) && $(TEXENV) $(TEXFOT) pdflatex --interaction nonstopmode $< > $(OBJDIR)/tex.$(@F).log && pass=2 && \
+	@cd $(OBJDIR) && $(TEXENV) $(TEXFOT) $(PDFLATEX) --interaction nonstopmode $< > $(OBJDIR)/tex.$(@F).log && pass=2 && \
 		while [ "`cat $(OBJDIR)/tex.$(@F).log | grep \"Rerun to get cross-references right\"`" != "" ]; do \
 			$(ABS_PRINT_info) "Pass number $$pass for $(@F)" && \
 			pass=`expr $$pass + 1` && \
-			$(TEXENV) pdflatex --interaction nonstopmode $< > $(OBJDIR)/tex.$(@F).log; \
+			$(TEXENV) $(PDFLATEX) --interaction nonstopmode $< > $(OBJDIR)/tex.$(@F).log; \
 		done || (cat $(OBJDIR)/tex.$(@F).log && ! $(DOC_FAIL_ON_ERROR))
 	@mv $(OBJDIR)/$(@F) $(@D)
 else
-	@cd $(OBJDIR) && $(TEXENV) pdflatex --interaction nonstopmode $< > $(OBJDIR)/tex.$(@F).log && pass=2 && \
+	@cd $(OBJDIR) && $(TEXENV) $(PDFLATEX) --interaction nonstopmode $< > $(OBJDIR)/tex.$(@F).log && pass=2 && \
 		while [ "`cat $(OBJDIR)/tex.$(@F).log | grep \"Rerun to get cross-references right\"`" != "" ]; do \
 			$(ABS_PRINT_info) "Pass number $$pass for $(@F)" && \
 			pass=`expr $$pass + 1` && \
-			$(TEXENV) pdflatex --interaction nonstopmode $< > $(OBJDIR)/tex.$(@F).log; \
+			$(TEXENV) $(PDFLATEX) --interaction nonstopmode $< > $(OBJDIR)/tex.$(@F).log; \
 		done || ($(ABS_PRINT_error) "pdf generation error see $(OBJDIR)/tex.$(@F).log for more information." && ! $(DOC_FAIL_ON_ERROR))
 	@mv $(OBJDIR)/$(@F) $(@D) || $(ABS_PRINT_error) "$@ generation failed."
 endif
