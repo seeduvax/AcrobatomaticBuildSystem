@@ -726,12 +726,15 @@ Checksum function: <xsl:value-of select="@type"/>
 <xsl:template match="report">
   <xsl:apply-templates/>
 \begin{HEMLtable}{|L|L|}
+\hline
   <xsl:apply-templates select="check|procedure" mode="synthesis"/>
+\hline
 \end{HEMLtable}
   
 </xsl:template>
 <xsl:template match="report/context">
 \begin{HEMLtable}{|L|L|}
+\hline
 \HEMLoddRow
 \textbf{Procedures specification} &amp; <xsl:call-template name="formatText"><xsl:with-param name="text" select="@reference"/></xsl:call-template>, edition: <xsl:value-of select="@edition"/> \\
 \HEMLevenRow
@@ -742,16 +745,19 @@ Checksum function: <xsl:value-of select="@type"/>
 \textbf{End} &amp; <xsl:call-template name="formatText"><xsl:with-param name="text" select="@end"/></xsl:call-template> \\
 \HEMLoddRow
 \textbf{Comments} &amp; <xsl:apply-templates/> \\
+\hline
 \end{HEMLtable}
 </xsl:template>
 <xsl:template match="report/check|report/procedure">
 \begin{HEMLtable}{|L|L|L|}
+\hline
 \HEMLoddHeadCell &amp; \HEMLoddHeadCell \textbf{Procedure <xsl:value-of select="@id"/> [<xsl:call-template name="formatText"><xsl:with-param name="text" select="../context/@reference"/></xsl:call-template> {\S}<xsl:value-of select="@ref"/>]: <xsl:value-of select="@title"/>}<xsl:text>
 
 </xsl:text><xsl:apply-templates select="req"/> &amp; \HEMLoddHeadCell \\
 \HEMLevenHeadCell \textbf{step} &amp; \HEMLevenHeadCell \textbf{Comment} &amp; \HEMLevenHeadCell \textbf{Status} \\
 \endhead
 <xsl:apply-templates select="operation|assert"/>
+\hline
 \end{HEMLtable}
 </xsl:template>
 
