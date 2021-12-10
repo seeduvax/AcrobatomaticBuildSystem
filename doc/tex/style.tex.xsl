@@ -274,13 +274,13 @@ TBD<xsl:value-of select="count(preceding::tbd)+1"/> &amp; \S\ref{tbd.<xsl:value-
 \begin{landscape}
 {\small
 </xsl:if>
+<xsl:if test="@title!=''">\captionof{table}{<xsl:apply-templates select="@title"/>}</xsl:if>
+<xsl:if test="@xref!=''">\label{<xsl:value-of select="@xref"/>}</xsl:if>
 \begin{HEMLtable}{|<xsl:apply-templates select="tr[1]/*" mode="tablespec"
-  />}{
-<xsl:if test="@title!=''">\renewcommand{\HEMLtableCaption}{<xsl:apply-templates select="@title"/>}</xsl:if>
-<xsl:if test="@xref!=''">\renewcommand{\HEMLtableLabel}{<xsl:value-of select="@xref"/>}</xsl:if>
-}
+  />}
+\hline
 <xsl:apply-templates select="tr"/>
-\HEMLtableTail
+\hline
 \end{HEMLtable}
 <xsl:if test="@type='wide'">
 }
@@ -289,12 +289,8 @@ TBD<xsl:value-of select="count(preceding::tbd)+1"/> &amp; \S\ref{tbd.<xsl:value-
 </xsl:template>
 <xsl:template match="tr">
 <xsl:choose>
-  <xsl:when test="position() mod 2 = 1">
-\HEMLoddRow
-  </xsl:when>
-  <xsl:otherwise>
-\HEMLevenRow
-  </xsl:otherwise>
+  <xsl:when test="position() mod 2 = 1">\HEMLoddRow</xsl:when>
+  <xsl:otherwise>\HEMLevenRow</xsl:otherwise>
 </xsl:choose>
 <xsl:apply-templates mode="cellcontent"
  ><xsl:with-param name="rowpos"><xsl:value-of select="position()"/></xsl:with-param
@@ -303,35 +299,32 @@ TBD<xsl:value-of select="count(preceding::tbd)+1"/> &amp; \S\ref{tbd.<xsl:value-
 \endhead
 </xsl:if>
 </xsl:template>
-<xsl:template match="th|td" mode="tablespec">X[-1]|</xsl:template>
-<xsl:template match="td" mode="cellcontent">
-<xsl:apply-templates select="."/><xsl:if test="count(following-sibling::*)&gt;0">&amp;
+<xsl:template match="th|td" mode="tablespec">L|</xsl:template>
+<xsl:template match="td" mode="cellcontent"
+><xsl:apply-templates select="."/><xsl:if test="count(following-sibling::*)&gt;0">&amp;
 </xsl:if></xsl:template>
 <xsl:template match="th" mode="cellcontent">
 <xsl:param name="rowpos">0</xsl:param>
 <xsl:choose>
-  <xsl:when test="$rowpos mod 2 = 1">
-\HEMLoddHeadCell
-  </xsl:when>
-  <xsl:otherwise>
-\HEMLevenHeadCell
-  </xsl:otherwise>
-</xsl:choose>
-\textbf{<xsl:apply-templates select="."/>}<xsl:if test="count(following-sibling::*)&gt;0">&amp;</xsl:if
+  <xsl:when test="$rowpos mod 2 = 1">\HEMLoddHeadCell</xsl:when>
+  <xsl:otherwise>\HEMLevenHeadCell</xsl:otherwise>
+</xsl:choose
+>\textbf{<xsl:apply-templates select="."/>}<xsl:if test="count(following-sibling::*)&gt;0"> &amp;</xsl:if
 ></xsl:template>
 <!--************************************************
      Reference table
 -->
 <xsl:template match="references">
 \subsection{<xsl:apply-templates select="@title"/>}
-\begin{HEMLtable}{X[-1]X[-1]}{}
+\begin{HEMLtable}{LL}
+\hline
 \HEMLoddHeadCell
 &amp; \HEMLoddHeadCell \textbf{Authors}\hspace{1cm}\textbf{\emph{Title}} \\
 \HEMLoddHeadCell
 &amp; \HEMLoddHeadCell \textbf{\emph{Reference}}\hspace{1cm}\textbf{Edition} \\
 \endhead
 <xsl:apply-templates select="ref" mode="detail"/>
-\HEMLtableTail
+\hline
 \end{HEMLtable}
 </xsl:template>
 <xsl:template match="ref" mode="detail">
@@ -359,11 +352,12 @@ TBD<xsl:value-of select="count(preceding::tbd)+1"/> &amp; \S\ref{tbd.<xsl:value-
 -->
 <xsl:template match="definitions">
 \subsection{<xsl:apply-templates select="@title"/>}
-\begin{HEMLtable}{X[-1]X[-1]}{}
+\begin{HEMLtable}{LL}
+\hline
 <xsl:apply-templates select="def" mode="detail">
  <xsl:sort select="@entry"/>
 </xsl:apply-templates>
-\HEMLtableTail
+\hline
 \end{HEMLtable}
 </xsl:template>
 <xsl:template match="def" mode="detail">
@@ -536,7 +530,7 @@ TBD<xsl:value-of select="count(preceding::tbd)+1"/> &amp; \S\ref{tbd.<xsl:value-
 -->     
 <xsl:template match="diff" mode="include">
 {\small
-\begin{longtabu}{|X[-1]|X[-1]|}
+\begin{HEMLtable}{|L|L|}
 \hline
 \rowcolor{blue!14}
 \textbf{File} &amp; \textbf{Change} \\
@@ -545,7 +539,7 @@ TBD<xsl:value-of select="count(preceding::tbd)+1"/> &amp; \S\ref{tbd.<xsl:value-
    <xsl:sort select="."/>
 </xsl:apply-templates>
 \hline
-\end{longtabu}
+\end{HEMLtable}
 }
 </xsl:template>
 <xsl:template match="path" mode="include">
@@ -564,7 +558,7 @@ TBD<xsl:value-of select="count(preceding::tbd)+1"/> &amp; \S\ref{tbd.<xsl:value-
 -->     
 <xsl:template match="lists" mode="include">
 {\small
-\begin{longtabu}{|X[-1]|X[-1]|}
+\begin{HEMLtable}{|L|L|}
 \hline
 \rowcolor{blue!14}
 \textbf{File} &amp; \textbf{Revision} \\
@@ -573,7 +567,7 @@ TBD<xsl:value-of select="count(preceding::tbd)+1"/> &amp; \S\ref{tbd.<xsl:value-
    <xsl:sort select="name"/>
  </xsl:apply-templates>
 \hline
-\end{longtabu}
+\end{HEMLtable}
 }
 </xsl:template>
 <xsl:template match="entry" mode="include">
@@ -592,7 +586,7 @@ TBD<xsl:value-of select="count(preceding::tbd)+1"/> &amp; \S\ref{tbd.<xsl:value-
 -->     
 <xsl:template match="log" mode="include">
 {\small
-\begin{longtabu}{|X[-1]|X[-1]|}
+\begin{HEMLtable}{|L|L|}
 \hline
 \rowcolor{blue!14}
 \textbf{Revision} &amp; \textbf{Author, date,} 
@@ -601,7 +595,7 @@ TBD<xsl:value-of select="count(preceding::tbd)+1"/> &amp; \S\ref{tbd.<xsl:value-
 \endhead
 <xsl:apply-templates select="logentry" mode="include"/>
 \hline
-\end{longtabu}
+\end{HEMLtable}
 }
 </xsl:template>
 <xsl:template match="logentry" mode="include">
@@ -624,7 +618,7 @@ TBD<xsl:value-of select="count(preceding::tbd)+1"/> &amp; \S\ref{tbd.<xsl:value-
 \begin{landscape}
 Checksum function: <xsl:value-of select="@type"/>
 {\small
-\begin{longtabu}{|X[-1]|X[-1]|}
+\begin{HEMLtable}{|L|L|}
 \hline
 \rowcolor{blue!14}
 \textbf{File} &amp; \textbf{Checksum} \\
@@ -633,7 +627,7 @@ Checksum function: <xsl:value-of select="@type"/>
  <xsl:sort select="@path"/> 
 </xsl:apply-templates>
 \hline
-\end{longtabu}
+\end{HEMLtable}
 }
 \end{landscape}
 </xsl:template>
@@ -655,7 +649,7 @@ Checksum function: <xsl:value-of select="@type"/>
   <xsl:param name="mode"/>
   <xsl:param name="wontfix">Won't Fix</xsl:param>
 {\small
-\begin{longtabu}{|X[-1]|X[-1]|X[-1]|X[-1]|}
+\begin{HEMLtable}{|L|L|L|L|}
 \hline
 \rowcolor{blue!14}
 \textbf{id} &amp; \textbf{Type} &amp; \textbf{Completion} &amp; \textbf{Summary} \\ 
@@ -671,7 +665,7 @@ Checksum function: <xsl:value-of select="@type"/>
 </xsl:apply-templates>
 </xsl:if>
 \hline
-\end{longtabu}
+\end{HEMLtable}
 }
 </xsl:template>
 <xsl:template match="issue" mode="include">
@@ -731,14 +725,13 @@ Checksum function: <xsl:value-of select="@type"/>
 -->     
 <xsl:template match="report">
   <xsl:apply-templates/>
-\begin{HEMLtable}{|X[-1]|X[-1]|}{}
+\begin{HEMLtable}{|L|L|}
   <xsl:apply-templates select="check|procedure" mode="synthesis"/>
-\HEMLtableTail
 \end{HEMLtable}
   
 </xsl:template>
 <xsl:template match="report/context">
-\begin{HEMLtable}{|X[-1]|X[-1]|}{}
+\begin{HEMLtable}{|L|L|}
 \HEMLoddRow
 \textbf{Procedures specification} &amp; <xsl:call-template name="formatText"><xsl:with-param name="text" select="@reference"/></xsl:call-template>, edition: <xsl:value-of select="@edition"/> \\
 \HEMLevenRow
@@ -749,18 +742,16 @@ Checksum function: <xsl:value-of select="@type"/>
 \textbf{End} &amp; <xsl:call-template name="formatText"><xsl:with-param name="text" select="@end"/></xsl:call-template> \\
 \HEMLoddRow
 \textbf{Comments} &amp; <xsl:apply-templates/> \\
-\HEMLtableTail
 \end{HEMLtable}
 </xsl:template>
 <xsl:template match="report/check|report/procedure">
-\begin{HEMLtable}{|X[-1]|X[-1]|X[-1]|}{}
+\begin{HEMLtable}{|L|L|L|}
 \HEMLoddHeadCell &amp; \HEMLoddHeadCell \textbf{Procedure <xsl:value-of select="@id"/> [<xsl:call-template name="formatText"><xsl:with-param name="text" select="../context/@reference"/></xsl:call-template> {\S}<xsl:value-of select="@ref"/>]: <xsl:value-of select="@title"/>}<xsl:text>
 
 </xsl:text><xsl:apply-templates select="req"/> &amp; \HEMLoddHeadCell \\
 \HEMLevenHeadCell \textbf{step} &amp; \HEMLevenHeadCell \textbf{Comment} &amp; \HEMLevenHeadCell \textbf{Status} \\
 \endhead
 <xsl:apply-templates select="operation|assert"/>
-\HEMLtableTail
 \end{HEMLtable}
 </xsl:template>
 
@@ -830,12 +821,13 @@ Unchecked requirements: <xsl:apply-templates select="req|assert[translate(@statu
      indexs
 -->     
 <xsl:template match="index[@type='req']">
-\begin{HEMLtable}{|X[-1]|X[-1]|}{}
+\begin{HEMLtable}{|L|L|}
+\hline
 \HEMLoddHeadCell
 \textbf{Requirement}&amp; \HEMLoddHeadCell \textbf{Referenced by} \\
 \endhead
   <xsl:apply-templates select="/document/section//req" mode="index"/>
-\HEMLtableTail
+\hline
 \end{HEMLtable}
 </xsl:template>
 <xsl:template match="req" mode="index">
@@ -873,19 +865,21 @@ Unchecked requirements: <xsl:apply-templates select="req|assert[translate(@statu
 </xsl:template>
 
 <xsl:template match="index[@type='tbc']">
-\begin{HEMLtable}{|X[-1]|X[-1]|X[-1]|}{}
+\begin{HEMLtable}{|L|L|L|}
+\hline
 \HEMLoddHeadCell \textbf{ref} &amp; \HEMLoddHeadCell \textbf{location} &amp; \HEMLoddHeadCell \textbf{entitled}
 \endhead
            <xsl:apply-templates select="//tbc" mode="index"/>
-\HEMLtableTail
+\hline
 \end{HEMLtable}
 </xsl:template>
 <xsl:template match="index[@type='tbd']">
-\begin{HEMLtable}{|X[-1]|X[-1]|X[-1]|}{}
+\begin{HEMLtable}{|L|L|L|}
+\hline
 \HEMLoddHeadCell \textbf{ref} &amp; \HEMLoddHeadCell \textbf{location} &amp; \HEMLoddHeadCell \textbf{entitled}
 \endhead
            <xsl:apply-templates select="//tbd" mode="index"/>
-\HEMLtableTail
+\hline
 \end{HEMLtable}
 </xsl:template>
 <xsl:template match="index[@type='comment']">

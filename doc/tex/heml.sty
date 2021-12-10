@@ -14,7 +14,7 @@
 \usepackage{fancybox}
 \usepackage{multirow}
 \usepackage{caption}
-\usepackage{tabu}
+\usepackage{tabulary}
 \usepackage{longtable}
 \usepackage{ifthen}
 \usepackage{listings}
@@ -47,6 +47,32 @@
 \setlength\listparindent{0pt}
 \setlength\itemindent{0pt}
 \setlength\leftmargin{0pt}
+
+% inspired by ltabulary env (from https://tex.stackexchange.com/questions/78075/multi-page-with-tabulary)
+\makeatletter
+\def\HEMLtable{
+\def\endfirsthead{\\}
+\def\endhead{\\}
+\def\endfoot{\\}
+\def\endlastfoot{\\}
+\def\tabulary{
+  \def\TY@final{
+\def\endfirsthead{\LT@end@hd@ft\LT@firsthead}
+\def\endhead{\LT@end@hd@ft\LT@head}
+\def\endfoot{\LT@end@hd@ft\LT@foot}
+\def\endlastfoot{\LT@end@hd@ft\LT@lastfoot}
+\longtable}
+  \let\endTY@final\endlongtable
+  \TY@tabular}
+\dimen@\columnwidth
+\advance\dimen@-\LTleft
+\advance\dimen@-\LTright
+\tabulary\dimen@}
+
+\def\endHEMLtable{\endtabulary
+\addtocounter{table}{-1}}
+
+\makeatother
 
 \newenvironment{HEMLitemize}
 { \begin{itemize}
@@ -113,11 +139,11 @@
 \definecolor{darkblue}{rgb}{0.0, 0.0, 0.55}
 \newcommand{\HEMLreqReference}[1]{\colorbox{yellow!10}{\textbf{\textcolor{darkblue}{#1}}}}
 \newcommand{\HEMLrequirement}[2]{
-\begin{tabu}{p{3.3cm} X}
+\begin{tabular}{p{3.3cm} p{13.7cm}}
 \hline
 \rowcolor{yellow!10}
 \textbf{\textcolor{darkblue}{#1}} & #2 \\ 
-\end{tabu}%
+\end{tabular}%
 }
 \newcommand{\HEMLreqref}[1]{
 \begin{tcolorbox}[
@@ -235,30 +261,6 @@
     \end{tcolorbox}
 }
 \newcommand{\HEMLempty}{}
-\newcommand{\HEMLtableCaption}{\HEMLempty}
-\newcommand{\HEMLtableLabel}{\HEMLempty}
-\newenvironment{HEMLtable}[2]
-{ 
-  #2
-  %if no caption, remove from the table numbering to avoid steps in table numbering in summary
-  \ifthenelse{\equal{\HEMLtableCaption}{\HEMLempty}} {\addtocounter{table}{-1}} {}
-  \begin{longtabu}{#1}
-  \hline
-}
-{
-  \end{longtabu}
-}
-\newcommand{\HEMLtableTail}{
-  \hline
-\if\HEMLtableCaption\HEMLempty
-\else
-\caption{\HEMLtableCaption}
-\fi
-\if\HEMLtableLabel\HEMLempty
-\else
-\label{\HEMLtableLabel}
-\fi
-}
 \newcommand{\HEMLoddRow}{\rowcolor{blue!8}}
 \newcommand{\HEMLevenRow}{\rowcolor{blue!4}}
 \newcommand{\HEMLoddHeadCell}{\cellcolor{blue!14}}
@@ -442,26 +444,22 @@
 
 % history page translations.
 \newcommand{\HEMLhistoryPageTitle}{ISSUE / REVISION STATUS RECORD}
-\newcommand{\HEMLhistoryPageEditionNumberTitle}{Edition and revision}
-\newcommand{\HEMLhistoryPageMainReasonsTitle}{Main reasons for document change \par
-        (+ paragraphs nb concerned in case of revision) Document validity status (reference and date)}
+\newcommand{\HEMLhistoryPageEditionNumberTitle}{Edition}
+\newcommand{\HEMLhistoryPageMainReasonsTitle}{Changes summary}
 
 \newcommand{\HEMLhistoryPage}{
     {\fontsize{11}{14}\selectfont
     % remove from table numbering
     \addtocounter{table}{-1}
-    \begin{longtabu} to \textwidth{|X[0.14, c]|X[0.14, c]|X[0.70, l]|}
+    \begin{HEMLtable}{|l|l|L|}
     \hline
     \multicolumn{3}{|c|}{\multirow{2}{17.1cm}{\fontsize{14}{14}\selectfont \centering{\HEMLhistoryPageTitle}}}\\
     \multicolumn{3}{|c|}{} \\
     \hline
-    \bigskip \textbf{\HEMLhistoryPageEditionNumberTitle} & \bigskip \textbf{Date} & \bigskip \textbf{\HEMLhistoryPageMainReasonsTitle} \\
-    & &\\
+    \textbf{\HEMLhistoryPageEditionNumberTitle} & \textbf{Date} & \textbf{\HEMLhistoryPageMainReasonsTitle} \\
     \HEMLrevisiontable
     \hline
-    & & \\
-    \hline
-    \end{longtabu}
+    \end{HEMLtable}
     }
 }
 
@@ -495,3 +493,4 @@
 \clearpage
 %\pagestyle{Standard}
 }
+\setcounter{table}{1}
