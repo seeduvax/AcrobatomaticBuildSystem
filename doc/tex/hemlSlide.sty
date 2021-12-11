@@ -11,8 +11,8 @@
 \usepackage{color,colortbl}
 \usepackage{fancybox}
 \usepackage{multirow}
-\usepackage{tabu}
 \usepackage{longtable}
+\usepackage{tabulary}
 \usepackage{ifthen}
 \usepackage{listings}
 \usepackage[htt]{hyphenat}
@@ -42,6 +42,31 @@
 \setlength\itemindent{0pt}
 \setlength\leftmargin{0pt}
 
+% inspired by ltabulary env (from https://tex.stackexchange.com/questions/78075/multi-page-with-tabulary)
+\makeatletter
+\def\HEMLtable{
+\def\endfirsthead{\\}
+\def\endhead{\\}
+\def\endfoot{\\}
+\def\endlastfoot{\\}
+\def\tabulary{
+  \def\TY@final{
+\def\endfirsthead{\LT@end@hd@ft\LT@firsthead}
+\def\endhead{\LT@end@hd@ft\LT@head}
+\def\endfoot{\LT@end@hd@ft\LT@foot}
+\def\endlastfoot{\LT@end@hd@ft\LT@lastfoot}
+\longtable}
+  \let\endTY@final\endlongtable
+  \TY@tabular}
+\dimen@\columnwidth
+\advance\dimen@-\LTleft
+\advance\dimen@-\LTright
+\tabulary\dimen@}
+
+\def\endHEMLtable{\endtabulary
+\addtocounter{table}{-1}}
+
+\makeatother
 \newenvironment{HEMLitemize}
 { \begin{itemize}
     \setlength{\itemsep}{0pt}
@@ -49,15 +74,6 @@
     \setlength{\parsep}{0pt}     }
 { \end{itemize}                  }
 
-\newenvironment{HEMLtable}[2]
-{ 
-  #2
-  \begin{longtabu}{#1}
-  \hline
-}
-{
-  \end{longtabu}
-}
 \newcommand{\HEMLoddRow}{\rowcolor{blue!8}}
 \newcommand{\HEMLevenRow}{\rowcolor{blue!4}}
 \newcommand{\HEMLoddHeadCell}{\cellcolor{blue!14}}
