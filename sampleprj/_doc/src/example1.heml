@@ -94,7 +94,7 @@ is needed to check line wrap}.
 %{tbc tbc starting a new pargraph.} And the paragraphe complement.
   }
   {section %title=Tables
-{table %title=Table example %xref=TableEX
+{table 
 {tr 
 	{th col1} {th col2} {th col3 }
 }
@@ -144,6 +144,23 @@ A % Very long text in one colomn to check it will resize everything automaticall
 1 % 2 % 3
 4 % 5 % 6
 7 % 8 % 9
+}
+{tr
+ {td
+plop:
+  - bullet 1
+  - bullet 2
+ }
+ {td 
+{code %language=ada
+{!package Hello is
+begin
+    procedure World is
+       Text.IO.WriteLine("Hello World");
+    end World;
+end Hello;!}}
+ }
+ {td world}
 }
 }
   }
