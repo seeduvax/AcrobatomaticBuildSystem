@@ -281,7 +281,7 @@ TBD<xsl:value-of select="count(preceding::tbd)+1"/> &amp; \S\ref{tbd.<xsl:value-
 \begin{HEMLtable}{|<xsl:for-each select="tr[1]/*">
 <xsl:variable name="col"><xsl:value-of select="position()"/></xsl:variable>
 <xsl:variable name="coltext"><xsl:apply-templates select="../../tr/*[position()=$col]"/></xsl:variable>
-<xsl:variable name="coltextsize"><xsl:value-of select="string-length(normalize-space($coltext))"/></xsl:variable>p{<xsl:value-of select="$coltextsize div $fulltextsize"/>\textwidth}|</xsl:for-each>}
+<xsl:variable name="coltextsize"><xsl:value-of select="string-length(normalize-space($coltext))"/></xsl:variable>p{<xsl:value-of select="$coltextsize div $fulltextsize"/>\linewidth-0.5cm}|</xsl:for-each>}
 \hline
 <xsl:apply-templates select="tr"/>
 \hline
@@ -396,8 +396,8 @@ TBD<xsl:value-of select="count(preceding::tbd)+1"/> &amp; \S\ref{tbd.<xsl:value-
    <xsl:otherwise><xsl:value-of select="@language"/></xsl:otherwise>
  </xsl:choose></xsl:param>
 \lstset{language=<xsl:value-of select="$lng"/>}
-\begin{lstlisting}[<xsl:if 
-    test="@title!=''">caption=<xsl:apply-templates select="@title"/>,</xsl:if><xsl:if test="@size!=''">basicstyle=\<xsl:value-of select="@size"/>,</xsl:if><xsl:if test="@xref!=''">label=<xsl:value-of select="@xref"/></xsl:if>]<xsl:text>
+\begin{lstlisting}[xleftmargin=0.5cm<xsl:if 
+    test="@title!=''">,caption=<xsl:apply-templates select="@title"/></xsl:if><xsl:if test="@size!=''">,basicstyle=\<xsl:value-of select="@size"/></xsl:if><xsl:if test="@xref!=''">,label=<xsl:value-of select="@xref"/></xsl:if>]<xsl:text>
 </xsl:text><xsl:value-of select="pre/text()"/><xsl:text>
 </xsl:text>\end{lstlisting}
 </xsl:template>

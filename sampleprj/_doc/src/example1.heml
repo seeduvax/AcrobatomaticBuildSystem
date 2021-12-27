@@ -8,7 +8,9 @@
  {author %sigle=ACME %%Sebastien DEVAUX}
  {history
    {edition %version=2 %date=2018-04-30
-Added test procedure section (§{xref SecTest})
+Added test procedure section (§{xref SecTest}):
+  - detailed change information
+  - to check history rendering
    }
    {edition %version=1 %date=2017-05-12 %%First issue}
  }
