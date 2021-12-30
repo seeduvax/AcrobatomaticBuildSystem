@@ -14,7 +14,7 @@ Added test procedure section (§{xref SecTest}):
    }
    {edition %version=1 %date=2017-05-12 %%First issue}
  }
-{section %title=section title.
+{section %title=section title
   {section %title=subsection 1.1 title
 Paragraphe Paragraphe dfqskdjfh lqsdkflqskdfhlqskdflkqsdjfl qksdf lkqs dflk
 qsldkf lqsdkfl qskdf lqskdflkqsdj flk qsdlfk qlskdf lqskd flkqsd fl qsdlfk
@@ -96,9 +96,9 @@ is needed to check line wrap}.
 %{tbc tbc starting a new pargraph.} And the paragraphe complement.
   }
   {section %title=Tables
-{table 
-{tr 
-	{th col1} {th col2} {th col3 }
+{table %title=Example of table %xref=TableEX
+{tr
+{th col1}{th col2}{th col3}
 }
 {?table %fields=th,td,td
 1 % 2 % 3
@@ -220,7 +220,9 @@ end!}}
   }
   {section %title=Cross reference
 UML diagram exemple is Fig {xref FigUML}.
+
 Long table exemple is Table {xref TableEX}.
+
 Code example is in §{xref SCode}.
   }
 }

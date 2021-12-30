@@ -748,9 +748,9 @@ endif!}}
 Buildscripts need to have some tools available on the workstation for its own
 purpose.
 {table %title=Dependencies list
- {tr
-  {th Tool/lib} {th description} {th license}
- }
+{tr
+{th Tool/lib} {th description} {th license}
+}
 {?table
 gcc % C compiler (default) % GPL
 g++ % C++ compiler (default) % GPL 
@@ -1600,7 +1600,7 @@ To use the extension, simply add the library in USELIB in app.cfg and add
 following varibles in the module.cfg.
 {table %title=Variables in module.cfg
  {tr
-  {th Variable} {th Description}
+  {th %w=1 %%Variable} {th %w=4 %%Description}
  }
 {?table
 DEFAULT_TEMPLATE % The name of the template to use for all the heml docs in module
@@ -1620,9 +1620,9 @@ value definition for each module in each workspace.
 All variables can also be overloaded through the command line. The values set in
 command line take precedence over any other definition.
 {table %title=Variable index and reference
- {tr
-   {th Variable} {th Default value} {th Description, role and usage}
- }
+{tr
+{th %w=1 %%Variable}{th %w=1 %%Default value}{th %w=2 %%Description, role and usage}
+}
 {?table
 ABS_REPO % % URL of the distribution repository to use to fetch ABS.
 APPNAME % % Application name

@@ -1,6 +1,5 @@
 \documentclass{article}
 \usepackage[utf8x]{inputenc}
-%\usepackage[scaled]{helvet}
 \usepackage[a4paper]{geometry}
 \usepackage{lastpage}
 \usepackage{fancyhdr}
@@ -25,13 +24,16 @@
 \hypersetup{pdftex,colorlinks=true,linkcolor=black,citecolor=black,urlcolor=blue}
 \usepackage{hypcap}
 \usepackage{lscape}
+
+% ---------------------------------------------------------------------
 % ---- specific styling to be improved to enable user customisation
 \definecolor{reqbgcolor}{rgb}{0.9, 0.9, 1.0}
 \definecolor{hemlOkTextColor}{rgb}{0.0,0.6,0.0}
 \definecolor{hemlKoTextColor}{rgb}{0.9,0.0,0.0}
 \definecolor{hemlWarnTextColor}{rgb}{0.9,0.5,0.0}
 
-% Page layout (geometry) ------------------------------------------------------------
+% ---------------------------------------------------------------------
+% Page layout (geometry) 
 \setlength{\paperwidth}{21cm}
 \setlength{\paperheight}{29.7cm}
 \setlength{\hoffset}{-1in}
@@ -47,33 +49,10 @@
 \setlength\listparindent{0pt}
 \setlength\itemindent{0pt}
 \setlength\leftmargin{0pt}
+\setlength\tabcolsep{0.2cm}
 
-% inspired by ltabulary env (from https://tex.stackexchange.com/questions/78075/multi-page-with-tabulary)
-% \makeatletter
-% \def\HEMLtable{
-% \def\endfirsthead{\\}
-% \def\endhead{\\}
-% \def\endfoot{\\}
-% \def\endlastfoot{\\}
-% \def\tabulary{
-%   \def\TY@final{
-% \def\endfirsthead{\LT@end@hd@ft\LT@firsthead}
-% \def\endhead{\LT@end@hd@ft\LT@head}
-% \def\endfoot{\LT@end@hd@ft\LT@foot}
-% \def\endlastfoot{\LT@end@hd@ft\LT@lastfoot}
-% \longtable}
-%   \let\endTY@final\endlongtable
-%   \TY@tabular}
-% \dimen@\columnwidth
-% \advance\dimen@-\LTleft
-% \advance\dimen@-\LTright
-% \tabulary\dimen@}
-% 
-% \def\endHEMLtable{\endtabulary
-% \addtocounter{table}{-1}}
-% 
-% \makeatother
-
+% ---------------------------------------------------------------------
+% Bullet ist environment
 \newenvironment{HEMLitemize}
 { \begin{itemize}
     \setlength{\itemsep}{0pt}
@@ -84,10 +63,10 @@
 \newenvironment{HEMLtable}[1]
 {
 \begin{longtable}{#1}
-\hline
 }
 {
 \end{longtable}
+\addtocounter{table}{-1}
 }
 
 % new counter for referenced docs.
@@ -413,7 +392,6 @@
     \quad\bigskip\bigskip
     
     {
-    \setlength{\tabcolsep}{0.2cm}
     {\fontsize{11}{16}\selectfont
     
     \begin{tabular}{|p{3.9cm}|p{2.49cm}|p{2.0cm}|p{3.8cm}|p{2.7cm}|}
