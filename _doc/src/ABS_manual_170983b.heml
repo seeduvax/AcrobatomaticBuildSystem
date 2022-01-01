@@ -1541,6 +1541,47 @@ include. A warning is displayed during the build when different versions of
 a same lib is found. Invoking {kw make checkdep} displays a complete depedency
 graph.
 {fig %title=Real world example of a dependency graph with a version conflict %src=checkdep.png}
+{#
+@startdot checkdep.png
+digraph deps {
+graph [rankdir="LR",ranksep=1];
+node [width=2, shape=box, style="rounded"];
+ "last-1.10.18d"->"simtg-2A.2.6";
+ "last-1.10.18d"->"simba-1.0.16";
+ "last-1.10.18d"->"SMP-2.0";
+ "last-1.10.18d"->"zeromq-4.0.3";
+ "last-1.10.18d"->"logies-2.11.17";
+ "last-1.10.18d"->"mastol-1.10.11";
+ "drast-1.10.13"->"drast_lkm-1.0.12";
+ "drast-1.10.13"->"mastol-1.10.13"[color="red"];
+ "drast-1.10.13"->"tte_pegasus_api-2.7.24";
+ "drast-1.10.13"->"tte_xmc_api-61899";
+ "drast-1.10.13"->"vxi-0.0.20121221";
+ "logies-2.11.17"->"AdsLib-master.56bc355";
+ "logies-2.11.17"->"comedilib-0.11.0";
+ "logies-2.11.17"->"drast-1.10.13";
+ "logies-2.11.17"->"libmodbus-3.1.6";
+ "logies-2.11.17"->"SMP-2.0";
+ "mastol-1.10.11"->"absplus-1.4.1";
+ "mastol-1.10.11"->"HDF5-1.12.0";
+ "mastol-1.10.11"->"jsoncpp-0.10.7.astre.1";
+ "mastol-1.10.11"->"libcurl-7.64.1";
+ "mastol-1.10.11"->"libpcap-1.7.4";
+ "mastol-1.10.11"->"libssh-0.9.4";
+ "mastol-1.10.11"->"libwebsockets-2.4.1";
+ "mastol-1.10.11"->"libzip-1.5.1";
+ "mastol-1.10.11"->"linenoise-1.0";
+ "mastol-1.10.11"->"lua-5.3.5";
+ "mastol-1.10.11"->"LuaBridge_seeduvax-2.6.1";
+ "mastol-1.10.11"->"xerces-c-3.1.1";
+ "mastol-1.10.13"[color="red"];
+ "simba-1.0.16"->"SMP-2.0";
+ "simtg-2A.2.6"->"ace-6.4.3";
+ "simtg-2A.2.6"->"sqlite-3.23.1";
+ "simtg-2A.2.6"->"zeromq-4.0.3";
+}
+@enddot
+#}
     }
   }
   {section %title=Documentation module

@@ -52,7 +52,7 @@
 \setlength\tabcolsep{0.2cm}
 
 % ---------------------------------------------------------------------
-% Bullet ist environment
+% Bullet environment
 \newenvironment{HEMLitemize}
 { \begin{itemize}
     \setlength{\itemsep}{0pt}
@@ -60,17 +60,20 @@
     \setlength{\parsep}{0pt}     }
 { \end{itemize}                  }
 
+
+% ---------------------------------------------------------------------
+% Table envirionment and counter handling 
 \newcounter{HEMLtable}
+\newcounter{HEMLbakTable}
 \setcounter{HEMLtable}{0}
 \newenvironment{HEMLtable}[1]
 {
-\setcounter{table}{-99}
 \begin{longtable}{#1}
 }
 {
 \end{longtable}
 }
-\setcounter{table}{-99}
+\setcounter{table}{-999}
 
 % new counter for referenced docs.
 \newcounter{absCounter}
@@ -464,8 +467,6 @@
     \HEMLlstlistoflistings
     \setlength{\parskip}{0.2cm}
 }
-
-\renewcommand{\HEMLlstlistoflistings}{\lstlistoflistings}
 
 \def\maketitle{
 \setcounter{tocdepth}{6}

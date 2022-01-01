@@ -12,7 +12,7 @@
 \usepackage{fancybox}
 \usepackage{multirow}
 \usepackage{longtable}
-\usepackage{tabulary}
+\usepackage{calc}
 \usepackage{ifthen}
 \usepackage{listings}
 \usepackage[htt]{hyphenat}
@@ -23,7 +23,9 @@
 \usepackage[hidelinks]{hyperref}
 \hypersetup{pdftex,colorlinks=true,linkcolor=black,citecolor=black,urlcolor=blue}
 \usepackage{hypcap}
-% Page layout (geometry) ------------------------------------------------------------
+
+% ---------------------------------------------------------------------
+% Page layout (geometry) 
 \setlength{\paperwidth}{29.7cm}
 \setlength{\paperheight}{16cm}
 \setlength{\textwidth}{27.7cm}
@@ -41,38 +43,31 @@
 \setlength\listparindent{0pt}
 \setlength\itemindent{0pt}
 \setlength\leftmargin{0pt}
+\setlength\tabcolsep{0.2cm}
 
-% inspired by ltabulary env (from https://tex.stackexchange.com/questions/78075/multi-page-with-tabulary)
-\makeatletter
-\def\HEMLtable{
-\def\endfirsthead{\\}
-\def\endhead{\\}
-\def\endfoot{\\}
-\def\endlastfoot{\\}
-\def\tabulary{
-  \def\TY@final{
-\def\endfirsthead{\LT@end@hd@ft\LT@firsthead}
-\def\endhead{\LT@end@hd@ft\LT@head}
-\def\endfoot{\LT@end@hd@ft\LT@foot}
-\def\endlastfoot{\LT@end@hd@ft\LT@lastfoot}
-\longtable}
-  \let\endTY@final\endlongtable
-  \TY@tabular}
-\dimen@\columnwidth
-\advance\dimen@-\LTleft
-\advance\dimen@-\LTright
-\tabulary\dimen@}
-
-\def\endHEMLtable{\endtabulary
-\addtocounter{table}{-1}}
-
-\makeatother
+% ---------------------------------------------------------------------
+% Bullet environment
 \newenvironment{HEMLitemize}
 { \begin{itemize}
     \setlength{\itemsep}{0pt}
     \setlength{\parskip}{0pt}
     \setlength{\parsep}{0pt}     }
 { \end{itemize}                  }
+
+% ---------------------------------------------------------------------
+% Table envirionment and counter handling 
+\newcounter{HEMLtable}
+\newcounter{HEMLbakTable}
+\setcounter{HEMLtable}{0}
+\newenvironment{HEMLtable}[1]
+{
+\begin{longtable}{#1}
+}
+{
+\end{longtable}
+}
+\setcounter{table}{-999}
+
 
 \newcommand{\HEMLoddRow}{\rowcolor{blue!8}}
 \newcommand{\HEMLevenRow}{\rowcolor{blue!4}}

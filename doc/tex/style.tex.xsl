@@ -51,45 +51,60 @@ select="substring-after($text,$from)"/>
 -->
 <xsl:template name="formatText">
  <xsl:param name="text"/>
+ <xsl:param name="stepC"><xsl:call-template name="strreplace">
+  <xsl:with-param name="text" select="$text"/>
+  <xsl:with-param name="from" select="'\'"/>
+  <xsl:with-param name="to" select="'\\'"/>
+ </xsl:call-template></xsl:param>
+ <xsl:param name="stepB"><xsl:call-template name="strreplace">
+  <xsl:with-param name="text" select="$stepC"/>
+  <xsl:with-param name="from" select="'{'"/>
+  <xsl:with-param name="to" select="'\{'"/>
+ </xsl:call-template></xsl:param>
+ <xsl:param name="stepA"><xsl:call-template name="strreplace">
+  <xsl:with-param name="text" select="$stepB"/>
+  <xsl:with-param name="from" select="'}'"/>
+  <xsl:with-param name="to" select="'\}'"/>
+ </xsl:call-template></xsl:param>
  <xsl:param name="step1"><xsl:call-template name="strreplace">
-  <xsl:with-param name="text" select="$text"/>      
-  <xsl:with-param name="from" select="'&amp;'"/>        
-  <xsl:with-param name="to" select="'\&amp;'"/>     
+  <xsl:with-param name="text" select="$stepA"/>
+  <xsl:with-param name="from" select="'&amp;'"/>
+  <xsl:with-param name="to" select="'\&amp;'"/>
  </xsl:call-template></xsl:param>
  <xsl:param name="step2"><xsl:call-template name="strreplace">
-  <xsl:with-param name="text" select="$step1"/>     
-  <xsl:with-param name="from" select="'_'"/>        
-  <xsl:with-param name="to" select="'\_'"/>     
+  <xsl:with-param name="text" select="$step1"/>
+  <xsl:with-param name="from" select="'_'"/>
+  <xsl:with-param name="to" select="'\_'"/>
  </xsl:call-template></xsl:param>
  <xsl:param name="step3"><xsl:call-template name="strreplace">
-  <xsl:with-param name="text" select="$step2"/>     
-  <xsl:with-param name="from" select="'$'"/>        
-  <xsl:with-param name="to" select="'\$'"/>     
+  <xsl:with-param name="text" select="$step2"/>
+  <xsl:with-param name="from" select="'$'"/>
+  <xsl:with-param name="to" select="'\$'"/>
  </xsl:call-template></xsl:param>
  <xsl:param name="step4"><xsl:call-template name="strreplace">
-  <xsl:with-param name="text" select="$step3"/>     
-  <xsl:with-param name="from" select="'^'"/>        
-  <xsl:with-param name="to" select="'\^'"/>     
+  <xsl:with-param name="text" select="$step3"/>
+  <xsl:with-param name="from" select="'^'"/>
+  <xsl:with-param name="to" select="'\^'"/>
  </xsl:call-template></xsl:param>
  <xsl:param name="step5"><xsl:call-template name="strreplace">
-  <xsl:with-param name="text" select="$step4"/>     
-  <xsl:with-param name="from" select="'#'"/>        
-  <xsl:with-param name="to" select="'\#'"/>     
+  <xsl:with-param name="text" select="$step4"/>
+  <xsl:with-param name="from" select="'#'"/>
+  <xsl:with-param name="to" select="'\#'"/>
  </xsl:call-template></xsl:param>
  <xsl:param name="step6"><xsl:call-template name="strreplace">
-  <xsl:with-param name="text" select="$step5"/>     
-  <xsl:with-param name="from" select="'&lt;'"/>     
-  <xsl:with-param name="to" select="'{\textless}'"/>        
+  <xsl:with-param name="text" select="$step5"/>
+  <xsl:with-param name="from" select="'&lt;'"/>
+  <xsl:with-param name="to" select="'{\textless}'"/>
  </xsl:call-template></xsl:param>
  <xsl:param name="step7"><xsl:call-template name="strreplace">
-  <xsl:with-param name="text" select="$step6"/>     
-  <xsl:with-param name="from" select="'&gt;'"/>     
-  <xsl:with-param name="to" select="'{\textgreater}'"/>     
+  <xsl:with-param name="text" select="$step6"/>
+  <xsl:with-param name="from" select="'&gt;'"/>
+  <xsl:with-param name="to" select="'{\textgreater}'"/>
  </xsl:call-template></xsl:param>
  <xsl:param name="step8"><xsl:call-template name="strreplace">
-  <xsl:with-param name="text" select="$step7"/>     
-  <xsl:with-param name="from" select="'§'"/>     
-  <xsl:with-param name="to" select="'{\S}'"/>     
+  <xsl:with-param name="text" select="$step7"/>
+  <xsl:with-param name="from" select="'§'"/>
+  <xsl:with-param name="to" select="'{\S}'"/>
  </xsl:call-template></xsl:param>
  <xsl:value-of select="$step8"/>
 </xsl:template>
@@ -275,9 +290,11 @@ TBD<xsl:value-of select="count(preceding::tbd)+1"/> &amp; \S\ref{tbd.<xsl:value-
 {\small
 </xsl:if>
 <xsl:if test="@title!=''">
+\setcounter{HEMLbakTable}{\thetable}
 \setcounter{table}{\theHEMLtable}
 \addtocounter{HEMLtable}{1}
 \captionof{table}{<xsl:apply-templates select="@title"/>}
+\setcounter{table}{\theHEMLbakTable}
 </xsl:if>
 <xsl:if test="@xref!=''">\label{<xsl:value-of select="@xref"/>}</xsl:if>
 \begin{HEMLtable}{|<xsl:choose>
@@ -408,7 +425,7 @@ TBD<xsl:value-of select="count(preceding::tbd)+1"/> &amp; \S\ref{tbd.<xsl:value-
 \lstset{language=<xsl:value-of select="$lng"/>}
 \begin{lstlisting}[xleftmargin=0.5cm<xsl:choose><xsl:when 
     test="@title!=''">,caption=<xsl:apply-templates select="@title"/></xsl:when><xsl:otherwise>,nolol</xsl:otherwise></xsl:choose><xsl:if test="@size!=''">,basicstyle=\<xsl:value-of select="@size"/></xsl:if><xsl:if test="@xref!=''">,label=<xsl:value-of select="@xref"/></xsl:if>]<xsl:text>
-</xsl:text><xsl:value-of select="pre/text()"/><xsl:text>
+</xsl:text><xsl:for-each select="pre"><xsl:value-of select="text()"/></xsl:for-each><xsl:text>
 </xsl:text>\end{lstlisting}
 </xsl:template>
 <!-- **************************************************

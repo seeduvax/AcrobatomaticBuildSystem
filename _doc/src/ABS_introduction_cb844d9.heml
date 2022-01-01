@@ -194,7 +194,7 @@ checkdep % % display application dependency graph
 Perform the following steps:
   - create new directory and enter the new directory.
   - create app.cfg file and set into the following configuration parameters: {kw APPNAME}, {kw VERSION}, {kw VABS}, {kw ABS_REPO}
-  - copy the ABS {a %href=http://mspc6269/dist/noarch/abs-2.0-bootstrap.mk %% {kw abs-2.0-bootstrap.mk} } file as {kw Makefile} in the directory.
+  - copy the ABS {a %href=https://github.com/seeduvax/AcrobatomaticBuildSystem/blob/abs-3.3/core/bootstrap.mk %%bootstrap.mk} file as {kw Makefile} in the directory.
   - use ABS features create modules and C++ classes and unit tests.
   - Build, run and test the project.
   - Build the deliverable packages.
