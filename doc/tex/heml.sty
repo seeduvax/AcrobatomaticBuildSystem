@@ -450,13 +450,20 @@
     }
 }
 
+\newcommand{\HEMLlistoffigures}{}
+\newcommand{\HEMLlistoftables}{}
+\newcommand{\HEMLlstlistoflistings}{}
+
 \newcommand{\HEMLsummaryPage}{
     \def\contentsname{S u m m a r y}
     \tableofcontents
-    \listoffigures
-    \listoftables
+    \HEMLlistoffigures
+    \HEMLlistoftables
+    \HEMLlstlistoflistings
     \setlength{\parskip}{0.2cm}
 }
+
+\renewcommand{\HEMLlstlistoflistings}{\lstlistoflistings}
 
 \def\maketitle{
 \setcounter{tocdepth}{6}

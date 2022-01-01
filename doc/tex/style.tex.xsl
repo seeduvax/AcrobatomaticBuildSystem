@@ -402,10 +402,13 @@ TBD<xsl:value-of select="count(preceding::tbd)+1"/> &amp; \S\ref{tbd.<xsl:value-
    <xsl:otherwise><xsl:value-of select="@language"/></xsl:otherwise>
  </xsl:choose></xsl:param>
 \lstset{language=<xsl:value-of select="$lng"/>}
-\begin{lstlisting}[xleftmargin=0.5cm<xsl:if 
-    test="@title!=''">,caption=<xsl:apply-templates select="@title"/></xsl:if><xsl:if test="@size!=''">,basicstyle=\<xsl:value-of select="@size"/></xsl:if><xsl:if test="@xref!=''">,label=<xsl:value-of select="@xref"/></xsl:if>]<xsl:text>
+\begin{lstlisting}[xleftmargin=0.5cm<xsl:choose><xsl:when 
+    test="@title!=''">,caption=<xsl:apply-templates select="@title"/></xsl:when><xsl:otherwise>,nolol</xsl:otherwise></xsl:choose><xsl:if test="@size!=''">,basicstyle=\<xsl:value-of select="@size"/></xsl:if><xsl:if test="@xref!=''">,label=<xsl:value-of select="@xref"/></xsl:if>]<xsl:text>
 </xsl:text><xsl:value-of select="pre/text()"/><xsl:text>
 </xsl:text>\end{lstlisting}
+<xsl:if test="not(@title!='')">
+\addtocounter{lstlisting}{-1}
+</xsl:if>
 </xsl:template>
 <!-- **************************************************
      Notes
@@ -510,6 +513,15 @@ TBD<xsl:value-of select="count(preceding::tbd)+1"/> &amp; \S\ref{tbd.<xsl:value-
     \renewcommand{\HEMLrevisiontable}{
     <xsl:apply-templates select="history/edition"/>
     }
+    <xsl:if test="count(.//fig[@title!=''])">
+    \renewcommand{\HEMLlistoffigures}{\listoffigures}
+    </xsl:if>
+    <xsl:if test="count(.//table[@title!=''])">
+    \renewcommand{\HEMLlistoftables}{\listoftables}
+    </xsl:if>
+    <xsl:if test="count(.//code[@title!=''])">
+    \renewcommand{\HEMLlstlistoflistings}{\lstlistoflistings}
+    </xsl:if>
     
     \renewcommand{\HEMLtitle}{<xsl:apply-templates select="@title"/><xsl:apply-templates select="title/text()"/>}
     \title{<xsl:apply-templates select="@title"/><xsl:apply-templates select="title/text()"/>}
