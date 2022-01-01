@@ -60,14 +60,17 @@
     \setlength{\parsep}{0pt}     }
 { \end{itemize}                  }
 
+\newcounter{HEMLtable}
+\setcounter{HEMLtable}{0}
 \newenvironment{HEMLtable}[1]
 {
+\setcounter{table}{-99}
 \begin{longtable}{#1}
 }
 {
 \end{longtable}
-\addtocounter{table}{-1}
 }
+\setcounter{table}{-99}
 
 % new counter for referenced docs.
 \newcounter{absCounter}
@@ -446,7 +449,6 @@
     \hline
     \end{HEMLtable}
     % remove from table numbering
-    \addtocounter{table}{-1}
     }
 }
 
@@ -487,4 +489,3 @@
 \clearpage
 %\pagestyle{Standard}
 }
-\setcounter{table}{1}

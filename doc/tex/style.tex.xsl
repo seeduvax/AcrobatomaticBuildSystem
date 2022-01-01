@@ -274,7 +274,11 @@ TBD<xsl:value-of select="count(preceding::tbd)+1"/> &amp; \S\ref{tbd.<xsl:value-
 \begin{landscape}
 {\small
 </xsl:if>
-<xsl:if test="@title!=''">\captionof{table}{<xsl:apply-templates select="@title"/>}</xsl:if>
+<xsl:if test="@title!=''">
+\setcounter{table}{\theHEMLtable}
+\addtocounter{HEMLtable}{1}
+\captionof{table}{<xsl:apply-templates select="@title"/>}
+</xsl:if>
 <xsl:if test="@xref!=''">\label{<xsl:value-of select="@xref"/>}</xsl:if>
 \begin{HEMLtable}{|<xsl:choose>
 <xsl:when test="count(./tr[1]/th[@w!=''])+count(./tr[1]/td[@w!='']) &gt; 0">
@@ -406,9 +410,6 @@ TBD<xsl:value-of select="count(preceding::tbd)+1"/> &amp; \S\ref{tbd.<xsl:value-
     test="@title!=''">,caption=<xsl:apply-templates select="@title"/></xsl:when><xsl:otherwise>,nolol</xsl:otherwise></xsl:choose><xsl:if test="@size!=''">,basicstyle=\<xsl:value-of select="@size"/></xsl:if><xsl:if test="@xref!=''">,label=<xsl:value-of select="@xref"/></xsl:if>]<xsl:text>
 </xsl:text><xsl:value-of select="pre/text()"/><xsl:text>
 </xsl:text>\end{lstlisting}
-<xsl:if test="not(@title!='')">
-\addtocounter{lstlisting}{-1}
-</xsl:if>
 </xsl:template>
 <!-- **************************************************
      Notes
