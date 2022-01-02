@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><cr id="40dcbefebdc3ddb298306d3b639c90ecdbb991135cf30f864d5918b10889ce09" state="working">
+<?xml version="1.0" encoding="UTF-8"?><cr id="40dcbefebdc3ddb298306d3b639c90ecdbb991135cf30f864d5918b10889ce09" state="closed" delivered="abs-3.3.7">
     <title>Starting from debian 10, no more background color in table of pdf generated from heml.</title>
     <reporter>sdevaux</reporter>
     <creation>2021-12-10 17:00:47+01:00</creation>
