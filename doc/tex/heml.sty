@@ -442,10 +442,13 @@
 
 \newcommand{\HEMLhistoryPage}{
     {\fontsize{11}{14}\selectfont
-    \begin{HEMLtable}{|p{1.5cm}|p{2cm}|p{\linewidth-5cm}|}
+    \begin{HEMLtable}{|p{1.8cm}|p{2cm}|p{\linewidth-5cm}|}
     \hline
-    \multicolumn{3}{|c|}{\multirow{2}{\linewidth-0.5cm}{\fontsize{14}{14}\selectfont \centering{\HEMLhistoryPageTitle}}}\\
-    \multicolumn{3}{|c|}{} \\
+    \multicolumn{3}{|c|}{
+        \parbox{\linewidth} { 
+            \smallskip\smallskip \fontsize{14}{14}\selectfont \centering{\HEMLhistoryPageTitle} \smallskip\smallskip
+        }
+    }\\
     \hline
     \textbf{\HEMLhistoryPageEditionNumberTitle} & \textbf{Date} & \textbf{\HEMLhistoryPageMainReasonsTitle} \\
     \HEMLrevisiontable
