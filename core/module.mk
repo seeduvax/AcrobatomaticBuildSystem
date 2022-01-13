@@ -22,13 +22,14 @@ LD=
 SPACECHAR= 
 
 # Buildcript capabilities
-# introduced in buildscrip 0.4, may be used to have some to have some fallback
+# introduced in buildscrip 0.4, may be used to have some fallback
 # behavior to support several buildscript versions from imported precompiled
 # dist package.
 # - linklib : independant extlib's CFLAGS/LDFLAGS settings, see RD_TEA332-776
 BUILDSCRIPTS_CAPS:=linklib
 
-SRCFILES:=$(shell find src -type f 2>/dev/null | grep -v "/\.")
+# xtype permit to get symbolic links too. Important for fileset module type.
+SRCFILES:=$(shell find src -xtype f 2>/dev/null | grep -v "/\.")
 # initialize variable that must not be forwared in recursive make call
 COBJS:=
 CPPOBJS:=

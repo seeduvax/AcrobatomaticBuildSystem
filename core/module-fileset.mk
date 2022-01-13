@@ -6,14 +6,14 @@ TARGETFILES=$(patsubst src/%,$(TRDIR)/%,$(SRCFILES))
 $(TRDIR)/bin/%: src/bin/%
 	@$(ABS_PRINT_info) "Publishing $^..."
 	@mkdir -p $(@D)
-	@cp $^ $@
+	@cp $(COPYOPTIONS) $^ $@
 	@$(call executeFiltering, $<, $@)
 	@chmod a+x $@
 
 $(TRDIR)/%: src/% 
 	@$(ABS_PRINT_info) "Publishing $^..."
 	@mkdir -p $(@D)
-	@cp $^ $@
+	@cp $(COPYOPTIONS) $^ $@
 	@$(call executeFiltering, $<, $@)
 
 all-impl::$(TARGETFILES) etc
