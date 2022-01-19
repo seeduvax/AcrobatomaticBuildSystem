@@ -69,9 +69,26 @@ BUILDNUM=null
 # ---------------------------------------------------------------------
 # application and modules parameteres
 # ---------------------------------------------------------------------
-# automatic platform identification.
-ifeq ($(SYSNAME),)
-ABS_GET_OS_DESCR:=LSBRCMD=`which lsb_release 2>/dev/null` ;\
+##  - BUILDROOT: build root directory
+BUILDROOT?=$(PRJROOT)/build
+HOSTNAME?=$(shell hostname)
+
+ABS_SCM_TYPE:=null
+
+$(BUILDROOT)/.abs/vars.mk:
+	mkdir -p $(@D)
+	@$(ABS_PRINT_info) "Generating workspace static global parameters..."
+	@echo "" > $@
+	@svn info > /dev/null 2>&1 && echo "ABS_SCM_TYPE:=svn" >> $@|| :
+	@git status > /dev/null 2>&1 && echo "ABS_SCM_TYPE:=git" >> $@ || :
+
+include $(BUILDROOT)/.abs/vars.mk
+
+$(BUILDROOT)/.abs/$(HOSTNAME)-vars.mk:
+	mkdir -p $(@D)
+	@$(ABS_PRINT_info) "Generating workspace and host related static global parameters..."
+	@echo "" > $@
+	@LSBRCMD=`which lsb_release 2>/dev/null` ;\
 	release="" ;\
 	distId="" ;\
 	if [ "$$LSBRCMD" != "" ] ;\
@@ -86,15 +103,14 @@ ABS_GET_OS_DESCR:=LSBRCMD=`which lsb_release 2>/dev/null` ;\
 		distId=`uname -o | sed 's:[/ ]:_:g'` ;\
 	fi ;\
 	case "$$distId"_"$$release" in \
-		_) echo "UnknownArch" ;;\
+		_) echo "SYSNAME?=UnknownArch" >> $@ ;;\
 		Msys*|Cygwin*) echo "Windows";;\
-		*) echo "$$distId"_"$$mrelease";;\
+		*) echo "SYSNAME?=$$distId"_"$$mrelease" >> $@;;\
 	esac
-SYSNAME:=$(shell $(ABS_GET_OS_DESCR))
-endif
-ifeq ($(HWNAME),)
-HWNAME:=$(shell uname -m)
-endif
+	@echo "HWNAME?="`uname -m` >> $@
+
+include $(BUILDROOT)/.abs/$(HOSTNAME)-vars.mk
+
 ifeq ($(ARCH),)
 ##  - ARCH: Architecture (ex: Debian_8_x86_64)
 ARCH:=$(SYSNAME)_$(HWNAME)
@@ -106,8 +122,6 @@ PATH_SEP:=:
 endif
 
 
-##  - BUILDROOT: build root directory
-BUILDROOT?=$(PRJROOT)/build
 ##  - TRDIR: target root directory (where the installed product image is stored)
 TRDIR?=$(BUILDROOT)/$(ARCH)/$(MODE)
 TTARGETDIR?=$(TRDIR)/test
@@ -119,12 +133,9 @@ VMEDIUM:=$(word 2,$(VERSION_FIELDS))
 VMINOR:=$(word 3,$(VERSION_FIELDS))
 VSUFFIX:=$(patsubst %,.%,$(word 4,$(VERSION_FIELDS)))
 
-ABS_SCM_TYPE:=null
-ifneq ($(wildcard $(PRJROOT)/.git),)
-ABS_SCM_TYPE:=git
-else ifneq ($(wildcard $(PRJROOT)/.svn),)
-ABS_SCM_TYPE:=svn
-endif
+
+
+
 include $(ABSROOT)/core/scm-$(ABS_SCM_TYPE).mk
 
 # if version is overloaded, consider workspace is tag.
