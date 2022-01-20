@@ -258,6 +258,8 @@ include(<xsl:value-of select="@src"/>.txt)
   </xsl:for-each>
   </table>
 </xsl:template>
+
+<!-- upward/downward requirement matrix -->
 <xsl:template match="req" mode="upindex">
 <a href="#req.{@id}"><xsl:value-of select="@id"/></a>
 </xsl:template>
@@ -265,6 +267,8 @@ include(<xsl:value-of select="@src"/>.txt)
   <xsl:param name="rid"><xsl:value-of select="."/></xsl:param>
   <span class="xref"><xsl:attribute name="title"><xsl:value-of select="//req[@id=$rid]"/></xsl:attribute><a href="#req.{@id}"><xsl:value-of select="$rid"/></a></span>
 </xsl:template>
+
+<!-- internal requirement coverage matrix -->
 <xsl:template match="req" mode="index">
 <xsl:if test="@id!=''">
   <xsl:variable name="rid"><xsl:value-of select="@id"/></xsl:variable>
@@ -282,6 +286,8 @@ include(<xsl:value-of select="@src"/>.txt)
   </td></tr>
 </xsl:if>
 </xsl:template>
+
+<!-- Summary table -->
 <xsl:template match="*" mode="index">
 <xsl:param name="num"><xsl:number count="section|references|definitions" level="multiple" format="1.1"/></xsl:param>
 <a href="#{$num}">§<xsl:value-of select="$num"/> </a>

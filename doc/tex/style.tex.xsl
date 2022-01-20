@@ -871,7 +871,9 @@ Unchecked requirements: <xsl:apply-templates select="req|assert[translate(@statu
 </xsl:template>
 <!-- **********************************************************
      indexs
--->     
+-->  
+   
+<!-- internal requirement coverage matrix -->
 <xsl:template match="index[@type='req']">
 \begin{HEMLtable}{|p{0.3\linewidth-2\tabcolsep}|p{0.7\linewidth-2\tabcolsep}|}
 \hline
@@ -903,6 +905,29 @@ Unchecked requirements: <xsl:apply-templates select="req|assert[translate(@statu
   \\  
 </xsl:if>
 </xsl:template>
+
+<!-- -->
+<xsl:template match="index[@type='upreq']">
+\begin{HEMLtable}{|p{0.3\linewidth-2\tabcolsep}|p{0.7\linewidth-2\tabcolsep}|}
+\hline
+\HEMLoddHeadCell
+\textbf{Upward req.}&amp; \HEMLoddHeadCell \textbf{Downward req.} \\
+\endhead
+  <xsl:for-each select="//req/up[not(.=preceding::*)]">
+	<xsl:sort/>
+<xsl:variable name="upreqid"><xsl:value-of select="."/></xsl:variable>
+  <xsl:choose>
+	<xsl:when test="(position() + 1) mod 2 = 0">\HEMLevenRow</xsl:when>
+	<xsl:otherwise>\HEMLoddRow</xsl:otherwise>
+  </xsl:choose><xsl:text>
+</xsl:text><xsl:value-of select="$upreqid"/> &amp; <xsl:apply-templates select="//up[text()=$upreqid]/.." mode="upindex"/> \\
+  </xsl:for-each>
+\hline
+\end{HEMLtable}
+</xsl:template>
+<xsl:template match="req" mode="upindex"><xsl:apply-templates select="@id"/><xsl:text> </xsl:text></xsl:template>
+
+<!-- -->
 <xsl:template match="*" mode="index">
 <xsl:param name="num"><xsl:number count="section|references|definitions" level="multiple" format="1.1"/></xsl:param>
 \S<xsl:value-of select="$num"/><xsl:text> </xsl:text>
