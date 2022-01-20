@@ -212,13 +212,19 @@ include(<xsl:value-of select="@src"/>.txt)
 <!--************************************************
      	requirements
 -->
-<xsl:template match="req">
+<xsl:template match="up"><xsl:value-of select="."/>&#160;</xsl:template><xsl:template match="req">
 <xsl:choose>
 <xsl:when test="@id!=''">
 <div class="req">
 <table><tr>
-<th><a name="req.{@id}"><xsl:value-of select="@id"/></a></th><td><xsl:value-of select="."/></td>
-</tr></table>
+<th><a name="req.{@id}"><xsl:value-of select="@id"/></a></th><td><xsl:apply-templates select="text()|*[not(self::up)]"/></td>
+</tr>
+<xsl:if test="count(up)&gt;0">
+<tr>
+<th>Upward req.</th><td><xsl:apply-templates select="up"/></td>
+</tr>
+</xsl:if>
+</table>
 </div>
 </xsl:when>
 <xsl:otherwise>
@@ -236,6 +242,24 @@ include(<xsl:value-of select="@src"/>.txt)
   <tr><th>Requirement</th><th>Referenced by</th></tr>
   <xsl:apply-templates select="/document/section//req" mode="index"/>
   </table>
+</xsl:template>
+<xsl:template match="index[@type='upreq']">
+  <table>
+  <tr><th>Upward Req.</th><th>Downward Req.</th></tr>
+  <xsl:for-each select="//req/up[not(.=preceding::*)]">
+	<xsl:sort/>
+<xsl:variable name="upreqid"><xsl:value-of select="."/></xsl:variable>
+  <xsl:variable name="trclass"><xsl:choose>
+	<xsl:when test="(position() + 1) mod 2 = 0">even</xsl:when>
+	<xsl:otherwise>odd</xsl:otherwise>
+  </xsl:choose></xsl:variable>
+  <tr class="{$trclass}"><td><xsl:value-of select="$upreqid"/></td>
+      <td><xsl:apply-templates select="//up[text()=$upreqid]/.." mode="upindex"/></td></tr>
+  </xsl:for-each>
+  </table>
+</xsl:template>
+<xsl:template match="req" mode="upindex">
+<a href="#req.{@id}"><xsl:value-of select="@id"/></a>
 </xsl:template>
 <xsl:template name="reqref">
   <xsl:param name="rid"><xsl:value-of select="."/></xsl:param>

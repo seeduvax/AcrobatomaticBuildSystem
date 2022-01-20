@@ -65,9 +65,17 @@ Add here an include example
 {def %entry=bird %%Lifeform that can fly and make eggs}
   }
   {section %title=Requirements
-{req %id=req.1 %%A requirement shall be a short sentance defining a single caracteristic of the specified object.}
+{req %id=req.1 
+{up uprec.A}
+{up uprec.C}
+A requirement shall be a short sentance defining a single caracteristic of the specified {kw object}.
+}
 This is not a requirement, but just companion text to provide a better understanding of the requirements.
-{req %id=req.2 %%A sentance without the verb shall is not a requirement.}
+{req %id=req.2
+{up uprec.C}
+{up uprec.B}
+A sentance without the verb shall is not a requirement.
+}
 {req %id=req.3 %%Each requirement shall have a unique identifier}
   }
   {section %title=Highlights
@@ -257,6 +265,7 @@ System in operating state.
 {appendices
 {section %title=Requirement references
   {index %type=req}
+  {index %type=upreq}
 }
 {section %title=Open points
   {index %type=tbd}
