@@ -258,22 +258,26 @@ endif
 ifeq ($(filter +%,$(MAKECMDGOALS)),$(MAKECMDGOALS))
 ## - +<heml_doc_name>.<pdf|html>: force generation of a single heml document
 ifeq ($(filter %.pdf,$(MAKECMDGOALS)),$(MAKECMDGOALS))
+_ABS_FORCED_TARGET:=$(patsubst +%.pdf,$(TRDIR)/share/doc/$(APPNAME)/pdf/%.pdf,$(MAKECMDGOALS))
 # tex/tdf case
 # delete output tex and pdf file to force gereration with the next target below
-_ABS_FORCE_SHELL:=$(shell rm -rf $(patsubst +%.pdf,$(TRDIR)/share/doc/$(APPNAME)/pdf/%.pdf,$(MAKECMDGOALS)) $(patsubst +%.pdf,$(TRDIR)/share/doc/$(APPNAME)/tex/%.tex,$(MAKECMDGOALS)) ; echo "deleted")
+_ABS_FORCE_SHELL:=$(shell rm -rf $(_ABS_FORCED_TARGET) $(patsubst +%.pdf,$(TRDIR)/share/doc/$(APPNAME)/tex/%.tex,$(MAKECMDGOALS)) ; echo "deleted")
 
 # translate short target to full path target
-+%.pdf: $(TRDIR)/share/doc/$(APPNAME)/pdf/%.pdf
+#+%.pdf: $(TRDIR)/share/doc/$(APPNAME)/pdf/%.pdf
+$(MAKECMDGOALS):
+	echo $@
 	@:
 
 else
 # html case
+_ABS_FORCED_TARGET:=$(patsubst +%.html,$(TRDIR)/share/doc/$(APPNAME)/html/%.html,$(MAKECMDGOALS))
 # delete html file to force gereration with the next target below
-_ABS_FORCE_SHELL:=$(shell rm -rf $(patsubst +%.html,$(TRDIR)/share/doc/$(APPNAME)/html/%.html,$(MAKECMDGOALS)))
-
-# translate short target to full path target
-+%.html: $(TRDIR)/share/doc/$(APPNAME)/html/%.html
-	@:
+_ABS_FORCE_SHELL:=$(shell rm -rf $(_ABS_FORCED_TARGET))
 
 endif
+# translate short target to full path target
+$(MAKECMDGOALS): $(_ABS_FORCED_TARGET)
+	@:
+
 endif
