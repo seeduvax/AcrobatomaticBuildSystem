@@ -236,6 +236,8 @@ else
 endif
 
 
+## - procreport <heml document>: generate a execution report from the procedures
+##   found in the heml document provided as argument.
 ifeq ($(word 1,$(MAKECMDGOALS)),procreport)
 goalarg:=$(word 2,$(MAKECMDGOALS))
 

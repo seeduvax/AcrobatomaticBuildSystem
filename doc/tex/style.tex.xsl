@@ -821,8 +821,8 @@ Checksum function: <xsl:value-of select="@type"/>
 \HEMLevenRow
   </xsl:otherwise>
 </xsl:choose>
-Operation \#<xsl:value-of select="@id"/> &amp;
-\emph{<xsl:value-of select="@summary"/>}<xsl:text>
+Operation \#<xsl:apply-templates select="@id"/> &amp;
+\emph{<xsl:apply-templates select="@summary"/>}<xsl:text>
 
 </xsl:text><xsl:apply-templates/>
 &amp; \textbf{\color{<xsl:value-of select="$statusColor"/>}<xsl:value-of select="@status"/>} \\
@@ -842,8 +842,8 @@ Operation \#<xsl:value-of select="@id"/> &amp;
 \HEMLevenRow
   </xsl:otherwise>
 </xsl:choose>
-Assert \#<xsl:value-of select="@id"/> &amp;
-\emph{<xsl:value-of select="@summary"/>}<xsl:text>
+Assert \#<xsl:apply-templates select="@id"/> &amp;
+\emph{<xsl:apply-templates select="@summary"/>}<xsl:text>
 
 </xsl:text><xsl:apply-templates select="req"/><xsl:text>
 

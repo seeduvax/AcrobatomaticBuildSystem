@@ -239,7 +239,7 @@ Code example is in §{xref SCode}.
     {req req.1}
     {req req.2}
     {operation
-1st action to be performed
+1st action to be performed with {?k kw1}
     }
     {assert
       {req req.2}
