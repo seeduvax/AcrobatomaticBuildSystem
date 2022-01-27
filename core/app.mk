@@ -128,7 +128,7 @@ clean:
 	@$(ABS_PRINT_info) "Removing tmp"
 	@rm -rf tmp
 
-$(TRDIR)/obj/.moddeps.mk:
+$(BUILDROOT)/.abs/moddeps.mk:
 	@$(ABS_PRINT_info) "Gererating module dependencies file."
 	@mkdir -p $(@D)
 	@for mod in $(patsubst mod.%,%,$(MODULES_DEPS)) ; do \
@@ -139,7 +139,7 @@ $(TRDIR)/obj/.moddeps.mk:
 mod.%::
 	make $(MMARGS) -C $* RMODDEP=0
 
-include $(TRDIR)/obj/.moddeps.mk
+include $(BUILDROOT)/.abs/moddeps.mk
 
 # depends on mod.% to compile dependencies of module.
 testmod.%: mod.%

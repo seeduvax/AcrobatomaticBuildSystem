@@ -75,39 +75,13 @@ HOSTNAME?=$(shell hostname)
 
 ABS_SCM_TYPE:=null
 
-$(BUILDROOT)/.abs/vars.mk:
-	mkdir -p $(@D)
-	@$(ABS_PRINT_info) "Generating workspace static global parameters..."
-	@echo "" > $@
-	@svn info > /dev/null 2>&1 && echo "ABS_SCM_TYPE:=svn" >> $@|| :
-	@git status > /dev/null 2>&1 && echo "ABS_SCM_TYPE:=git" >> $@ || :
+ifeq ($(wildcard $(BUILDROOT)/.abs/*.mk),)
+$(info $(shell $(ABS_PRINT_info) "Generating worskpace variables files."))
+_ABS_FAKE_VAR:=$(shell make -f $(ABSROOT)/core/genvars.mk BUILDROOT=$(BUILDROOT) HOSTNAME=$(HOSTNAME))
+endif
 
 include $(BUILDROOT)/.abs/vars.mk
 
-$(BUILDROOT)/.abs/$(HOSTNAME)-vars.mk:
-	mkdir -p $(@D)
-	@$(ABS_PRINT_info) "Generating workspace and host related static global parameters..."
-	@echo "" > $@
-	@LSBRCMD=`which lsb_release 2>/dev/null` ;\
-	release="" ;\
-	distId="" ;\
-	if [ "$$LSBRCMD" != "" ] ;\
-	then \
-		distId=`$$LSBRCMD -is | sed 's/ /_/g'`;\
-	fi ;\
-	if [ ! "$$distId" = "" ] ;\
-	then \
-		release=`$$LSBRCMD -rs` ;\
-		mrelease=`echo $$release | cut -f 1 -d '.'` ;\
-	else \
-		distId=`uname -o | sed 's:[/ ]:_:g'` ;\
-	fi ;\
-	case "$$distId"_"$$release" in \
-		_) echo "SYSNAME?=UnknownArch" >> $@ ;;\
-		Msys*|Cygwin*) echo "Windows";;\
-		*) echo "SYSNAME?=$$distId"_"$$mrelease" >> $@;;\
-	esac
-	@echo "HWNAME?="`uname -m` >> $@
 
 include $(BUILDROOT)/.abs/$(HOSTNAME)-vars.mk
 
