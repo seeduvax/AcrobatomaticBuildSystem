@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<cr id="9ab0aaaa3167790c163dd19dfdb881320fdd413b90b96359210270e6a41d0029" state="open">
+<cr id="9ab0aaaa3167790c163dd19dfdb881320fdd413b90b96359210270e6a41d0029" state="resolved">
 <title>Cannot publish compilation result because cannot find dist or distinstall</title>
 <reporter>m096258</reporter>
 <creation>2022-01-28 09:34:20+01:00</creation>
