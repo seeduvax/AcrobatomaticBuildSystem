@@ -203,9 +203,13 @@ dist/$(APPNAME)-$(VERSION)/import.mk:
 	@rm -rf dist/$(APPNAME)-$(VERSION)/build.log
 
 
-DISTTAR:=tar cvzf dist/$(APPNAME)-$(VERSION).$(ARCH).tar.gz -C dist $(DISTTARFLAGS) $(APPNAME)-$(VERSION)
+DIST_ARCHIVE:=dist/$(APPNAME)-$(VERSION).$(ARCH).tar.gz
+DISTINSTALL_BINARY:=dist/$(APPNAME)-$(VERSION).$(ARCH)-install.bin
+KDISTINSTALL_BINARY:=dist/$(APPNAME)_lkm-$(VERSION)-$(KVERSION)-install.bin
 
-dist/$(APPNAME)-$(VERSION).$(ARCH).tar.gz: dist/$(APPNAME)-$(VERSION)/import.mk
+DISTTAR:=tar cvzf $(DIST_ARCHIVE) -C dist $(DISTTARFLAGS) $(APPNAME)-$(VERSION)
+
+$(DIST_ARCHIVE): dist/$(APPNAME)-$(VERSION)/import.mk
 	@$(DISTTAR)
 
 ##  - echoDID: displays package identifier
@@ -226,7 +230,7 @@ install: dist/$(APPNAME)-$(VERSION)/import.mk
 	test -d dist/$(APPNAME)-$(VERSION)/extlib/$$lib && (tar -C dist/$(APPNAME)-$(VERSION)/extlib/$$file -cf - $(DISTTARFLAGS) --exclude=import.mk --mode=755 . | tar -C $(PREFIX) -xf - ) || cp dist/$(APPNAME)-$(VERSION)/extlib/$$lib $(PREFIX)/lib ; \
 	done
 
-dist/$(APPNAME)-$(VERSION).$(ARCH)-install.bin:
+$(DISTINSTALL_BINARY):
 	@make PREFIX=tmp/$(APPNAME)-$(VERSION) install
 	@tar -C tmp -cvzf tmp/arch.tar.gz $(DISTTARFLAGS) $(INSTALLTARFLAGS) $(APPNAME)-$(VERSION)/
 	@sed -e 's/__appname__/$(APPNAME)/g' $(ABSROOT)/core/install-template.sh |\
@@ -252,16 +256,16 @@ kdistinstall:
 	@false
 
 else
-dist: dist/$(APPNAME)-$(VERSION).$(ARCH).tar.gz
+dist: $(DIST_ARCHIVE)
 
-distinstall: dist/$(APPNAME)-$(VERSION).$(ARCH)-install.bin
+distinstall: $(DISTINSTALL_BINARY)
 
-kdistinstall: dist/$(APPNAME)_lkm-$(VERSION)-$(KVERSION)-install.bin
+kdistinstall: $(KDISTINSTALL_BINARY)
 
 endif
 
 KMODULES:=$(filter-out $(patsubst %,mod.%,$(NOBUILD)),$(patsubst %,mod.%,$(shell ls | grep _lkm)))
-dist/$(APPNAME)_lkm-$(VERSION)-$(KVERSION)-install.bin:
+$(KDISTINSTALL_BINARY):
 	@make TRDIR=$$PWD/dist/$(APPNAME)-$(VERSION) MODE=release $(KMODULES)
 	tar -C dist/$(APPNAME)-$(VERSION) $(DISTTARFLAGS) -cvzf dist/arch.tar.gz etc/ lib/
 	sed -e 's/__app__/$(APPNAME)/g' $(ABSROOT)/core/kinstall-template.sh | sed -e 's/__version__/$(VERSION)/g' | sed -e 's/__kversion__/$(KVERSION)/g' > "$@"
@@ -270,12 +274,12 @@ dist/$(APPNAME)_lkm-$(VERSION)-$(KVERSION)-install.bin:
 	rm dist/arch.tar.gz
 
 pubdist: dist
-	@$(ABS_PRINT_info)  "Publishing dist archive $^ $(USER) on $(DISTREPO)"
-	@scp $(SCPFLAGS) $^ $(DISTREPO)/$(ARCH)/$(APPNAME)-$(VERSION).$(ARCH).tar.gz
+	@$(ABS_PRINT_info)  "Publishing dist archive $(DIST_ARCHIVE) $(USER) on $(DISTREPO)"
+	@scp $(SCPFLAGS) $(DIST_ARCHIVE) $(DISTREPO)/$(ARCH)/$(APPNAME)-$(VERSION).$(ARCH).tar.gz
 
 pubinstall: distinstall
-	@$(ABS_PRINT_info)  "Publishing dist archive $^ $(USER) on $(DISTREPO)"
-	@scp $(SCPFLAGS) $^ $(DISTREPO)/$(ARCH)/$(APPNAME)-$(VERSION).$(ARCH)-install.bin
+	@$(ABS_PRINT_info)  "Publishing dist archive $(DISTINSTALL_BINARY) $(USER) on $(DISTREPO)"
+	@scp $(SCPFLAGS) $(DISTINSTALL_BINARY) $(DISTREPO)/$(ARCH)/$(APPNAME)-$(VERSION).$(ARCH)-install.bin
 
 ##  - cint: full package build, to be used for the continuous integration
 ##    process (for builds from jenkins or any similar tool).
