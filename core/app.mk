@@ -227,7 +227,7 @@ install: dist/$(APPNAME)-$(VERSION)/import.mk
 	@$(ABS_PRINT_info)  "Copying dependencies..."
 	@for lib in `ls dist/$(APPNAME)-$(VERSION)/extlib/ | fgrep -v cppunit-` ; do \
 	$(ABS_PRINT_info) "  Processing $$lib..." ; \
-	test -d dist/$(APPNAME)-$(VERSION)/extlib/$$lib && (tar -C dist/$(APPNAME)-$(VERSION)/extlib/$$file -cf - $(DISTTARFLAGS) --exclude=import.mk --mode=755 . | tar -C $(PREFIX) -xf - ) || cp dist/$(APPNAME)-$(VERSION)/extlib/$$lib $(PREFIX)/lib ; \
+	test -d dist/$(APPNAME)-$(VERSION)/extlib/$$lib && (tar -C dist/$(APPNAME)-$(VERSION)/extlib/$$lib -cf - $(DISTTARFLAGS) --exclude=import.mk --mode=755 . | tar -C $(PREFIX) -xf - ) || cp dist/$(APPNAME)-$(VERSION)/extlib/$$lib $(PREFIX)/lib ; \
 	done
 
 $(DISTINSTALL_BINARY):
