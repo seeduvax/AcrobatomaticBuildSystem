@@ -75,14 +75,17 @@ HOSTNAME?=$(shell hostname)
 
 ABS_SCM_TYPE:=null
 
-ifeq ($(wildcard $(BUILDROOT)/.abs/*.mk),)
+ifeq ($(wildcard $(BUILDROOT)/.abs/vars.mk),)
 $(info $(shell $(ABS_PRINT_info) "Generating worskpace variables files."))
 _ABS_FAKE_VAR:=$(shell make -f $(ABSROOT)/core/genvars.mk BUILDROOT=$(BUILDROOT) HOSTNAME=$(HOSTNAME))
 endif
 
 include $(BUILDROOT)/.abs/vars.mk
 
-
+ifeq ($(wildcard $(BUILDROOT)/.abs/$(HOSTNAME)-vars.mk),)
+$(info $(shell $(ABS_PRINT_info) "Generating host variables files."))
+_ABS_FAKE_VAR:=$(shell make -f $(ABSROOT)/core/genvars.mk BUILDROOT=$(BUILDROOT) HOSTNAME=$(HOSTNAME))
+endif
 include $(BUILDROOT)/.abs/$(HOSTNAME)-vars.mk
 
 ifeq ($(ARCH),)
