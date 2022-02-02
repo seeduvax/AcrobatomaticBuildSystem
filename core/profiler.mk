@@ -44,7 +44,7 @@ endif
 ifneq ($(filter easy_profiler-%,$(PROFILER_TOOL)),)
 PROFILER_FILE:=$(PROFILER_FILE).prof
 CFLAGS+=-DBUILD_WITH_EASY_PROFILER -DPROFILER_COLOR=Green
-LINKLIB=easy_profiler
+LINKLIB+=easy_profiler
 RUNTIME_ENV+=PROFILER_FILE=$(PROFILER_FILE)
 RUNTIME_EPILOG+=test -r $(PROFILER_FILE) && make PROFILER=true profiler PROFILER_ARGS=$(PROFILER_FILE) || $(ABS_PRINT_warning) "Profiler record is missing. Check profiling configuration"
 
