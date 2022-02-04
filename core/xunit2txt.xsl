@@ -38,7 +38,7 @@
 # ---------------------------------------------------------------------
 # Successful tests
 # ---------------------------------------------------------------------
-<xsl:apply-templates select=".//testcase[count(error)=0 and count(failure)=0]"/>
+<xsl:apply-templates select=".//testcase[count(error)=0 and count(failure)=0 and count(skipped)=0]"/>
 # ---------------------------------------------------------------------
 # Disabled tests
 # ---------------------------------------------------------------------
