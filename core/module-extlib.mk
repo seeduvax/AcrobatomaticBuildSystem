@@ -108,11 +108,19 @@ $(NDNA_EXTLIBDIR)/%/import.mk: $(ABSWS_NDNA_EXTLIBDIR)/%/import.mk
 # same for java libraries
 $(NA_EXTLIBDIR)/%.jar: $(ABS_CACHE)/noarch/%.jar
 	@mkdir -p $(@D)
+ifeq ($(ISWINDOWS),true)
+	@cp $^ $@
+else
 	@ln -sf $^ $@
+endif
 
 $(NDNA_EXTLIBDIR)/%.jar: $(ABS_CACHE)/noarch/%.jar
 	mkdir -p $(@D)
+ifeq ($(ISWINDOWS),true)
+	@cp $^ $@
+else
 	@ln -sf $^ $@
+endif
 
 # --------------------------------------------------------------------
 # general purpose noarch file sets
