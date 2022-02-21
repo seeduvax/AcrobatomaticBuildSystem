@@ -23,6 +23,11 @@ Used reference configuration.
        %ref=4.1
     {req req.1}
     {req req.2}
+  {assert %id=0
+          %summary=prerequisite
+          %status=OK
+Everything's OK.
+  }
   {operation %id=1
              %summary=1st action to be performed 
              %status=Done
