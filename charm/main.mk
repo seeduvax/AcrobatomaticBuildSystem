@@ -7,14 +7,15 @@ ifneq ($(ABS_INC_GUARD_CHARM),1)
 ifeq ($(ABS_SCM_TYPE),git)
 ifneq ($(wildcard $(PRJROOT)/.git/hooks),)
 
-$(PRJROOT)/.git/hooks/%: $(ABSROOT)/charm/git_hooks/%
+$(PRJROOT)/.git/hooks/%.d/abs-charm: $(ABSROOT)/charm/git_hooks/%
 	@$(ABS_PRINT_info) "Installing charm git git hook $(patsubst $(PRJROOT)/.git/hooks/%,%,$@)."
+	@mkdir -p $(@D)
 	@cp $^ $@
 	@chmod +x $@
 
-SCM_HOOKS:=$(patsubst $(ABSROOT)/charm/git_hooks/%,$(PRJROOT)/.git/hooks/%,$(wildcard $(ABSROOT)/charm/git_hooks/*))
+CHARM_SCM_HOOKS:=$(patsubst $(ABSROOT)/charm/git_hooks/%,$(PRJROOT)/.git/hooks/%.d/abs-charm,$(wildcard $(ABSROOT)/charm/git_hooks/*))
 
-all: $(SCM_HOOKS)
+$(PRJROOT)/app.cfg: $(CHARM_SCM_HOOKS)
 
 define cr_commit
 	@git add "$1"

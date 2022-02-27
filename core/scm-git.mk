@@ -65,3 +65,21 @@ $(BUILDROOT)/scm/log.xml:
 ## Targets:
 ## - scm-release: build configuration management indexes
 scm-release:: $(patsubst %,$(BUILDROOT)/scm/%, file-list.txt diff.txt log.xml)
+
+# install generic hook to enable plugin and stacking
+ifneq ($(wildcard $(PRJROOT)/.git/hooks),)
+
+$(PRJROOT)/.git/hooks/%: $(ABSROOT)/core/git-dloop-hook.sh
+	@mkdir -p $@.d
+	@cp $^ $@
+	@chmod +x $@
+
+ABS_GIT_HOOKS:=$(patsubst %.sample,%,$(wildcard $(PRJROOT)/.git/hooks/*.sample))
+
+$(PRJROOT)/app.cfg: $(ABS_GIT_HOOKS)
+
+## - cleangithooks: reset git hooks.
+cleangithooks:
+	for hook in $(ABS_GIT_HOOKS); do rm -rf $$hook $$hook.d ; done
+
+endif
