@@ -865,7 +865,7 @@ Assert \#<xsl:apply-templates select="@id"/> &amp;
 <xsl:choose>
    <xsl:when test="$failures!=0">\textbf{\color{hemlKoTextColor}Failures: <xsl:value-of select="$failures"/>}<xsl:if test="count(.//req)&gt;0"><xsl:text>
 
-Unchecked requirements: <xsl:apply-templates select="req|assert[translate(@status,$upperCase,$lowerCase)!='ok' and translate(@status,$upperCase,$lowerCase)!='pass']/req"/></xsl:text></xsl:if></xsl:when>
+Unchecked requirements: </xsl:text><xsl:apply-templates select="req|assert[translate(@status,$upperCase,$lowerCase)!='ok' and translate(@status,$upperCase,$lowerCase)!='pass']/req"/></xsl:if></xsl:when>
    <xsl:otherwise>\textbf{\color{hemlOkTextColor}Pass}</xsl:otherwise>
 </xsl:choose> \\
 </xsl:template>
