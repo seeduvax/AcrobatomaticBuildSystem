@@ -326,8 +326,8 @@ TBD<xsl:value-of select="count(preceding::tbd)+1"/> &amp; \S\ref{tbd.<xsl:value-
 </xsl:template>
 <xsl:template match="tr">
 <xsl:choose>
-  <xsl:when test="position() mod 2 = 1">\HEMLoddRow</xsl:when>
-  <xsl:otherwise>\HEMLevenRow</xsl:otherwise>
+  <xsl:when test="position() mod 2 = 1">\HEMLoddRow<xsl:text> </xsl:text></xsl:when>
+  <xsl:otherwise>\HEMLevenRow<xsl:text> </xsl:text></xsl:otherwise>
 </xsl:choose>
 <xsl:apply-templates mode="cellcontent"
  ><xsl:with-param name="rowpos"><xsl:value-of select="position()"/></xsl:with-param
@@ -343,8 +343,8 @@ TBD<xsl:value-of select="count(preceding::tbd)+1"/> &amp; \S\ref{tbd.<xsl:value-
 <xsl:template match="th" mode="cellcontent">
 <xsl:param name="rowpos">0</xsl:param>
 <xsl:choose>
-  <xsl:when test="$rowpos mod 2 = 1">\HEMLoddHeadCell</xsl:when>
-  <xsl:otherwise>\HEMLevenHeadCell</xsl:otherwise>
+  <xsl:when test="$rowpos mod 2 = 1">\HEMLoddHeadCell<xsl:text> </xsl:text></xsl:when>
+  <xsl:otherwise>\HEMLevenHeadCell<xsl:text> </xsl:text></xsl:otherwise>
 </xsl:choose
 >\textbf{<xsl:apply-templates select="."/>}<xsl:if test="count(following-sibling::*)&gt;0"> &amp;</xsl:if
 ></xsl:template>
@@ -735,7 +735,8 @@ Checksum function: <xsl:value-of select="@type"/>
 <xsl:call-template name="sectionHead">
 	<xsl:with-param name="title"><xsl:if test="name()='check'">Control </xsl:if>procedure <xsl:value-of select="@id"/> - <xsl:apply-templates select="@title"/></xsl:with-param> 
 	<xsl:with-param name="level"><xsl:value-of select="count(ancestor-or-self::section)+count(ancestor-or-self::article)+2"/></xsl:with-param> 
-</xsl:call-template>	
+</xsl:call-template>
+<xsl:if test="@xref!=''">\label{<xsl:value-of select="@xref"/>}</xsl:if>
 <xsl:if test="count(req)&gt;0">
 \HEMLreqref{
 \textbf{Checked requirements}
