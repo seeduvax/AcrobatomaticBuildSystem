@@ -98,6 +98,9 @@ else
 PATH_SEP:=:
 endif
 
+ifneq ($(BUILDCHAIN),)
+include $(ABSWS)/extlib/$(ARCH)/$(BUILDCHAIN)/import.mk
+endif
 
 ##  - TRDIR: target root directory (where the installed product image is stored)
 TRDIR?=$(BUILDROOT)/$(ARCH)/$(MODE)
