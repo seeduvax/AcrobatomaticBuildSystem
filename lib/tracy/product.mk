@@ -34,7 +34,7 @@ all:
 	cd capture/build/unix ; make
 	cd csvexport/build/unix ; make
 	cd profiler/build/unix ; make
-	g++ -shared -o libtracy_cli.so TracyClient.cpp
+	g++ -shared -o libtracy_cli.so -fPIC -DTRACY_ENABLE TracyClient.cpp
 
 install:
 	mkdir -p $(INSTDIR)/bin

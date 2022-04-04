@@ -27,6 +27,8 @@ static TracyCZoneCtx _ctx;
 #define PROFILER_FRAME(name) FrameMarkNamed(name);
 #define PROFILER_PLOT(name,value) TracyPlot(name,value);
 #define PROFILER_SETUP TracyCZoneCtx TracyRegionContext::_ctx;
+#define PROFILER_START
+#define PROFILER_STOP
 #endif
 #endif
 
@@ -46,11 +48,7 @@ static TracyCZoneCtx _ctx;
 #define PROFILER_PLOT(name, value) EASY_VALUE(name, value);
 
 #include <iostream>
-#define PROFILER_SETUP \
-namespace AcrobatomaticBuildSystem {\
-class EasyProfilerActivator {\
-public:\
-    EasyProfilerActivator() {\
+#define PROFILER_START \
        if (!profiler::isEnabled()) {\
            if (std::getenv("PROFILER_EVENT_TRACING")!=nullptr) {\
                EASY_SET_EVENT_TRACING_ENABLED(true);\
@@ -66,9 +64,8 @@ public:\
            }\
       } else {\
            std::cout << "==P== PROFILER IS ALREADY ENABLED" << std::endl;\
-      }\
-    }\
-    ~EasyProfilerActivator() {\
+      }
+#define PROFILER_STOP \
        if (profiler::isEnabled()) {\
           EASY_SET_EVENT_TRACING_ENABLED(false);\
            std::cout << "==P== STOPPING PROFILER" << std::endl;\
@@ -77,9 +74,15 @@ public:\
            if (profFile==nullptr) profFile = "profiler.prof";\
            profiler::dumpBlocksToFile(profFile);\
            std::cout << "==P== PROFILER FILE GENERATED : " << profFile << std::endl;\
-      } else {\
-           std::cout << "==P== PROFILER IS ALREADY STOPPED" << std::endl;\
-      }\
+      }
+#define PROFILER_SETUP \
+namespace AcrobatomaticBuildSystem {\
+class EasyProfilerActivator {\
+public:\
+    EasyProfilerActivator() {\
+    }\
+    ~EasyProfilerActivator() {\
+        PROFILER_STOP \
     }\
     static EasyProfilerActivator _instance;\
 };\
