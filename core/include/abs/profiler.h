@@ -27,10 +27,12 @@ static TracyCZoneCtx _ctx;
 #define PROFILER_FRAME(name) FrameMarkNamed(name);
 #define PROFILER_PLOT(name,value) TracyPlot(name,value);
 #define PROFILER_SETUP TracyCZoneCtx TracyRegionContext::_ctx;
+#else /* __cplusplus */
+#include "TracyC.h"
+#endif /* __cplusplus */
 #define PROFILER_START
 #define PROFILER_STOP
-#endif
-#endif
+#endif /* TRACY_ENABLED */
 
 #ifdef BUILD_WITH_EASY_PROFILER
 #ifdef __cplusplus
@@ -87,9 +89,35 @@ public:\
     static EasyProfilerActivator _instance;\
 };\
 EasyProfilerActivator EasyProfilerActivator::_instance;\
-} // namespace abs
-#endif
-#endif
+} \
+extern "C" { \
+    void _abs_easy_profiler_start() {\
+        PROFILER_START \
+    } \
+    void _abs_easy_profiler_stop() {\
+        PROFILER_STOP \
+    } \
+    void _abs_easy_profiler_region_begin(const char* name) {\
+        PROFILER_REGION_BEGIN(name) \
+    } \
+    void _abs_easy_profiler_region_end() {\
+        PROFILER_REGION_END \
+    } \
+    void _abs_easy_profiler_thread(const char* name) {\
+        PROFILER_THREAD(name) \
+    } \
+}
+#else /* __cplusplus */
+void _abs_easy_profiler_start();
+void _abs_easy_profiler_stop();
+#define PROFILER_START _abs_easy_profiler_start();
+#define PROFILER_STOP _abs_easy_profiler_stop();
+#define PROFILER_REGION_BEGIN(name) _abs_easy_profiler_region_begin(name);
+#define PROFILER_REGION_END _abs_easy_profiler_region_end();
+#define PROFILER_THREAD(name) _abs_easy_profiler_thread(name);
+#define PROFILER_FUNCTION 
+#endif /* __cplusplus */
+#endif /* BUILD_WITH_EASY_PROFILER */
 
 /* 
  * When no definition applied, set default empty to
@@ -107,7 +135,9 @@ EasyProfilerActivator EasyProfilerActivator::_instance;\
 #define PROFILER_FRAME(...)
 #define PROFILER_PLOT(...)
 #define PROFILER_SETUP
-#endif
+#define PROFILER_START
+#define PROFILER_STOP
+#endif /* PROFILER_FUNCTION */
 
 
 #endif /* __ABS_PROFILER_H__ */

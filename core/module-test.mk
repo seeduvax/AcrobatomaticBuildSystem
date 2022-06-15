@@ -45,8 +45,12 @@ ifeq ($(VALGRIND_XML),true)
 endif
 
 # objects to be generated from test classes.
-TSRCFILES=$(shell find test/ -name '*.cpp' 2>/dev/null)
-TCPPOBJS=$(patsubst test/%.cpp,$(OBJDIR)/test/%.o,$(TSRCFILES))
+TSRCFILES=$(shell find test/ -name '*.cpp' -o -name '*.c' 2>/dev/null)
+$(info DDDDD $(TSRCFILES))
+#TSRCFILES=$(shell find test/ -name '*.cpp' 2>/dev/null)
+TCPPOBJS=$(patsubst test/%.cpp,$(OBJDIR)/test/%.o,$(filter %.cpp,$(TSRCFILES))) \
+		$(patsubst test/%.c,$(OBJDIR)/test/%.o,$(filter %.c,$(TSRCFILES)))
+$(info DDDDD $(TCPPOBJS))
 
 # compiler options specific to test
 TCFLAGS+=$(patsubst %,-I../%/include,$(TESTUSEMOD))
@@ -90,11 +94,19 @@ TLDLIBP=$(LDLIBP):$(subst !!,,$(subst !! ,:,$(patsubst -%,,$(patsubst -L%,%!!,$(
 # ---------------------------------------------------------------------
 # transformation rules specific to tests.
 # test cpp files compilation
-$(OBJDIR)/test/%.o: test/%.cpp 
+$(OBJDIR)/test/%.o: test/%.cpp
 	@$(ABS_PRINT_info) "Compiling test $< ..."
 	@mkdir -p $(@D)
 	@echo `date --rfc-3339 s`"> $(CPPC) $(CXXFLAGS) $(CFLAGS) $(TCFLAGS) -c $< -o $@" >> $(TRDIR)/build.log
 	@$(CPPC) $(CXXFLAGS) $(CFLAGS) $(TCFLAGS) -MMD -MF $@.d -c $< -o $@ \
+	&& ( cp $@.d $@.d.tmp ; sed -e 's/#.*//' -e 's/^[^:]*: *//' -e 's/ *\\$$//' -e '/^$$/ d' -e 's/$$/ :/' $@.d.tmp >> $@.d ; rm $@.d.tmp ) \
+	|| ( $(ABS_PRINT_error) "Failed: CFLAGS=$(CXXFLAGS) $(CFLAGS) $(TCFLAGS)" ; exit 1 )
+
+$(OBJDIR)/test/%.o: test/%.c
+	@$(ABS_PRINT_info) "Compiling test $< ..."
+	@mkdir -p $(@D)
+	@echo `date --rfc-3339 s`"> $(CC) $(CFLAGS) $(TCFLAGS) -c $< -o $@" >> $(TRDIR)/build.log
+	@$(CC) $(CFLAGS) $(TCFLAGS) -MMD -MF $@.d -c $< -o $@ \
 	&& ( cp $@.d $@.d.tmp ; sed -e 's/#.*//' -e 's/^[^:]*: *//' -e 's/ *\\$$//' -e '/^$$/ d' -e 's/$$/ :/' $@.d.tmp >> $@.d ; rm $@.d.tmp ) \
 	|| ( $(ABS_PRINT_error) "Failed: CFLAGS=$(CFLAGS) $(TCFLAGS)" ; exit 1 )
 
