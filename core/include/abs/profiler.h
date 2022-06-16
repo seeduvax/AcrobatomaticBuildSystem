@@ -6,6 +6,7 @@
 #include "Tracy.hpp"
 #include "TracyC.h"
 #include <string.h>
+#include <stack>
 
 #define GRAY 0x404040
 #define RED 0x800000
@@ -13,26 +14,57 @@
 #define BLUE 0x000080
 #define LIGHT(x) 0x707070 | x
 #define DARK(x) x / 2
+namespace AcrobatomaticBuildSystem {
 class TracyRegionContext {
 public:
-static TracyCZoneCtx _ctx;
+    static inline void push(TracyCZoneCtx ctx) {
+        _instance._ctx.push(ctx);
+    }
+    static inline TracyCZoneCtx pop() {
+        TracyCZoneCtx ctx=_instance._ctx.top();
+        _instance._ctx.pop();
+        return ctx;
+    }
+private:
+    std::stack<TracyCZoneCtx> _ctx;
+    static TracyRegionContext _instance;
 };
+}
 #define PROFILER_FUNCTION ZoneScoped; ZoneColor(0);
 #define PROFILER_FUNCTION_COL(color) ZoneScoped; ZoneColor(tracy::Color:: color);
 #define PROFILER_REGION(name) ZoneScoped; ZoneName(name,strnlen(name,256));
 #define PROFILER_REGION_COL(name,color) ZoneScoped; ZoneName(name,strnlen(name,256)); ZoneColor(tracy::Color:: color);
-#define PROFILER_REGION_BEGIN(name) TracyCZoneN(TracyRegionContext_ctx,name,true); TracyRegionContext::_ctx=TracyRegionContext_ctx;
-#define PROFILER_REGION_END TracyCZoneEnd(TracyRegionContext::_ctx)
+#define PROFILER_REGION_BEGIN(name) {\
+    TracyCZoneN(TracyRegionContext_ctx,name,true);\
+    AcrobatomaticBuildSystem::TracyRegionContext::push(TracyRegionContext_ctx);\
+}
+#define PROFILER_REGION_END TracyCZoneEnd(AcrobatomaticBuildSystem::TracyRegionContext::pop())
 #define PROFILER_THREAD(name) tracy::SetThreadName(name);
 #define PROFILER_FRAME(name) FrameMarkNamed(name);
 #define PROFILER_PLOT(name,value) TracyPlot(name,value);
-#define PROFILER_SETUP TracyCZoneCtx TracyRegionContext::_ctx;
+#define PROFILER_SETUP AcrobatomaticBuildSystem::TracyRegionContext AcrobatomaticBuildSystem::TracyRegionContext::_instance; \
+extern "C" {\
+    TracyCZoneCtx _abs_tracy_profiler_pop_context() {\
+        return AcrobatomaticBuildSystem::TracyRegionContext::pop();\
+    }\
+    void _abs_tracy_profiler_push_context(TracyCZoneCtx ctx) {\
+        AcrobatomaticBuildSystem::TracyRegionContext::push(ctx);\
+    }\
+}
 #else /* __cplusplus */
 #include "TracyC.h"
+TracyCZoneCtx _abs_tracy_profiler_pop_context();
+void _abs_tracy_profiler_push_context(TracyCZoneCtx ctx);
+#define PROFILER_REGION_BEGIN(name) TracyCZoneN(TracyRegionContext_ctx,name,1);_abs_tracy_profiler_push_context(TracyRegionContext_ctx);
+#define PROFILER_REGION_END TracyCZoneEnd(_abs_tracy_profiler_pop_context());
+#define PROFILER_THREAD(name) TracyCSetThreadName(name);
+
+#define PROFILER_FUNCTION
 #endif /* __cplusplus */
+// Start stop not really supported by tracy, ignoring
 #define PROFILER_START
 #define PROFILER_STOP
-#endif /* TRACY_ENABLED */
+#endif /* TRACY_ENABLE */
 
 #ifdef BUILD_WITH_EASY_PROFILER
 #ifdef __cplusplus
@@ -115,7 +147,6 @@ void _abs_easy_profiler_stop();
 #define PROFILER_REGION_BEGIN(name) _abs_easy_profiler_region_begin(name);
 #define PROFILER_REGION_END _abs_easy_profiler_region_end();
 #define PROFILER_THREAD(name) _abs_easy_profiler_thread(name);
-#define PROFILER_FUNCTION 
 #endif /* __cplusplus */
 #endif /* BUILD_WITH_EASY_PROFILER */
 
@@ -124,7 +155,7 @@ void _abs_easy_profiler_stop();
  * let everything compile well when the profiler is
  * not activated.
  */
-#ifndef PROFILER_FUNCTION
+#if !defined(TRACY_ENABLE) && !defined(BUILD_WITH_EASY_PROFILER)
 #define PROFILER_FUNCTION
 #define PROFILER_FUNCTION_COL(...)
 #define PROFILER_REGION(...)
@@ -137,7 +168,7 @@ void _abs_easy_profiler_stop();
 #define PROFILER_SETUP
 #define PROFILER_START
 #define PROFILER_STOP
-#endif /* PROFILER_FUNCTION */
+#endif /* any profiler defined */
 
 
 #endif /* __ABS_PROFILER_H__ */
