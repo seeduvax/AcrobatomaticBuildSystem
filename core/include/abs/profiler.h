@@ -35,7 +35,8 @@ private:
 #define PROFILER_REGION(name) ZoneScoped; ZoneName(name,strnlen(name,256));
 #define PROFILER_REGION_COL(name,color) ZoneScoped; ZoneName(name,strnlen(name,256)); ZoneColor(tracy::Color:: color);
 #define PROFILER_REGION_BEGIN(name) {\
-    TracyCZoneN(TracyRegionContext_ctx,name,true);\
+    TracyCZone(TracyRegionContext_ctx,true);\
+    TracyCZoneName(TracyRegionContext_ctx,name,strnlen(name,256));\
     AcrobatomaticBuildSystem::TracyRegionContext::push(TracyRegionContext_ctx);\
 }
 #define PROFILER_REGION_END TracyCZoneEnd(AcrobatomaticBuildSystem::TracyRegionContext::pop())
@@ -51,19 +52,27 @@ extern "C" {\
         AcrobatomaticBuildSystem::TracyRegionContext::push(ctx);\
     }\
 }
+// Start stop not really supported by tracy, "emulate" with frames.
+#define PROFILER_START TracyCFrameMarkStart("active")
+#define PROFILER_STOP TracyCFrameMarkEnd("active")
 #else /* __cplusplus */
 #include "TracyC.h"
 TracyCZoneCtx _abs_tracy_profiler_pop_context();
 void _abs_tracy_profiler_push_context(TracyCZoneCtx ctx);
-#define PROFILER_REGION_BEGIN(name) TracyCZoneN(TracyRegionContext_ctx,name,1);_abs_tracy_profiler_push_context(TracyRegionContext_ctx);
+#define PROFILER_REGION_BEGIN(name) {\
+    TracyCZone(TracyRegionContext_ctx,1);\
+    TracyCZoneName(TracyRegionContext_ctx,name,strnlen(name,256));\
+    _abs_tracy_profiler_push_context(TracyRegionContext_ctx);\
+}
 #define PROFILER_REGION_END TracyCZoneEnd(_abs_tracy_profiler_pop_context());
 #define PROFILER_THREAD(name) TracyCSetThreadName(name);
+#define PROFILER_FRAME(name) TracyCFrameMarkNamed(name);
+// Start stop not really supported by tracy, "emulate" with frames.
+#define PROFILER_START TracyCFrameMarkStart("active")
+#define PROFILER_STOP TracyCFrameMarkEnd("active")
 
 #define PROFILER_FUNCTION
 #endif /* __cplusplus */
-// Start stop not really supported by tracy, ignoring
-#define PROFILER_START
-#define PROFILER_STOP
 #endif /* TRACY_ENABLE */
 
 #ifdef BUILD_WITH_EASY_PROFILER
