@@ -853,7 +853,8 @@ Assert \#<xsl:apply-templates select="@id"/> &amp;
 </xsl:template>
 
 <xsl:template match="report/check|report/procedure" mode="synthesis">
-<xsl:param name="failures"><xsl:value-of select="count(assert[translate(@status,$upperCase,$lowerCase)!='ok' and translate(@status,$upperCase,$lowerCase)!='pass'])"/></xsl:param>
+<xsl:param name="failures"><xsl:value-of select="count(assert[translate(@status,$upperCase,$lowerCase)!='ok' and translate(@status,$upperCase,$lowerCase)!='pass' and translate(@status,$upperCase,$lowerCase)!='n/a' and translate(@status,$upperCase,$lowerCase)!='na'])"/></xsl:param>
+<xsl:param name="skips"><xsl:value-of select="count(assert[translate(@status,$upperCase,$lowerCase)='skip' or translate(@status,$upperCase,$lowerCase)='skept' or translate(@status,$upperCase,$lowerCase)='skipped' or translate(@status,$upperCase,$lowerCase)='n/a' or translate(@status,$upperCase,$lowerCase)='na']) + count(operation[translate(@status,$upperCase,$lowerCase)='skip' or translate(@status,$upperCase,$lowerCase)='skept' or translate(@status,$upperCase,$lowerCase)='skipped' or translate(@status,$upperCase,$lowerCase)='n/a' or translate(@status,$upperCase,$lowerCase)='na'])"/></xsl:param>
 <xsl:choose>
   <xsl:when test="position() mod 2 = 0">
 \HEMLoddRow
@@ -868,7 +869,9 @@ Assert \#<xsl:apply-templates select="@id"/> &amp;
 
 Unchecked requirements: </xsl:text><xsl:apply-templates select="req|assert[translate(@status,$upperCase,$lowerCase)!='ok' and translate(@status,$upperCase,$lowerCase)!='pass']/req"/></xsl:if></xsl:when>
    <xsl:otherwise>\textbf{\color{hemlOkTextColor}Pass}</xsl:otherwise>
-</xsl:choose> \\
+</xsl:choose> 
+<xsl:if test="$skips!=0"><xsl:text> </xsl:text>\textbf{\color{hemlWarnTextColor}Skept steps: <xsl:value-of select="$skips"/>}</xsl:if>
+  \\
 </xsl:template>
 <!-- **********************************************************
      indexs

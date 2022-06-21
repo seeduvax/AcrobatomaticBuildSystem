@@ -20,16 +20,16 @@ During execution, define status for each operation/assert entry
   - status values for operation:
     - done: when operation has be done as specified.
     - adapted: when operation has been done but not exactly as specified.
-    - skipped: when operation has not been done.
+    - skept: when operation has not been done.
   - status values for assert:
     - pass: observations match the expectations.
-    - n/a: no observation because of previous operation was skipped.
+    - n/a: no observation because of previous operation was skept.
     - failed: observations do not match the expectation.
 
 Add free text in operation/assert in the following cases:
   - operation with adapted status: details about what was exactly done that
     differs from the specification.
-  - operation with skipped status: details about the reason why the operation 
+  - operation with skept status: details about the reason why the operation 
     was not performed.
   - assert with failed status: detailed description of the observation not 
     matching the expectations.

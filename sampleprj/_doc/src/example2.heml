@@ -61,7 +61,7 @@ Even after making operation twice, no results was obtained.
   }
   {assert %id=1
           %summary=System in operating state.
-          %status=ok
+          %status=n/a
   }
 }
 }
