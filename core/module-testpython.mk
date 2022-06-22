@@ -12,7 +12,13 @@ TXTXSL=xunit2txt.xsl
 # tests .py
 PY_TSRC=$(wildcard $(PY_TSRCDIR)/*.py)
 # bytecode tests .pyc
-PY_TOBJS=$(patsubst $(PY_TSRCDIR)/%.py,$(PY_TMODDIR)/%.pyc,$(PY_TSRC))
+$(info DDDD $(PYTHON_VERSION))
+ifneq ($(filter 2.%,$(PYTHON_VERSION)),)
+PY_TOBJS:=$(patsubst $(PY_TSRCDIR)/%.py,$(PY_TMODDIR)/%.pyc,$(PY_TSRC))
+else
+PY_TOBJS:=$(patsubst $(PY_TSRCDIR)/%.py,$(PY_TMODDIR)/%.py,$(PY_TSRC))
+$(info DDDD $(PY_TOBJS))
+endif
 # python path for test targets
 PY_TPATH=$(PY_PATH):$(PY_TMODDIR)
 PY_UTILS=$(ABSROOT)/core/python/py_utils
@@ -24,10 +30,17 @@ $(PY_TMODDIR):
 
 $(PY_TOBJS): |$(PY_TMODDIR)
 
+ifneq ($(filter 2.%,$(PYTHON_VERSION)),)
 $(PY_TMODDIR)/%.pyc: $(PY_TSRCDIR)/%.py
 	@$(PP_COMPILE) $<
 	@mv $<c $@
 	@$(ABS_PRINT_info) "$< ---> $@"
+else
+
+$(PY_TMODDIR)/%.py: $(PY_TSRCDIR)/%.py
+	@$(ABS_PRINT_info) "Processing $<..."
+	@cp $< $@
+endif
 
 ## 
 ## python module test targets:

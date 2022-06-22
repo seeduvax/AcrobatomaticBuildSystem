@@ -19,7 +19,7 @@ def main_exec(**KWARGS):
             for test in test_dir:
                 if test.startswith('test') and test.endswith('.py') and ((not unique_test) or (unique_test in test)):
                     modules_to_test.append(test.replace('.py',''))
-            print 'tests found:',modules_to_test
+            print('tests found:',modules_to_test)
             alltests= unittest.TestSuite()
             for module in map(__import__, modules_to_test):
                 # overide current locals with custom parameters (if needed) 

@@ -10,7 +10,7 @@
 # module call entry point 
 # for subpackage sampleprj.pysubpckB
 
-print 'running sampleprj.pysubpckB ...'
+print('running sampleprj.pysubpckB ...')
 import sampleprj.pysubpckB
-print 'running sampleprj.pysubpckB ... OK'
+print('running sampleprj.pysubpckB ... OK')
 

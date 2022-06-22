@@ -8,17 +8,17 @@
 # Tested versions: 2.6 
 # Not tested versions: 2.7 and 3.x
 ##  - PP: path of python interpreter, default is /usr/bin/python
-PP=/usr/bin/python
+PP:=/usr/bin/python
+PYTHON_VERSION:=$(word 2,$(shell $(PP) --version))
+
 # Initialize these environment variables
 # so that python interpreter can read their values
 # Otherwise ' PYTHONPATH="..."; python ... ' 
 # doesn't take into account PYTHONPATH value
 export PYTHONPATH=
 export LD_LIBRARY_PATH=
-# file command to transform a .py script to 
-# a bytecode .pyc
-PP_COMPILE=$(PP) -m py_compile
-BUILD_ONLY_PYC=1
+
+
 # Python debugger
 # NB: If the installation of additional
 # debuggers is possible, I would suggest to use 
@@ -45,7 +45,11 @@ PY_SRCDIR=src/$(APPNAME)/$(MODNAME)
 # scripts .py
 PY_SRC=$(shell find $(PY_SRCDIR) -name '*.py')
 # scripts .pyc
-PY_OBJS=$(patsubst $(PY_SRCDIR)/%.py,$(PY_MODDIR)/%.pyc,$(PY_SRC))
+ifneq ($(filter 2.%,$(PYTHON_VERSION)),)
+PY_OBJS:=$(patsubst $(PY_SRCDIR)/%.py,$(PY_MODDIR)/%.pyc,$(PY_SRC))
+else
+PY_OBJS:=$(patsubst $(PY_SRCDIR)/%.py,$(PY_MODDIR)/%.py,$(PY_SRC))
+endif
 # shell script to run 
 PY_MODULE_EXE=$(TRDIR)/bin/$(APPNAME)_$(MODNAME).sh
 
@@ -75,13 +79,24 @@ $(PY_MODDIR): |$(PY_APPDIR)
 
 $(PY_OBJS): |$(PY_MODDIR)
 
+PP_COMPILE=$(PP) -m py_compile
+ifneq ($(filter 2.%,$(PYTHON_VERSION)),)
+# file command to transform a .py script to 
+# a bytecode .pyc
+
 $(PY_MODDIR)/%.pyc: $(PY_SRCDIR)/%.py
 	@$(PP_COMPILE) $<
 	@mkdir -p $(@D)
 	@mv $<c $@
 	@$(ABS_PRINT_info) "$< ---> $@"
-ifneq ($(BUILD_ONLY_PYC),1)
-	@cp $< $(@D)/
+
+else 
+$(PY_MODDIR)/%.py: $(PY_SRCDIR)/%.py
+	@$(ABS_PRINT_info) "Processing $<..."
+	@mkdir -p $(@D)
+	@cp $< $@
+	cd $(PY_MODDIR) ; $(PP_COMPILE) $@
+
 endif
 
 py-clean:
@@ -101,7 +116,7 @@ shell: all
 	PATH="$(RUNPATH)" PYTHONPATH="$(PY_PATH)" LD_LIBRARY_PATH="$(LIB_PATH)" $(PP) -i $(PY_MODDIR) $(RUNARGS)
 
 debug:: 
-	@make all BUILD_ONLY_PYC=0
+	@make all
 	PATH="$(RUNPATH)" PYTHONPATH="$(PY_PATH)" LD_LIBRARY_PATH="$(LIB_PATH)" $(PP) -m $(PDB) $(PY_MODDIR)/__main__.py $(RUNARGS)
 
 ##  - pyrun [RUNARGS=<arg> [<arg>]*]: run python
@@ -113,5 +128,6 @@ pyrun: all
 ifneq ($(INCTESTS),)
   include $(ABSROOT)/core/module-testpython.mk
 endif
+
 include $(ABSROOT)/core/module-scripts.mk
 

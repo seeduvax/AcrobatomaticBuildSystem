@@ -10,7 +10,7 @@ class test_pysubsub(unittest.TestCase):
         pass
 
     def test_subVar(self):
-	self.assertEqual(666,subVar)
+        self.assertEqual(666,subVar)
 
 if __name__ == '__main__':
     unittest.main()

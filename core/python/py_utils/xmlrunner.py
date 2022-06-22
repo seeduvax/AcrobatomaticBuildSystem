@@ -360,8 +360,12 @@ class _XMLTestResult(_TextTestResult):
             # python>2.7
             xml_content = xml_content.decode('utf-8',errors='replace')
         except:
-            # python2.6
-            xml_content = xml_content.decode('utf-8','replace')
+            try:
+                # python2.6
+                xml_content = xml_content.decode('utf-8','replace')
+            except:
+                # python3 xml_content seems to be already decoded
+                pass
 
         report_file = codecs.open(
                        '%s%s%s' % (

@@ -9,7 +9,7 @@
 # 
 # module import entry point 
 # for subpackage sampleprj.pysubpckA
-print 'importing sampleprj.pysubpckA ...'
+print('importing sampleprj.pysubpckA ...')
 
-print 'importing sampleprj.pysubpckA ... OK'
+print('importing sampleprj.pysubpckA ... OK')
 
