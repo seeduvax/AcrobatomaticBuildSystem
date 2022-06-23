@@ -28,7 +28,8 @@ INCLUDES_CLIENT:=\
 ./client/tracy_concurrentqueue.h \
 ./client/TracyCallstack.h \
 ./client/TracySysTime.hpp \
-./client/TracyLock.hpp
+./client/TracyLock.hpp \
+./client/tracy_SPSCQueue.h
 
 all:
 	cd capture/build/unix ; make
