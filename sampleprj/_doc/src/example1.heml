@@ -244,6 +244,7 @@ Code example is in §{xref SCode}.
   {check %id=Test1 %type=manual test %title=Test example 1
     {req req.1}
     {req req.2}
+{section %title=part 1
     {operation
 1st action to be performed
     }
@@ -251,6 +252,8 @@ Code example is in §{xref SCode}.
       {req req.2}
 No error on 1st action.
     }
+}
+{section %title=part 2
     {operation
 2nd action
     }
@@ -258,6 +261,7 @@ No error on 1st action.
 Action 2 result is 42.
     }
 {tbd the question that match 42 answer.}
+}
   }
   {procedure %id=Proc1 %title=Operational procedure
     {operation

@@ -54,14 +54,14 @@ generation and traceability.
 {<xsl:value-of select="name()"/> %title=<xsl:value-of select="@title"/>
        %id=<xsl:value-of select="@id"/>
        %ref=<xsl:value-of select="$num"/>
-<xsl:apply-templates select="operation|assert|req"/>
+<xsl:apply-templates select=".//operation|.//assert|req"/>
 }
 </xsl:template>
 
 <xsl:template match="operation">
   <xsl:param name="norm"><xsl:value-of select="normalize-space(.//*[not(self::req)])"/></xsl:param>
   <xsl:param name="summary"><xsl:value-of select="substring($norm,1,80)"/></xsl:param>
-  {operation %id=<xsl:value-of select="count(preceding-sibling::operation)+1"/>
+  {operation %id=[<xsl:number count="operation|section" level="multiple" format="1.1"/>]<xsl:value-of select="count(preceding-sibling::operation)+1"/>
              %summary=<xsl:value-of select="normalize-space($summary)"/><xsl:if test="$norm!=$summary">...</xsl:if> 
              %status=
   }
