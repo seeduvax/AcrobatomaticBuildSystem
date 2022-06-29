@@ -3,9 +3,15 @@
 ## C/C++ profiler services
 ## ------------------------------------------------------------------------
 ##
+## - PROFILER_TOOL: profiler tool to be used. Currently only few properly
+##   packaged profiler are supported:
+##     - tracy-0.8.1 (default)
+##     - tracy-0.7.8
+##     - easy_profiler-2.1.0
+PROFILER_TOOL?=tracy-0.8.1
 ifeq ($(wildcard app.cfg),app.cfg)
 ifeq ($(PROFILER),true)
-VFLAVOR+=.prof
+VFLAVOR+= $(PROFILER_TOOL)
 endif
 else
 ## Profiler services  variable
@@ -16,12 +22,6 @@ ifeq ($(MAKECMDGOALS),profiler)
 PROFILER=true
 endif
 PROFILER?=false
-## - PROFILER_TOOL: profiler tool to be used. Currently only few properly 
-##   packaged profiler are supported:
-##     - tracy-0.8.1 (default)
-##     - tracy-0.7.8
-##     - easy_profiler-2.1.0
-PROFILER_TOOL?=tracy-0.8.1
 ifeq ($(PROFILER),true)
 PROFILER_FILE:=$(TRDIR)/test/$(MODNAME)
 USELIB+=$(PROFILER_TOOL)

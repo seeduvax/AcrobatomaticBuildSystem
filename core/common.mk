@@ -100,6 +100,7 @@ endif
 
 ifneq ($(BUILDCHAIN),)
 include $(ABSWS)/extlib/$(ARCH)/$(BUILDCHAIN)/import.mk
+VFLAVOR+= $(BUILDCHAIN)
 endif
 
 ##  - TRDIR: target root directory (where the installed product image is stored)
