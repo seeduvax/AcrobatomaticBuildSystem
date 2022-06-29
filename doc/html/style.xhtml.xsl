@@ -50,9 +50,7 @@
 </xsl:template>
 <xsl:template match="tr">
 <xsl:choose>
-   <!-- TODO understand why position() returns 2, 4, 6, 8, etc...
-        div 2 should not be needed -->
-    <xsl:when test="(position() div 2) mod 2 = 0"><tr class="even"><xsl:apply-templates/></tr></xsl:when>
+    <xsl:when test="position() mod 2 = 0"><tr class="even"><xsl:apply-templates/></tr></xsl:when>
     <xsl:otherwise><tr class="odd"><xsl:apply-templates/></tr></xsl:otherwise>
 </xsl:choose>
 </xsl:template>
@@ -83,7 +81,7 @@
 </a>
 </xsl:if>
 <table>
-<xsl:apply-templates/>
+<xsl:apply-templates select="tr"/>
 </table>
 </div>
 </xsl:template>
@@ -524,7 +522,7 @@ Unchecked requirements: <xsl:apply-templates select="req|assert[translate(@statu
 </xsl:template>
 <xsl:template match="def">
   <xsl:param name="trclass"><xsl:choose>
-	<xsl:when test="(position() div 2 + 1) mod 2 = 0">even</xsl:when>
+	<xsl:when test="position() mod 2 = 0">even</xsl:when>
 	<xsl:otherwise>odd</xsl:otherwise>
   </xsl:choose></xsl:param>
 <tr class="{$trclass}"><th><xsl:value-of select="@entry"/></th><td><xsl:apply-templates/></td></tr>
@@ -540,13 +538,13 @@ Unchecked requirements: <xsl:apply-templates select="req|assert[translate(@statu
 </xsl:call-template>	
 <table class="ref">
 <tr><th> </th><th>Authors <i>Title</i><br/>Reference <i>Edition</i></th></tr>
-<xsl:apply-templates/>
+<xsl:apply-templates select="ref"/>
 </table>
 </xsl:template>
 <xsl:template match="ref">
   <xsl:param name="hhref"><xsl:value-of select="@href"/></xsl:param>
   <xsl:param name="trclass"><xsl:choose>
-	<xsl:when test="(position() div 2 + 1) mod 2 = 0">even</xsl:when>
+	<xsl:when test="position() mod 2 = 0">even</xsl:when>
 	<xsl:otherwise>odd</xsl:otherwise>
   </xsl:choose></xsl:param>
 <tr class="{$trclass}"><th><a name="{@id}"/><xsl:value-of select="../@id"/><xsl:value-of select="count(preceding-sibling::ref)+1"/></th>
@@ -639,13 +637,13 @@ Unchecked requirements: <xsl:apply-templates select="req|assert[translate(@statu
 	<tr>
 	<th>Issue</th><th>Date</th><th>Changes</th>
 	</tr>
-	<xsl:apply-templates/>
+	<xsl:apply-templates select="edition"/>
 	</table>
 	</div>
 </xsl:template>
 <xsl:template match="edition">
   <xsl:param name="trclass"><xsl:choose>
-	<xsl:when test="(position() div 2 + 1) mod 2 = 0">even</xsl:when>
+	<xsl:when test="position() mod 2 = 0">even</xsl:when>
 	<xsl:otherwise>odd</xsl:otherwise>
   </xsl:choose></xsl:param>
 <tr class="{$trclass}">

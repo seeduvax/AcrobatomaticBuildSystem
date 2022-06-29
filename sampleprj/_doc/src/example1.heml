@@ -13,6 +13,8 @@ Added test procedure section (§{xref SecTest}):
   - to check history rendering
    }
    {edition %version=1 %date=2017-05-12 %%First issue}
+   {edition %version=0.2 %date=2017-05-12 %%2nd draft}
+   {edition %version=0.1 %date=2017-05-12 %%First draft}
  }
 {section %title=section title
   {section %title=subsection 1.1 title
@@ -55,6 +57,8 @@ Add here an include example
   {references %title=References %id=X
 {ref %id=AA %authors=Max Power %edition=1 %date=1972 %ref=ISBN-11221-42 %%1st reference title}
 {ref %id=BB %authors=Durant & al %edition=2 %date=1995 %ref=ISBN-112112-3 %%2nd reference title}
+{ref %id=CC %authors=Flint %edition=2 %date=2012 %ref=ISBN-112112-27 %%3rd reference title}
+{ref %id=CC %authors=Smith %edition=2 %date=2017 %ref=ISBN-112112-23 %%4th reference title}
   }
   {references %title=Links %id=L
 {ref %id=CC %authors=Various %href=http://www.wikipedia.org/ %%Wikipedia}
@@ -63,6 +67,8 @@ Add here an include example
   {definitions %title=Glossary
 {def %entry=HTTP %%Hyper Text Transport Procotol}
 {def %entry=bird %%Lifeform that can fly and make eggs}
+{def %entry=one %%1st number}
+{def %entry=two %%2nd number}
   }
   {section %title=Requirements
 {req %id=req.1 
