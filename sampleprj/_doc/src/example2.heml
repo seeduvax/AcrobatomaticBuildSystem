@@ -28,28 +28,32 @@ Used reference configuration.
           %status=OK
 Everything's OK.
   }
-  {operation %id=1
+{section %id=4.1.1 %title=part 1
+  {operation %id=1.1
              %summary=1st action to be performed 
              %status=Done
   }
 
-  {assert %id=1
+  {assert %id=1.1
           %summary=No error on 1st action. 
           %status=OK
   }
+}
+{section %id=4.1.2 %title=part 2
 
-  {operation %id=2
+  {operation %id=2.1
              %summary=2nd action 
              %status=adapted
 2nd action was made twice.
   }
 
-  {assert %id=2
+  {assert %id=2.1
           %summary=Action 2 result is 42. 
           %status=failed
     {req req.3}
 Even after making operation twice, no results was obtained.
   }
+}
 
 }
 {procedure %title=Operational procedure

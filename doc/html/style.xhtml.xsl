@@ -368,14 +368,14 @@ include(<xsl:value-of select="@src"/>.txt)
 </xsl:template>
 <xsl:template match="operation">
 <div class="operation">
-<h5>Operation #<xsl:value-of select="count(preceding-sibling::operation)+1"/> <xsl:value-of select="@id"/> <xsl:value-of select="@title"/></h5>
+<h5>Operation #<xsl:number count="operation|check//section|procedure//section" level="multiple" format="1.1"/> <xsl:value-of select="@id"/> <xsl:value-of select="@title"/></h5>
   <xsl:apply-templates/>
 </div>
 </xsl:template>
 <xsl:template match="assert">
   <xsl:param name="aid"><xsl:number count="section|references|definitions|check|procedure|assert" level="multiple" format="1.1"/></xsl:param>
 <div class="assert">
-<h5><a name="{$aid}">Assert #<xsl:value-of select="count(preceding-sibling::assert)+1"/></a> <xsl:value-of select="@id"/> <xsl:value-of select="@title"/></h5>
+<h5><a name="{$aid}">Assert #<xsl:number count="assert|check//section|procedure//section" level="multiple" format="1.1"/></a> <xsl:value-of select="@id"/> <xsl:value-of select="@title"/></h5>
 <xsl:apply-templates select="*[not(self::req)]"/>
 <xsl:if test="count(req)&gt;0">
 <b>Checks:</b> <xsl:apply-templates select="req" mode="ref"/>
@@ -426,13 +426,22 @@ include(<xsl:value-of select="@src"/>.txt)
   </tr><tr class="even">
      <th>step</th><th>Comment</th><th>Status</th>
   </tr>
-<xsl:apply-templates select="operation|assert"/>
+<xsl:apply-templates select="operation|assert|section"/>
 </table>
 </div>
 </xsl:template>
 
+<!-- section in procedure report -->
+<xsl:template match="report/check//section|report/procedure//section">
+<tr>
+<th>§<xsl:value-of select="@id"/></th><th><xsl:value-of select="@title"/></th>
+<th><xsl:text> </xsl:text></th>
+</tr>
+<xsl:apply-templates select="section|operation|assert"/>
+</xsl:template>
+
 <!-- operation in report -->
-<xsl:template match="report/check/operation|report/procedure/operation">
+<xsl:template match="report/check//operation|report/procedure//operation">
 <xsl:param name="lStatus"><xsl:value-of select="translate(@status,$upperCase,$lowerCase)"/></xsl:param>
 <xsl:param name="statusStyle"><xsl:choose>
   <xsl:when test="$lStatus='ok' or $lStatus='done'">OK</xsl:when>
@@ -456,7 +465,7 @@ include(<xsl:value-of select="@src"/>.txt)
 </xsl:template>
 
 <!-- assert in report -->
-<xsl:template match="report/check/assert|report/procedure/assert">
+<xsl:template match="report/check//assert|report/procedure//assert">
 <xsl:param name="lStatus"><xsl:value-of select="translate(@status,$upperCase,$lowerCase)"/></xsl:param>
 <xsl:param name="statusStyle"><xsl:choose>
   <xsl:when test="$lStatus='pass' or $lStatus='ok'">OK</xsl:when>
@@ -482,8 +491,8 @@ include(<xsl:value-of select="@src"/>.txt)
 
 <!-- in report test exec synthesis -->
 <xsl:template match="report/check|report/procedure" mode="synthesis">
-<xsl:param name="failures"><xsl:value-of select="count(assert[translate(@status,$upperCase,$lowerCase)!='ok' and translate(@status,$upperCase,$lowerCase)!='pass' and translate(@status,$upperCase,$lowerCase)!='n/a' and translate(@status,$upperCase,$lowerCase)!='na'])"/></xsl:param>
-<xsl:param name="skips"><xsl:value-of select="count(assert[translate(@status,$upperCase,$lowerCase)='skip' or translate(@status,$upperCase,$lowerCase)='skept' or translate(@status,$upperCase,$lowerCase)='skipped' or translate(@status,$upperCase,$lowerCase)='n/a' or translate(@status,$upperCase,$lowerCase)='na']) + count(operation[translate(@status,$upperCase,$lowerCase)='skip' or translate(@status,$upperCase,$lowerCase)='skept' or translate(@status,$upperCase,$lowerCase)='skipped' or translate(@status,$upperCase,$lowerCase)='n/a' or translate(@status,$upperCase,$lowerCase)='na'])"/></xsl:param>
+<xsl:param name="failures"><xsl:value-of select="count(.//assert[translate(@status,$upperCase,$lowerCase)!='ok' and translate(@status,$upperCase,$lowerCase)!='pass' and translate(@status,$upperCase,$lowerCase)!='n/a' and translate(@status,$upperCase,$lowerCase)!='na'])"/></xsl:param>
+<xsl:param name="skips"><xsl:value-of select="count(.//assert[translate(@status,$upperCase,$lowerCase)='skip' or translate(@status,$upperCase,$lowerCase)='skept' or translate(@status,$upperCase,$lowerCase)='skipped' or translate(@status,$upperCase,$lowerCase)='n/a' or translate(@status,$upperCase,$lowerCase)='na']) + count(operation[translate(@status,$upperCase,$lowerCase)='skip' or translate(@status,$upperCase,$lowerCase)='skept' or translate(@status,$upperCase,$lowerCase)='skipped' or translate(@status,$upperCase,$lowerCase)='n/a' or translate(@status,$upperCase,$lowerCase)='na'])"/></xsl:param>
 <tr>
 <xsl:choose>
   <xsl:when test="position() mod 2 = 0">
@@ -497,7 +506,7 @@ include(<xsl:value-of select="@src"/>.txt)
   <td>
 <xsl:choose>
    <xsl:when test="$failures!=0"><div class="statusKO">Failures: <xsl:value-of select="$failures"/></div><xsl:if test="count(.//req)&gt;0"><br/>
-Unchecked requirements: <xsl:apply-templates select="req|assert[translate(@status,$upperCase,$lowerCase)!='ok' and translate(@status,$upperCase,$lowerCase)!='pass']/req"/></xsl:if></xsl:when>
+Unchecked requirements: <xsl:apply-templates select="req|.//assert[translate(@status,$upperCase,$lowerCase)!='ok' and translate(@status,$upperCase,$lowerCase)!='pass']/req"/></xsl:if></xsl:when>
    <xsl:otherwise><div class="statusOK">Pass</div></xsl:otherwise>
 </xsl:choose>
 <xsl:if test="$skips!=0"><xsl:text> </xsl:text><div class="statusWarn">Skept steps: <xsl:value-of select="$skips"/></div></xsl:if>
