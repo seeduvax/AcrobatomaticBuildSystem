@@ -144,15 +144,15 @@ select="substring-after($text,$from)"/>
 	<xsl:choose>
 		<xsl:when test="count(ancestor::chapter)&gt;0">
 			<xsl:call-template name="sectionHead">
-				<xsl:with-param name="id"><xsl:number level="multiple" count="section|article"/></xsl:with-param> 
+				<xsl:with-param name="id"><xsl:number level="multiple" count="section|article|procedure|check"/></xsl:with-param> 
 				<xsl:with-param name="title"><xsl:apply-templates select="@title"/></xsl:with-param> 
-				<xsl:with-param name="level"><xsl:value-of select="count(ancestor-or-self::section)+count(ancestor-or-self::article)"/></xsl:with-param> 
+				<xsl:with-param name="level"><xsl:value-of select="count(ancestor-or-self::section)+count(ancestor-or-self::article)+count(ancestor-or-self::procedure)+count(ancestor-or-self::check)"/></xsl:with-param> 
 			</xsl:call-template>	
 		</xsl:when>
 		<xsl:otherwise>
 			<xsl:call-template name="sectionHead">
 				<xsl:with-param name="title"><xsl:apply-templates select="@title"/></xsl:with-param> 
-				<xsl:with-param name="level"><xsl:value-of select="count(ancestor-or-self::section)+count(ancestor-or-self::article)+1"/></xsl:with-param> 
+				<xsl:with-param name="level"><xsl:value-of select="count(ancestor-or-self::section)+count(ancestor-or-self::article)+count(ancestor-or-self::procedure)+count(ancestor-or-self::check)+1"/></xsl:with-param> 
 			</xsl:call-template>	
 		</xsl:otherwise>
 	</xsl:choose>
@@ -566,7 +566,7 @@ TBD<xsl:value-of select="count(preceding::tbd)+1"/> &amp; \S\ref{tbd.<xsl:value-
   <xsl:if test="document(@src)">
   <xsl:apply-templates select="document(@src)/*" mode="include">
 	  <xsl:with-param name="mode"><xsl:value-of select="@mode"/></xsl:with-param>
-	  <xsl:with-param name="level"><xsl:value-of select="count(ancestor-or-self::section)+count(ancestor-or-self::article)"/></xsl:with-param>
+	  <xsl:with-param name="level"><xsl:value-of select="count(ancestor-or-self::section)+count(ancestor-or-self::article)+count(ancestor-or-self::procedure)+count(ancestor-or-self::check)"/></xsl:with-param>
 	  <xsl:with-param name="include" select="."/>
   </xsl:apply-templates>
   </xsl:if>
@@ -748,7 +748,7 @@ Checksum function: <xsl:value-of select="@type"/>
 
 <xsl:template match="operation">
 \HEMLoperationBegin
-\textbf{Operation \#<xsl:value-of select="count(preceding-sibling::operation)+1"/> <xsl:value-of select="@id"/>} <xsl:apply-templates select="@title"/>
+\textbf{Operation \#<xsl:number count="operation|check//section|procedure//section" level="multiple" format="1.1"/> <xsl:value-of select="@id"/>} <xsl:apply-templates select="@title"/>
 <xsl:apply-templates/>
 \HEMLoperationEnd
 </xsl:template>
@@ -756,7 +756,7 @@ Checksum function: <xsl:value-of select="@type"/>
 <xsl:template match="assert">
   <xsl:param name="aid"><xsl:number count="section|references|definitions|check|procedure|assert" level="multiple" format="1.1"/></xsl:param>
 \HEMLassertBegin
-\textbf{Assert \#<xsl:value-of select="count(preceding-sibling::assert)+1"/> <xsl:value-of select="@id"/> <xsl:apply-templates select="@title"/>} 
+\textbf{Assert \#<xsl:number count="assert|check//section|procedure//section" level="multiple" format="1.1"/> <xsl:value-of select="@id"/> <xsl:apply-templates select="@title"/>} 
  
 <xsl:apply-templates select="*[not(self::req)]"/>
 
@@ -803,12 +803,18 @@ Checksum function: <xsl:value-of select="@type"/>
 </xsl:text><xsl:apply-templates select="req"/> &amp; \HEMLoddHeadCell \\
 \HEMLevenHeadCell \textbf{step} &amp; \HEMLevenHeadCell \textbf{Comment} &amp; \HEMLevenHeadCell \textbf{Status} \\
 \endhead
-<xsl:apply-templates select="operation|assert"/>
+<xsl:apply-templates select="operation|assert|section"/>
 \hline
 \end{HEMLtable}
 </xsl:template>
 
-<xsl:template match="report/check/operation|report/procedure/operation">
+
+<xsl:template match="report/check//section|report/procedure//section">
+\HEMLevenHeadCell \textbf{{\S}<xsl:value-of select="@id"/>} &amp; \HEMLevenHeadCell \textbf{<xsl:value-of select="@title"/>} &amp; \HEMLevenHeadCell <xsl:text> </xsl:text> \\
+<xsl:apply-templates select="operation|assert|section"/>
+</xsl:template>
+
+<xsl:template match="report/check//operation|report/procedure//operation">
 <xsl:param name="lStatus"><xsl:value-of select="translate(@status,$upperCase,$lowerCase)"/></xsl:param>
 <xsl:param name="statusColor"><xsl:choose>
   <xsl:when test="$lStatus='ok' or $lStatus='done'">hemlOkTextColor</xsl:when>
@@ -828,7 +834,7 @@ Operation \#<xsl:apply-templates select="@id"/> &amp;
 </xsl:text><xsl:apply-templates/>
 &amp; \textbf{\color{<xsl:value-of select="$statusColor"/>}<xsl:value-of select="@status"/>} \\
 </xsl:template>
-<xsl:template match="report/check/assert|report/procedure/assert">
+<xsl:template match="report/check//assert|report/procedure//assert">
 <xsl:param name="lStatus"><xsl:value-of select="translate(@status,$upperCase,$lowerCase)"/></xsl:param>
 <xsl:param name="statusColor"><xsl:choose>
   <xsl:when test="$lStatus='pass' or $lStatus='ok'">hemlOkTextColor</xsl:when>
@@ -853,8 +859,8 @@ Assert \#<xsl:apply-templates select="@id"/> &amp;
 </xsl:template>
 
 <xsl:template match="report/check|report/procedure" mode="synthesis">
-<xsl:param name="failures"><xsl:value-of select="count(assert[translate(@status,$upperCase,$lowerCase)!='ok' and translate(@status,$upperCase,$lowerCase)!='pass' and translate(@status,$upperCase,$lowerCase)!='n/a' and translate(@status,$upperCase,$lowerCase)!='na'])"/></xsl:param>
-<xsl:param name="skips"><xsl:value-of select="count(assert[translate(@status,$upperCase,$lowerCase)='skip' or translate(@status,$upperCase,$lowerCase)='skept' or translate(@status,$upperCase,$lowerCase)='skipped' or translate(@status,$upperCase,$lowerCase)='n/a' or translate(@status,$upperCase,$lowerCase)='na']) + count(operation[translate(@status,$upperCase,$lowerCase)='skip' or translate(@status,$upperCase,$lowerCase)='skept' or translate(@status,$upperCase,$lowerCase)='skipped' or translate(@status,$upperCase,$lowerCase)='n/a' or translate(@status,$upperCase,$lowerCase)='na'])"/></xsl:param>
+<xsl:param name="failures"><xsl:value-of select="count(.//assert[translate(@status,$upperCase,$lowerCase)!='ok' and translate(@status,$upperCase,$lowerCase)!='pass' and translate(@status,$upperCase,$lowerCase)!='n/a' and translate(@status,$upperCase,$lowerCase)!='na'])"/></xsl:param>
+<xsl:param name="skips"><xsl:value-of select="count(.//assert[translate(@status,$upperCase,$lowerCase)='skip' or translate(@status,$upperCase,$lowerCase)='skept' or translate(@status,$upperCase,$lowerCase)='skipped' or translate(@status,$upperCase,$lowerCase)='n/a' or translate(@status,$upperCase,$lowerCase)='na']) + count(operation[translate(@status,$upperCase,$lowerCase)='skip' or translate(@status,$upperCase,$lowerCase)='skept' or translate(@status,$upperCase,$lowerCase)='skipped' or translate(@status,$upperCase,$lowerCase)='n/a' or translate(@status,$upperCase,$lowerCase)='na'])"/></xsl:param>
 <xsl:choose>
   <xsl:when test="position() mod 2 = 0">
 \HEMLoddRow
@@ -867,7 +873,7 @@ Assert \#<xsl:apply-templates select="@id"/> &amp;
 <xsl:choose>
    <xsl:when test="$failures!=0">\textbf{\color{hemlKoTextColor}Failures: <xsl:value-of select="$failures"/>}<xsl:if test="count(.//req)&gt;0"><xsl:text>
 
-Unchecked requirements: </xsl:text><xsl:apply-templates select="req|assert[translate(@status,$upperCase,$lowerCase)!='ok' and translate(@status,$upperCase,$lowerCase)!='pass']/req"/></xsl:if></xsl:when>
+Unchecked requirements: </xsl:text><xsl:apply-templates select="req|.//assert[translate(@status,$upperCase,$lowerCase)!='ok' and translate(@status,$upperCase,$lowerCase)!='pass']/req"/></xsl:if></xsl:when>
    <xsl:otherwise>\textbf{\color{hemlOkTextColor}Pass}</xsl:otherwise>
 </xsl:choose> 
 <xsl:if test="$skips!=0"><xsl:text> </xsl:text>\textbf{\color{hemlWarnTextColor}Skept steps: <xsl:value-of select="$skips"/>}</xsl:if>
@@ -933,7 +939,7 @@ Unchecked requirements: </xsl:text><xsl:apply-templates select="req|assert[trans
 
 <!-- -->
 <xsl:template match="*" mode="index">
-<xsl:param name="num"><xsl:number count="section|references|definitions" level="multiple" format="1.1"/></xsl:param>
+<xsl:param name="num"><xsl:number count="section|references|definitions|check|procedure" level="multiple" format="1.1"/></xsl:param>
 \S<xsl:value-of select="$num"/><xsl:text> </xsl:text>
 </xsl:template>
 <xsl:template match="check|procedure" mode="index">
