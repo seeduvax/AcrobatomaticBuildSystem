@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<cr id="c4bd4d7e19ed667542d66eebb68d0d2abf30e970a91f4b5f03028e8109eb716a" state="resolved">
+<cr id="c4bd4d7e19ed667542d66eebb68d0d2abf30e970a91f4b5f03028e8109eb716a" state="closed" delivered="abs-3.3.10">
 <title>Force single heml doc helper</title>
 <reporter>sdevaux</reporter>
 <creation>2022-01-19 18:23:18+01:00</creation>

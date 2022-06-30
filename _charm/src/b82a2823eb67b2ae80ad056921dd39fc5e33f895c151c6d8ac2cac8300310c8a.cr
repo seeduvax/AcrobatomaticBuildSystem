@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><cr id="b82a2823eb67b2ae80ad056921dd39fc5e33f895c151c6d8ac2cac8300310c8a" state="resolved">
+<?xml version="1.0" encoding="UTF-8"?><cr id="b82a2823eb67b2ae80ad056921dd39fc5e33f895c151c6d8ac2cac8300310c8a" state="closed" delivered="abs-3.3.10">
     <title>git hooks shall be stackable</title>
     <reporter>sdevaux</reporter>
     <creation>2022-02-27 12:56:58+01:00</creation>

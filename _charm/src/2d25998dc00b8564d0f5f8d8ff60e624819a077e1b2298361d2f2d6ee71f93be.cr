@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<cr id="2d25998dc00b8564d0f5f8d8ff60e624819a077e1b2298361d2f2d6ee71f93be" state="resolved">
+<cr id="2d25998dc00b8564d0f5f8d8ff60e624819a077e1b2298361d2f2d6ee71f93be" state="closed" delivered="abs-3.3.10">
 <title>profilng with easy profiler needs to be explicitely started and stopped</title>
 <reporter>sdevaux</reporter>
 <creation>2022-04-04 22:36:28+02:00</creation>

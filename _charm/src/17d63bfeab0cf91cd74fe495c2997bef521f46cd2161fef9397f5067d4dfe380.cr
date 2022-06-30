@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><cr id="17d63bfeab0cf91cd74fe495c2997bef521f46cd2161fef9397f5067d4dfe380" state="resolved">
+<?xml version="1.0" encoding="UTF-8"?><cr id="17d63bfeab0cf91cd74fe495c2997bef521f46cd2161fef9397f5067d4dfe380" state="closed" delivered="abs-3.3.10">
     <title>Python support broken with python 3</title>
     <reporter>sdevaux</reporter>
     <creation>2022-06-20 22:22:52+02:00</creation>

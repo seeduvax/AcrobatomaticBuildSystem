@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<cr id="27f5d9629bbacba5f55006b9778b6700ea070f6e47767ab2c36a87e4b6cac131" state="working">
+<cr id="27f5d9629bbacba5f55006b9778b6700ea070f6e47767ab2c36a87e4b6cac131" state="closed" delivered="abs-3.3.10">
 <title>HEML doc: enable use of section in check and procedure elements</title>
 <reporter>sdevaux</reporter>
 <creation>2022-06-30 12:36:55+02:00</creation>

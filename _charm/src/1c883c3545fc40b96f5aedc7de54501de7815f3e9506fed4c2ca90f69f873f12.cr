@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><cr id="1c883c3545fc40b96f5aedc7de54501de7815f3e9506fed4c2ca90f69f873f12" state="resolved">
+<?xml version="1.0" encoding="UTF-8"?><cr id="1c883c3545fc40b96f5aedc7de54501de7815f3e9506fed4c2ca90f69f873f12" state="closed" delivered="abs-3.3.10">
     <title>Unit test report no more readable by jenkins</title>
     <reporter>sdevaux</reporter>
     <creation>2021-11-28 12:03:29+01:00</creation>

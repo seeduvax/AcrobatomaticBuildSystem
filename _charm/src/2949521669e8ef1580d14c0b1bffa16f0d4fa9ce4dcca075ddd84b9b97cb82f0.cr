@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<cr id="2949521669e8ef1580d14c0b1bffa16f0d4fa9ce4dcca075ddd84b9b97cb82f0" state="working">
+<cr id="2949521669e8ef1580d14c0b1bffa16f0d4fa9ce4dcca075ddd84b9b97cb82f0" state="closed" delivered="abs-3.3.10">
 <title>cint target shall defaultly no longer include pubdist for non tagged workspace</title>
 <reporter>sdevaux</reporter>
 <creation>2022-06-30 17:45:19+02:00</creation>

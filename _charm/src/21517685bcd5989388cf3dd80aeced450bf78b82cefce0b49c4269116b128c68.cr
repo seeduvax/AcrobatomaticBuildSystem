@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<cr id="21517685bcd5989388cf3dd80aeced450bf78b82cefce0b49c4269116b128c68" state="resolved">
+<cr id="21517685bcd5989388cf3dd80aeced450bf78b82cefce0b49c4269116b128c68" state="closed" delivered="abs-3.3.10">
 <title>SCM type detection not working when project root does not match the workspace/local repository/local copy root</title>
 <reporter>sdevaux</reporter>
 <creation>2022-01-14 15:57:51+01:00</creation>
