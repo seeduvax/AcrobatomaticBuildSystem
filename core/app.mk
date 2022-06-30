@@ -289,7 +289,11 @@ pubinstall: distinstall
 ##    custom test and/or built archive publish target.
 ifeq (cint,$(filter cint,$(MAKECMDGOALS)))
 CINT_TEST_TARGET:=test
+ifeq ($(WORKSPACE_IS_TAG),0)
+CINT_PUB_TARGET:=null
+else
 CINT_PUB_TARGET:=$(shell grep -q exe */module.cfg && echo pubinstall || echo pubdist)
+endif
 CINTMAKECMD=MODE=release nice -n20 make
 endif
 cint:
@@ -297,6 +301,10 @@ cint:
 	@$(ABS_PRINT_info) "Test Target: $(CINT_TEST_TARGET)"
 	@$(ABS_PRINT_info) "Pub Target: $(CINT_PUB_TARGET)"
 	@$(CINTMAKECMD) clean && $(CINTMAKECMD) $(CINT_TEST_TARGET) && $(CINTMAKECMD) $(CINT_PUB_TARGET) && $(CINTMAKECMD) testsummary
+
+# empty dummy target just to be able to skip one step in the cint rule just above.
+null:
+	:
 
 ifneq ($(IMPORT_ABSMOD),)
 include $(patsubst %,$(ABSROOT)/%/main.mk,$(IMPORT_ABSMOD))
