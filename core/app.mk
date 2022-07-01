@@ -29,7 +29,7 @@ else
 MODE=release
 endif
 ifneq ($(VFLAVOR),)
-VERSION:=$(VERSION)~$(subst $(_space_),~,$(sort $(VFLAVOR)))
+VERSION:=$(VERSION)_$(subst $(_space_),_,$(sort $(VFLAVOR)))
 endif
 ##  - PREFIX: installation prefix (default is /opt/<appname>-<version>)
 PREFIX=/opt/$(APPNAME)-$(VERSION)
