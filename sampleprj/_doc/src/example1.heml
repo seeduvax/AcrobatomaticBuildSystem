@@ -210,6 +210,11 @@ digraph G {
 } 
 @enddot
 #}
+
+Equations defined using tex syntax:
+{equation
+E = mc^2
+}
   }
   {section %title=code %xref=SCode
 {code %language=c++ %title=C++ code sample %%{!/**

@@ -207,6 +207,14 @@ include(<xsl:value-of select="@src"/>.txt)
 </xsl:if>
 	</div>
 </xsl:template>
+<!--***********************************************
+	Equation
+-->
+<xsl:template match="equation">
+\begin{equation}
+<xsl:apply-templates select="*/text()"/>
+\end{equation}
+</xsl:template>
 <!--************************************************
      	requirements
 -->
@@ -850,6 +858,15 @@ Copyright (c) <xsl:value-of select="./text()"/> <xsl:value-of select="@year"/><x
 &#160;
 </script>
 <script>hljs.initHighlightingOnLoad();</script>
+<script>
+  MathJax = {
+    tex: {
+      tags: 'ams'  // should be 'ams', 'none', or 'all'
+    }
+  };
+  </script>
+  <script id="MathJax-script" src="{$root}/mathjax/es5/tex-chtml.js">
+<xsl:text> </xsl:text></script>
 <link rel="stylesheet" href="{$root}/{$mainCss}"/>
 </head>
 <body>

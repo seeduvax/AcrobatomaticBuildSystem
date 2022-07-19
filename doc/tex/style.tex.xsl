@@ -266,6 +266,15 @@ TBD<xsl:value-of select="count(preceding::tbd)+1"/> &amp; \S\ref{tbd.<xsl:value-
 \end{figure}
 </xsl:template>
 <!--************************************************
+     	Equation
+-->
+<xsl:template match="equation">
+\begin{equation}
+<xsl:value-of select="*/text()"/>
+\end{equation}
+</xsl:template>
+
+<!--************************************************
      	requirements
 -->
 <xsl:template match="req">
