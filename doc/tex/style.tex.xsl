@@ -269,9 +269,14 @@ TBD<xsl:value-of select="count(preceding::tbd)+1"/> &amp; \S\ref{tbd.<xsl:value-
      	Equation
 -->
 <xsl:template match="equation">
+<xsl:choose>
+  <xsl:when test="count(pre|p)&gt;0">
 \begin{equation}
 <xsl:value-of select="*/text()"/>
 \end{equation}
+  </xsl:when>
+  <xsl:otherwise> \(<xsl:value-of select="./text()"/>\) </xsl:otherwise>
+</xsl:choose>
 </xsl:template>
 
 <!--************************************************

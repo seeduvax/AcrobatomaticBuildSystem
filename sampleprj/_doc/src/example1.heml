@@ -212,8 +212,10 @@ digraph G {
 #}
 
 Equations defined using tex syntax:
+ - inline equation {equation %%E = mc^2}
+ - or "figure" equation.
 {equation
-E = mc^2
+{!T_{H} = \frac{{\hbar}c^3}{8{\pi}k_{B}GM}!}
 }
   }
   {section %title=code %xref=SCode

@@ -211,9 +211,16 @@ include(<xsl:value-of select="@src"/>.txt)
 	Equation
 -->
 <xsl:template match="equation">
+<xsl:choose>
+  <xsl:when test="count(pre|p)&gt;0">
 \begin{equation}
 <xsl:apply-templates select="*/text()"/>
 \end{equation}
+  </xsl:when>
+  <xsl:otherwise>
+\(<xsl:apply-templates select="./text()"/>\)
+  </xsl:otherwise>
+</xsl:choose>
 </xsl:template>
 <!--************************************************
      	requirements

@@ -12,7 +12,7 @@ HTMLDIR:=$(DOCDIR)/html
 JAVACMD:=java -Djava.awt.headless=true
 DOXYGENCMD:=$(shell which doxygen 2>/dev/null)
 DOCROOT:=$(ABSROOT)/doc
-HTML_STYLE_BUNDLE+=$(patsubst %,$(ABSROOT)/doc/html/%.tar.gz,style impress.js highlight.js)
+HTML_STYLE_BUNDLE+=$(patsubst %,$(ABSROOT)/doc/html/%.tar.gz,style impress.js highlight.js mathjax.js)
 
 # files to be processed by doxygen.
 DOXSRCFILES:=$(shell find $(PRJROOT) -name *.h -o -name *.c -o -name *.hpp -o -name *.cpp -o -name *.py -o -name *.java | fgrep -v "/build/" | fgrep -v "/dist/" | fgrep -v "$(ABSROOT)")
