@@ -1,8 +1,15 @@
-include app.cfg
 ifeq ($(MAKECMDGOALS),dist)
+include app.cfg
 # overloading dist
 PRJROOT:=$(CURDIR)
 ABSROOT=$(CURDIR)
+
+# dummy rule to disable attempt to download local.cfg. I (S.Devaux) don't 
+# really understand why this workaround is needed. Something strange with
+# incuding common.mk directly.
+%/local.cfg:
+	@:
+
 include core/common.mk
 ifeq ($(WORKSPACE_IS_TAG),0)
 VERSION:=$(VERSION)d
@@ -22,5 +29,5 @@ dist: $(DISTPACKAGES)
 $(PREFIX)/noarch/abs.%: dist/abs.%
 	cp $^ $@
 else
-include $(PRJROOT)/core/bootstrap.mk
+include core/bootstrap.mk
 endif
