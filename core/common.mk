@@ -99,7 +99,7 @@ PATH_SEP:=:
 endif
 
 ifneq ($(BUILDCHAIN),)
-include $(ABSWS)/extlib/$(ARCH)/$(BUILDCHAIN)/import.mk
+NDUSELIB+=$(BUILDCHAIN)
 VFLAVOR+= $(BUILDCHAIN)
 endif
 
