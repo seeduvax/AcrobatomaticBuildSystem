@@ -78,11 +78,11 @@ $(ABSWS_NDEXTLIBDIR)/%/import.mk: $(ABS_CACHE)/$(ARCH)/%.$(ARCH).tar.gz
 # unpack no arch external lib
 $(ABSWS_NA_EXTLIBDIR)/%/import.mk: $(ABS_CACHE)/noarch/%.tar.gz
 	$(call unpackArchive,$(ABSWS_NA_EXTLIBDIR))
-	
+
 # unpack no arch external lib that should not be forwarded to dist package
 $(ABSWS_NDNA_EXTLIBDIR)/%/import.mk: $(ABS_CACHE)/noarch/%.tar.gz
 	$(call unpackArchive,$(ABSWS_NDNA_EXTLIBDIR))
-	
+
 define extlib_linkLibrary
 	@mkdir -p `dirname $(@D)`
 	@test -d $(@D) && rm $(@D) || true
@@ -100,7 +100,7 @@ $(NDEXTLIBDIR)/%/import.mk: $(ABSWS_NDEXTLIBDIR)/%/import.mk
 # unpack no arch external lib
 $(NA_EXTLIBDIR)/%/import.mk: $(ABSWS_NA_EXTLIBDIR)/%/import.mk
 	$(call extlib_linkLibrary)
-	
+
 # unpack no arch external lib that should not be forwarded to dist package
 $(NDNA_EXTLIBDIR)/%/import.mk: $(ABSWS_NDNA_EXTLIBDIR)/%/import.mk
 	$(call extlib_linkLibrary)
@@ -134,13 +134,16 @@ $(ABSWS_NA_EXTLIBDIR)/%/.dir: $(ABS_CACHE)/noarch/%.tar.gz
 $(ABSWS_NDNA_EXTLIBDIR)/%/.dir: $(ABS_CACHE)/noarch/%.tar.gz
 	@$(ABS_PRINT_info) "Unpacking data file set : $*"
 	@tar -xzf $^ -C $(ABSWS_NDNA_EXTLIBDIR) && touch $@
-	
+
 $(NA_EXTLIBDIR)/%/.dir: $(ABSWS_NA_EXTLIBDIR)/%/.dir
 	$(call extlib_linkLibrary)
 
 $(NDNA_EXTLIBDIR)/%/.dir: $(ABSWS_NDNA_EXTLIBDIR)/%/.dir
 	$(call extlib_linkLibrary)
 
+ifneq ($(BUILDCHAIN),)
+USELIB+=runtime-$(BUILDCHAIN)
+endif
 TRANSUSELIB:=$(USELIB)
 DEV_USELIB:=$(filter-out $(DEV_USELIB_IGNORE),$(filter %d,$(USELIB)))
 ALLUSELIB:=$(TRANSUSELIB) $(NDUSELIB)
