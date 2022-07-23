@@ -4,10 +4,13 @@ include app.cfg
 PRJROOT:=$(CURDIR)
 ABSROOT=$(CURDIR)
 
-# dummy rule to disable attempt to download local.cfg. I (S.Devaux) don't 
-# really understand why this workaround is needed. Something strange with
-# incuding common.mk directly.
+# dummy rules to disable attempt to download local.cfg, app.cfg. I (S.Devaux) 
+# don't # really understand why this workaround is needed. Something strange
+#  with incuding common.mk directly.
 %/local.cfg:
+	@:
+
+%/app.cfg:
 	@:
 
 include core/common.mk
