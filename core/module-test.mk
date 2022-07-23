@@ -46,11 +46,9 @@ endif
 
 # objects to be generated from test classes.
 TSRCFILES=$(shell find test/ -name '*.cpp' -o -name '*.c' 2>/dev/null)
-$(info DDDDD $(TSRCFILES))
 #TSRCFILES=$(shell find test/ -name '*.cpp' 2>/dev/null)
 TCPPOBJS=$(patsubst test/%.cpp,$(OBJDIR)/test/%.o,$(filter %.cpp,$(TSRCFILES))) \
 		$(patsubst test/%.c,$(OBJDIR)/test/%.o,$(filter %.c,$(TSRCFILES)))
-$(info DDDDD $(TCPPOBJS))
 
 # compiler options specific to test
 TCFLAGS+=$(patsubst %,-I../%/include,$(TESTUSEMOD))

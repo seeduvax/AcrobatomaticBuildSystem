@@ -12,12 +12,10 @@ TXTXSL=xunit2txt.xsl
 # tests .py
 PY_TSRC=$(wildcard $(PY_TSRCDIR)/*.py)
 # bytecode tests .pyc
-$(info DDDD $(PYTHON_VERSION))
 ifneq ($(filter 2.%,$(PYTHON_VERSION)),)
 PY_TOBJS:=$(patsubst $(PY_TSRCDIR)/%.py,$(PY_TMODDIR)/%.pyc,$(PY_TSRC))
 else
 PY_TOBJS:=$(patsubst $(PY_TSRCDIR)/%.py,$(PY_TMODDIR)/%.py,$(PY_TSRC))
-$(info DDDD $(PY_TOBJS))
 endif
 # python path for test targets
 PY_TPATH=$(PY_PATH):$(PY_TMODDIR)
