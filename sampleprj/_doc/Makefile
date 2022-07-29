@@ -63,4 +63,4 @@ $(ABSROOT)/%/main.mk: $(ABS_CACHE)/noarch/abs.%-$(VABS).tar.gz
 	@touch $@
 
 $(PRJROOT)/local.cfg:
-
+	@:

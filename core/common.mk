@@ -92,7 +92,7 @@ ifeq ($(ARCH),)
 ##  - ARCH: Architecture (ex: Debian_8_x86_64)
 ARCH:=$(SYSNAME)_$(HWNAME)
 endif
-ifeq ($(findstring WIN,$(ARCH)),WIN)
+ifeq ($(ISWINDOWS),true)
 PATH_SEP:=;
 else
 PATH_SEP:=:
