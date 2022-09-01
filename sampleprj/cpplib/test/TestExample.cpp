@@ -1,5 +1,4 @@
-#include <cppunit/extensions/HelperMacros.h>
-#include <cppunit/plugin/TestPlugIn.h>
+#include "abs/test.h"
 #include "BuildScriptTester/cpplib/Example.hpp"
 #include "abs/profiler.h"
 
@@ -33,7 +32,8 @@ public:
         PROFILER_FUNCTION_COL(Grey);
     }
 
-    void testCaseSuccess() {
+    ABS_TEST_CASE_BEGIN(CaseSuccess)
+        ABS_TEST_CASE_REQ(req.1)
         PROFILER_FUNCTION;
         PROFILER_PLOT("testPlot",0.0);
         Example ex;
@@ -43,12 +43,13 @@ public:
             << MACRO_STRVALUE(__MODNAME__) << std::endl;
         CPPUNIT_ASSERT_EQUAL(1,1);
         PROFILER_PLOT("testPlot",1.0);
-    }
+    ABS_TEST_CASE_END
 
-    void testCaseFail() {
+    ABS_TEST_CASE_BEGIN(CaseFail) 
+        ABS_TEST_CASE_REQ(req.2)
         PROFILER_FUNCTION;
         CPPUNIT_ASSERT_EQUAL(0,1);
-    }
+    ABS_TEST_CASE_END
 
     void funcProfA() {
         PROFILER_REGION_BEGIN("ManualScoppedRegion");
@@ -58,7 +59,8 @@ public:
         PROFILER_REGION_END;
     }
 
-    void testProfiler() {
+    ABS_TEST_CASE_BEGIN(Profiler) 
+        ABS_TEST_CASE_REQ(req.3)
         PROFILER_FUNCTION_COL(Red);
         PROFILER_PLOT("testPlot",0.2);
         usleep(50);
@@ -71,7 +73,7 @@ public:
         PROFILER_PLOT("testPlot",0.3);
         usleep(50);
         PROFILER_PLOT("testPlot",0.8);
-    }
+    ABS_TEST_CASE_END
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(TestExample);
