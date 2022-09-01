@@ -8,20 +8,16 @@ namespace test {
 #define STR_VALUE(name) #name
 #define MACRO_STRVALUE(name) STR_VALUE(name)
 
+#ifdef PROFILE_ENABLED
+static bool profiler_enabled=true;
+#else
+static bool profiler_enabled=false;
+#endif
+
 
 // ----------------------------------------------------------
 // test fixture implementation
-class TestExample: public CppUnit::TestFixture {
-CPPUNIT_TEST_SUITE( TestExample );
-CPPUNIT_TEST( testCaseSuccess );
-CPPUNIT_CONDITIONAL_TEST( IS_INTERACTIVE , testCaseFail );
-#ifdef PROFILER_ENABLED
-CPPUNIT_TEST( testProfiler );
-#endif
-CPPUNIT_TEST_SUITE_END();
-
-private:
-
+ABS_TEST_SUITE_BEGIN(Example)
 public:
     void setUp() {
         PROFILER_FRAME("TestExample")
@@ -74,8 +70,7 @@ public:
         usleep(50);
         PROFILER_PLOT("testPlot",0.8);
     ABS_TEST_CASE_END
-};
 
-CPPUNIT_TEST_SUITE_REGISTRATION(TestExample);
+ABS_TEST_SUITE_END
 } // namespace test
 
