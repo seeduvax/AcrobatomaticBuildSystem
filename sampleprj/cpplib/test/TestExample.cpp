@@ -14,10 +14,18 @@ static bool profiler_enabled=true;
 static bool profiler_enabled=false;
 #endif
 
+class IPlop {
+    void toto() {
+    }
+};
+class IPlop2 {
+    void toto2() {
+    }
+};
 
 // ----------------------------------------------------------
 // test fixture implementation
-ABS_TEST_SUITE_BEGIN(Example)
+ABS_TEST_SUITE_BEGIN(Example, public IPlop, public IPlop2)
 public:
     void setUp() {
         PROFILER_FRAME("TestExample")

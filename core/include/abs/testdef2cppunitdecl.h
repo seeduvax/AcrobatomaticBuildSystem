@@ -1,5 +1,5 @@
 
-#define ABS_TEST_SUITE_BEGIN(testSuiteName) \
+#define ABS_TEST_SUITE_BEGIN(testSuiteName, ...) \
 !!!define __ABS_TEST_SUITE_NAME testSuiteName \
 !!!define __ABS_TEST_SUITE_NAME_STR #testSuiteName \
 !!!define __ABS_TEST_SUITE_CLASS_NAME Test##testSuiteName \

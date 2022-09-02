@@ -365,6 +365,21 @@ include(<xsl:value-of select="@src"/>.txt)
 </xsl:template>
 
 <!--************************************************
+    Automated test index
+-->
+<xsl:template match="testsuite">
+<xsl:call-template name="sectionHead">
+	<xsl:with-param name="title"><xsl:value-of select="@name"/></xsl:with-param>
+	<xsl:with-param name="level"><xsl:value-of select="count(ancestor-or-self::section)+count(ancestor-or-self::article)+2"/></xsl:with-param>
+	<xsl:with-param name="xref"><xsl:value-of select="@xref"/></xsl:with-param>
+</xsl:call-template>	
+<xsl:apply-templates select="*"/>
+</xsl:template>
+<xsl:template match="testcase">
+<p><xsl:value-of select="@name"/></p>
+</xsl:template>
+
+<!--************************************************
     Checks
 -->
 <xsl:template match="check|procedure">
@@ -696,7 +711,7 @@ Unchecked requirements: <xsl:apply-templates select="req|.//assert[translate(@st
 	<xsl:param name="title"></xsl:param>
 	<xsl:param name="level">2</xsl:param>
 	<xsl:param name="xref">none</xsl:param>
-	<xsl:param name="ref"><xsl:if test="count(ancestor::appendices)&gt;0">A</xsl:if><xsl:number count="section|references|definitions|check|procedure" level="multiple" format="1.1"/></xsl:param>
+	<xsl:param name="ref"><xsl:if test="count(ancestor::appendices)&gt;0">A</xsl:if><xsl:number count="section|references|definitions|check|testsuite|procedure" level="multiple" format="1.1"/></xsl:param>
 	<div class="section-head">
 		<xsl:if test="$xref!=''"><a name="{$xref}"></a></xsl:if>
 	<xsl:choose>
@@ -745,11 +760,11 @@ Unchecked requirements: <xsl:apply-templates select="req|.//assert[translate(@st
 	Table des matières
 -->
 <xsl:template match="section|references|definitions" mode="summary">
-<xsl:param name="num"><xsl:if test="count(ancestor::appendices)">A</xsl:if><xsl:number count="section|references|definitions|check|procedure" level="multiple" format="1.1"/></xsl:param>
+<xsl:param name="num"><xsl:if test="count(ancestor::appendices)">A</xsl:if><xsl:number count="section|references|definitions|testsuite|check|procedure" level="multiple" format="1.1"/></xsl:param>
 	<li><a href="#{$num}"><xsl:value-of select="$num"/>&#160;<xsl:value-of select="@title"/></a>
-	<xsl:if test="count(section|references|definitions|check|procedure)&gt;0">
+	<xsl:if test="count(section|references|definitions|testsuite|check|procedure)&gt;0">
 		<ul>
-			<xsl:apply-templates select="section|references|definitions|check|procedure" mode="summary"/>
+			<xsl:apply-templates select="section|references|definitions|.//testsuite|check|procedure" mode="summary"/>
 		</ul>
 	</xsl:if>
 	</li>

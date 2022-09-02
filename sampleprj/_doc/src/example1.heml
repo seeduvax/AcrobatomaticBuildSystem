@@ -278,6 +278,11 @@ Power system on.
 System in operating state.
     }
   }
+  {section %title=Automated test index
+{testindex
+{?include %src=testindex.heml}
+}
+  }
 }
 {appendices
 {section %title=Requirement references
