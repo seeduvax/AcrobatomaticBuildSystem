@@ -35,7 +35,8 @@ $(TESTCLASSFILES): $(NA_EXTLIBDIR)/$(JUNITXML).jar $(NA_EXTLIBDIR)/$(JUNIT).jar 
 ## 
 ## Targets:
 ## 
-##  - check: run tests
+##  - check: run all tests
+##  - test: run all tests
 ifeq ($(wildcard test),)
 test:: $(TARGETFILE)
 else
@@ -58,6 +59,8 @@ endif
 	else xsltproc $(ABSROOT)/core/$(TXTXSL) $(TTARGETDIR)/$(APPNAME)_$(MODNAME).xml; fi
 endif
 
+##  - <TestClassName>: run tests define in test class defined in
+##    test/<TestClassName>.java
 Test%: $(OBJDIR)/test/Test%.class
 	@$(ABS_PRINT_info) "Test% : running test $@"
 	@$(JAVA) -cp "$(TESTCLASSPATH)" org.junit.runner.JUnitCore test.$@

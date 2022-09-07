@@ -137,7 +137,7 @@ endif
 -include $(PRJROOT)/local.cfg
 
 # external libraries local repository
-INCTESTS:=$(filter test %test check %check testbuild help coverage,$(MAKECMDGOALS))
+INCTESTS:=$(filter test %test check %check testbuild help coverage Test%,$(MAKECMDGOALS))
 
 ifneq ($(INCTESTS),)
 # The TUSELIB are libraries not needed for the main build but needed for the tests.
