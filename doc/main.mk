@@ -69,11 +69,12 @@ ifeq ($(HASLATEX),true)
 -include $(patsubst src/%.heml,$(OBJDIR)/%.tex.d,$(HEMLS))
 endif
 
+TESTINDEXES:=
 TESTSRCFILES:=$(wildcard $(PRJROOT)/*/test/Test*.cpp)
 ifneq ($(TESTSRCFILES),)
-$(OBJDIR)/testindex.heml: $(TESTSRCFILES)
+$(OBJDIR)/testdefindex.heml: $(TESTSRCFILES)
 	@$(ABS_PRINT_info) "Generating automated test cases index..."
-	@printf "" > $@
+	@printf "{testdef" > $@
 	@for testmoduledir in $(PRJROOT)* ; do \
 	  test -d "$$testmoduledir/test" && echo "{testmodule %name="`basename "$$testmoduledir"` >> $@ || : ; \
 	  for testcasefile in "$$testmoduledir/test/Test"*.cpp ; do \
@@ -81,8 +82,29 @@ $(OBJDIR)/testindex.heml: $(TESTSRCFILES)
 	  done ; \
 	  test -d "$$testmoduledir/test" && echo "}" >> $@ || : ; \
 	done
+	@echo "}" >> $@
 
+TESTINDEXES+=$(OBJDIR)/testdefindex.heml
 endif
+
+TESTEXECFILES:=$(wildcard $(TRDIR)/test/*.stdout)
+ifneq ($(TESTEXECFILES),)
+$(OBJDIR)/testexecindex.heml: $(TESTEXECFILES)
+	@$(ABS_PRINT_info) "Generating automated test cases execution index..."
+	@echo "{testexec" > $@
+	@for testfile in $(TESTEXECFILES) ; do \
+	    echo "{testmodule %name="`basename $$testfile | sed -e 's/.stdout$$//g;s/$(APPNAME)_//g'` >> $@ ; \
+	    echo "{dummy" >> $@ ; \
+	    fgrep "ABS_TEST_" "$$testfile" | cpp -include $(ABSROOT)/core/include/abs/testdef2heml.h | sed -e "/^# /d;s/{testcase/}{testcase/g" >> $@ ; \
+		echo "}" >> $@ ; \
+		echo "}" >> $@ ; \
+	done
+	@echo "}" >> $@
+
+TESTINDEXES+=$(OBJDIR)/testexecindex.heml
+endif
+
+$(info DDDDDD $(TESTINDEXES))
 
 $(OBJDIR)/pumldeps.mk: $(SRCFILES)
 	@mkdir -p $(@D)
@@ -182,13 +204,13 @@ define absHemlTransformation
 	@$(HEMLCMD) -in $(call absGetPath,$<) -xsl $(call absGetPath,$(1)) -path $(OBJDIR) -param srcdir "$(call absGetPath,$(<D))" -param srcfilename "$(call absGetPath,$(<F))" $(HEMLARGS) -param revision ""`$(call abs_scm_file_revision,$<)` -param showComments ""$(COMMENTS) -out $(call absGetPath,$@) -depattr fig:src:$(patsubst %/,%,$(patsubst src%,$(HTMLDIR)/%,$(<D)))
 endef
 
-$(HTMLDIR)/%.html: src/%.heml $(HEMLJAR) $(LUAJJAR) $(OBJDIR)/testindex.heml
+$(HTMLDIR)/%.html: src/%.heml $(HEMLJAR) $(LUAJJAR) $(TESTINDEXES)
 	$(call absHemlTransformation,$(HEMLTOXHTML_STYLE) -dep $(patsubst $(HTMLDIR)/%,$(OBJDIR)/%.d,$@))
 
-$(DBDIR)/%.xml: src/%.heml $(HEMLJAR) $(LUAJJAR) $(OBJDIR)/testindex.heml
+$(DBDIR)/%.xml: src/%.heml $(HEMLJAR) $(LUAJJAR) $(TESTINDEXES)
 	$(call absHemlTransformation,$(HEMLTOXML_STYLE) -dep $(patsubst $(DBDIR)/%,$(OBJDIR)/%.d,$@))
 
-$(TEXDIR)/%.tex: src/%.heml $(HEMLJAR) $(LUAJJAR) $(IMGS) $(OBJDIR)/testindex.heml
+$(TEXDIR)/%.tex: src/%.heml $(HEMLJAR) $(LUAJJAR) $(IMGS) $(TESTINDEXES)
 	$(call absHemlTransformation,$(HEMLTOTEX_STYLE) -dep $(patsubst $(TEXDIR)/%,$(OBJDIR)/%.d,$@))
 
 TEXDEFAULTINPUTS?=:

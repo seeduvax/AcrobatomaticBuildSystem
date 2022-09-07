@@ -69,5 +69,8 @@ Even after making operation twice, no results was obtained.
   }
 }
 }
+{section %title=Automated tests
+{?include %src=testexecindex.heml}
+}
 }
 }

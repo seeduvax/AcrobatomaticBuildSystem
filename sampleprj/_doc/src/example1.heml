@@ -279,9 +279,7 @@ System in operating state.
     }
   }
   {section %title=Automated test index
-{testindex
-{?include %src=testindex.heml}
-}
+{?include %src=testdefindex.heml}
   }
 }
 {appendices
