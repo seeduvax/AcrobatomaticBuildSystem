@@ -144,7 +144,7 @@ select="substring-after($text,$from)"/>
 	<xsl:choose>
 		<xsl:when test="count(ancestor::chapter)&gt;0">
 			<xsl:call-template name="sectionHead">
-				<xsl:with-param name="id"><xsl:number level="multiple" count="section|article|procedure|check"/></xsl:with-param> 
+				<xsl:with-param name="id"><xsl:number level="multiple" count="section|article|procedure|check|testmodule[count(testuite)&gt;0]|testsuite|testcase"/></xsl:with-param> 
 				<xsl:with-param name="title"><xsl:apply-templates select="@title"/></xsl:with-param> 
 				<xsl:with-param name="level"><xsl:value-of select="count(ancestor-or-self::section)+count(ancestor-or-self::article)+count(ancestor-or-self::procedure)+count(ancestor-or-self::check)"/></xsl:with-param> 
 			</xsl:call-template>	
@@ -742,6 +742,36 @@ Checksum function: <xsl:value-of select="@type"/>
  <xsl:apply-templates select="@completion"/> &amp;
  <xsl:apply-templates select="."/> \\
 </xsl:template>
+<!--************************************************
+    Automated test index
+-->
+<xsl:template match="testmodule">
+<xsl:if test="count(testsuite)&gt;0">
+<xsl:call-template name="sectionHead">
+	<xsl:with-param name="title">Module <xsl:value-of select="@name"/></xsl:with-param>
+	<xsl:with-param name="level"><xsl:value-of select="count(ancestor-or-self::section)+count(ancestor-or-self::article)+2"/></xsl:with-param>
+	<xsl:with-param name="xref"><xsl:value-of select="@xref"/></xsl:with-param>
+</xsl:call-template>	
+\begin{HEMLtable}{|p{0.3\linewidth-2\tabcolsep}|p{0.7\linewidth-2\tabcolsep}|}
+\hline
+<xsl:apply-templates select="testsuite"/>
+\hline
+\end{HEMLtable}
+</xsl:if>
+</xsl:template>
+<xsl:template match="testsuite">
+\hline
+\HEMLoddHeadCell \textbf{<xsl:number count="testsuite"/> - <xsl:value-of select="@name"/>} &amp; \HEMLoddHeadCell \textbf{<xsl:apply-templates select="@src"/>} \\
+<xsl:apply-templates select="testcase"/>
+</xsl:template>
+<xsl:template match="testcase">
+  <xsl:param name="aid"><xsl:number count="section|references|definitions|check|procedure|testmodule[count(testsuite)&gt;0]|testsuite|testcase" level="multiple" format="1.1"/></xsl:param>
+<xsl:choose>
+  <xsl:when test="count(preceding-sibling::testcase) mod 2 = 1">\HEMLoddRow</xsl:when>
+  <xsl:otherwise>\HEMLevenRow</xsl:otherwise>
+</xsl:choose>
+<xsl:number count="testsuite|testcase" level="multiple" format="1.1"/> - <xsl:value-of select="@name"/>&amp;<xsl:apply-templates select="req" mode="ref"/> \\
+</xsl:template>
 <!-- **********************************************************
      Checks
 -->     
@@ -953,16 +983,20 @@ Unchecked requirements: </xsl:text><xsl:apply-templates select="req|.//assert[tr
 
 <!-- -->
 <xsl:template match="*" mode="index">
-<xsl:param name="num"><xsl:number count="section|references|definitions|check|procedure" level="multiple" format="1.1"/></xsl:param>
+<xsl:param name="num"><xsl:number count="section|references|definitions|check|procedure|testmodule[count(testuite)&gt;0]|testsuite|testcase" level="multiple" format="1.1"/></xsl:param>
 \S<xsl:value-of select="$num"/><xsl:text> </xsl:text>
 </xsl:template>
 <xsl:template match="check|procedure" mode="index">
-<xsl:param name="num"><xsl:number count="section|references|definitions|check|procedure" level="multiple" format="1.1"/></xsl:param>
+<xsl:param name="num"><xsl:number count="section|references|definitions|check|procedure|testmodule[count(testuite)&gt;0]|testsuite|testcase" level="multiple" format="1.1"/></xsl:param>
   <xsl:value-of select="name()"/><xsl:text> </xsl:text><xsl:value-of select="$num"/>
 </xsl:template>
 <xsl:template match="assert" mode="index">
-<xsl:param name="num"><xsl:number count="section|references|definitions|check|procedure|assert" level="multiple" format="1.1"/></xsl:param>
+<xsl:param name="num"><xsl:number count="section|references|definitions|check|procedure|assert|testmodule[count(testuite)&gt;0]|testsuite|testcase" level="multiple" format="1.1"/></xsl:param>
   assert <xsl:value-of select="$num"/>
+</xsl:template>
+<xsl:template match="testcase" mode="index">
+<xsl:param name="num"><xsl:number count="section|references|definitions|check|procedure|testsuite|testmodule[count(testsuite)&gt;0]|testcase" level="multiple" format="1.1"/></xsl:param>
+case <a href="#{$num}"><xsl:value-of select="$num"/></a>
 </xsl:template>
 
 <xsl:template match="index[@type='tbc']">

@@ -1,14 +1,10 @@
-#include <cppunit/extensions/HelperMacros.h>
+#include "abs/test.h" 
 
 namespace test {
 
 // ----------------------------------------------------------
 // test fixture implementation
-class TestSample: public CppUnit::TestFixture {
-CPPUNIT_TEST_SUITE( TestSample );
-CPPUNIT_TEST( testSample1 );
-CPPUNIT_TEST( testSample2 );
-CPPUNIT_TEST_SUITE_END();
+ABS_TEST_SUITE_BEGIN(Sample)
 
 private:
 
@@ -19,13 +15,11 @@ public:
     void tearDown() {
     }
 
-    void testSample1() {
-    }
+    ABS_TEST_CASE_BEGIN(Sample1) 
+        ABS_TEST_CASE_REQ(req.1)
+    ABS_TEST_CASE_END
 
-    void testSample2() {
-    }
-
-};
-
-CPPUNIT_TEST_SUITE_REGISTRATION(TestSample);
+    ABS_TEST_CASE_BEGIN(Sample2) 
+    ABS_TEST_CASE_END
+ABS_TEST_SUITE_END
 } // namespace test
