@@ -403,6 +403,39 @@ case <a href="#{$num}"><xsl:value-of select="$num"/></a>
 </xsl:template>
 
 <!--************************************************
+    Automated test execution report
+-->
+<xsl:template match="testexec">
+<table>
+<xsl:apply-templates select="testmodule" mode="exec"/> 
+</table>
+</xsl:template>
+<xsl:template match="testmodule" mode="exec">
+<xsl:if test="count(testcase)&gt;0">
+<tr><th colspan="3"><xsl:value-of select="@name"/></th></tr>
+<xsl:apply-templates select="testcase" mode="exec"/>
+</xsl:if>
+</xsl:template>
+<xsl:template match="testcase" mode="exec">
+<tr>
+<xsl:choose>
+  <xsl:when test="count(preceding-sibling::testcase) mod 2 = 1">
+    <xsl:attribute name="class">odd</xsl:attribute>
+  </xsl:when>
+  <xsl:otherwise>
+    <xsl:attribute name="class">even</xsl:attribute>
+  </xsl:otherwise>
+</xsl:choose>
+<td><xsl:value-of select="@name"/></td>
+<td><xsl:apply-templates select="req" mode="ref"/></td>
+<td><xsl:choose>
+<xsl:when test="count(completed)&gt;0"><div class="statusOK">Pass</div></xsl:when>
+<xsl:otherwise><div class="statusKO">Failure</div></xsl:otherwise>
+</xsl:choose></td>
+</tr>
+</xsl:template>
+
+<!--************************************************
     Checks
 -->
 <xsl:template match="check|procedure">
