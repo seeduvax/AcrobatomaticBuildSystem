@@ -63,7 +63,7 @@ public:
         PROFILER_REGION_END;
     }
 
-    ABS_TEST_CASE_BEGIN(Profiler) 
+    ABS_TEST_CONDITIONAL_CASE_BEGIN(profiler_enabled,Profiler) 
         ABS_TEST_CASE_REQ(req.3)
         PROFILER_FUNCTION_COL(Red);
         PROFILER_PLOT("testPlot",0.2);
