@@ -379,12 +379,13 @@ case <a href="#{$num}"><xsl:value-of select="$num"/></a>
 	<xsl:with-param name="xref"><xsl:value-of select="@xref"/></xsl:with-param>
 </xsl:call-template>	
 <table>
+<tr><th>Test suite / case</th><th>Description</th><th>File / Requirements</th></tr>
 <xsl:apply-templates select="testsuite"/>
 </table>
 </xsl:if>
 </xsl:template>
 <xsl:template match="testsuite">
-<tr><th><xsl:number count="testsuite"/> - <xsl:value-of select="@name"/></th><th><xsl:apply-templates select="@src"/></th></tr>
+<tr><th><xsl:number count="testsuite"/> - <xsl:value-of select="@name"/></th><th><xsl:apply-templates select="*[not(self::testcase)]"/></th><th><xsl:apply-templates select="@src"/></th></tr>
 <xsl:apply-templates select="testcase"/>
 </xsl:template>
 <xsl:template match="testcase">
@@ -398,7 +399,9 @@ case <a href="#{$num}"><xsl:value-of select="$num"/></a>
     <xsl:attribute name="class">even</xsl:attribute>
   </xsl:otherwise>
 </xsl:choose>
-<td>&#160;&#160;&#160;&#160;<a name="{$aid}"><xsl:number count="testsuite|testcase" level="multiple" format="1.1"/></a> - <xsl:value-of select="@name"/></td><td><xsl:apply-templates select="req" mode="ref"/></td>
+<td>&#160;&#160;&#160;&#160;<a name="{$aid}"><xsl:number count="testsuite|testcase" level="multiple" format="1.1"/></a> - <xsl:value-of select="@name"/></td>
+<td><xsl:apply-templates select="*[not(self::req)]"/></td>
+<td><xsl:apply-templates select="req" mode="ref"/></td>
 </tr>
 </xsl:template>
 

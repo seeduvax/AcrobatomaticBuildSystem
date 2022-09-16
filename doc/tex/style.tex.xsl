@@ -748,12 +748,13 @@ Checksum function: <xsl:value-of select="@type"/>
 <xsl:template match="testmodule">
 <xsl:if test="count(testsuite)&gt;0">
 <xsl:call-template name="sectionHead">
-	<xsl:with-param name="title">Module <xsl:value-of select="@name"/></xsl:with-param>
+	<xsl:with-param name="title">Module <xsl:apply-templates select="@name"/></xsl:with-param>
 	<xsl:with-param name="level"><xsl:value-of select="count(ancestor-or-self::section)+count(ancestor-or-self::article)+2"/></xsl:with-param>
 	<xsl:with-param name="xref"><xsl:value-of select="@xref"/></xsl:with-param>
 </xsl:call-template>	
-\begin{HEMLtable}{|p{0.3\linewidth-2\tabcolsep}|p{0.7\linewidth-2\tabcolsep}|}
+\begin{HEMLtable}{|p{0.2\linewidth-2\tabcolsep}|p{0.4\linewidth-2\tabcolsep}|p{0.4\linewidth-2\tabcolsep}|}
 \hline
+\HEMLevenHeadCell \textbf{Test suite / case} &amp; \HEMLevenHeadCell \textbf{Description} &amp; \HEMLevenHeadCell \textbf{File / Requirements} \\
 <xsl:apply-templates select="testsuite"/>
 \hline
 \end{HEMLtable}
@@ -761,7 +762,7 @@ Checksum function: <xsl:value-of select="@type"/>
 </xsl:template>
 <xsl:template match="testsuite">
 \hline
-\HEMLoddHeadCell \textbf{<xsl:number count="testsuite"/> - <xsl:value-of select="@name"/>} &amp; \HEMLoddHeadCell \textbf{<xsl:apply-templates select="@src"/>} \\
+\HEMLoddHeadCell \textbf{<xsl:number count="testsuite"/> - <xsl:apply-templates select="@name"/>} &amp; \HEMLoddHeadCell <xsl:apply-templates select="*[not(self::testcase)]"/> &amp; \HEMLoddHeadCell \textbf{<xsl:apply-templates select="@src"/>} \\
 <xsl:apply-templates select="testcase"/>
 </xsl:template>
 <xsl:template match="testcase">
@@ -770,7 +771,7 @@ Checksum function: <xsl:value-of select="@type"/>
   <xsl:when test="count(preceding-sibling::testcase) mod 2 = 1">\HEMLoddRow</xsl:when>
   <xsl:otherwise>\HEMLevenRow</xsl:otherwise>
 </xsl:choose>
-<xsl:number count="testsuite|testcase" level="multiple" format="1.1"/> - <xsl:value-of select="@name"/>&amp;<xsl:apply-templates select="req" mode="ref"/> \\
+<xsl:number count="testsuite|testcase" level="multiple" format="1.1"/> - <xsl:apply-templates select="@name"/>&amp; <xsl:apply-templates select="*[not(self::req)]"/> &amp; <xsl:apply-templates select="req" mode="ref"/> \\
 </xsl:template>
 
 <!-- **********************************************************
@@ -785,7 +786,7 @@ Checksum function: <xsl:value-of select="@type"/>
 </xsl:template>
 <xsl:template match="testmodule" mode="exec">
 <xsl:if test="count(testcase)&gt;0">
-\HEMLoddHeadCell \textbf{<xsl:value-of select="@name"/>} &amp; \HEMLoddHeadCell &amp; \HEMLoddHeadCell \\
+\HEMLoddHeadCell \textbf{<xsl:apply-templates select="@name"/>} &amp; \HEMLoddHeadCell &amp; \HEMLoddHeadCell \\
 <xsl:apply-templates select="testcase" mode="exec"/>
 </xsl:if>
 </xsl:template>

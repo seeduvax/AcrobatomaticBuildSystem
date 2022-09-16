@@ -11,3 +11,4 @@
 #define ABS_TEST_CASE_COMPLETED(testCaseName) {completed}
 #define ABS_TEST_CASE_REQ(reqid) {req reqid}
 #define ABS_TEST_CASE_END }
+#define ABS_TEST_DESCR(...) __VA_ARGS__

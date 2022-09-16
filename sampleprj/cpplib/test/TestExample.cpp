@@ -26,6 +26,7 @@ class IPlop2 {
 // ----------------------------------------------------------
 // test fixture implementation
 ABS_TEST_SUITE_BEGIN(Example, public IPlop, public IPlop2)
+ABS_TEST_DESCR(Sample test suite. Shows how to implement test case with description and requirement traceability.)
 public:
     void setUp() {
         PROFILER_FRAME("TestExample")
@@ -37,6 +38,7 @@ public:
     }
 
     ABS_TEST_CASE_BEGIN(CaseSuccess)
+        ABS_TEST_DESCR(Simple test expected to be successful showing few features.)
         ABS_TEST_CASE_REQ(req.1)
         PROFILER_FUNCTION;
         PROFILER_PLOT("testPlot",0.0);
@@ -50,6 +52,7 @@ public:
     ABS_TEST_CASE_END
 
     ABS_TEST_CASE_BEGIN(CaseFail) 
+        ABS_TEST_DESCR(This test is designed to fail, in order to check the test infrastructure is able to catch a failure.)
         ABS_TEST_CASE_REQ(req.2)
         PROFILER_FUNCTION;
         CPPUNIT_ASSERT_EQUAL(0,1);
@@ -64,6 +67,7 @@ public:
     }
 
     ABS_TEST_CONDITIONAL_CASE_BEGIN(profiler_enabled,Profiler) 
+        ABS_TEST_DESCR(Conditional test to be run only when profiler is enabled.)
         ABS_TEST_CASE_REQ(req.3)
         PROFILER_FUNCTION_COL(Red);
         PROFILER_PLOT("testPlot",0.2);

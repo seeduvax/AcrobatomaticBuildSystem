@@ -19,6 +19,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION(__ABS_TEST_SUITE_CLASS_NAME);
             << _abs_test_case_name << ")" << std::endl;
 
 #define ABS_TEST_CONDITIONAL_CASE_BEGIN(condition,testCaseName) ABS_TEST_CASE_BEGIN(testCaseName)
+#define ABS_TEST_DESCR(...)
 
 #define ABS_TEST_CASE_END \
         std::cout << "ABS_TEST_CASE_COMPLETED(" << _abs_test_case_name << ")" << std::endl; \
