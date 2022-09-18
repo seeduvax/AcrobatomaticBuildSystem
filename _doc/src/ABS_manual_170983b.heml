@@ -52,6 +52,7 @@ are:
 }
 {section %title=Definition
   {section %title=Features and requirements
+    {section %title=Core software building features
 {req %id=abs.lang.1 
   ABS shall build C/C++ executables and shared libraries}
 {req %id=abs.lang.2
@@ -95,7 +96,96 @@ currently used on projects targeting CentOs 7, SUSE 12, Debian 8 and Debian 9.
 Most features should require only GNU/make, a shell and a few additional
 commands and it should be adaptable to any system where such software is
 available. Some experimental projects were successfully built with ABS on
-Android (through termux) and Cygwin/MinGW.  
+Android (through termux) and Cygwin/MinGW. 
+    }
+    {section %title=Documentation features
+{req %id=abs.doc.1 
+  ABS shall process documents written using a editable text file format }
+The objective is to enable version control of the documents the same way the source
+code files of a project are version controlled. This implies the document are
+written as source file to be processed and the source file having the following
+properties:
+  - directly editable by a human being using a generic text or code editor.
+  - changes are readable when display by the legacy text diff feature of any 
+    version control system.1
+
+{note
+The current document is edited, process and version controlled as specified here
+since it is processed using the here specified features.
+}
+{req %id=abs.doc.2 
+  ABS shall render documents in HTML.}
+{req %id=abs.doc.3 
+  ABS shall render documents in PDF.}
+{req %id=abs.doc.4
+  ABS document rendering shall use customisable stylesheet to define the
+  rendered formats layouts.}
+{req %id=abs.doc.5
+  ABS shall render UML inline diagrams and figure section found in the document
+  source file.}
+{req %id=abs.doc.6
+  ABS shall render graph diagrams figures sections found in the document source
+  file.}
+{req %id=abs.doc.7
+  ABS shall render bitmap image file as figures where tag inserting the image
+  is found in the document source file.}
+{req %id=abs.doc.8
+  ABS shall render mathematical equations snippets found in the source file.}
+{req %id=abs.doc.9
+  ABS shall support composite documents being render through the assembly of 
+  many document fragment source file.}
+{req %id=abs.doc.10.1
+  ABS shell render summary including hyperlinks to reach section automatically
+  by interpreting the section structure of the document source file.}
+{req %id=abs.doc.10.2
+  ABS shall provide a macro system to generate requirement traceability.} 
+{req %id=abs.doc.10.3
+  When used inside a software project including unit test, ABS shall provide a 
+  macro system to let include automatically, in the rendered documentation 
+  files, the unit test suite and cases index with traceability to the 
+  requirements.} 
+{req %id=abs.doc.11
+  On user request, ABS shall render the out of date html and pdf files according
+  the changes of any document source file, included figure or fragment.}
+{req %id=abs.doc.12.1
+  ABS shall process specific macro to define procedures defines as sequences of
+  operation and asserts including traceability references to requirements.}
+{req %id=abs.doc.12.2
+  ABS shall on use request generate a procedure execution report document source
+  file automatically from the procedures definitions found in the user's given
+  document source file.}
+    }
+    {section %title=Changes and issue tracking features
+{req %id=abs.charm.1
+  ABS shall provide a change request and issue tracking feature.}
+{req %id=abs.charm.2
+  ABS shall store the change request and issue tracking database with no other 
+  means than the local file system and the version control system.}
+The aim is to let the software project fully stored in a common version control
+system. Then migrating the project from a software forge hosting service to 
+another does not require any operation other than migrating the version 
+controlled files and history. As well, working on the project does not request
+any additional feature from the hosting service or any service access granting
+other than accessing to the version controlled file repository.
+Another beneficial expected side effect is retrieving any change request history
+shall be achievable just by requesting the related file history from the version
+control system.
+{req %id=abs.charm.3
+  ABS shell let any project stakeholder create new change requests from its own
+  local workspace.}
+{req %id=abs.charm.4.1
+  ABS shell let a user select a change request as active change request for
+  further operations.}
+{req %id=abs.charm.4.2
+  When committing project files changes, ABS shall insert in the commit message
+  the reference of the selected active change request.}
+{req %id=abs.charm.4.3
+  When committing project files changes, ABS shall reject the commit when the 
+  selected active change request status is closed.}
+{req %id=abs.charm.4.4
+  When committing some project files changes, ABS shall switch the selected
+  active change request to working status if it is not yet working or closed.}
+    } 
   }
   {section %title=Design %xref=Design
      {section %title=from make to GNU make towards generic makefile
