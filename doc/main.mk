@@ -110,8 +110,6 @@ $(OBJDIR)/testexecindex.heml:
 endif
 TESTINDEXES+=$(OBJDIR)/testexecindex.heml
 
-$(info DDDDDD $(TESTINDEXES))
-
 $(OBJDIR)/pumldeps.mk: $(SRCFILES)
 	@mkdir -p $(@D)
 	@$(ABSDOCDIR)/pumldeps.sh $(SRCFILES) > $@
