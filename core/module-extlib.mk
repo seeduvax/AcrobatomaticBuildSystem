@@ -158,7 +158,7 @@ ifeq ($$(filter $1,$$($4) $$(TRANSUSELIB)),)
 $$(eval $4+=$1)
 include $$(patsubst %,$3/%/import.mk,$1)
 else
-$$(info $$(shell $(ABS_PRINT_info) "$1 already imported, ignoring new dependency from $2 to $1"))
+$$(info $$(shell $(ABS_PRINT_debug) "$1 already imported, ignoring new dependency from $2 to $1"))
 endif
 
 endef

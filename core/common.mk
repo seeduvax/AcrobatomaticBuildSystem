@@ -11,19 +11,40 @@ MODE?=debug
 ABSROOT?=$(ABSWS)/abs-$(VABS)
 # macro for pretty message print, use color if available
 COLORS_TCAP:=$(shell ncolors=`tput colors 2>/dev/null` ; ( [ "$$ncolors" != "" ] && [ "$$ncolors" -ge 0 ] ) && echo yes || echo no)
+
+ABS_LOG_LEVEL?=info
 ifeq ($(COLORS_TCAP),yes)
-ABS_PRINT_debug:=env printf "\e[36m[abs-debug]\t%s\e[0m\n" 
-ABS_PRINT_info:=env printf "\e[39;1m[abs-info]\t%s\e[0m\n" 
-ABS_PRINT_warning:=env printf "\e[35;1m[abs-warning]\t%s\e[0m\n" 
-ABS_PRINT_error:=env printf "\e[31;1m[abs-error]\t%s\e[0m\n" 
-ABS_PRINT:=env printf "\e[34;1m[[abs-%s]]\t%s\e\0m\n" 
+ABS_COLOR_DEBUG:=\e[36m
+ABS_COLOR_INFO:=\e[39;1m
+ABS_COLOR_WARNING:=\e[35;1m
+ABS_COLOR_ERROR:=\e[34;1m
+ABS_COLOR_HILIGHT:=\e[34;1m
+ABS_COLOR_RESTORE:=\e[0m
 else
-ABS_PRINT_debug:=env printf "[abs-debug]\t%s\n" 
-ABS_PRINT_info:=env printf "[abs-info]\t%s\n" 
-ABS_PRINT_warning:=env printf "[abs-warning]\t%s\n" 
-ABS_PRINT_error:=env printf "[abs-error]\t%s\n" 
-ABS_PRINT:=env printf "[[abs-%s]]\t%s\n" 
+ABS_COLOR_DEBUG:=
+ABS_COLOR_INFO:=
+ABS_COLOR_WARNING:=
+ABS_COLOR_ERROR:=
+ABS_COLOR_HILIGHT:=
+ABS_COLOR_RESTORE:=
 endif
+
+ABS_PRINT_DEBUG_CMD:=env printf
+ABS_PRINT_INFO_CMD:=env printf
+ABS_PRINT_WARNING_CMD:=env printf
+ABS_PRINT_ERROR_CMD:=env printf
+ABS_PRINT_CMD:=env printf
+ifneq ($(ABS_LOG_LEVEL),debug)
+ABS_PRINT_DEBUG_CMD:=:
+ifneq ($(ABS_LOG_LEVEL),info)
+ABS_PRINT_INFO_CMD:=:
+endif
+endif
+ABS_PRINT_debug:=$(ABS_PRINT_DEBUG_CMD) "$(ABS_COLOR_DEBUG)[abs-debug]\t%s$(ABS_COLOR_RESTORE)\n" 
+ABS_PRINT_info:=$(ABS_PRINT_INFO_CMD) "$(ABS_COLOR_INFO)[abs-info]\t%s$(ABS_COLOR_RESTORE)\n" 
+ABS_PRINT_warning:=$(ABS_PRINT_WARNING_CMD) "$(ABS_COLOR_WARNING)[abs-warning]\t%s$(ABS_COLOR_RESTORE)\n" 
+ABS_PRINT_error:=$(ABS_PRINT_ERROR_CMD) "$(ABS_COLOR_ERROR)[abs-error]\t%s$(ABS_COLOR_RESTORE)\n" 
+ABS_PRINT:=$(ABS_PRINT_CMD) "$(ABS_COLOR_HILIGHT)[[abs-%s]]\t%s$(ABS_COLOR_RESTORE)\n" 
 export ABS_PRINT_debug
 export ABS_PRINT_info
 export ABS_PRINT_warning
