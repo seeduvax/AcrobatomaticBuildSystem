@@ -227,12 +227,12 @@ TBD<xsl:value-of select="count(preceding::tbd)+1"/> &amp; \S\ref{tbd.<xsl:value-
 -->
 <xsl:template match="comment">
 <xsl:if test="$showComments='true'">
-\HEMLcommentref{<xsl:value-of select="@id"/>}{<xsl:value-of select="@state"/>}
+\HEMLcommentref{<xsl:apply-templates select="@id"/>}{<xsl:value-of select="@state"/>}
 </xsl:if>
 </xsl:template>
 <xsl:template match="comment" mode="detail">
 <xsl:if test="$showComments='true'">
-\HEMLcommentdetailbegin{<xsl:value-of select="@id"/>}{<xsl:value-of select="@state"/>}{<xsl:value-of select="@author"/>}
+\HEMLcommentdetailbegin{<xsl:apply-templates select="@id"/>}{<xsl:value-of select="@state"/>}{<xsl:value-of select="@author"/>}
 
 <xsl:apply-templates/>
 
@@ -390,7 +390,7 @@ TBD<xsl:value-of select="count(preceding::tbd)+1"/> &amp; \S\ref{tbd.<xsl:value-
 </xsl:choose></xsl:param>
 <xsl:value-of select="$rowcolor"/>
 <xsl:param name="refName"><xsl:apply-templates select="../@id"/><xsl:value-of select="count(preceding-sibling::ref)+1"/></xsl:param>
-\textbf{<xsl:value-of select="$refName"/>}\refstepcounter{absCounter}\namedlabel{<xsl:value-of select="@id"/>}{[<xsl:value-of select="$refName"/>]} &amp; 
+\textbf{<xsl:value-of select="$refName"/>}\refstepcounter{absCounter}\namedlabel{<xsl:apply-templates select="@id"/>}{[<xsl:value-of select="$refName"/>]} &amp; 
   <xsl:if test="@authors!=''"><xsl:apply-templates select="@authors"/>:</xsl:if>\hspace{1cm}\emph{<xsl:apply-templates select="."/>} \\
 <xsl:if test="$hhref!=''">
  <xsl:value-of select="$rowcolor"/>
@@ -806,7 +806,7 @@ Checksum function: <xsl:value-of select="@type"/>
 -->     
 <xsl:template match="check|procedure">
 <xsl:call-template name="sectionHead">
-	<xsl:with-param name="title"><xsl:if test="name()='check'">Control </xsl:if>procedure <xsl:value-of select="@id"/> - <xsl:apply-templates select="@title"/></xsl:with-param> 
+	<xsl:with-param name="title"><xsl:if test="name()='check'">Control </xsl:if>procedure <xsl:apply-templates select="@id"/> - <xsl:apply-templates select="@title"/></xsl:with-param> 
 	<xsl:with-param name="level"><xsl:value-of select="count(ancestor-or-self::section)+count(ancestor-or-self::article)+2"/></xsl:with-param> 
 </xsl:call-template>
 <xsl:if test="@xref!=''">\label{<xsl:value-of select="@xref"/>}</xsl:if>
@@ -821,7 +821,7 @@ Checksum function: <xsl:value-of select="@type"/>
 
 <xsl:template match="operation">
 \HEMLoperationBegin
-\textbf{Operation \#<xsl:number count="operation|check//section|procedure//section" level="multiple" format="1.1"/> <xsl:value-of select="@id"/>} <xsl:apply-templates select="@title"/>
+\textbf{Operation \#<xsl:number count="operation|check//section|procedure//section" level="multiple" format="1.1"/> <xsl:apply-templates select="@id"/>} <xsl:apply-templates select="@title"/>
 <xsl:apply-templates/>
 \HEMLoperationEnd
 </xsl:template>
@@ -829,7 +829,7 @@ Checksum function: <xsl:value-of select="@type"/>
 <xsl:template match="assert">
   <xsl:param name="aid"><xsl:number count="section|references|definitions|check|procedure|assert" level="multiple" format="1.1"/></xsl:param>
 \HEMLassertBegin
-\textbf{Assert \#<xsl:number count="assert|check//section|procedure//section" level="multiple" format="1.1"/> <xsl:value-of select="@id"/> <xsl:apply-templates select="@title"/>} 
+\textbf{Assert \#<xsl:number count="assert|check//section|procedure//section" level="multiple" format="1.1"/> <xsl:apply-templates select="@id"/> <xsl:apply-templates select="@title"/>} 
  
 <xsl:apply-templates select="*[not(self::req)]"/>
 
@@ -871,7 +871,7 @@ Checksum function: <xsl:value-of select="@type"/>
 <xsl:template match="report/check|report/procedure">
 \begin{HEMLtable}{|p{0.1\linewidth-2\tabcolsep}|p{0.8\linewidth-2\tabcolsep}|p{0.1\linewidth-2\tabcolsep}|}
 \hline
-\HEMLoddHeadCell &amp; \HEMLoddHeadCell \textbf{Procedure <xsl:value-of select="@id"/> [<xsl:call-template name="formatText"><xsl:with-param name="text" select="../context/@reference"/></xsl:call-template> {\S}<xsl:value-of select="@ref"/>]: <xsl:value-of select="@title"/>}<xsl:text>
+\HEMLoddHeadCell &amp; \HEMLoddHeadCell \textbf{Procedure <xsl:apply-templates select="@id"/> [<xsl:call-template name="formatText"><xsl:with-param name="text" select="../context/@reference"/></xsl:call-template> {\S}<xsl:value-of select="@ref"/>]: <xsl:value-of select="@title"/>}<xsl:text>
 
 </xsl:text><xsl:apply-templates select="req"/> &amp; \HEMLoddHeadCell \\
 \HEMLevenHeadCell \textbf{step} &amp; \HEMLevenHeadCell \textbf{Comment} &amp; \HEMLevenHeadCell \textbf{Status} \\
@@ -883,7 +883,7 @@ Checksum function: <xsl:value-of select="@type"/>
 
 
 <xsl:template match="report/check//section|report/procedure//section">
-\HEMLevenHeadCell \textbf{{\S}<xsl:value-of select="@id"/>} &amp; \HEMLevenHeadCell \textbf{<xsl:value-of select="@title"/>} &amp; \HEMLevenHeadCell <xsl:text> </xsl:text> \\
+\HEMLevenHeadCell \textbf{{\S}<xsl:apply-templates select="@id"/>} &amp; \HEMLevenHeadCell \textbf{<xsl:value-of select="@title"/>} &amp; \HEMLevenHeadCell <xsl:text> </xsl:text> \\
 <xsl:apply-templates select="operation|assert|section"/>
 </xsl:template>
 
@@ -942,7 +942,7 @@ Assert \#<xsl:apply-templates select="@id"/> &amp;
 \HEMLevenRow
   </xsl:otherwise>
 </xsl:choose>
-\textbf{<xsl:value-of select="@id"/> [<xsl:call-template name="formatText"><xsl:with-param name="text" select="../context/@reference"/></xsl:call-template> {\S}<xsl:value-of select="@ref"/>]} &amp;
+\textbf{<xsl:apply-templates select="@id"/> [<xsl:call-template name="formatText"><xsl:with-param name="text" select="../context/@reference"/></xsl:call-template> {\S}<xsl:value-of select="@ref"/>]} &amp;
 <xsl:choose>
    <xsl:when test="$failures!=0">\textbf{\color{hemlKoTextColor}Failures: <xsl:value-of select="$failures"/>}<xsl:if test="count(.//req)&gt;0"><xsl:text>
 
@@ -978,7 +978,7 @@ Unchecked requirements: </xsl:text><xsl:apply-templates select="req|.//assert[tr
 \HEMLevenRow
   </xsl:otherwise>
 </xsl:choose>
-  <xsl:value-of select="@id"/>&amp;
+  <xsl:apply-templates select="@id"/>&amp;
     <xsl:choose>
       <xsl:when test="count(//req[text()=$rid])&gt;0">
 	<xsl:apply-templates select="//req[text()=$rid]/.." mode="index"/>
