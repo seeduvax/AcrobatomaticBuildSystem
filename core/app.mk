@@ -64,12 +64,22 @@ EXPMOD?=$(patsubst mod.%,%,$(MODULES))
 DOLLAR=$$
 ##  - NOBUILD: list of modules to *not* build.
 
+## for clangd server used for modern editors (VSCode...) completion/introspection engine
+CLANGD_DB=compile_commands.json
+
+define gen-clangd-db
+@echo "[" > $(CLANGD_DB)
+@find $(BUILDROOT) -name '*.o.json' | xargs cat >> $(CLANGD_DB)
+@echo "]" >> $(CLANGD_DB)
+endef
+
 ## 
 ## Make targets:
 ## 
 
 ##  - all (default): builds all modules. Useful variable: NOBUILD.
 all: $(MODULES)
+	$(gen-clangd-db)
 
 ##  - test: builds modules, tests and launch tests.
 ifneq ($(shell ls $(PRJROOT)/*/test 2>/dev/null),)
@@ -109,6 +119,7 @@ endif
 
 ##  - testbuild: builds modules and tests.
 testbuild: $(MODULES_TESTBUILD)
+	$(gen-clangd-db)
 
 ##  - All: clean and build all
 All:
