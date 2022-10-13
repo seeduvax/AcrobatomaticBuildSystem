@@ -7,11 +7,24 @@
 # python interpreter run command
 # Tested versions: 2.6 
 # Not tested versions: 2.7 and 3.x
-##  - PP: path of python interpreter, default is /usr/bin/python
+##  - PP: path of python interpreter:
+##  - if PP is already set don't do anything
+##  - if PP is not set, attempt to use python3
+##  - if python3 does not exist, use python 2 and warn the user that no Python 3 interpreter was found
 ifeq ($(PP),)
-PP:=/usr/bin/python3
+PP_3_EXISTS := $(shell /usr/bin/python3 --version 1> /dev/null 2>&1 && echo "true" || echo "false")
+ifeq ($(PP_3_EXISTS),true)
+PP := /usr/bin/python3
+else
+PP := /usr/bin/python
 endif
+endif
+
 PYTHON_VERSION:=$(word 2,$(shell $(PP) --version))
+
+ifeq ($(findstring 3.,$(PYTHON_VERSION)),)
+$(warning Could not find a Python 3 interpreter, using Python 2 instead)
+endif
 
 # Initialize these environment variables
 # so that python interpreter can read their values
