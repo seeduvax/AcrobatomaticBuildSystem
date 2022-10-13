@@ -8,7 +8,7 @@
 # Tested versions: 2.6 
 # Not tested versions: 2.7 and 3.x
 ##  - PP: path of python interpreter, default is /usr/bin/python
-PP:=/usr/bin/python
+PP:=/usr/bin/python3
 PYTHON_VERSION:=$(word 2,$(shell $(PP) --version))
 
 # Initialize these environment variables
