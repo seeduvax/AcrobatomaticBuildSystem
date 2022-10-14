@@ -139,12 +139,36 @@ LDFLAGS+=$(SANITIZERS_ARGS)
 endif
 TLDPRELOADFORMATTED=$(subst $(_space_),:,$(TLDPRELOAD))
 
+GEN_DEP_FLAGS=-MMD -MF $@.d
+EXTRA_CFLAGS=$(GEN_DEP_FLAGS)
+EXTRA_CXXFLAGS=$(GEN_DEP_FLAGS)
+
+ifneq ($(filter clang%,$(CC)),)
+EXTRA_CFLAGS+=-MJ $@.json
+define gen-json-cc
+endef
+else
+define gen-json-cc
+@echo '{"directory":"$(MODROOT)","command":"$(CC) $(CFLAGS) -c $< -o $@","file":"$<","output":"$@"},' > $@.json
+endef
+endif
+
+ifneq ($(filter clang%,$(CPPC)),)
+EXTRA_CXXFLAGS+=-MJ $@.json
+define gen-json-cppc
+endef
+else
+define gen-json-cppc
+@echo '{"directory":"$(MODROOT)","command":"$(CPPC) $(CXXFLAGS) $(CFLAGS) -c $< -o $@","file":"$<","output":"$@"},' > $@.json
+endef
+endif
 
 define cc-command
 @$(ABS_PRINT_info) "Compiling $< ..."
 @mkdir -p $(@D)
 @echo `date --rfc-3339 s`"> $(CC) $(CFLAGS) -c $< -o $@" >> $(TRDIR)/build.log
-@$(CC) $(CFLAGS) -MMD -MF $@.d -c $< -o $@ \
+$(gen-json-cc)
+@$(CC) $(CFLAGS) $(EXTRA_CFLAGS) -c $< -o $@ \
    && ( cp $@.d $@.d.tmp ; sed -e 's/#.*//' -e 's/^[^:]*: *//' -e 's/ *\\$$//' -e '/^$$/ d' -e 's/$$/ :/' $@.d.tmp >> $@.d ; rm $@.d.tmp ) \
    || ( $(ABS_PRINT_error) "Failed: CFLAGS=$(CFLAGS)" ; exit 1 )
 endef
@@ -153,7 +177,8 @@ define cxx-command
 @$(ABS_PRINT_info) "Compiling $< ..."
 @mkdir -p $(@D)
 @echo `date --rfc-3339 s`"> $(CPPC) $(CXXFLAGS) $(CFLAGS) -c $< -o $@" >> $(TRDIR)/build.log 
-@$(CPPC) $(CXXFLAGS) $(CFLAGS) -MMD -MF $@.d -c $< -o $@ \
+$(gen-json-cppc)
+@$(CPPC) $(CXXFLAGS) $(CFLAGS) $(EXTRA_CXXFLAGS) -c $< -o $@ \
    && ( cp $@.d $@.d.tmp ; sed -e 's/#.*//' -e 's/^[^:]*: *//' -e 's/ *\\$$//' -e '/^$$/ d' -e 's/$$/ :/' $@.d.tmp >> $@.d ; rm $@.d.tmp ) 
 endef
 
