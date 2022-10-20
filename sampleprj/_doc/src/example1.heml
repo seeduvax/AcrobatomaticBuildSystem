@@ -17,7 +17,7 @@ Added test procedure section (§{xref SecTest}):
    {edition %version=0.1 %date=2017-05-12 %%First draft}
  }
 {section %title=section title
-  {section %title=subsection 1.1 title
+  {section %title=subsection 1.1 title and attribute with \% percent char
 Paragraphe Paragraphe dfqskdjfh lqsdkflqskdfhlqskdflkqsdjfl qksdf lkqs dflk
 qsldkf lqsdkfl qskdf lqskdflkqsdj flk qsdlfk qlskdf lqskd flkqsd fl qsdlfk
 qlsdkf lqskdflqskd flkqsdj flkq sdlkf qlskdflk qsd flkqsd $plop.

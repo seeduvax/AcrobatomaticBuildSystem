@@ -106,7 +106,12 @@ select="substring-after($text,$from)"/>
   <xsl:with-param name="from" select="'§'"/>
   <xsl:with-param name="to" select="'{\S}'"/>
  </xsl:call-template></xsl:param>
- <xsl:value-of select="$step8"/>
+ <xsl:param name="step9"><xsl:call-template name="strreplace">
+  <xsl:with-param name="text" select="$step8"/>
+  <xsl:with-param name="from" select="'%'"/>
+  <xsl:with-param name="to" select="'\%'"/>
+ </xsl:call-template></xsl:param>
+ <xsl:value-of select="$step9"/>
 </xsl:template>
 
 <xsl:template match="text()|@*">
