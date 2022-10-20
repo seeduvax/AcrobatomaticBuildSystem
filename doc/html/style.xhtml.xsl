@@ -831,13 +831,18 @@ Unchecked requirements: <xsl:apply-templates select="req|.//assert[translate(@st
 <xsl:template match="check|procedure" mode="summary">
 <xsl:param name="num"><xsl:number count="section|references|definitions|check|procedure" level="multiple" format="1.1"/></xsl:param>
 	<li><a href="#{$num}"><xsl:value-of select="$num"/>&#160;<xsl:if test="name()='check'">Control </xsl:if>Procedure <xsl:value-of select="@id"/><xsl:text> - </xsl:text><xsl:value-of select="@title"/></a>
+	<xsl:if test="count(section|references|definitions|testmodule[count(testsuite)&gt;0]|check|procedure)&gt;0">
+		<ul>
+			<xsl:apply-templates select="section|references|definitions|testmodule[count(testsuite)&gt;0]|check|procedure" mode="summary"/>
+		</ul>
+	</xsl:if>
 	</li>
 </xsl:template>
 <xsl:template name="toc">
 <div class="toc">
 <h3>Summary</h3>
 <ul>
-<xsl:apply-templates select="//section" mode="summary"/>
+<xsl:apply-templates select="section|references|definitions|check|procedure" mode="summary"/>
 </ul>
 </div>
 <br/>
