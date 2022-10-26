@@ -158,7 +158,7 @@ ifeq ($$(filter $1,$$($4) $$(TRANSUSELIB)),)
 $$(eval $4+=$1)
 include $$(patsubst %,$3/%/import.mk,$1)
 else
-$$(info $$(shell $(ABS_PRINT_debug) "$1 already imported, ignoring new dependency from $2 to $1"))
+$$(call abs_info,$1 already imported, ignoring new dependency from $2 to $1)
 endif
 
 endef
@@ -179,7 +179,7 @@ endif
 $(call includeExtLib,$1,$2,$3,$4)
 else
 ifneq ($(word 2,$(subst -, ,$1)),$$(word 2,$$(subst -, ,$$(filter $(word 1,$(subst -, ,$1))-%,$$(ALLUSELIB)))))
-$$(info $$(shell $(ABS_PRINT_warning) "$1 not imported from $2, already imported another version: $$(filter $(word 1,$(subst -, ,$1))-%,$$(ALLUSELIB))"))
+$$(call abs_info,$1 not imported from $2, already imported another version: $$(filter $(word 1,$(subst -, ,$1))-%,$$(ALLUSELIB)))
 DEPENDENCIES_ERROR=true
 $$(eval ADDEDDEPLIST:=$$(ADDEDDEPLIST)[color="red"] "$1"[color="red"])
 else
@@ -244,39 +244,39 @@ $(OBJS): $(EXTLIBMAKES)
 ifneq ($(MAKECMDGOALS),checkdep)
 ifeq ($(DEPENDENCIES_ERROR),true)
 ifneq ($(ABS_STRICT_DEP_CHECK),)
-$(info $(shell $(ABS_PRINT_error) "================================================================"))
-$(info $(shell $(ABS_PRINT_error) "                     ERROR"))
-$(info $(shell $(ABS_PRINT_error) "Same lib used with different version, check USELIB definitions."))
-$(info $(shell $(ABS_PRINT_error) "USELIB is: $(USELIB)"))
-$(info $(shell $(ABS_PRINT_error) "Launch 'make checkdep' to see dependency graph."))
-$(info $(shell $(ABS_PRINT_error) "================================================================"))
+$(call abs_error,================================================================)
+$(call abs_error,                     ERROR"))
+$(call abs_error,Same lib used with different version, check USELIB definitions.)
+$(call abs_error,USELIB is: $(USELIB))
+$(call abs_error,Launch 'make checkdep' to see dependency graph.)
+$(call abs_error,================================================================)
 ABS_FATAL:=true
 else
-$(info $(shell $(ABS_PRINT_warning) "================================================================"))
-$(info $(shell $(ABS_PRINT_warning) "                           WARNING"))
-$(info $(shell $(ABS_PRINT_warning) "Same lib used with different version, check USELIB definitions."))
-$(info $(shell $(ABS_PRINT_warning) "USELIB is: $(USELIB)"))
-$(info $(shell $(ABS_PRINT_warning) "Launch 'make checkdep' to see dependency graph."))
-$(info $(shell $(ABS_PRINT_warning) "================================================================"))
+$(call abs_warning,================================================================)
+$(call abs_warning,                           WARNING)
+$(call abs_warning,Same lib used with different version, check USELIB definitions.)
+$(call abs_warning,USELIB is: $(USELIB))
+$(call abs_warning,Launch 'make checkdep' to see dependency graph.)
+$(call abs_warning,================================================================)
 endif
 endif
 
 ifneq ($(DEV_USELIB),)
 ifneq ($(ABS_STRICT_DEP_CHECK),)
-$(info $(shell $(ABS_PRINT_error) "================================================================"))
-$(info $(shell $(ABS_PRINT_error) "                     ERROR"))
-$(info $(shell $(ABS_PRINT_error) "Dependencies include non tagged libraries."))
-$(info $(shell $(ABS_PRINT_error) "$(DEV_USELIB)"))
-$(info $(shell $(ABS_PRINT_error) "Launch 'make checkdep' to see the full dependency graph."))
-$(info $(shell $(ABS_PRINT_error) "================================================================"))
+$(call abs_error,================================================================)
+$(call abs_error,                     ERROR)
+$(call abs_error,Dependencies include non tagged libraries.)
+$(call abs_error,$(DEV_USELIB))
+$(call abs_error,Launch 'make checkdep' to see the full dependency graph.)
+$(call abs_error,================================================================)
 ABS_FATAL:=true
 else
-$(info $(shell $(ABS_PRINT_warning) "================================================================"))
-$(info $(shell $(ABS_PRINT_warning) "                           WARNING"))
-$(info $(shell $(ABS_PRINT_warning) "Dependencies include non tagged libraries."))
-$(info $(shell $(ABS_PRINT_warning) "$(DEV_USELIB)"))
-$(info $(shell $(ABS_PRINT_warning) "Launch 'make checkdep' to see the full dependency graph."))
-$(info $(shell $(ABS_PRINT_warning) "================================================================"))
+$(call abs_warning,================================================================)
+$(call abs_warning,                           WARNING)
+$(call abs_warning,Dependencies include non tagged libraries.)
+$(call abs_warning,$(DEV_USELIB))
+$(call abs_warning,Launch 'make checkdep' to see the full dependency graph.)
+$(call abs_warning,================================================================)
 endif
 endif
 endif

@@ -15,13 +15,13 @@ endif
 endif
 
 ifeq ($(shell which $(PP) 2>/dev/null),)
-$(info $(shell $(ABS_PRINT_error) "No python interpreter found, python services disabled."))
+$(call abs_error,No python interpreter found, python services disabled.)
 ifneq ($(PP),)
-$(info $(shell $(ABS_PRINT_error) "Requested python command was: $(PP)"))
+$(call abs_error,Requested python command was: $(PP))
 endif
 else
 PYTHON_VERSION:=$(word 2,$(shell $(PP) --version 2>&1))
-$(info $(shell $(ABS_PRINT_debug) "Selected python interpreter / version: $(PP) / $(PYTHON_VERSION)"))
+$(call abs_debug,Selected python interpreter / version: $(PP) / $(PYTHON_VERSION))
 # Initialize these environment variables
 # so that python interpreter can read their values
 # Otherwise ' PYTHONPATH="..."; python ... ' 

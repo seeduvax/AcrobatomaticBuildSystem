@@ -50,6 +50,28 @@ export ABS_PRINT_info
 export ABS_PRINT_warning
 export ABS_PRINT_error
 export ABS_PRINT
+ifeq ($(ABS_PRINT_DEBUG_CMD),:)
+define abs_debug
+endef
+else
+define abs_debug
+$(info $(shell $(ABS_PRINT_DEBUG_CMD) "$(ABS_COLOR_DEBUG)[abs-info]\t$1$(ABS_COLOR_RESTORE)"))
+endef
+endif
+ifeq ($(ABS_PRINT_INFO_CMD),:)
+define abs_info
+endef
+else
+define abs_info
+$(info $(shell $(ABS_PRINT_INFO_CMD) "$(ABS_COLOR_INFO)[abs-info]\t$1$(ABS_COLOR_RESTORE)"))
+endef
+endif
+define abs_warning
+$(info $(shell $(ABS_PRINT_WARNING_CMD) "$(ABS_COLOR_WARNING)[abs-info]\t$1$(ABS_COLOR_RESTORE)"))
+endef
+define abs_error
+$(info $(shell $(ABS_PRINT_ERROR_CMD) "$(ABS_COLOR_ERROR)[abs-info]\t$1$(ABS_COLOR_RESTORE)"))
+endef
 
 # some vars to store some particular chars for their use in macros.
 define _carriage_return_
