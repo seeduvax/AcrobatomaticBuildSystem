@@ -158,7 +158,7 @@ ifeq ($$(filter $1,$$($4) $$(TRANSUSELIB)),)
 $$(eval $4+=$1)
 include $$(patsubst %,$3/%/import.mk,$1)
 else
-$$(call abs_info,$1 already imported, ignoring new dependency from $2 to $1)
+$$(call abs_debug,$1 already imported. Ignoring new dependency from $2 to $1)
 endif
 
 endef
@@ -179,7 +179,7 @@ endif
 $(call includeExtLib,$1,$2,$3,$4)
 else
 ifneq ($(word 2,$(subst -, ,$1)),$$(word 2,$$(subst -, ,$$(filter $(word 1,$(subst -, ,$1))-%,$$(ALLUSELIB)))))
-$$(call abs_info,$1 not imported from $2, already imported another version: $$(filter $(word 1,$(subst -, ,$1))-%,$$(ALLUSELIB)))
+$$(call abs_warning,$1 not imported from $2. Already imported another version: $$(filter $(word 1,$(subst -, ,$1))-%,$$(ALLUSELIB)))
 DEPENDENCIES_ERROR=true
 $$(eval ADDEDDEPLIST:=$$(ADDEDDEPLIST)[color="red"] "$1"[color="red"])
 else
@@ -246,7 +246,7 @@ ifeq ($(DEPENDENCIES_ERROR),true)
 ifneq ($(ABS_STRICT_DEP_CHECK),)
 $(call abs_error,================================================================)
 $(call abs_error,                     ERROR"))
-$(call abs_error,Same lib used with different version, check USELIB definitions.)
+$(call abs_error,Same lib used with different version. Check USELIB definitions.)
 $(call abs_error,USELIB is: $(USELIB))
 $(call abs_error,Launch 'make checkdep' to see dependency graph.)
 $(call abs_error,================================================================)
@@ -254,7 +254,7 @@ ABS_FATAL:=true
 else
 $(call abs_warning,================================================================)
 $(call abs_warning,                           WARNING)
-$(call abs_warning,Same lib used with different version, check USELIB definitions.)
+$(call abs_warning,Same lib used with different version. Check USELIB definitions.)
 $(call abs_warning,USELIB is: $(USELIB))
 $(call abs_warning,Launch 'make checkdep' to see dependency graph.)
 $(call abs_warning,================================================================)
