@@ -21,9 +21,7 @@ NA_EXTLIBDIR?=$(TRDIR)/extlib
 endif
 NDEXTLIBDIR:=$(EXTLIBDIR).nodist
 NDNA_EXTLIBDIR:=$(NA_EXTLIBDIR).nodist
-
-ECLIPSE_PRJ=$(PRJROOT)/.project
-DEPTOOL:=$(ABSROOT)/core/deptool.bash
+EXTLIBDIR_READONLY?=1
 
 # tell the bootstrap makefile to not define its own default download rule.
 ABS_DEPDOWNLOAD_RULE_OVERLOADED:=1
@@ -64,7 +62,7 @@ define unpackArchive
 	@if [ -d $(@D)  ]; then chmod -R u+w $(@D) && rm -rf $(@D); fi
 	@mkdir -p $(@D)
 	@tar -xzf $^ -C $(1) && touch $@
-	@if [ -f "$(ECLIPSE_PRJ)" ]; then chmod -R a-w $(@D); fi
+	@if [ $(EXTLIBDIR_READONLY) -eq 1 ]; then chmod -R a-w $(@D); else true; fi
 endef
 
 # unpack arch specific external lib
