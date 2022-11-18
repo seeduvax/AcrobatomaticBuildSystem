@@ -751,7 +751,8 @@ Checksum function: <xsl:value-of select="@type"/>
     Automated test index
 -->
 <xsl:template match="testmodule">
-<xsl:if test="count(testsuite)&gt;0">
+<xsl:param name="modname"><xsl:value-of select="@name"/></xsl:param>
+<xsl:if test="count(testsuite)&gt;0 and (count(../../select)=0 or count(../../select[text()=$modname])!=0)">
 <xsl:call-template name="sectionHead">
 	<xsl:with-param name="title">Module <xsl:apply-templates select="@name"/></xsl:with-param>
 	<xsl:with-param name="level"><xsl:value-of select="count(ancestor-or-self::section)+count(ancestor-or-self::article)+2"/></xsl:with-param>
