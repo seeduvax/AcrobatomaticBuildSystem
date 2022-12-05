@@ -285,19 +285,17 @@ CPPUNIT_PLUGIN_IMPLEMENT();\n" > test/Main.cpp
  * \$$Id$$\n\
  * \$$Date$$\n\
  */\n\
-#include <cppunit/extensions/HelperMacros.h>\n\
+#include \"abs/test.h\"\n\
 #include \"$(TINC_PATH)/$(TESTNAME).hpp\"\n\
 \n\
 namespace test {\n\
 using namespace $(TNAMESPACE);\n\
 \n\
 // ----------------------------------------------------------\n\
-// test fixture implementation\n\
-class Test$(TESTNAME): public CppUnit::TestFixture {\n\
-CPPUNIT_TEST_SUITE( Test$(TESTNAME) );\n\
-// TODO for each test method:\n\
-// CPPUNIT_TEST( test...);\n\
-CPPUNIT_TEST_SUITE_END();\n\
+// test suite implementation\n\
+ABS_TEST_SUITE_BEGIN( Test$(TESTNAME) )\n\
+// uncomment and cmplete next line for test suite description\n\
+// ABS_TEST_DESCR(test description)\n\
 \n\
 private:\n\
 \n\
@@ -308,9 +306,18 @@ public:\n\
     void tearDown() {\n\
     }\n\
 \n\
-};\n\
+/* Test case template, uncomment and complete according this pattern for each test case\n\
+    ABS_TEST_CASE_BEGIN(NameOfTestCase)\n\
+        ABS_TEST_DESCR(Test case description)\n\
+        ABS_TEST_CASE_REQ(req.id) // one entry for eache requrement checked by this case\n\
+        // init/call service / function to be tested and collect results\n\
 \n\
-CPPUNIT_TEST_SUITE_REGISTRATION(Test$(TESTNAME));\n\
+        // check restults with cppunit asserts\n\
+        CPPUNIT_ASSERT( bool expr);\n\
+        CPPUNIT_ASSERT_EQUAL(expected_value,computed_value);\n\
+    ABS_TEST_CASE_END\n\
+*/\n\
+ABS_TEST_SUITE_END\n\
 } // namespace test\n" `date +%Y` > test/Test$(TESTNAME).cpp
 
 $(TESTNAME):
