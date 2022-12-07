@@ -74,7 +74,7 @@ $(PRJROOT)/.git/hooks/%: $(ABSROOT)/core/git-dloop-hook.sh
 	@cp $^ $@
 	@chmod +x $@
 
-ABS_GIT_HOOKS:=$(patsubst %.sample,%,$(wildcard $(PRJROOT)/.git/hooks/*.sample))
+ABS_GIT_HOOKS:=$(patsubst %.sample,%,$(wildcard $(PRJROOT)/.git/hooks/*.sample)) $(PRJROOT)/.git/hooks/post-commit
 
 $(PRJROOT)/app.cfg: $(ABS_GIT_HOOKS)
 
