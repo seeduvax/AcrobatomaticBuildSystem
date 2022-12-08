@@ -70,7 +70,6 @@ $(JARIMGDIR)/%.class: src/%.java
 	@$(ABS_PRINT_info) "Compiling $< ..."
 	@mkdir -p $(JARIMGDIR)
 	@echo `date --rfc-3339 s`'> $(JC) $(JCFLAGS) $<' >> $(TRDIR)/build.log
-	@echo '{"directory":"$(MODROOT)","command":"$(JC) $(JCFLAGS) $<","file":"$<","output":"$@"},' > $(OBJDIR)/$(@F).o.json
 	@$(JC) $(JCFLAGS) $(if $(ISWINDOWS),`cygpath -m $<`,$<) || ( echo 'Failed: JFLAGS=$(JCFLAGS)' ; exit 1 )
 
 # Resource file copy
@@ -148,3 +147,9 @@ debug:: all
 ifneq ($(INCTESTS),)
   include $(ABSROOT)/core/module-junit.mk
 endif
+
+show-java-classpath:
+	@echo $(CLASSPATH)
+
+show-java-srcpath:
+	@echo "src:$(JARIMGDIR):$(JGENSRCDIR)"
