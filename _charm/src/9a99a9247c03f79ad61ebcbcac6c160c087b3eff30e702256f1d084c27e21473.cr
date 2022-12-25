@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<cr id="9a99a9247c03f79ad61ebcbcac6c160c087b3eff30e702256f1d084c27e21473" state="working">
+<cr id="9a99a9247c03f79ad61ebcbcac6c160c087b3eff30e702256f1d084c27e21473" state="closed" delivered="abs-3.3.18">
 <title>Generate compile_commands.json at PRJROOT (used for clangd daemon, for modern editors like VSCode)</title>
 <reporter>m025909</reporter>
 <creation>2022-10-06 11:32:35+02:00</creation>

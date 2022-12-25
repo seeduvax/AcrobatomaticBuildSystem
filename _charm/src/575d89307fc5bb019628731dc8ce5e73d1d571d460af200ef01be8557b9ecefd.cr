@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<cr id="575d89307fc5bb019628731dc8ce5e73d1d571d460af200ef01be8557b9ecefd" state="resolved">
+<cr id="575d89307fc5bb019628731dc8ce5e73d1d571d460af200ef01be8557b9ecefd" state="closed" delivered="abs-3.3.18">
 <title>Equation support in heml docs</title>
 <reporter>sdevaux</reporter>
 <creation>2022-07-19 21:16:23+02:00</creation>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<cr id="026fb506e5ba3a6775b68445c09363148d798286ed3d8e3c0f83231226b1be2d" state="working">
+<cr id="026fb506e5ba3a6775b68445c09363148d798286ed3d8e3c0f83231226b1be2d" state="closed" delivered="abs-3.3.18">
 <title>build chain package support</title>
 <reporter>sdevaux</reporter>
 <creation>2022-04-03 12:41:04+02:00</creation>

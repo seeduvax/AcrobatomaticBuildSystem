@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<cr id="f9fefc81c55b977e36d6217424853ee26e41336294bd18728ca0743b161c4346" state="working">
+<cr id="f9fefc81c55b977e36d6217424853ee26e41336294bd18728ca0743b161c4346" state="closed" delivered="abs-3.3.18">
 <title>error on local.cfg donwload attempt when invoking make dist on abs project itself.</title>
 <reporter>sdevaux</reporter>
 <creation>2022-07-20 22:43:10+02:00</creation>

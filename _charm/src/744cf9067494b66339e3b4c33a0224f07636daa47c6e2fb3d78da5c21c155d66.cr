@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<cr id="744cf9067494b66339e3b4c33a0224f07636daa47c6e2fb3d78da5c21c155d66" state="working">
+<cr id="744cf9067494b66339e3b4c33a0224f07636daa47c6e2fb3d78da5c21c155d66" state="closed" delivered="abs-3.3.18">
 <title>percent char in heml doc attribute makes pdf rendering fail</title>
 <reporter>sdevaux</reporter>
 <creation>2022-10-20 12:32:12+02:00</creation>

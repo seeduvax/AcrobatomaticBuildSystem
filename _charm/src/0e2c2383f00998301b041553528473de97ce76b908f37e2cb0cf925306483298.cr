@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><cr id="0e2c2383f00998301b041553528473de97ce76b908f37e2cb0cf925306483298" state="resolved">
+<?xml version="1.0" encoding="UTF-8"?><cr id="0e2c2383f00998301b041553528473de97ce76b908f37e2cb0cf925306483298" state="closed" delivered="abs-3.3.18">
 <title>default to read-only extlib dir</title>
 <reporter>m025909</reporter>
 <creation>2022-11-07 11:52:44+01:00</creation>
