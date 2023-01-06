@@ -26,7 +26,7 @@ $(BUILDROOT)/.abs/$(HOSTNAME)-vars.mk:
 	fi ;\
 	case "$$distId"_"$$release" in \
 		_) echo "SYSNAME?=UnknownArch" >> $@ ;;\
-		Msys*|Cygwin*) echo "Windows";;\
+		Msys*|Cygwin*) echo "SYSNAME?=Windows" >> $@;;\
 		*) echo "SYSNAME?=$$distId"_"$$mrelease" >> $@;;\
 	esac
 	@echo "HWNAME?="`uname -m` >> $@
