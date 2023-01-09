@@ -228,9 +228,16 @@ debugcheck: testbuild
 	@PATH="$(RUNPATH)" LD_LIBRARY_PATH="$(TLDLIBP)" TRDIR="$(TRDIR)" TTARGETDIR="$(TTARGETDIR)" gdb  $(patsubst %,$(EXTLIBDIR)/%/bin/$(TESTRUNNER),$(CPPUNIT)) -x cmd.gdb
 	@rm cmd.gdb
 
+GDBSERVER_PORT?=9091
+##  - remotedebugtest [RUNARGS="<arg> [<arg>]*": run test from gdbserver debugger] [GDBSERVER_PORT=9091 : default gdbserver port]
+.PHONY: remotedebugtest
+remotedebugtest: testbuild
+	@PATH="$(RUNPATH)" LD_LIBRARY_PATH="$(TLDLIBP)" TRDIR="$(TRDIR)" TTARGETDIR="$(TTARGETDIR)" gdbserver :$(GDBSERVER_PORT) $(patsubst %,$(EXTLIBDIR)/%/bin/$(TESTRUNNER),$(CPPUNIT)) $(TTARGETFILE) $(RUNARGS) $(patsubst %,+f %,$(T)) $(TARGS)
+
 ##  - debugtest: alias for debugcheck
 .PHONY: debugtest
 debugtest: debugcheck
+
 else
 # when no test are available, making test shall at least build the module
 test::
@@ -243,6 +250,44 @@ valgrindtest:: test
 debugcheck: test
 
 endif
+
+define gen_vsdebugtest
+{
+  "version": "0.2.0",
+  "configurations": [
+      {
+        "name": "make remotedebugtest",
+        "type": "cppdbg",
+        "request": "launch",
+        "program": "$(TTARGETFILE)",
+        "miDebuggerServerAddress": "localhost:$(GDBSERVER_PORT)",
+        "args": [],
+        "stopAtEntry": false,
+        "cwd": "$(PWD)",
+        "environment": [],
+        "externalConsole": true,
+        "setupCommands": [
+          {
+              "description": "Enable pretty-printing for gdb",
+              "text": "-enable-pretty-printing",
+              "ignoreFailures": true
+          }
+         ],
+         "linux": {
+         "MIMode": "gdb"
+         }
+      }
+   ]
+}
+endef
+export gen_vsdebugtest
+
+##  - vsdebugtest: print unit tests setup for vscode
+.PHONY:	vsdebugtest
+vsdebugtest:	
+	@echo "**** vscode launch configuration: .vscode/launch.json ****"
+	@echo "$$gen_vsdebugtest"
+
 
 ##  - edebugtest: print unit tests setup for eclipse
 .PHONY:	edebugtest
