@@ -853,7 +853,7 @@ Checksum function: <xsl:value-of select="@type"/>
   <xsl:apply-templates/>
 \begin{HEMLtable}{|p{0.3\linewidth-2\tabcolsep}|p{0.7\linewidth-2\tabcolsep}|}
 \hline
-  <xsl:apply-templates select="check|procedure" mode="synthesis"/>
+  <xsl:apply-templates select=".//check|.//procedure" mode="synthesis"/>
 \hline
 \end{HEMLtable}
   
@@ -874,7 +874,7 @@ Checksum function: <xsl:value-of select="@type"/>
 \hline
 \end{HEMLtable}
 </xsl:template>
-<xsl:template match="report/check|report/procedure">
+<xsl:template match="report//check|report//procedure">
 \begin{HEMLtable}{|p{0.1\linewidth-2\tabcolsep}|p{0.8\linewidth-2\tabcolsep}|p{0.1\linewidth-2\tabcolsep}|}
 \hline
 \HEMLoddHeadCell &amp; \HEMLoddHeadCell \textbf{Procedure <xsl:apply-templates select="@id"/> [<xsl:call-template name="formatText"><xsl:with-param name="text" select="../context/@reference"/></xsl:call-template> {\S}<xsl:value-of select="@ref"/>]: <xsl:value-of select="@title"/>}<xsl:text>
@@ -888,12 +888,12 @@ Checksum function: <xsl:value-of select="@type"/>
 </xsl:template>
 
 
-<xsl:template match="report/check//section|report/procedure//section">
+<xsl:template match="report//check//section|report//procedure//section">
 \HEMLevenHeadCell \textbf{{\S}<xsl:apply-templates select="@id"/>} &amp; \HEMLevenHeadCell \textbf{<xsl:value-of select="@title"/>} &amp; \HEMLevenHeadCell <xsl:text> </xsl:text> \\
 <xsl:apply-templates select="operation|assert|section"/>
 </xsl:template>
 
-<xsl:template match="report/check//operation|report/procedure//operation">
+<xsl:template match="report//check//operation|report//procedure//operation">
 <xsl:param name="lStatus"><xsl:value-of select="translate(@status,$upperCase,$lowerCase)"/></xsl:param>
 <xsl:param name="statusColor"><xsl:choose>
   <xsl:when test="$lStatus='ok' or $lStatus='done'">hemlOkTextColor</xsl:when>
@@ -913,7 +913,7 @@ Operation \#<xsl:apply-templates select="@id"/> &amp;
 </xsl:text><xsl:apply-templates/>
 &amp; \textbf{\color{<xsl:value-of select="$statusColor"/>}<xsl:value-of select="@status"/>} \\
 </xsl:template>
-<xsl:template match="report/check//assert|report/procedure//assert">
+<xsl:template match="report//check//assert|report//procedure//assert">
 <xsl:param name="lStatus"><xsl:value-of select="translate(@status,$upperCase,$lowerCase)"/></xsl:param>
 <xsl:param name="statusColor"><xsl:choose>
   <xsl:when test="$lStatus='pass' or $lStatus='ok'">hemlOkTextColor</xsl:when>
@@ -937,7 +937,7 @@ Assert \#<xsl:apply-templates select="@id"/> &amp;
 &amp; \textbf{\color{<xsl:value-of select="$statusColor"/>}<xsl:value-of select="@status"/>} \\
 </xsl:template>
 
-<xsl:template match="report/check|report/procedure" mode="synthesis">
+<xsl:template match="report//check|report//procedure" mode="synthesis">
 <xsl:param name="failures"><xsl:value-of select="count(.//assert[translate(@status,$upperCase,$lowerCase)!='ok' and translate(@status,$upperCase,$lowerCase)!='pass' and translate(@status,$upperCase,$lowerCase)!='n/a' and translate(@status,$upperCase,$lowerCase)!='na'])"/></xsl:param>
 <xsl:param name="skips"><xsl:value-of select="count(.//assert[translate(@status,$upperCase,$lowerCase)='skip' or translate(@status,$upperCase,$lowerCase)='skept' or translate(@status,$upperCase,$lowerCase)='skipped' or translate(@status,$upperCase,$lowerCase)='n/a' or translate(@status,$upperCase,$lowerCase)='na']) + count(operation[translate(@status,$upperCase,$lowerCase)='skip' or translate(@status,$upperCase,$lowerCase)='skept' or translate(@status,$upperCase,$lowerCase)='skipped' or translate(@status,$upperCase,$lowerCase)='n/a' or translate(@status,$upperCase,$lowerCase)='na'])"/></xsl:param>
 <xsl:choose>
