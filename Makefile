@@ -18,16 +18,14 @@ ifeq ($(WORKSPACE_IS_TAG),0)
 VERSION:=$(VERSION)d
 endif
 
-DISTPACKAGES:=$(patsubst %,dist/abs.%-$(VERSION).tar.gz,$(ABS_PACKAGES))
-
-dist/abs.%-$(VERSION).tar.gz:
+dist/abs.core-$(VERSION).tar.gz:
 	@mkdir -p $(@D)/abs-$(VERSION)
-	@tar --exclude=.svn -cf - $* | tar xf - -C $(@D)/abs-$(VERSION)
-	@sed -i 's/__ABS_MODULE_VERSION_MARKER__/$(VERSION)/g' $(@D)/abs-$(VERSION)/$*/main.mk
-	@cp LICENSE  $(@D)/abs-$(VERSION)/$*/
-	@tar cvzf $@ -C $(@D) abs-$(VERSION)/$*
+	@tar --exclude=.svn -cf - $(ABS_PACKAGES) | tar xf - -C $(@D)/abs-$(VERSION)
+	@sed -i 's/__ABS_MODULE_VERSION_MARKER__/$(VERSION)/g' $(@D)/abs-$(VERSION)/core/main.mk
+	@cp LICENSE  $(@D)/abs-$(VERSION)/core/
+	@tar cvzf $@ -C $(@D) $(patsubst %,abs-$(VERSION)/%,$(ABS_PACKAGES))
 
-dist: $(DISTPACKAGES)
+dist: dist/abs.core-$(VERSION).tar.gz
 
 $(PREFIX)/noarch/abs.%: dist/abs.%
 	cp $^ $@
