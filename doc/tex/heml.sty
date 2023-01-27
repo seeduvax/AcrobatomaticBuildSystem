@@ -132,12 +132,28 @@
 \newcommand\HEMLfigScale{0.5}
 \definecolor{darkblue}{rgb}{0.0, 0.0, 0.55}
 \newcommand{\HEMLreqReference}[1]{\colorbox{yellow!10}{\textbf{\textcolor{darkblue}{#1}}}}
-\newcommand{\HEMLrequirement}[2]{
-\begin{tabular}{p{3.3cm} p{13.7cm}}
-\hline
-\rowcolor{yellow!10}
-\textbf{\textcolor{darkblue}{#1}} & #2 \\ 
-\end{tabular}%
+\newcommand{\HEMLrequirement}[3]{
+\begin{tcolorbox}[left=0.1cm,
+    right=0.1cm,
+    top=0.1cm,
+    bottom=0.1cm,
+    colback=yellow!10,
+    colframe=black,
+    boxrule=0pt,
+    toprule=0.5pt,
+    width=\dimexpr\textwidth\relax,
+    enlarge left by=0mm,
+    boxsep=0cm,
+    arc=0pt,outer arc=0pt]
+\textbf{\textcolor{darkblue}{#1}} 
+
+\hspace*{1cm}\begin{minipage}{\textwidth-1cm}
+#2
+\end{minipage}
+
+#3
+
+\end{tcolorbox}
 }
 \newcommand{\HEMLreqref}[1]{
 \begin{tcolorbox}[

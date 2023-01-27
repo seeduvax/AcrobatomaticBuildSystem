@@ -292,11 +292,9 @@ TBD<xsl:value-of select="count(preceding::tbd)+1"/> &amp; \S\ref{tbd.<xsl:value-
 <xsl:when test="@id!=''">
 \HEMLrequirement{<xsl:apply-templates select="@id"/>}{
 <xsl:apply-templates select="text()|*[not(self::up)]"/>
-<xsl:if test="count(up)&gt;0">
- \\
-\textbf{Upward req.:} &amp; <xsl:apply-templates select="up"/>
-</xsl:if>
-}
+}{<xsl:if test="count(up)&gt;0">
+\textbf{Upward req.:} <xsl:apply-templates select="up"/>
+</xsl:if>}
 </xsl:when>
 <xsl:otherwise>\HEMLreqReference{<xsl:value-of select="."/>}</xsl:otherwise>
 </xsl:choose>

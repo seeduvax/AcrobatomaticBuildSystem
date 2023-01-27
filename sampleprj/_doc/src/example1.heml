@@ -74,7 +74,7 @@ Add here an include example
 {req %id=req.1 
 {up uprec.A}
 {up uprec.C}
-A requirement shall be a short sentance defining a single caracteristic of the specified {kw object}.
+A requirement shall be a short sentence defining a single characteristic of the specified {kw object}.
 }
 This is not a requirement, but just companion text to provide a better understanding of the requirements.
 {req %id=req.2
@@ -83,9 +83,22 @@ This is not a requirement, but just companion text to provide a better understan
 A sentance without the verb shall is not a requirement.
 }
 {req %id=req.3 %%Each requirement shall have a unique identifier}
+{req %id=req.4
+A bad requirement that is not just a sentence but contains many things with
+structured bullets:
+ - shall apply item 1
+ - shall apply item 2
+
+With additional long text to check how lines break and margins are well handled:
+df kqsjdhf kqjsdhfkjqsdh fkjqshdf kjqsdhf kjqsdhfk jqsdfkjqshd fkjqshdkfj ksdjfh
+kqjsdhf kqjsdf kqsjdf.
+}
+{req %id=requirement_with_a_very_long_identifier_to_check_it_is_not_trunkated
+Some people love huge levels of dotted requirements identifiers.
+}
   }
   {section %title=Highlights
-Paragraphe may have {em some emphasis} content or enclosed {kw keyword} in the
+Paragraph may have {em some emphasis} content or enclosed {kw keyword} in the
 text. As well this is a citation: {q Science is what we understand well enough
 to explain to a computer. Art is everything else we do.} blabla {todo to
 complete the doc add the missing parts. additional sentance to make the todo
@@ -107,7 +120,7 @@ is needed to check line wrap}.
 
 {tbc tbc as a standalone paragraph.}
 
-%{tbc tbc starting a new pargraph.} And the paragraphe complement.
+%{tbc tbc starting a new pargraph.} And the paragraph complement.
   }
   {section %title=Tables
 {table %title=Example of table %xref=TableEX
