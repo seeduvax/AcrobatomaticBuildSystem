@@ -81,10 +81,15 @@ endef
 _carriage_return_:=$(patsubst !!,,$(_carriage_return_))
 _space_=$(subst ,, )
 
-##  - LIB_REPO: dependencies repositories. local file path or URL. Repositories
-##       shall be list according the expected search order. Use ',' char as
+##  - ABS_REPO: dependencies repositories. URL pattern. Repositories shall
+##       be listed according the expected search order. Use space char as
 ##       separator.
-LIB_REPO?=$(ABS_REPO)
+##       Pattern shall include % char for file name substitution.
+##       Pattern may include any other variable, however ARCH variable
+##       shall be someway escaped with double $ to be properly substitued
+##       in any case.
+##       Exemple:
+##       ABS_REPO=file://usr/local/dist/$$(ARCH)/% https://example.org/abs/%?arch=$$(ARCH)
 
 ##  - XARCH: defined alternate architecture for cross compilation. See
 ##     available files in $(ABSROOT)/core/xarch to get supported

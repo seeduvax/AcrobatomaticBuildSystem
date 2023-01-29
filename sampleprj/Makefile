@@ -45,16 +45,36 @@ include $(ABSROOT)/core/main.mk
 # May be overloaded by dependencies download rules for more features
 ifeq ($(ABS_DEPDOWNLOAD_RULE_OVERLOADED),)
 ABS_REPO_1ST=$(word 1,$(ABS_REPO))
+ifeq ($(findstring %,$(ABS_REPO_1ST)),)
+ABS_REPO_PATTERN_1ST:=$(ABS_REPO_1ST)/$(ARCH)/%
+ABS_REPO_NA_PATTERN_1ST:=$(ABS_REPO_1ST)/noarch/%
+else
+$(eval ABS_REPO_PATTERN_1ST:=$(ABS_REPO_1ST))
+$(eval ABS_REPO_NA_PATTERN_1ST:=$(subst $$(ARCH),noarch,$(ABS_REPO_1ST)))
+endif
+
+$(ABS_CACHE)/noarch/%:
+	@mkdir -p $(@D)
+ifeq ($(findstring file://,$(ABS_REPO_NA_PATTERN_1ST)),file://)
+	test -r $(patsubst file://%,%,$(patsubst %,$(ABS_REPO_NA_PATTERN_1ST),$(@F))) || exit 1
+	echo "Linking $(@F) from $(ABS_REPO_NA_PATTERN_1ST)"
+	ln -sf $(patsubst file://%,%,$(patsubst /%,$(ABS_REPO_NA_PATTERN_1ST)/%,$(@F))) $@
+else
+	echo "Fetching $(@F) from $(ABS_REPO_NA_PATTERN_1ST)"
+	wget -q $(WGETFLAGS) $(patsubst %,$(ABS_REPO_NA_PATTERN_1ST)/%,$(@F)) -O $@
+endif
+
 $(ABS_CACHE)/%:
 	@mkdir -p $(@D)
-ifeq ($(findstring file://,$(ABS_REPO_1ST)),file://)
-	@test -r $(patsubst file://%,%,$(patsubst $(ABS_CACHE)/%,$(ABS_REPO_1ST)/%,$@)) || exit 1
-	@echo "Linking $(@F) from $(ABS_REPO_1ST)"
-	@ln -sf $(patsubst file://%,%,$(patsubst $(ABS_CACHE)/%,$(ABS_REPO_1ST)/%,$@)) $@
+ifeq ($(findstring file://,$(ABS_REPO_PATTERN_1ST)),file://)
+	@test -r $(patsubst file://%,%,$(patsubst %,$(ABS_REPO_PATTERN_1ST),$(@F))) || exit 1
+	@echo "Linking $(@F) from $(ABS_REPO_PATTERN_1ST)"
+	@ln -sf $(patsubst file://%,%,$(patsubst /%,$(ABS_REPO_PATTERN_1ST)/%,$(@F))) $@
 else
-	@echo "Fetching $(@F) from $(ABS_REPO_1ST)"
-	@wget -q $(WGETFLAGS) $(patsubst $(ABS_CACHE)/%,$(ABS_REPO_1ST)/%,$@) -O $@
+	@echo "Fetching $(@F) from $(ABS_REPO_PATTERN_1ST)"
+	@wget -q $(WGETFLAGS) $(patsubst %,$(ABS_REPO_PATTERN_1ST)/%,$(@F)) -O $@
 endif
+
 endif
 
 $(ABSROOT)/%/main.mk: $(ABS_CACHE)/noarch/abs.%-$(VABS).tar.gz
