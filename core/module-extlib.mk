@@ -61,7 +61,7 @@ endif
 
 $(ABS_CACHE)/noarch/%:
 	@mkdir -p $(@D)
-	$(call downloadFromRepos,$*,$(patsubst %,$(ABS_REPO_NA_PATTERN),$(@F)),$@)
+	$(call downloadFromRepos,$*,$(foreach pat,$(ABS_REPO_NA_PATTERN),$(patsubst %,$(pat),$(@F))),$@)
 
 $(ABS_CACHE)/%:
 	@mkdir -p $(@D)
