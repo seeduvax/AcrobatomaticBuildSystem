@@ -23,6 +23,14 @@ NDEXTLIBDIR:=$(EXTLIBDIR).nodist
 NDNA_EXTLIBDIR:=$(NA_EXTLIBDIR).nodist
 EXTLIBDIR_READONLY?=1
 
+ifeq ($(ISWINDOWS),true)
+	LNDIR:=cp -r
+	LNFILE:=cp
+else
+	LNDIR:=ln -sf
+	LNFILE:=ln -sf
+endif
+
 # tell the bootstrap makefile to not define its own default download rule.
 ABS_DEPDOWNLOAD_RULE_OVERLOADED:=1
 # download files from repository
@@ -92,10 +100,11 @@ $(ABSWS_NA_EXTLIBDIR)/%/import.mk: $(ABS_CACHE)/noarch/%.tar.gz
 $(ABSWS_NDNA_EXTLIBDIR)/%/import.mk: $(ABS_CACHE)/noarch/%.tar.gz
 	$(call unpackArchive,$(ABSWS_NDNA_EXTLIBDIR))
 
+
 define extlib_linkLibrary
 	@mkdir -p `dirname $(@D)`
 	@test -d $(@D) && rm $(@D) || true
-	@ln -s $(<D) $(@D)
+	@$(LNDIR) $(<D) $(@D)
 endef	
 
 # unpack arch specific external lib
@@ -117,19 +126,11 @@ $(NDNA_EXTLIBDIR)/%/import.mk: $(ABSWS_NDNA_EXTLIBDIR)/%/import.mk
 # same for java libraries
 $(NA_EXTLIBDIR)/%.jar: $(ABS_CACHE)/noarch/%.jar
 	@mkdir -p $(@D)
-ifeq ($(ISWINDOWS),true)
-	@cp $^ $@
-else
-	@ln -sf $^ $@
-endif
+	@$(LNFILE) -sf $^ $@
 
 $(NDNA_EXTLIBDIR)/%.jar: $(ABS_CACHE)/noarch/%.jar
 	mkdir -p $(@D)
-ifeq ($(ISWINDOWS),true)
-	@cp $^ $@
-else
-	@ln -sf $^ $@
-endif
+	@$(LNFILE) $^ $@
 
 # --------------------------------------------------------------------
 # general purpose noarch file sets
@@ -229,7 +230,7 @@ endif
 $(NA_EXTLIBDIR)/%.jar: $(EXTLIBDIR)/$(1)-$(2)/lib/%.jar
 	@$$(ABS_PRINT_info) "Importing jar lib $$(@F)..."
 	@mkdir -p $$(@D)
-	@ln -sf $$^ $$@
+	@$(LNFILE) $$^ $$@
 
 endef
 
