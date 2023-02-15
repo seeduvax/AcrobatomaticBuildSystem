@@ -96,11 +96,11 @@ MODULE_MK_TEST_PATH=$(OBJDIR)/module_test.mk
 
 MODULE_MK_OBJ_PATH=$(OBJDIR)/module.mk
 # these variables will be modified later by reading module.mk files.
-ABS_INCLUDE_LIBS+=
-ABS_INCLUDE_TESTLIBS+=
+ABS_INCLUDE_MODS+=
+ABS_INCLUDE_TESTMODS+=
 # the includes modules directly associated to this module
-DEFAULT_ABS_INCLUDE_LIBS:=$(patsubst %,$(APPNAME)_%,$(USEMOD) $(USELKMOD)) $(LINKLIB) $(INCLUDE_LIBS)
-DEFAULT_ABS_INCLUDE_TESTLIBS:=$(patsubst %,$(APPNAME)_%,$(TESTUSEMOD)) $(TLINKLIB) $(INCLUDE_TESTLIBS)
+DEFAULT_ABS_INCLUDE_MODS:=$(patsubst %,$(APPNAME)_%,$(USEMOD) $(USELKMOD)) $(LINKLIB) $(INCLUDE_MODS)
+DEFAULT_ABS_INCLUDE_TESTMODS:=$(patsubst %,$(APPNAME)_%,$(TESTUSEMOD)) $(TLINKLIB) $(INCLUDE_TESTMODS)
 # definition of variables used to find the path to modules trdir.
 MODULES_DEPS:=$(patsubst ../%/Makefile,%,$(wildcard ../*/Makefile))
 PROJECT_MODS:=$(patsubst %,$(APPNAME)_%,$(MODULES_DEPS))
@@ -258,8 +258,8 @@ endif
 endif # ifeq($(DEPS_MNGMT_LEVEL),DISABLED)
 
 
-DEFAULT_ABS_EXISTING_LIBS=$(foreach mod,$(DEFAULT_ABS_INCLUDE_LIBS),$(if $(_module_$(mod)_dir)$(_app_$(mod)_dir),$(mod),$(if $(_app_lib$(mod)_dir),lib$(mod))))
-DEFAULT_ABS_EXISTING_TESTLIBS=$(foreach mod,$(DEFAULT_ABS_INCLUDE_TESTLIBS),$(if $(_module_$(mod)_dir)$(_app_$(mod)_dir),$(mod),$(if $(_app_lib$(mod)_dir),lib$(mod))))
+DEFAULT_ABS_EXISTING_LIBS=$(foreach mod,$(DEFAULT_ABS_INCLUDE_MODS),$(if $(_module_$(mod)_dir)$(_app_$(mod)_dir),$(mod),$(if $(_app_lib$(mod)_dir),lib$(mod))))
+DEFAULT_ABS_EXISTING_TESTLIBS=$(foreach mod,$(DEFAULT_ABS_INCLUDE_TESTMODS),$(if $(_module_$(mod)_dir)$(_app_$(mod)_dir),$(mod),$(if $(_app_lib$(mod)_dir),lib$(mod))))
 DEPS_LIBS_MK=$(foreach mod,$(DEFAULT_ABS_EXISTING_LIBS),$(MODULE_MK_DIR)/module_$(mod).mk)
 DEPS_TESTLIBS_MK=$(foreach mod,$(DEFAULT_ABS_EXISTING_TESTLIBS),$(MODULE_MK_TEST_DIR)/module_$(mod).mk)
 PROJDEPS_MODS_MK=$(foreach mod,$(PROJECT_MODS),$(MODULE_MK_DIR)/module_$(mod).mk)
@@ -273,7 +273,7 @@ $(MODULE_MK_PATH): $(MODULE_MK_OBJ_PATH) $(DEPS_LIBS_MK) module.cfg
 	@$(ABS_PRINT_debug) "Creation of project module $@"
 	@mkdir -p $(@D)
 	@echo '$(foreach modMk,$(DEPS_LIBS_MK),\n-include $(modMk))' > $@.tmp
-	@echo "ABS_INCLUDE_LIBS+=$(sort $(DEFAULT_ABS_EXISTING_LIBS))" >> $@.tmp
+	@echo "ABS_INCLUDE_MODS+=$(sort $(DEFAULT_ABS_EXISTING_LIBS))" >> $@.tmp
 	@echo "_app_$(APPNAME)_dir:=$(TRDIR)" >> $@.tmp
 	@echo "_module_$(APPNAME)_$(MODNAME)_dir:=$(TRDIR)" >> $@.tmp
 	@mv $@.tmp $@
@@ -282,7 +282,7 @@ $(MODULE_MK_TEST_PATH): $(MODULE_MK_OBJ_PATH) $(DEPS_TESTLIBS_MK) module.cfg
 	@$(ABS_PRINT_debug) "Creation of project module $@"
 	@mkdir -p $(@D)
 	@echo '$(foreach modMk,$(DEPS_TESTLIBS_MK),\n-include $(modMk))' > $@.tmp
-	@echo "ABS_INCLUDE_TESTLIBS+=$(sort $(DEFAULT_ABS_EXISTING_TESTLIBS))" >> $@.tmp
+	@echo "ABS_INCLUDE_TESTMODS+=$(sort $(DEFAULT_ABS_EXISTING_TESTLIBS))" >> $@.tmp
 	@echo "_app_$(APPNAME)_dir:=$(TRDIR)" >> $@.tmp
 	@echo "_module_$(APPNAME)_$(MODNAME)_dir:=$(TRDIR)" >> $@.tmp
 	@mv $@.tmp $@
@@ -311,10 +311,10 @@ endef
 # this rule only execute its command if the mod is not a project mod. 
 # (one rule because cannot distinct modules of two project with almost same name ex: 'proj' and 'proj_lkm')
 $(MODULE_MK_DIR)/module_%.mk:
-	$(call createModuleMkFile,ABS_INCLUDE_LIBS)
+	$(call createModuleMkFile,ABS_INCLUDE_MODS)
 	
 $(MODULE_MK_TEST_DIR)/module_%.mk:
-	$(call createModuleMkFile,ABS_INCLUDE_TESTLIBS)
+	$(call createModuleMkFile,ABS_INCLUDE_TESTMODS)
 
 ifneq ($(INCTESTS),)
 
@@ -322,7 +322,7 @@ include $(MODULE_MK_TEST_PATH)
 
 endif # ifneq ($(INCTESTS),)
 
-# this include permit to generate the full ABS_INCLUDE_LIBS (including externals dependencies and transitionnal dependencies.)
+# this include permit to generate the full ABS_INCLUDE_MODS (including externals dependencies and transitionnal dependencies.)
 include $(MODULE_MK_PATH)
 
 ifneq ($(SRCFILES),)

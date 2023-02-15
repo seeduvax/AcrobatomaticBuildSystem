@@ -53,7 +53,7 @@ TCPPOBJS=$(patsubst test/%.cpp,$(OBJDIR)/test/%.o,$(filter %.cpp,$(TSRCFILES))) 
 # compiler options specific to test
 TCFLAGS+=$(patsubst %,-I../%/include,$(TESTUSEMOD))
 
-INCLUDE_PROJ_TESTMODS=$(patsubst $(APPNAME)_%,%,$(filter $(PROJECT_MODS),$(sort $(ABS_INCLUDE_TESTLIBS))))
+INCLUDE_PROJ_TESTMODS=$(patsubst $(APPNAME)_%,%,$(filter $(PROJECT_MODS),$(sort $(ABS_INCLUDE_TESTMODS))))
 
 # linker options specific to test
 TLDFLAGS+=-L$(TRDIR)/$(SODIR)  $(patsubst %,-l$(APPNAME)_%,$(TESTUSEMOD)) -lcppunit $(patsubst %,-l%,$(TLINKLIB))
@@ -63,13 +63,13 @@ TLDFLAGS+=$(foreach mod,$(INCLUDE_PROJ_TESTMODS),-L$(TRDIR)/$(SODIR))
 TCFLAGS+=$(patsubst %,-I$(PRJROOT)/%/include,$(INCLUDE_PROJ_TESTMODS))
 TCFLAGS+=$(patsubst %,-I$(TRDIR)/include,$(INCLUDE_PROJ_TESTMODS))
 
-INCLUDE_TESTLIBS_EXT=$(filter-out $(PROJECT_MODS),$(sort $(ABS_INCLUDE_TESTLIBS))) $(ABS_INCLUDE_TESTLIBS) $(TLINKLIB)
+INCLUDE_TESTMODS_EXT=$(filter-out $(PROJECT_MODS),$(sort $(ABS_INCLUDE_TESTMODS))) $(ABS_INCLUDE_TESTMODS) $(TLINKLIB)
 
-INCLUDE_TESTLIBS_EXT_LOOKING_PATHS=$(sort $(foreach modExt,$(INCLUDE_TESTLIBS_EXT),$(_module_$(modExt)_dir) $(_app_$(modExt)_dir)))
-INCLUDE_TESTLIBS_EXT_CPATHS=$(foreach path,$(INCLUDE_TESTLIBS_EXT_LOOKING_PATHS),$(wildcard $(path)/include))
-TCFLAGS+=$(foreach extPath,$(INCLUDE_TESTLIBS_EXT_CPATHS),-I$(extPath))
-INCLUDE_TESTLIBS_EXT_LDPATHS+=$(foreach path,$(INCLUDE_TESTLIBS_EXT_LOOKING_PATHS),$(filter-out %/library.json,$(wildcard $(path)/lib*)))
-TLDFLAGS+=$(foreach extPath,$(INCLUDE_TESTLIBS_EXT_LDPATHS),-L$(extPath))
+INCLUDE_TESTMODS_EXT_LOOKING_PATHS=$(sort $(foreach modExt,$(INCLUDE_TESTMODS_EXT),$(_module_$(modExt)_dir) $(_app_$(modExt)_dir)))
+INCLUDE_TESTMODS_EXT_CPATHS=$(foreach path,$(INCLUDE_TESTMODS_EXT_LOOKING_PATHS),$(wildcard $(path)/include))
+TCFLAGS+=$(foreach extPath,$(INCLUDE_TESTMODS_EXT_CPATHS),-I$(extPath))
+INCLUDE_TESTMODS_EXT_LDPATHS+=$(foreach path,$(INCLUDE_TESTMODS_EXT_LOOKING_PATHS),$(filter-out %/library.json,$(wildcard $(path)/lib*)))
+TLDFLAGS+=$(foreach extPath,$(INCLUDE_TESTMODS_EXT_LDPATHS),-L$(extPath))
 
 # adaptation to module type
 ifeq ($(MODTYPE),library)

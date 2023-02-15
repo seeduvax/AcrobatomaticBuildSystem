@@ -79,7 +79,7 @@ TARGETFILE=$(TARGETDIR)/$(TARGET)
 
 # LDFLAGS permit to get the created .so that are not MODTYPE library.
 # this variable must be evaluated at the use time because at declaration time, the dependencies are not generated yet.
-INCLUDE_PROJ_MODS=$(patsubst $(APPNAME)_%,%,$(filter $(PROJECT_MODS),$(sort $(ABS_INCLUDE_LIBS))))
+INCLUDE_PROJ_MODS=$(patsubst $(APPNAME)_%,%,$(filter $(PROJECT_MODS),$(sort $(ABS_INCLUDE_MODS))))
 
 LDFLAGS+=$(foreach mod,$(USEMOD),-L$(TRDIR)/$(SODIR) $(if $(wildcard $(TRDIR)/$(SODIR)/lib$(APPNAME)_$(mod).$(SOEXT)),-l$(APPNAME)_$(mod),)$(if $(wildcard $(TRDIR)/$(SODIR)/lib$(mod).*),-l$(mod),))
 LDFLAGS+=$(foreach mod,$(INCLUDE_PROJ_MODS),-L$(TRDIR)/$(SODIR))
@@ -89,13 +89,13 @@ CFLAGS+=$(patsubst %,-I$(TRDIR)/include,$(INCLUDE_PROJ_MODS))
 CFLAGS+=$(patsubst %,-I$(PRJROOT)/%/include,$(INCLUDE_PROJ_MODS)) 
 LDFLAGS+=$(patsubst %,-l%,$(LINKLIB))
 
-INCLUDE_LIBS_EXT=$(filter-out $(PROJECT_MODS),$(sort $(ABS_INCLUDE_LIBS))) $(LINKLIB)
+INCLUDE_MODS_EXT=$(filter-out $(PROJECT_MODS),$(sort $(ABS_INCLUDE_MODS))) $(LINKLIB)
 
-INCLUDE_LIBS_EXT_LOOKING_PATHS=$(sort $(foreach modExt,$(INCLUDE_LIBS_EXT),$(_module_$(modExt)_dir) $(_app_$(modExt)_dir)))
-INCLUDE_LIBS_EXT_CPATHS=$(foreach path,$(INCLUDE_LIBS_EXT_LOOKING_PATHS),$(wildcard $(path)/include))
-CFLAGS+=$(foreach extPath,$(INCLUDE_LIBS_EXT_CPATHS),-I$(extPath))
-INCLUDE_LIBS_EXT_LDPATHS+=$(foreach path,$(INCLUDE_LIBS_EXT_LOOKING_PATHS),$(filter-out %/library.json,$(wildcard $(path)/lib*)))
-LDFLAGS+=$(foreach extPath,$(INCLUDE_LIBS_EXT_LDPATHS),-L$(extPath))
+INCLUDE_MODS_EXT_LOOKING_PATHS=$(sort $(foreach modExt,$(INCLUDE_MODS_EXT),$(_module_$(modExt)_dir) $(_app_$(modExt)_dir)))
+INCLUDE_MODS_EXT_CPATHS=$(foreach path,$(INCLUDE_MODS_EXT_LOOKING_PATHS),$(wildcard $(path)/include))
+CFLAGS+=$(foreach extPath,$(INCLUDE_MODS_EXT_CPATHS),-I$(extPath))
+INCLUDE_MODS_EXT_LDPATHS+=$(foreach path,$(INCLUDE_MODS_EXT_LOOKING_PATHS),$(filter-out %/library.json,$(wildcard $(path)/lib*)))
+LDFLAGS+=$(foreach extPath,$(INCLUDE_MODS_EXT_LDPATHS),-L$(extPath))
 
 # if advanced dependency management is disable, all the external libs are used for the compilation.
 ifeq ($(ADV_DEPENDS_MANAGEMENT),false)

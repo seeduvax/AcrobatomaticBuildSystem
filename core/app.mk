@@ -267,14 +267,14 @@ pubfile: $(FILE)
 
 ifeq ($(MAKECMDGOALS),__installextlibs)
 
-# this generate ABS_INCLUDE_LIBS variable
+# this generate ABS_INCLUDE_MODS variable
 PROJMODS=$(patsubst %,$(APPNAME)_%,$(MODULES_DEPS))
 include $(patsubst %,$(MODULE_MK_DIR)/module_%.mk,$(PROJMODS))
-# INCLUDE_INSTALL_LIBS additionnals mods to include in the installation.
-ABS_INCLUDE_LIBS+=$(INCLUDE_INSTALL_LIBS)
-include $(foreach mod,$(INCLUDE_INSTALL_LIBS),$(wildcard $(MODULE_MK_DIR)/module_$(mod).mk))
+# INCLUDE_INSTALL_MODS additionnals mods to include in the installation.
+ABS_INCLUDE_MODS+=$(INCLUDE_INSTALL_MODS)
+include $(foreach mod,$(INCLUDE_INSTALL_MODS),$(wildcard $(MODULE_MK_DIR)/module_$(mod).mk))
 # Install external dependencies
-INCLUDE_EXT_LIBS=$(sort $(filter-out $(PROJMODS),$(ABS_INCLUDE_LIBS)))
+INCLUDE_EXT_LIBS=$(sort $(filter-out $(PROJMODS),$(ABS_INCLUDE_MODS)))
 INCLUDE_EXT_LIBS_MODULES=$(foreach lib,$(INCLUDE_EXT_LIBS),$(if $(_module_$(lib)_dir),$(lib)))
 INCLUDE_EXT_MODS_TO_INSTALL=$(patsubst %,installExt.%,$(INCLUDE_EXT_LIBS_MODULES))
 INCLUDE_EXT_LIBS_TO_INSTALL=$(patsubst %,installExtLib.%,$(filter-out $(INCLUDE_EXT_LIBS_MODULES),$(INCLUDE_EXT_LIBS)))
