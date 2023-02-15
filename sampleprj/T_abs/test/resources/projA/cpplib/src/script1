@@ -1,0 +1,3 @@
+#!/bin/sh
+
+echo "Script handling test shell script 1."
