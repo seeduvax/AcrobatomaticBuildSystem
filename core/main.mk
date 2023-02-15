@@ -1,5 +1,10 @@
 __ABS_VERSION__:=__ABS_MODULE_VERSION_MARKER__
 $(info # Acrobatomatic Build System Core V $(__ABS_VERSION__))
+
+ifeq ($(MAKE_RESTARTS),20)
+$(error  Too many restart of make ($(MAKE_RESTARTS)) ! A error occured !)
+endif
+
 # ensure default target is all
 .PHONY: all
 all:

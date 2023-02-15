@@ -2,8 +2,6 @@
 ## --------------------------------------------------------------------
 ## python module test services
 ## 
-# Target definition.
-TTARGETDIR=$(TRDIR)/test
 # tests directory
 PY_TSRCDIR=test
 PY_TMODDIR=$(TTARGETDIR)/pytest_$(MODNAME)
@@ -45,12 +43,12 @@ endif
 ## 
 ##  - test: run tests
 test:: all $(PY_TOBJS)
-	@( [ -d test ] && rm -f $(TTARGETDIR)/$(APPNAME)_$(MODNAME).xml ) || true 
+	@( [ -d test ] && rm -f $(TEST_REPORT_PATH) ) || true 
 	@printf "import py_utils; from py_utils.main_exec import main_exec; main_exec(APPNAME='$(APPNAME)',MODNAME='$(MODNAME)',TTARGETDIR='$(TTARGETDIR)',T='$(T)')" > $(PY_TMODDIR)/__main__.py
 	(PATH="$(RUNPATH)" PYTHONPATH="$(PY_TPATH)" LD_LIBRARY_PATH="$(LIB_PATH)" $(PP) $(PY_TMODDIR) 2>&1 | tee $(TTARGETDIR)/$(APPNAME)_$(MODNAME).stdout) || true
-	@( [ -d test -a ! -r $(TTARGETDIR)/$(APPNAME)_$(MODNAME).xml ] && $(ABS_PRINT_error) "no test report, test runner exited abnormally." ) || true 
-	@( [ -d test -a -r $(TTARGETDIR)/$(APPNAME)_$(MODNAME).xml ] && xsltproc $(ABSROOT)/core/$(TXTXSL) $(TTARGETDIR)/$(APPNAME)_$(MODNAME).xml ) || true
-	@if [ -d test ]; then [ -s $(TTARGETDIR)/$(APPNAME)_$(MODNAME).xml ]; else true; fi
+	@( [ -d test -a ! -r $(TEST_REPORT_PATH) ] && $(ABS_PRINT_error) "no test report, test runner exited abnormally." ) || true 
+	@( [ -d test -a -r $(TEST_REPORT_PATH) ] && xsltproc $(ABSROOT)/core/$(TXTXSL) $(TEST_REPORT_PATH) ) || true
+	@if [ -d test ]; then [ -s $(TEST_REPORT_PATH) ]; else true; fi
 
 ##  - check: alias for test
 check:: test

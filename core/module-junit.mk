@@ -17,17 +17,16 @@ TESTCLASSPATH=$(OBJDIR):$(JARIMGDIR):$(NA_EXTLIBDIR)/$(JUNIT).jar:$(NA_EXTLIBDIR
 JUFLAGS=-classpath "$(TESTCLASSPATH)" -d $(OBJDIR) -sourcepath ".:src:$(OBJDIR)"
 endif
 
-TTARGETDIR=$(TRDIR)/test
 $(OBJDIR)/test/%.class: test/%.java
 	@$(ABS_PRINT_info) "Compiling test class $< ..."
 	@mkdir -p $(OBJDIR)
-	@echo `date --rfc-3339 s`'> $(JC) $(JUFLAGS) $<' >> $(TRDIR)/build.log
+	@echo `date --rfc-3339 s`'> $(JC) $(JUFLAGS) $<' >> $(BUILDLOG)
 	@$(JC) $(JUFLAGS) $< || ( echo 'Failed: JUFLAGS=$(JUFLAGS)' ; exit 1 )
 
 $(OBJDIR)/test/%.class: src/test/%.java
 	@$(ABS_PRINT_info) "Compiling test class $< ..."
 	@mkdir -p $(OBJDIR)
-	@echo `date --rfc-3339 s`'> $(JC) $(JUFLAGS) $<' >> $(TRDIR)/build.log
+	@echo `date --rfc-3339 s`'> $(JC) $(JUFLAGS) $<' >> $(BUILDLOG)
 	@$(JC) $(JUFLAGS) $< || ( echo 'Failed: JUFLAGS=$(JUFLAGS)' ; exit 1 )
 
 $(TESTCLASSFILES): $(NA_EXTLIBDIR)/$(JUNITXML).jar $(NA_EXTLIBDIR)/$(JUNIT).jar $(TARGETFILE)
@@ -43,20 +42,20 @@ else
 test:: $(TESTCLASSFILES)
 	@$(ABS_PRINT_info) "check : running tests $(TESTCLASSFILES)"
 	@mkdir -p $(TTARGETDIR)
-	@rm -f $(TTARGETDIR)/$(APPNAME)_$(MODNAME).xml
+	@rm -f $(TEST_REPORT_PATH)
 ifeq ($(ISWINDOWS),true)
 	TRDIR="$(shell cygpath -m '$(TRDIR)')" TTARGETDIR="$(shell cygpath -m '$(TTARGETDIR)')" $(JAVA) -cp "$(TESTCLASSPATH)"\
-     -Dorg.schmant.task.junit4.target="$(shell cygpath -m '$(TTARGETDIR)/$(APPNAME)_$(MODNAME).xml')" $(TOPTS)\
+     -Dorg.schmant.task.junit4.target="$(shell cygpath -m '$(TEST_REPORT_PATH)')" $(TOPTS)\
      barrypitman.junitXmlFormatter.Runner $(subst /,.,$(patsubst $(OBJDIR)/test/%.class,test/%,$(TESTCLASSFILES)))\
      2>&1 | tee $(TTARGETDIR)/$(APPNAME)_$(MODNAME).stdout  || true
 else
 	@TRDIR="$(TRDIR)" TTARGETDIR="$(TTARGETDIR)" $(JAVA) -cp "$(TESTCLASSPATH)"\
-     -Dorg.schmant.task.junit4.target=$(TTARGETDIR)/$(APPNAME)_$(MODNAME).xml $(TOPTS)\
+     -Dorg.schmant.task.junit4.target=$(TEST_REPORT_PATH) $(TOPTS)\
      barrypitman.junitXmlFormatter.Runner $(subst /,.,$(patsubst $(OBJDIR)/test/%.class,test/%,$(TESTCLASSFILES)))\
      2>&1 | tee $(TTARGETDIR)/$(APPNAME)_$(MODNAME).stdout  || true
 endif
-	@if [ ! -r $(TTARGETDIR)/$(APPNAME)_$(MODNAME).xml ]; then $(ABS_PRINT_error) "no test report, test runner exited abnormally."; \
-	else xsltproc $(ABSROOT)/core/$(TXTXSL) $(TTARGETDIR)/$(APPNAME)_$(MODNAME).xml; fi
+	@if [ ! -r $(TEST_REPORT_PATH) ]; then $(ABS_PRINT_error) "no test report, test runner exited abnormally."; \
+	else xsltproc $(ABSROOT)/core/$(TXTXSL) $(TEST_REPORT_PATH); fi
 endif
 
 ##  - <TestClassName>: run tests define in test class defined in

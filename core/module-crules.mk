@@ -102,7 +102,7 @@ $(GENSRC):
 endif
 
 $(RES_HEADER):
-	@$(ABS_PRINT_info) "Generating Empty Ressource header..."
+	@$(ABS_PRINT_info) "Generating Empty Resource header..."
 	@mkdir -p `dirname $(RES_HEADER)` 
 	@printf "/* Generated resource constant header, do not edit */\n\
 #ifndef __$(APPNAME)_$(MODNAME)_res_h__\n\

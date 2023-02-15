@@ -36,12 +36,12 @@ PREFIX=/opt/$(APPNAME)-$(VERSION)
 
 ##  - DIST_EXCLUDE: pattern for files to be excluded on packaging.
 ##      (default: share/*/tex)
-DIST_EXCLUDE:=share/*/tex obj extlib extlib.nodist
-INSTALLTAR_EXCLUDE:=.abs
+DIST_EXCLUDE:=share/doc/$(APPNAME)/tex obj extlib extlib.nodist
+INSTALLTAR_EXCLUDE:=.abs import.mk
 ##  - LIGHT_INSTALLER: when set to 1, add share/*/doxygen and include to the 
 ##      list of file to exclude on packaging.
 ifeq ($(LIGHT_INSTALLER),1)
-INSTALLTAR_EXCLUDE+=share/*/doxygen include
+INSTALLTAR_EXCLUDE+=share/doc/$(APPNAME)/doxygen include src
 endif
 ##  - DISTTARFLAGS: arguments to add to tar command when packing files on dist
 ##      and distinstall target.
@@ -52,15 +52,27 @@ INSTALLTARFLAGS+=$(patsubst %,--exclude=%,$(INSTALLTAR_EXCLUDE))
 
 ifeq ($(MODULES),)
 # search for module only if not explicitely defined from app.cfg.
-MODULES_DEPS:=$(filter-out $(patsubst %,mod.%,$(NOBUILD)),$(patsubst %/Makefile,mod.%,$(wildcard */Makefile)))
-MODULES:=$(MODULES_DEPS) $(patsubst %,warnnobuild.%,$(NOBUILD))
+MODULES:=$(patsubst %/Makefile,%,$(wildcard */Makefile))
+MODULES_DEPS:=$(filter-out $(NOBUILD),$(MODULES))
+MODULES_TARGET:=$(patsubst %,mod.%,$(MODULES_DEPS)) $(patsubst %,warnnobuild.%,$(NOBUILD))
 MODULES_TEST:=$(filter-out $(patsubst %,testmod.%,$(NOBUILD) $(NOTEST)),$(patsubst %/Makefile,testmod.%,$(shell ls */Makefile))) $(patsubst %,warnnotest.%,$(NOTEST) $(NOBUILD))
 MODULES_VALGRINDTEST:=$(filter-out $(patsubst %,valgrindtestmod.%,$(NOBUILD) $(NOTEST)),$(patsubst %/Makefile,valgrindtestmod.%,$(shell ls */Makefile))) $(patsubst %,warnnotest.%,$(NOTEST) $(NOBUILD))
 MODULES_TESTBUILD:=$(filter-out $(patsubst %,testbuildmod.%,$(NOBUILD)),$(patsubst %/Makefile,testbuildmod.%,$(shell ls */Makefile))) $(patsubst %,warnnobuild.%,$(NOBUILD))
 else
-MODULES:=$(patsubst %,mod.%,$(MODULES))
+MODULES_DEPS:=$(MODULES)
+MODULES_TARGET:=$(patsubst %,mod.%,$(MODULES))
 endif
-EXPMOD?=$(patsubst mod.%,%,$(MODULES))
+
+ifneq ($(filter kdistinstall,$(MAKECMDGOALS)),)
+KMODULES:=$(filter %_lkm,$(MODULES_DEPS))
+MODULES_DEPS:=$(KMODULES)
+MODULES_TARGET:=$(patsubst %,mod.%,$(KMODULES))
+MODE:=release
+endif
+
+# EXPMOD: list of public modules for which includes are inserted into the distribuable archive.
+EXPMOD?=$(MODULES_DEPS)
+EXPMOD:=$(filter-out $(NODISTMOD),$(sort $(EXPMOD)))
 DOLLAR=$$
 ##  - NOBUILD: list of modules to *not* build.
 
@@ -78,7 +90,7 @@ endef
 ## 
 
 ##  - all (default): builds all modules. Useful variable: NOBUILD.
-all: $(MODULES)
+all: $(MODULES_TARGET)
 	$(gen-clangd-db)
 
 ##  - test: builds modules, tests and launch tests.
@@ -86,11 +98,11 @@ ifneq ($(shell ls $(PRJROOT)/*/test 2>/dev/null),)
 define test-synthesis
 	@rm -rf build/unit_test_results
 	@mkdir -p build/unit_test_results
-	@cp $(TTARGETDIR)/*.xml build/unit_test_results
+	@cp $(foreach mod,$(MODULES_DEPS),$(wildcard $(TRDIR)/test/$(APPNAME)_$(mod).xml)) build/unit_test_results
 endef
 define test-summary
-	@$(ABS_PRINT_info) "#### #### Tests summary #### ####"
-	@for report in $(TTARGETDIR)/*.xml; do $(ABS_PRINT_info) "Test result: "`basename $$report` ; xsltproc --stringparam mode short $(ABSROOT)/core/xunit2txt.xsl $$report;  done
+	@$(ABS_PRINT_info) "#### #### Tests summary #### ####"
+	@for report in build/unit_test_results/*.xml; do $(ABS_PRINT_info) "Test result: "`basename $$report` ; xsltproc --stringparam mode short $(ABSROOT)/core/xunit2txt.xsl $$report;  done
 endef
 
 testsummary:
@@ -150,19 +162,26 @@ $(BUILDROOT)/.abs/moddeps.mk:
 	done
 
 mod.%::
-	make $(MMARGS) -C $* RMODDEP=0
+	@MODNAME=`cat $*/module.cfg | grep MODNAME | sed -E 's/.*=(.*)/\1/g'` && test $$MODNAME = $* || $(ABS_PRINT_warning) "The name of the module $$MODNAME doesn't match the name of the module directory $*. This can have side effects."
+	@mkdir -p $(TRDIR)/obj/$*
+	@mkdir -p $(TRDIR)/.abs/content
+	@touch $(TRDIR)/obj/$*/files.ts
+	make $(MMARGS) MODE=$(MODE) -C $* DEPS_MNGMT_LEVEL=DISABLED
+	@find $(TRDIR) -type f -cnewer $(TRDIR)/obj/$*/files.ts | grep -v $(TRDIR)/obj | sed 's~$(TRDIR)/~~g' | grep -E -v "$(subst *,.*,$(subst $(_space_),|,$(DIST_EXCLUDE)))" > $(TRDIR)/.abs/content/$(APPNAME)_$*.filelist || true
+	@$(if $(filter $*,$(EXPMOD)),test ! -d $*/include || find $*/include -type f | sed 's~^$*/~~g' >> $(TRDIR)/.abs/content/$(APPNAME)_$*.filelist)
+	@rm -f $(TRDIR)/obj/$*/files.ts
 
 include $(BUILDROOT)/.abs/moddeps.mk
 
 # depends on mod.% to compile dependencies of module.
 testmod.%: mod.%
-	make $(MMARGS) MODE=$(MODE) -C $* test
+	make $(MMARGS) MODE=$(MODE) -C $* test DEPS_MNGMT_LEVEL=DISABLED
 
 valgrindtestmod.%: mod.%
-	make $(MMARGS) MODE=$(MODE) -C $* valgrindtest
+	make $(MMARGS) MODE=$(MODE) -C $* valgrindtest DEPS_MNGMT_LEVEL=DISABLED
 
 testbuildmod.%: mod.%
-	make $(MMARGS) MODE=$(MODE) -C $* testbuild
+	make $(MMARGS) MODE=$(MODE) -C $* testbuild DEPS_MNGMT_LEVEL=DISABLED
 
 warnnobuild.%:
 	@$(ABS_PRINT_warning) "module $* build is disabled."
@@ -197,33 +216,47 @@ _extra_import_defs_:=$(subst !,\n,$(_extra_import_defs_))
 _extra_import_defs_:=$(subst $(_carriage_return_),\n,$(_extra_import_defs_))
 $(eval _extra_import_defs_:=$(_extra_import_defs_))
 
-dist/$(APPNAME)-$(VERSION)/import.mk:
-	@rm -rf dist
-	@$(ABS_PRINT_info) "Compilation of the project in mode: $(MODE)"
-	@make TRDIR=$$PWD/dist/$(APPNAME)-$(VERSION) MODE=$(MODE) $(filter-out $(patsubst %,mod.%,$(NODISTMOD)),$(MODULES))
-	@test -f export.mk && \
-	m4 -D__app__=$(APPNAME) -D__version__=$(VERSION) export.mk -D__uselib__="$(USELIB)" > $$PWD/dist/$(APPNAME)-$(VERSION)/import.mk || \
-	printf '\n-include $$(dir $$(lastword $$(MAKEFILE_LIST)))/.abs/index.mk\n$$(eval $$(call extlib_import_template,$(APPNAME),$(VERSION),$(USELIB)))\n$(_extra_import_defs_)\n\n' > $@
-	@echo "# generated: ABS-$(__ABS_VERSION__) $(USER)@"`hostname`" "`date --rfc-3339 s` >> $@
-	@if [ -x extradist.sh ]; then VERSION=$(VERSION) APP=$(APPNAME) APPNAME=$(APPNAME) ./extradist.sh `dirname $@`; fi
-	@mkdir -p dist/$(APPNAME)-$(VERSION)/include/$(APPNAME)
-	@for headerdir in $(patsubst %,%/include,$(filter-out $(NODISTMOD),$(EXPMOD))); \
-	do cp -r $$headerdir dist/$(APPNAME)-$(VERSION) ; \
-	test -d .svn && find dist -name ".svn" | xargs rm -rf ; \
-	: ; \
-	done 
-	@rm -rf dist/$(APPNAME)-$(VERSION)/obj
-	@rm -rf dist/$(APPNAME)-$(VERSION)/build.log
+DIST_FLATTEN_DIR:=dist/flatten/$(APPNAME)-$(VERSION)
+INSTALL_TMP_DIR:=dist/install/$(APPNAME)-$(VERSION)
+DIST_MODS:=$(filter-out $(NODISTMOD),$(MODULES_DEPS))
 
+$(DIST_FLATTEN_DIR)/obj/compiled:
+	@rm -rf $(DIST_FLATTEN_DIR)
+	@mkdir -p $(@D)
+	@$(ABS_PRINT_info) "Compilation of the project in mode: $(MODE)"
+	@$(ABS_PRINT_debug) "Compilation of the modules: $(DIST_MODS)"
+	@+make TRDIR=$(PRJROOT)/$(DIST_FLATTEN_DIR) MODE=$(MODE) $(patsubst %,mod.%,$(DIST_MODS))
+	@$(ABS_PRINT_info) "Compilation of the project finished !"
+	@touch $@
+
+$(DIST_FLATTEN_DIR)/import.mk: $(DIST_FLATTEN_DIR)/obj/compiled
+	@for modDir in $(EXPMOD); do \
+	test ! -d $$modDir/include || cp -r $$modDir/include $(@D)/ ; \
+	: ; \
+	done
+	@test -f export.mk && m4 -D__app__=$(APPNAME) -D__version__=$(VERSION) export.mk -D__uselib__="$(sort $(USELIB))" > $@.tmp || true
+	@echo "# generated: ABS-$(__ABS_VERSION__) $(USER)@"`hostname`" "`date --rfc-3339 s` >> $@.tmp
+	@test -f export.mk || echo '_app_$(APPNAME)_dir:=$$(dir $$(lastword $$(MAKEFILE_LIST)))\n' >> $@.tmp
+	@test -f export.mk || echo '-include $$(wildcard $$(_app_$(APPNAME)_dir)/.abs/index_*.mk)' >> $@.tmp
+	@test -f export.mk || printf '$$(eval $$(call extlib_import_template,$(APPNAME),$(VERSION),$(sort $(USELIB))))\n' >> $@.tmp
+	@test -f export.mk || for mod in $(foreach mod,$(DIST_MODS),"$(mod)"); do \
+		test ! -f $(@D)/obj/$$mod/module.mk || cat $(@D)/obj/$$mod/module.mk >> $@.tmp; \
+	done
+	@test -f export.mk || printf '$(subst $(_space_),\n,$(foreach mod,$(DIST_MODS),_module_$(APPNAME)_$(mod)_dir:=$$(_app_$(APPNAME)_dir)))\n\n' >> $@.tmp
+	@test -f export.mk || printf '$(_extra_import_defs_)\n\n' >> $@.tmp
+	@touch $(@D)/obj/extraFiles.ts
+	@if [ -x extradist.sh ]; then VERSION=$(VERSION) APP=$(APPNAME) APPNAME=$(APPNAME) ./extradist.sh `dirname $@`; fi
+	@find $(@D) -type f -cnewer $(@D)/obj/extraFiles.ts | grep -v $(@D)/obj | sed 's~$(@D)/~~g' | grep -E -v "$(subst *,.*,$(subst $(_space_),|,$(DIST_EXCLUDE)))" > $(@D)/.abs/content/$(APPNAME)__extra.filelist || true
+	@rm -f $(@D)/obj/extraFiles.ts
+	@test -d .svn && find dist -name ".svn" | xargs rm -rf || true
+	@mv $@.tmp $@
 
 DIST_ARCHIVE:=dist/$(APPNAME)-$(VERSION).$(ARCH).tar.gz
 DISTINSTALL_BINARY:=dist/$(APPNAME)-$(VERSION).$(ARCH)-install.bin
 KDISTINSTALL_BINARY:=dist/$(APPNAME)_lkm-$(VERSION)-$(KVERSION)-install.bin
 
-DISTTAR:=tar cvzf $(DIST_ARCHIVE) -C dist $(DISTTARFLAGS) $(APPNAME)-$(VERSION)
-
-$(DIST_ARCHIVE): dist/$(APPNAME)-$(VERSION)/import.mk
-	@$(DISTTAR)
+$(DIST_ARCHIVE): $(DIST_FLATTEN_DIR)/import.mk
+	@tar -czf $(DIST_ARCHIVE) -C dist/flatten $(DISTTARFLAGS) $(APPNAME)-$(VERSION)
 
 ##  - echoDID: displays package identifier
 echoDID:
@@ -232,26 +265,73 @@ echoDID:
 pubfile: $(FILE)
 	scp $(FILE) $(DISTREPO)/$(ARCH)/`basename $(FILE)`
 
-##  - install [PREFIX=<install path>]: installs the application
-install: dist/$(APPNAME)-$(VERSION)/import.mk
-	@mkdir -p $(PREFIX)
-	@$(ABS_PRINT_info) "Copying file tree..."
-	@tar -cf - $(patsubst %,--exclude dist/$(APPNAME)-$(VERSION)/%,obj extlib extlib.nodist import.mk)  dist/$(APPNAME)-$(VERSION) | tar -C $(PREFIX) --strip-components=2 -xf -
-	@$(ABS_PRINT_info)  "Copying dependencies..."
-	@for lib in `ls dist/$(APPNAME)-$(VERSION)/extlib/ | fgrep -v cppunit-` ; do \
-	$(ABS_PRINT_info) "  Processing $$lib..." ; \
-	test -d dist/$(APPNAME)-$(VERSION)/extlib/$$lib && (tar -C dist/$(APPNAME)-$(VERSION)/extlib/$$lib -cf - $(DISTTARFLAGS) --exclude=import.mk --mode=755 . | tar -C $(PREFIX) -xf - ) || cp dist/$(APPNAME)-$(VERSION)/extlib/$$lib $(PREFIX)/lib ; \
-	done
+ifeq ($(MAKECMDGOALS),__installextlibs)
 
-$(DISTINSTALL_BINARY):
-	@make PREFIX=tmp/$(APPNAME)-$(VERSION) install
-	@tar -C tmp -cvzf tmp/arch.tar.gz $(DISTTARFLAGS) $(INSTALLTARFLAGS) $(APPNAME)-$(VERSION)/
+# this generate ABS_INCLUDE_LIBS variable
+PROJMODS=$(patsubst %,$(APPNAME)_%,$(MODULES_DEPS))
+include $(patsubst %,$(MODULE_MK_DIR)/module_%.mk,$(PROJMODS))
+# INCLUDE_INSTALL_LIBS additionnals mods to include in the installation.
+ABS_INCLUDE_LIBS+=$(INCLUDE_INSTALL_LIBS)
+include $(foreach mod,$(INCLUDE_INSTALL_LIBS),$(wildcard $(MODULE_MK_DIR)/module_$(mod).mk))
+# Install external dependencies
+INCLUDE_EXT_LIBS=$(sort $(filter-out $(PROJMODS),$(ABS_INCLUDE_LIBS)))
+INCLUDE_EXT_LIBS_MODULES=$(foreach lib,$(INCLUDE_EXT_LIBS),$(if $(_module_$(lib)_dir),$(lib)))
+INCLUDE_EXT_MODS_TO_INSTALL=$(patsubst %,installExt.%,$(INCLUDE_EXT_LIBS_MODULES))
+INCLUDE_EXT_LIBS_TO_INSTALL=$(patsubst %,installExtLib.%,$(filter-out $(INCLUDE_EXT_LIBS_MODULES),$(INCLUDE_EXT_LIBS)))
+
+installExt.%:
+	@$(ABS_PRINT_info) "  Processing external module $* ..."
+	@modPath=$(_module_$*_dir) && test -z "$$modPath" || test ! -d $$modPath || test ! -f $(_module_$*_dir)/.abs/content/$*.filelist || (\
+		cat $(_module_$*_dir)/.abs/content/$*.filelist | tar -C $$modPath/ -cf - -T - | tar -C $(INSTALL_TMP_DIR)/ -xf -)
+
+installExtLib.%:
+	@$(ABS_PRINT_info) "  Processing external library $* ..."
+	@libPath=$(_app_$*_dir) && test -n "$$libPath" && test -d $$libPath && cp -rf $$libPath/* $(INSTALL_TMP_DIR)/ && chmod -R u+rw $(INSTALL_TMP_DIR) || true
+
+# Advanced dependency management disabled: old way with all the libraries included in the binary
+ifeq ($(ADV_DEPENDS_MANAGEMENT),false)
+__installextlibs:
+	@for lib in `ls $(DIST_FLATTEN_DIR)/extlib/ | fgrep -v cppunit-` ; do \
+		$(ABS_PRINT_info) "  Processing $$lib..." ; \
+		test -d $(DIST_FLATTEN_DIR)/extlib/$$lib && (tar -C $(DIST_FLATTEN_DIR)/extlib/$$lib -cf - $(DISTTARFLAGS) --exclude=import.mk --mode=755 . | tar -C $(INSTALL_TMP_DIR) -xf - ) || cp $(DIST_FLATTEN_DIR)/extlib/$$lib $(INSTALL_TMP_DIR)/lib ; \
+		done
+
+else # ifeq ($(ADV_DEPENDS_MANAGEMENT),false)
+__installextlibs: $(INCLUDE_EXT_MODS_TO_INSTALL) $(INCLUDE_EXT_LIBS_TO_INSTALL)
+
+endif # ifeq ($(ADV_DEPENDS_MANAGEMENT),false)
+
+endif # ifeq ($(MAKECMDGOALS),__installextlibs)
+
+$(INSTALL_TMP_DIR)/import.mk: $(DIST_FLATTEN_DIR)/import.mk
+	@mkdir -p $(@D)
+	@+make TRDIR=$(PRJROOT)/$(DIST_FLATTEN_DIR) MODE=$(MODE) -j1 __installextlibs
+	@$(ABS_PRINT_info) "Copying file tree..."
+	@tar -cf - $(patsubst %,--exclude %,obj extlib extlib.nodist import.mk) -C $(<D) . | tar -C $(@D) -xf -
+	@$(ABS_PRINT_info)  "Copying dependencies..."
+	@for lib in `ls $(EXTLIBDIR) | fgrep -v cppunit-` ; do \
+	if [ ! -d $(EXTLIBDIR)/$$lib ]; then \
+	$(ABS_PRINT_info) "  Processing $$lib..." ; \
+	cp $(EXTLIBDIR)/$$lib $(@D)/lib ; \
+	fi; \
+	done
+	@cp $< $@
+
+##  - install [PREFIX=<install path>]: installs the application
+.PHONY: install
+install: $(DISTINSTALL_BINARY)
+	@./$(DISTINSTALL_BINARY) install $(PREFIX)
+
+$(DISTINSTALL_BINARY): $(INSTALL_TMP_DIR)/import.mk
+	@tar -C $(<D)/../ -czf - $(DISTTARFLAGS) $(INSTALLTARFLAGS) $(APPNAME)-$(VERSION) > $@.tmp2
 	@sed -e 's/__appname__/$(APPNAME)/g' $(ABSROOT)/core/install-template.sh |\
 	sed -e 's/__version__/$(VERSION)/g' | \
-	sed -e 's/__checksum__/'`md5sum tmp/arch.tar.gz | cut -f 1 -d ' '`'/g' | \
-	sed -e 's~__post_install_patch_files__~$(POST_INSTALL_PATCH_FILES)~g' > "$@"
-	cat tmp/arch.tar.gz >> "$@"
-	chmod +x "$@"
+	sed -e 's/__checksum__/'`md5sum $@.tmp2 | cut -f 1 -d ' '`'/g' | \
+	sed -e 's~__post_install_patch_files__~$(POST_INSTALL_PATCH_FILES)~g' > "$@.tmp"
+	@cat "$@.tmp2" >> "$@.tmp"
+	@chmod +x "$@.tmp"
+	@rm $@.tmp2
+	@mv $@.tmp $@
 
 ##  - distinstall: builds installation package.
 ##  - kdistinstall: builds linux kernel modules installation package
@@ -278,22 +358,29 @@ kdistinstall: $(KDISTINSTALL_BINARY)
 
 endif
 
-KMODULES:=$(filter-out $(patsubst %,mod.%,$(NOBUILD)),$(patsubst %,mod.%,$(shell ls | grep _lkm)))
-$(KDISTINSTALL_BINARY):
-	@make TRDIR=$$PWD/dist/$(APPNAME)-$(VERSION) MODE=release $(KMODULES)
-	tar -C dist/$(APPNAME)-$(VERSION) $(DISTTARFLAGS) -cvzf dist/arch.tar.gz etc/ lib/
-	sed -e 's/__app__/$(APPNAME)/g' $(ABSROOT)/core/kinstall-template.sh | sed -e 's/__version__/$(VERSION)/g' | sed -e 's/__kversion__/$(KVERSION)/g' > "$@"
-	cat dist/arch.tar.gz >> "$@"
-	chmod +x "$@"
-	rm dist/arch.tar.gz
+$(KDISTINSTALL_BINARY): $(INSTALL_TMP_DIR)/import.mk
+	tar -C $(INSTALL_TMP_DIR) $(DISTTARFLAGS) -cvzf "$@.tmp2" etc/ lib/
+	sed -e 's/__app__/$(APPNAME)/g' $(ABSROOT)/core/kinstall-template.sh | sed -e 's/__version__/$(VERSION)/g' | sed -e 's/__kversion__/$(KVERSION)/g' > "$@.tmp"
+	cat "$@.tmp2" >> "$@.tmp"
+	chmod +x "$@.tmp"
+	rm "$@.tmp2"
+	@mv "$@.tmp" "$@"
 
 pubdist: dist
 	@$(ABS_PRINT_info)  "Publishing dist archive $(DIST_ARCHIVE) $(USER) on $(DISTREPO)"
+ifneq ($(filter file://%,$(DISTREPO)),)
+	cp $(DIST_ARCHIVE) $(patsubst file://%,%,$(DISTREPO))/$(ARCH)/$(APPNAME)-$(VERSION).$(ARCH).tar.gz
+else
 	@scp $(SCPFLAGS) $(DIST_ARCHIVE) $(DISTREPO)/$(ARCH)/$(APPNAME)-$(VERSION).$(ARCH).tar.gz
+endif
 
 pubinstall: distinstall
 	@$(ABS_PRINT_info)  "Publishing dist archive $(DISTINSTALL_BINARY) $(USER) on $(DISTREPO)"
+ifneq ($(filter file://%,$(DISTREPO)),)
+	@cp $(DISTINSTALL_BINARY) $(patsubst file://%,%,$(DISTREPO))/$(ARCH)/$(APPNAME)-$(VERSION).$(ARCH)-install.bin
+else
 	@scp $(SCPFLAGS) $(DISTINSTALL_BINARY) $(DISTREPO)/$(ARCH)/$(APPNAME)-$(VERSION).$(ARCH)-install.bin
+endif
 
 ##  - cint: full package build, to be used for the continuous integration
 ##    process (for builds from jenkins or any similar tool).

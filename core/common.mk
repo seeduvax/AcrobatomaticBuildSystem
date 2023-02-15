@@ -80,6 +80,7 @@ define _carriage_return_
 endef
 _carriage_return_:=$(patsubst !!,,$(_carriage_return_))
 _space_=$(subst ,, )
+_comma_=,
 
 ##  - ABS_REPO: dependencies repositories. URL pattern. Repositories shall
 ##       be listed according the expected search order. Use space char as
@@ -153,7 +154,6 @@ endif
 
 ##  - TRDIR: target root directory (where the installed product image is stored)
 TRDIR?=$(BUILDROOT)/$(ARCH)/$(MODE)
-TTARGETDIR?=$(TRDIR)/test
 VERSION_OVERLOADED:=$(filter VERSION=%,$(MAKEOVERRIDES))
 
 VERSION_FIELDS:=$(subst ., ,$(VERSION))
@@ -161,9 +161,6 @@ VMAJOR:=$(word 1,$(VERSION_FIELDS))
 VMEDIUM:=$(word 2,$(VERSION_FIELDS))
 VMINOR:=$(word 3,$(VERSION_FIELDS))
 VSUFFIX:=$(patsubst %,.%,$(word 4,$(VERSION_FIELDS)))
-
-
-
 
 include $(ABSROOT)/core/scm-$(ABS_SCM_TYPE).mk
 
@@ -183,6 +180,10 @@ endif
 
 -include $(ABSWS)/local.cfg
 -include $(PRJROOT)/local.cfg
+
+PRJOBJDIR=$(TRDIR)/obj
+MODULE_MK_DIR=$(PRJOBJDIR)/_dependencies
+MODULE_MK_TEST_DIR=$(MODULE_MK_DIR)/test
 
 # external libraries local repository
 INCTESTS:=$(filter test %test check %check testbuild help coverage Test%,$(MAKECMDGOALS))

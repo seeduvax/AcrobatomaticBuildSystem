@@ -1,8 +1,7 @@
 
-TARGETFILES=$(patsubst src/%,$(TRDIR)/.abs/%,$(SRCFILES)) $(TRDIR)/.abs/index.mk
+TARGETFILES=$(patsubst src/%,$(TRDIR)/.abs/%,$(SRCFILES)) $(TRDIR)/.abs/index_$(MODNAME).mk
 
-.PHONY: $(TRDIR)/.abs/index.mk
-$(TRDIR)/.abs/index.mk:
+$(TRDIR)/.abs/index_$(MODNAME).mk:
 	@$(ABS_PRINT_info) "Generating ABS extension index..."
 	@mkdir -p $(@D)
 	@printf '_absext_index_$(APPNAME)_$(MODNAME):=$$(dir $$(lastword $$(MAKEFILE_LIST)))\n' >> $@

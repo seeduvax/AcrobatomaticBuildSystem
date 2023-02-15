@@ -30,9 +30,8 @@ endif
 
 CC_VERSION:=$(shell $(CC) -dumpversion)
 
-
 # add extra symbol definition
-CFLAGS+= $(patsubst %,-D%,$(DEFINES))
+CFLAGS+=$(patsubst %,-D%,$(DEFINES))
 
 # add coverage flags on coverage target.
 ifeq ($(MAKECMDGOALS),coverage)
@@ -78,15 +77,35 @@ endif
 # target full path
 TARGETFILE=$(TARGETDIR)/$(TARGET)
 
-# LDFLAGSUSEMOD permit to get the created .so that are not MODTYPE library.
+# LDFLAGS permit to get the created .so that are not MODTYPE library.
 # this variable must be evaluated at the use time because at declaration time, the dependencies are not generated yet.
-LDFLAGSUSEMOD=$(foreach mod,$(USEMOD),$(if $(wildcard $(TRDIR)/$(SODIR)/lib$(APPNAME)_$(mod).$(SOEXT)),-l$(APPNAME)_$(mod),)$(if $(wildcard $(TRDIR)/$(SODIR)/lib$(mod).*),-l$(mod),))
+INCLUDE_PROJ_MODS=$(patsubst $(APPNAME)_%,%,$(filter $(PROJECT_MODS),$(sort $(ABS_INCLUDE_LIBS))))
+
+LDFLAGS+=$(foreach mod,$(USEMOD),-L$(TRDIR)/$(SODIR) $(if $(wildcard $(TRDIR)/$(SODIR)/lib$(APPNAME)_$(mod).$(SOEXT)),-l$(APPNAME)_$(mod),)$(if $(wildcard $(TRDIR)/$(SODIR)/lib$(mod).*),-l$(mod),))
+LDFLAGS+=$(foreach mod,$(INCLUDE_PROJ_MODS),-L$(TRDIR)/$(SODIR))
+CFLAGS+=$(patsubst %,-I$(TRDIR)/include,$(INCLUDE_PROJ_MODS))
 
 # add paths to used modules' headers & libs.
-CFLAGS+= $(patsubst %,-I$(PRJROOT)/%/include,$(USEMOD))
-LDFLAGS+= -L$(TRDIR)/$(SODIR) $(LDFLAGSUSEMOD)
+CFLAGS+=$(patsubst %,-I$(PRJROOT)/%/include,$(INCLUDE_PROJ_MODS)) 
 LDFLAGS+=$(patsubst %,-l%,$(LINKLIB))
-# library dir list (to be forwarded to LD_LIBRARY_PATH env var befor running the app)
+
+INCLUDE_LIBS_EXT=$(filter-out $(PROJECT_MODS),$(sort $(ABS_INCLUDE_LIBS))) $(LINKLIB)
+
+INCLUDE_LIBS_EXT_LOOKING_PATHS=$(sort $(foreach modExt,$(INCLUDE_LIBS_EXT),$(_module_$(modExt)_dir) $(_app_$(modExt)_dir)))
+INCLUDE_LIBS_EXT_CPATHS=$(foreach path,$(INCLUDE_LIBS_EXT_LOOKING_PATHS),$(wildcard $(path)/include))
+CFLAGS+=$(foreach extPath,$(INCLUDE_LIBS_EXT_CPATHS),-I$(extPath))
+INCLUDE_LIBS_EXT_LDPATHS+=$(foreach path,$(INCLUDE_LIBS_EXT_LOOKING_PATHS),$(filter-out %/library.json,$(wildcard $(path)/lib*)))
+LDFLAGS+=$(foreach extPath,$(INCLUDE_LIBS_EXT_LDPATHS),-L$(extPath))
+
+# if advanced dependency management is disable, all the external libs are used for the compilation.
+ifeq ($(ADV_DEPENDS_MANAGEMENT),false)
+EXT_LIBS_WITHOUT_JSON=$(foreach lib,$(ALL_LIBS_LOADED),$(if $(wildcard $(_app_$(lib)_dir)/library.json),,$(_app_$(lib)_dir)))
+CFLAGS+=$(foreach extPath,$(EXT_LIBS_WITHOUT_JSON),-I$(extPath)/include)
+EXT_LIBS_WITHOUT_JSON_LDPATHS+=$(foreach path,$(EXT_LIBS_WITHOUT_JSON),$(filter-out %/library.json,$(wildcard $(path)/lib*)))
+LDFLAGS+=$(foreach extPath,$(EXT_LIBS_WITHOUT_JSON_LDPATHS),-L$(extPath))
+endif
+
+# library dir list (to be forwarded to LD_LIBRARY_PATH env var before running the app)
 LDLIBP=$(subst $(_space_),:,$(patsubst -%,,$(patsubst -L%,%,$(filter -L%,$(LDFLAGS)))))
 RUNPATH:=$(TRDIR)/bin$(subst $(_space_),,$(patsubst %,:$(EXTLIBDIR)/%/bin,$(USELIB))):$(PATH)
 
@@ -99,12 +118,12 @@ LDRUNP?=$$ORIGIN/../lib
 IDENTCFLAGS:=-D__APPNAME__='$(APPNAME)' -D__MODNAME__='$(MODNAME)'
 ifeq ($(MODE),debug)
 # debugging symbols, no optimisation, optionnal flags for debug mode
-CFLAGS+= -g -D_$(APPNAME)_$(MODNAME)_debug -D_abs_trace_debug $(IDENTCFLAGS) $(DEBUGCFLAGS)
+CFLAGS+=-g -D_$(APPNAME)_$(MODNAME)_debug -D_abs_trace_debug $(IDENTCFLAGS) $(DEBUGCFLAGS)
 else
 # some optimisation, no debbugging symbol, optionnal flags for release mode
 ## RELEASECFLAGS: additional compiler option to set on release mode only (default: -O3)
 RELEASECFLAGS?=-O3
-CFLAGS+= -D_$(APPNAME)_$(MODNAME)_release $(IDENTCFLAGS) $(RELEASECFLAGS)
+CFLAGS+=-D_$(APPNAME)_$(MODNAME)_release $(IDENTCFLAGS) $(RELEASECFLAGS)
 endif
 
 
@@ -166,7 +185,7 @@ endif
 define cc-command
 @$(ABS_PRINT_info) "Compiling $< ..."
 @mkdir -p $(@D)
-@echo `date --rfc-3339 s`"> $(CC) $(CFLAGS) -c $< -o $@" >> $(TRDIR)/build.log
+@echo `date --rfc-3339 s`"> $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -c $< -o $@" >> $(BUILDLOG)
 $(gen-json-cc)
 @$(CC) $(CFLAGS) $(EXTRA_CFLAGS) -c $< -o $@ \
    && ( cp $@.d $@.d.tmp ; sed -e 's/#.*//' -e 's/^[^:]*: *//' -e 's/ *\\$$//' -e '/^$$/ d' -e 's/$$/ :/' $@.d.tmp >> $@.d ; rm $@.d.tmp ) \
@@ -176,7 +195,7 @@ endef
 define cxx-command
 @$(ABS_PRINT_info) "Compiling $< ..."
 @mkdir -p $(@D)
-@echo `date --rfc-3339 s`"> $(CPPC) $(CXXFLAGS) $(CFLAGS) -c $< -o $@" >> $(TRDIR)/build.log 
+@echo `date --rfc-3339 s`"> $(CPPC) $(CXXFLAGS) $(CFLAGS) $(EXTRA_CXXFLAGS) -c $< -o $@" >> $(BUILDLOG)
 $(gen-json-cppc)
 @$(CPPC) $(CXXFLAGS) $(CFLAGS) $(EXTRA_CXXFLAGS) -c $< -o $@ \
    && ( cp $@.d $@.d.tmp ; sed -e 's/#.*//' -e 's/^[^:]*: *//' -e 's/ *\\$$//' -e '/^$$/ d' -e 's/$$/ :/' $@.d.tmp >> $@.d ; rm $@.d.tmp ) 
@@ -186,14 +205,14 @@ ifneq ($(ISWINDOWS),true)
 define ld-command
 @$(ABS_PRINT_info) "Linking $@ ..."
 @mkdir -p $(TARGETDIR)
-@echo `date --rfc-3339 s`"> LD_RUN_PATH='$(LDRUNP)' LD_LIBRARY_PATH=$(LDLIBP) $(LD) -o $@ $(OBJS) $(LDFLAGS)" >> $(TRDIR)/build.log
+@echo `date --rfc-3339 s`"> LD_RUN_PATH='$(LDRUNP)' LD_LIBRARY_PATH=$(LDLIBP) $(LD) -o $@ $(OBJS) $(LDFLAGS)" >> $(BUILDLOG)
 @LD_RUN_PATH='$(LDRUNP)' LD_LIBRARY_PATH=$(LDLIBP) $(LD) -o $@ $(OBJS) $(LDFLAGS)
 endef
 else
 define ld-command
 @$(ABS_PRINT_info) "Linking $@ ..."
 @mkdir -p $(TARGETDIR) $(CYGTARGETDIR)
-@echo `date --rfc-3339 s`"> $(LD) -shared -o $(CYGTARGETDIR)/$(CYGTARGET) -Wl,--out-implib=$@ -Wl,--export-all-symbols -Wl,--enable-auto-import -Wl,--whole-archive $(OBJS) -Wl,--no-whole-archive $(LDFLAGS)" >> $(TRDIR)/build.log
+@echo `date --rfc-3339 s`"> $(LD) -shared -o $(CYGTARGETDIR)/$(CYGTARGET) -Wl,--out-implib=$@ -Wl,--export-all-symbols -Wl,--enable-auto-import -Wl,--whole-archive $(OBJS) -Wl,--no-whole-archive $(LDFLAGS)" >> $(BUILDLOG)
 @$(LD) -shared -o $(CYGTARGETDIR)/$(CYGTARGET) -Wl,--out-implib=$@\
 	-Wl,--export-all-symbols -Wl,--enable-auto-import -Wl,--whole-archive $(OBJS) -Wl,--no-whole-archive $(LDFLAGS)
 endef

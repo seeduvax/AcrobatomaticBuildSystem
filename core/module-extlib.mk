@@ -29,12 +29,7 @@ ABS_DEPDOWNLOAD_RULE_OVERLOADED:=1
 .PRECIOUS: $(ABS_CACHE)/%
 .PRECIOUS: $(ABSWS_EXTLIBDIR)/%/import.mk $(ABSWS_NDEXTLIBDIR)/%/import.mk $(ABSWS_NA_EXTLIBDIR)/%/import.mk $(ABSWS_NDNA_EXTLIBDIR)/%/import.mk
 
-# Download an archive from repositories
-# $1: File to download
-# $2: Repositories list
-# $3: Dest file
-#
-define downloadFromRepos
+define downloadFromRepos2
 @for repo in $2 ; do \
 	$(ABS_PRINT_info) "Fetching $1 from $$repo" ; \
 	case $$repo in \
@@ -51,6 +46,16 @@ define downloadFromRepos
 done ; $(ABS_PRINT_error) "Can't fetch $1." ; rm -rf $3 ; exit 1
 endef
 
+
+# Download an archive from repositories
+# $1: File to download
+# $2: Repositories list
+# $3: Dest file
+#
+define downloadFromRepos
+$(call downloadFromRepos2,$1,$(patsubst %,%/$1,$2),$3)
+endef
+
 ifeq ($(findstring %,$(ABS_REPO)),)
 ABS_REPO_PATTERN:=$(patsubst %,%/$(ARCH)/%,$(ABS_REPO))
 ABS_REPO_NA_PATTERN:=$(patsubst %,%/noarch/%,$(ABS_REPO))
@@ -61,11 +66,11 @@ endif
 
 $(ABS_CACHE)/noarch/%:
 	@mkdir -p $(@D)
-	$(call downloadFromRepos,$*,$(foreach pat,$(ABS_REPO_NA_PATTERN),$(patsubst %,$(pat),$(@F))),$@)
+	$(call downloadFromRepos2,$*,$(foreach pat,$(ABS_REPO_NA_PATTERN),$(patsubst %,$(pat),$(@F))),$@)
 
 $(ABS_CACHE)/%:
 	@mkdir -p $(@D)
-	$(call downloadFromRepos,$*,$(foreach pat,$(ABS_REPO_PATTERN),$(patsubst %,$(pat),$(@F))),$@)
+	$(call downloadFromRepos2,$*,$(foreach pat,$(ABS_REPO_PATTERN),$(patsubst %,$(pat),$(@F))),$@)
 
 define unpackArchive
 	@$(ABS_PRINT_info) "Unpacking library : $(patsubst $(1)/%/import.mk,%,$@)"
@@ -173,7 +178,7 @@ endif
 endef
 
 # macro to include lib
-# $1 lib dependancy name (name-version)
+# $1 lib dependency name (name-version)
 # $2 lib parent name
 # $3 extlib directory path
 # $4 variable to use to store libs
@@ -206,21 +211,27 @@ endef
 define extlib_import_template
 ifneq ($$(filter $(1)-$(2),$$(TRANSUSELIB)),)
 $(foreach lib,$3,$(call condIncludeExtLib,$(lib),$(1)-$(2),$(EXTLIBDIR),TRANSUSELIB))
-CFLAGS+=-I$(EXTLIBDIR)/$(1)-$(2)/include
-LDFLAGS+=-L$(EXTLIBDIR)/$(1)-$(2)/lib -L$(EXTLIBDIR)/$(1)-$(2)/lib64
+_app_$(1)_dir:=$(EXTLIBDIR)/$(1)-$(2)
+_app_$(1)_depends+=$(foreach lib,$3,$(shell echo $(lib) | sed -E 's/(.*)-[^-]+/\1/g'))
+ALL_LIBS_LOADED+=$1
 else
 ifneq ($$(filter $(1)-$(2),$$(NA_USELIB)),)
 $(foreach lib,$3,$(call condIncludeExtLib,$(lib),$(1)-$(2),$(NA_EXTLIBDIR),NA_USELIB))
-CFLAGS+=-I$(NA_EXTLIBDIR)/$(1)-$(2)/include
+_app_$(1)_dir:=$(NA_EXTLIBDIR)/$(1)-$(2)
+_app_$(1)_depends+=$(foreach lib,$3,$(shell echo $(lib) | sed -E 's/(.*)-[^-]+/\1/g'))
+ALL_LIBS_LOADED+=$1
 else
 ifneq ($$(filter $(1)-$(2),$$(NDUSELIB)),)
 $(foreach lib,$3,$(call condIncludeExtLib,$(lib),$(1)-$(2),$(NDEXTLIBDIR),NDUSELIB))
-CFLAGS+=-I$(NDEXTLIBDIR)/$(1)-$(2)/include
-LDFLAGS+=-L$(NDEXTLIBDIR)/$(1)-$(2)/lib -L$(NDEXTLIBDIR)/$(1)-$(2)/lib64
+_app_$(1)_dir:=$(NDEXTLIBDIR)/$(1)-$(2)
+_app_$(1)_depends+=$(foreach lib,$3,$(shell echo $(lib) | sed -E 's/(.*)-[^-]+/\1/g'))
+ALL_LIBS_LOADED+=$1
 else
 ifneq ($$(filter $(1)-$(2),$$(NDNA_USELIB)),)
 $(foreach lib,$3,$(call condIncludeExtLib,$(lib),$(1)-$(2),$(NDNA_EXTLIBDIR),NDNA_USELIB))
-CFLAGS+=-I$(NDNA_EXTLIBDIR)/$(1)-$(2)/include
+_app_$(1)_dir:=$(NDNA_EXTLIBDIR)/$(1)-$(2)
+_app_$(1)_depends+=$(foreach lib,$3,$(shell echo $(lib) | sed -E 's/(.*)-[^-]+/\1/g'))
+ALL_LIBS_LOADED+=$1
 endif
 endif
 endif
@@ -275,7 +286,7 @@ ifneq ($(ABS_STRICT_DEP_CHECK),)
 $(call abs_error,================================================================)
 $(call abs_error,                     ERROR)
 $(call abs_error,Dependencies include non tagged libraries.)
-$(call abs_error,$(DEV_USELIB))
+$(call abs_error,$(sort $(DEV_USELIB)))
 $(call abs_error,Launch 'make checkdep' to see the full dependency graph.)
 $(call abs_error,================================================================)
 ABS_FATAL:=true
@@ -283,7 +294,7 @@ else
 $(call abs_warning,================================================================)
 $(call abs_warning,                           WARNING)
 $(call abs_warning,Dependencies include non tagged libraries.)
-$(call abs_warning,$(DEV_USELIB))
+$(call abs_warning,$(sort $(DEV_USELIB)))
 $(call abs_warning,Launch 'make checkdep' to see the full dependency graph.)
 $(call abs_warning,================================================================)
 endif

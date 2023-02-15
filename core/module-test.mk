@@ -34,7 +34,6 @@ LDFLAGS+=-L$(EXTLIBDIR)/$(CPPUNIT)/$(SODIR)
 VALGRIND=valgrind
 
 # Target definition.
-TTARGETDIR=$(TRDIR)/test
 TTARGETFILE=$(TTARGETDIR)/t_$(TARGET)
 ifeq ($(ISWINDOWS),true)
 TCYGTARGET=$(TTARGETDIR)/t_$(CYGTARGET)
@@ -45,7 +44,8 @@ ifeq ($(VALGRIND_XML),true)
 endif
 
 # objects to be generated from test classes.
-TSRCFILES=$(shell find test/ -name '*.cpp' -o -name '*.c' 2>/dev/null)
+TALLSRCFILES=$(shell find test/ -name '*.cpp' -o -name '*.c' 2>/dev/null)
+TSRCFILES=$(filter-out $(patsubst %,test/%,$(TDISABLE_SRC)),$(TALLSRCFILES))
 #TSRCFILES=$(shell find test/ -name '*.cpp' 2>/dev/null)
 TCPPOBJS=$(patsubst test/%.cpp,$(OBJDIR)/test/%.o,$(filter %.cpp,$(TSRCFILES))) \
 		$(patsubst test/%.c,$(OBJDIR)/test/%.o,$(filter %.c,$(TSRCFILES)))
@@ -53,8 +53,23 @@ TCPPOBJS=$(patsubst test/%.cpp,$(OBJDIR)/test/%.o,$(filter %.cpp,$(TSRCFILES))) 
 # compiler options specific to test
 TCFLAGS+=$(patsubst %,-I../%/include,$(TESTUSEMOD))
 
+INCLUDE_PROJ_TESTMODS=$(patsubst $(APPNAME)_%,%,$(filter $(PROJECT_MODS),$(sort $(ABS_INCLUDE_TESTLIBS))))
+
 # linker options specific to test
-TLDFLAGS+=-L$(TRDIR)/$(SODIR) $(patsubst %,-l$(APPNAME)_%,$(TESTUSEMOD)) -lcppunit $(patsubst %,-l%,$(TLINKLIB))
+TLDFLAGS+=-L$(TRDIR)/$(SODIR)  $(patsubst %,-l$(APPNAME)_%,$(TESTUSEMOD)) -lcppunit $(patsubst %,-l%,$(TLINKLIB))
+TLDFLAGS+=$(patsubst %,-L$(TRDIR)/$(SODIR),$(TESTUSEMOD))
+TLDFLAGS+=$(foreach mod,$(INCLUDE_PROJ_TESTMODS),-L$(TRDIR)/$(SODIR))
+
+TCFLAGS+=$(patsubst %,-I$(PRJROOT)/%/include,$(INCLUDE_PROJ_TESTMODS))
+TCFLAGS+=$(patsubst %,-I$(TRDIR)/include,$(INCLUDE_PROJ_TESTMODS))
+
+INCLUDE_TESTLIBS_EXT=$(filter-out $(PROJECT_MODS),$(sort $(ABS_INCLUDE_TESTLIBS))) $(ABS_INCLUDE_TESTLIBS) $(TLINKLIB)
+
+INCLUDE_TESTLIBS_EXT_LOOKING_PATHS=$(sort $(foreach modExt,$(INCLUDE_TESTLIBS_EXT),$(_module_$(modExt)_dir) $(_app_$(modExt)_dir)))
+INCLUDE_TESTLIBS_EXT_CPATHS=$(foreach path,$(INCLUDE_TESTLIBS_EXT_LOOKING_PATHS),$(wildcard $(path)/include))
+TCFLAGS+=$(foreach extPath,$(INCLUDE_TESTLIBS_EXT_CPATHS),-I$(extPath))
+INCLUDE_TESTLIBS_EXT_LDPATHS+=$(foreach path,$(INCLUDE_TESTLIBS_EXT_LOOKING_PATHS),$(filter-out %/library.json,$(wildcard $(path)/lib*)))
+TLDFLAGS+=$(foreach extPath,$(INCLUDE_TESTLIBS_EXT_LDPATHS),-L$(extPath))
 
 # adaptation to module type
 ifeq ($(MODTYPE),library)
@@ -86,7 +101,7 @@ endif
 # add cppunit import makefile
 # include $(patsubst %,$(EXTLIBDIR)/%/import.mk,$(CPPUNIT))
 
-TLDLIBP=$(LDLIBP):$(subst !!,,$(subst !! ,:,$(patsubst -%,,$(patsubst -L%,%!!,$(TLDFLAGS)))))
+TLDLIBP=$(LDLIBP):$(subst $(_space_),:,$(patsubst -L%,%,$(filter -L%,$(TLDFLAGS))))
 
 -include $(patsubst %.o,%.o.d,$(TCPPOBJS))
 # ---------------------------------------------------------------------
@@ -95,7 +110,7 @@ TLDLIBP=$(LDLIBP):$(subst !!,,$(subst !! ,:,$(patsubst -%,,$(patsubst -L%,%!!,$(
 $(OBJDIR)/test/%.o: test/%.cpp
 	@$(ABS_PRINT_info) "Compiling test $< ..."
 	@mkdir -p $(@D)
-	@echo `date --rfc-3339 s`"> $(CPPC) $(CXXFLAGS) $(CFLAGS) $(TCFLAGS) -c $< -o $@" >> $(TRDIR)/build.log
+	@echo `date --rfc-3339 s`"> $(CPPC) $(CXXFLAGS) $(CFLAGS) $(TCFLAGS) -c $< -o $@" >> $(BUILDLOG)
 	@grep -E "ABS_TEST_.*_BEGIN|ABS_TEST_SUITE_END" $< | cpp -include $(ABSROOT)/core/include/abs/testdef2cppunitdecl.h | sed -e '/^#/d;s/!$$//g;s/ !!!/\n!!!/g;s/!!!/#/g' > $(patsubst %.o,%.h,$@)
 	@$(CPPC) $(CXXFLAGS) $(CFLAGS) $(TCFLAGS) -include $(patsubst %.o,%.h,$@) -MMD -MF $@.d -c $< -o $@ \
 	&& ( cp $@.d $@.d.tmp ; sed -e 's/#.*//' -e 's/^[^:]*: *//' -e 's/ *\\$$//' -e '/^$$/ d' -e 's/$$/ :/' $@.d.tmp >> $@.d ; rm $@.d.tmp ) \
@@ -104,7 +119,7 @@ $(OBJDIR)/test/%.o: test/%.cpp
 $(OBJDIR)/test/%.o: test/%.c
 	@$(ABS_PRINT_info) "Compiling test $< ..."
 	@mkdir -p $(@D)
-	@echo `date --rfc-3339 s`"> $(CC) $(CFLAGS) $(TCFLAGS) -c $< -o $@" >> $(TRDIR)/build.log
+	@echo `date --rfc-3339 s`"> $(CC) $(CFLAGS) $(TCFLAGS) -c $< -o $@" >> $(BUILDLOG)
 	@$(CC) $(CFLAGS) $(TCFLAGS) -MMD -MF $@.d -c $< -o $@ \
 	&& ( cp $@.d $@.d.tmp ; sed -e 's/#.*//' -e 's/^[^:]*: *//' -e 's/ *\\$$//' -e '/^$$/ d' -e 's/$$/ :/' $@.d.tmp >> $@.d ; rm $@.d.tmp ) \
 	|| ( $(ABS_PRINT_error) "Failed: CFLAGS=$(CFLAGS) $(TCFLAGS)" ; exit 1 )
@@ -112,7 +127,7 @@ $(OBJDIR)/test/%.o: test/%.c
 $(OBJDIR)/bintest/%.o: $(OBJDIR)/%.o
 	@$(ABS_PRINT_info) "Checking $(@F) symbols for Test Mode..."
 	@mkdir -p $(@D)
-	@echo `date --rfc-3339 s`"> objcopy --redefine-sym main=__Exec_Main_Stubbed_for_unit_tests__ $< $@" >> $(TRDIR)/build.log
+	@echo `date --rfc-3339 s`"> objcopy --redefine-sym main=__Exec_Main_Stubbed_for_unit_tests__ $< $@" >> $(BUILDLOG)
 	@objcopy --redefine-sym main=__Exec_Main_Stubbed_for_unit_tests__ $< $@
 
 ifneq ($(filter exe library,$(MODTYPE)),)
@@ -134,7 +149,7 @@ endif
 
 # link test target from test objects.
 $(TTARGETFILE): $(TCPPOBJS) $(TTARGETFILEDEP)
-	@mkdir -p $(TTARGETDIR)
+	@mkdir -p $(@D)
 	@$(ld-test)
 
 # ---------------------------------------------------------------------
@@ -172,25 +187,25 @@ testbuild::	$(TTARGETFILE) $(FILTERED_TEST_FILES_OUTPUT)
 
 define pre-test
 @( [ -d test ] && mkdir -p $(TTARGETDIR) ) || true 
-@( [ -d test ] && rm -f $(TTARGETDIR)/$(APPNAME)_$(MODNAME).xml ) || true
+@( [ -d test ] && rm -f $(TEST_REPORT_PATH) ) || true
 endef
 
 ifneq ($(ISWINDOWS),true)
 define exec-test
 @$(RUNTIME_PROLOG)
-@( [ -d test ] && PATH="$(RUNPATH)" LD_LIBRARY_PATH="$(TLDLIBP)" TRDIR="$(TRDIR)" TTARGETDIR="$(TTARGETDIR)" LD_PRELOAD="$(TLDPRELOADFORMATTED)" $(RUNTIME_ENV) $1 $(patsubst %,$(EXTLIBDIR)/%/bin/$(TESTRUNNER),$(CPPUNIT)) -x $(TTARGETDIR)/$(APPNAME)_$(MODNAME).xml $(TTARGETFILE) $(RUNARGS) $(patsubst %,+f %,$(T)) $(TARGS) 2>&1 | tee $(TTARGETDIR)/$(APPNAME)_$(MODNAME).stdout ) || :
+( [ -d test ] && PATH="$(RUNPATH)" LD_LIBRARY_PATH="$(TLDLIBP)" TRDIR="$(TRDIR)" TTARGETDIR="$(TTARGETDIR)" LD_PRELOAD="$(TLDPRELOADFORMATTED)" $(RUNTIME_ENV) $1 $(patsubst %,$(EXTLIBDIR)/%/bin/$(TESTRUNNER),$(CPPUNIT)) -x $(TEST_REPORT_PATH) $(TTARGETFILE) $(RUNARGS) $(patsubst %,+f %,$(T)) $(TARGS) 2>&1 | tee $(TTARGETDIR)/$(APPNAME)_$(MODNAME).stdout ) || :
 @$(RUNTIME_EPILOG)
 endef
 else
 define exec-test
-@( [ -d test ] && PATH="$(RUNPATH):$(TLDLIBP)" LD_LIBRARY_PATH="$(TLDLIBP)" TRDIR="$(TRDIR)" TTARGETDIR="$(TTARGETDIR)" LD_PRELOAD="$(TLDPRELOADFORMATTED)" $(RUNTIME_ENV) $1 $(patsubst %,$(EXTLIBDIR)/%/bin/$(TESTRUNNER),$(CPPUNIT)) -x $(TTARGETDIR)/$(APPNAME)_$(MODNAME).xml $(TCYGTARGET) $(RUNARGS) $(patsubst %,+f %,$(T)) $(TARGS) 2>&1 | tee $(TTARGETDIR)/$(APPNAME)_$(MODNAME).stdout ) || true
+@( [ -d test ] && PATH="$(RUNPATH):$(TLDLIBP)" LD_LIBRARY_PATH="$(TLDLIBP)" TRDIR="$(TRDIR)" TTARGETDIR="$(TTARGETDIR)" LD_PRELOAD="$(TLDPRELOADFORMATTED)" $(RUNTIME_ENV) $1 $(patsubst %,$(EXTLIBDIR)/%/bin/$(TESTRUNNER),$(CPPUNIT)) -x $(TEST_REPORT_PATH) $(TCYGTARGET) $(RUNARGS) $(patsubst %,+f %,$(T)) $(TARGS) 2>&1 | tee $(TTARGETDIR)/$(APPNAME)_$(MODNAME).stdout ) || true
 endef
 endif
 
 define post-test
-@( [ -d test -a ! -r $(TTARGETDIR)/$(APPNAME)_$(MODNAME).xml ] && $(ABS_PRINT_error) "no test report, test runner exited abnormally." ) || true 
-@( [ -d test -a -r $(TTARGETDIR)/$(APPNAME)_$(MODNAME).xml ] && xsltproc $(ABSROOT)/core/$(TXTXSL) $(TTARGETDIR)/$(APPNAME)_$(MODNAME).xml ) || true
-@if [ -d test ]; then [ -s $(TTARGETDIR)/$(APPNAME)_$(MODNAME).xml ]; else true; fi
+@( [ -d test -a ! -r $(TEST_REPORT_PATH) ] && $(ABS_PRINT_error) "no test report, test runner exited abnormally." ) || true 
+@( [ -d test -a -r $(TEST_REPORT_PATH) ] && xsltproc $(ABSROOT)/core/$(TXTXSL) $(TEST_REPORT_PATH) ) || true
+@if [ -d test ]; then [ -s $(TEST_REPORT_PATH) ]; else true; fi
 endef
 
 define run-test 
@@ -357,7 +372,7 @@ public:\n\
         ABS_TEST_CASE_REQ(req.id) // one entry for eache requrement checked by this case\n\
         // init/call service / function to be tested and collect results\n\
 \n\
-        // check restults with cppunit asserts\n\
+        // check results with cppunit asserts\n\
         CPPUNIT_ASSERT( bool expr);\n\
         CPPUNIT_ASSERT_EQUAL(expected_value,computed_value);\n\
     ABS_TEST_CASE_END\n\
@@ -375,7 +390,7 @@ clean:: clean-module-test
 clean-module-test:
 	rm -rf $(TTARGETFILE) $(FILTERED_TEST_FILES_OUTPUT)
 	rm -rf $(TTARGETDIR)/$(APPNAME)_$(MODNAME).stdout
-	rm -rf $(TTARGETDIR)/$(APPNAME)_$(MODNAME).xml
+	rm -rf $(TEST_REPORT_PATH)
 
 
 $(OBJDIR)/coverage.info: test

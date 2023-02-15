@@ -107,6 +107,7 @@ install() {
     tail -n +$SKIP "$THIS" | tar $UNTAR_ARGS"xz" -C "$TEMPDIR"
     echo "#### Files extracted"
     echo ""
+    chmod -R u+rw "$TEMPDIR"
     mv "$TEMPDIR"/$APPNAME-$VERSION/* "$PREFIX"
     mv "$TEMPDIR"/$APPNAME-$VERSION/.* "$PREFIX" 2> /dev/null # we silence errors for . and ..
     rm -rf "$TEMPDIR"

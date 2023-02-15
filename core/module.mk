@@ -40,7 +40,14 @@ LUA_MDL_ENABLE:=
 LUA_MDL_TYPES_FILE:=
 LUA_MDL_MODEL_HEADERS:=
 
+## Level of dependency management
+# Possible values: DISABLED, FIRST, NEXT
+DEPS_MNGMT_LEVEL?=FIRST
+
 include $(ABSROOT)/core/common.mk
+
+TTARGETDIR?=$(TRDIR)/test
+TEST_REPORT_PATH:=$(TTARGETDIR)/$(APPNAME)_$(MODNAME).xml
 
 ifeq ($(REVISION),)
 REVISION:=undef
@@ -74,6 +81,30 @@ else
 define executeFiltering
 endef
 endif
+
+# ---------------------------------------------------------------------
+# Automatic derivation of application & module parameters
+# ---------------------------------------------------------------------
+# object files go in a subdirectory of build dir dedicated to the module
+OBJDIR?=$(PRJOBJDIR)/$(MODNAME)
+# log containing all commands executed to generate objects
+BUILDLOG=$(PRJOBJDIR)/build.log
+
+# Variable for the module dependencies management.
+MODULE_MK_PATH=$(MODULE_MK_DIR)/module_$(APPNAME)_$(MODNAME).mk
+MODULE_MK_TEST_PATH=$(OBJDIR)/module_test.mk
+
+MODULE_MK_OBJ_PATH=$(OBJDIR)/module.mk
+# these variables will be modified later by reading module.mk files.
+ABS_INCLUDE_LIBS+=
+ABS_INCLUDE_TESTLIBS+=
+# the includes modules directly associated to this module
+DEFAULT_ABS_INCLUDE_LIBS:=$(patsubst %,$(APPNAME)_%,$(USEMOD) $(USELKMOD)) $(LINKLIB) $(INCLUDE_LIBS)
+DEFAULT_ABS_INCLUDE_TESTLIBS:=$(patsubst %,$(APPNAME)_%,$(TESTUSEMOD)) $(TLINKLIB) $(INCLUDE_TESTLIBS)
+# definition of variables used to find the path to modules trdir.
+MODULES_DEPS:=$(patsubst ../%/Makefile,%,$(wildcard ../*/Makefile))
+PROJECT_MODS:=$(patsubst %,$(APPNAME)_%,$(MODULES_DEPS))
+$(foreach mod,$(MODULES_DEPS),$(eval _module_$(APPNAME)_$(mod)_dir=$(TRDIR)))
 
 ## 
 ## Common make targets:
@@ -120,11 +151,13 @@ check:: test
 # this target must not defined a rule to avoid issues during parallel builds.
 all-impl::
 
+
 # ---------------------------------------------------------------------
-# Automatic derivation of application & module parameters
+# Config files
 # ---------------------------------------------------------------------
-# object files go in a subdirectory of build dir dedicated to the module
-OBJDIR?=$(TRDIR)/obj/$(MODNAME)
+CONFIGFILES:=$(patsubst %,$(TRDIR)/%,$(shell find etc -type f 2>/dev/null | grep -v "/.svn/"))
+
+
 # -------------------------------------------------
 # module type adaptation
 # -------------------------------------------------
@@ -134,9 +167,8 @@ MODULE_TYPES_MAP+=$(ABSROOT)/core/module-%.mk:linuxmodule,java,python,library,ex
     $(ABSROOT)/core/module-java.mk:jar \
 	$(ABSROOT)/%/main.mk:fpga
 
-comma:=,
 define findModTypeInMap
-$(filter $(MODTYPE),$(subst $(comma), ,$(word 2,$(subst :, ,$(entry)))))
+$(filter $(MODTYPE),$(subst $(_comma_), ,$(word 2,$(subst :, ,$(entry)))))
 endef
 define getPathForCurrentMod
 $(if $(strip $(findModTypeInMap)),$(word 1,$(subst :, ,$(entry))), )
@@ -148,11 +180,6 @@ include $(INC_MODULE_FILE)
 else
 $(warning Unknown module type $(MODTYPE), no module specific rules included)
 endif
-
-# ---------------------------------------------------------------------
-# Config files
-# ---------------------------------------------------------------------
-CONFIGFILES:=$(patsubst %,$(TRDIR)/%,$(shell find etc -type f 2>/dev/null | grep -v "/.svn/"))
 
 # Copy of config files.
 # Use FILTER_FILES to find the config file which must be modified using FILTER_VARIABLES.
@@ -191,38 +218,115 @@ endif
 ## ---------------------------------------------------------------------
 ##  dependencies beetween modules management
 ## ---------------------------------------------------------------------
-ifeq ($(filter test,$(MAKECMDGOALS)),)
-MODDEPS:=$(patsubst %,%.mod.dep,$(USEMOD) $(USELKMOD))
-else
-MODDEPS:=$(patsubst %,%.mod.dep,$(USEMOD) $(USELKMOD) $(TESTUSEMOD))
+ALL_NEEDED_MODS:=$(USEMOD) $(USELKMOD)
+ifneq ($(filter test,$(MAKECMDGOALS)),)
+ALL_NEEDED_MODS:=$(ALL_NEEDED_MODS) $(TESTUSEMOD)
 endif
-## Variables
-## - RMODDEP: module redo recurion level
-RMODDEP?=1
+MODDEPS:=$(patsubst %,%.mod.dep,$(ALL_NEEDED_MODS))
 
-ifneq ($(RMODDEP),0)
-EXPLICIT_MOD_DEP:=.explicit.mod.dep
-DECRMODDEP:=$(shell expr $(RMODDEP) - 1)
-.PHONY: $(EXPLICIT_MOD_DEP)
-else
-DECRMODDEP:=0
-EXPLICIT_MOD_DEP:=
+ALL_DEPS_SRC_FILES=$(foreach mod,$(filter-out $(MODNAME),$(MODULES_DEPS)),$(wildcard $(PRJROOT)/$(mod)/src/*) $(wildcard $(PRJROOT)/$(mod)/include/*))
+
+CURRENT_DEPENDENCY_FILE:=$(PRJOBJDIR)/currentDependencies
+
+ifeq ($(DEPS_MNGMT_LEVEL),DISABLED)
+DEPENDENCY_FILE:=$(OBJDIR)/noDependencyCompilation
+$(DEPENDENCY_FILE):
+	@$(ABS_PRINT_debug) "$(MODNAME): Dependency management disabled"
+	@touch $@
+
+else #ifeq ($(DEPS_MNGMT_LEVEL),DISABLED)
+DEPENDENCY_FILE:=$(OBJDIR)/dependencyCompilation
+$(DEPENDENCY_FILE): $(EXTLIBMAKES) $(ALL_DEPS_SRC_FILES)
+	@mkdir -p $(@D)
+	@mkdir -p $(PRJOBJDIR)
+	@$(ABS_PRINT_debug) "Creation of $@"
+ifeq ($(DEPS_MNGMT_LEVEL),FIRST)
+	@echo "" > $(CURRENT_DEPENDENCY_FILE)
 endif
+	@+for mod in $(sort $(ALL_NEEDED_MODS)); do \
+		egrep -q $$mod $(CURRENT_DEPENDENCY_FILE) || (\
+			$(ABS_PRINT_info) "$(MODNAME): Build of dependency: $$mod" && \
+			echo $$mod >> $(CURRENT_DEPENDENCY_FILE) && \
+			DEPS_MNGMT_LEVEL="NEXT" make $(MMARGS) MODE=$(MODE) -C $(PRJROOT)/$$mod && \
+			$(ABS_PRINT_debug) "$(MODNAME): End processing mod '$$mod'"); \
+		done
+ifeq ($(DEPS_MNGMT_LEVEL),FIRST)
+	@rm -f $(CURRENT_DEPENDENCY_FILE)
+endif
+	@touch $@
 
-define moduleDependencyRule
-$(OBJDIR)/$(1).mod.dep: $(LASTMODDEP) $(EXPLICIT_MOD_DEP)
-	@$$(ABS_PRINT_info) "Build of dependency: $(1) $(if $(EXPLICIT_MOD_DEP),[$(DECRMODDEP)])..."
-	@+make -C $(PRJROOT)/$(1) RMODDEP=$(DECRMODDEP)
-	@mkdir -p $$(@D)
-	@touch $$@
+endif # ifeq($(DEPS_MNGMT_LEVEL),DISABLED)
 
-LASTMODDEP:=$(OBJDIR)/$(1).mod.dep
+
+DEFAULT_ABS_EXISTING_LIBS=$(foreach mod,$(DEFAULT_ABS_INCLUDE_LIBS),$(if $(_module_$(mod)_dir)$(_app_$(mod)_dir),$(mod),$(if $(_app_lib$(mod)_dir),lib$(mod))))
+DEFAULT_ABS_EXISTING_TESTLIBS=$(foreach mod,$(DEFAULT_ABS_INCLUDE_TESTLIBS),$(if $(_module_$(mod)_dir)$(_app_$(mod)_dir),$(mod),$(if $(_app_lib$(mod)_dir),lib$(mod))))
+DEPS_LIBS_MK=$(foreach mod,$(DEFAULT_ABS_EXISTING_LIBS),$(MODULE_MK_DIR)/module_$(mod).mk)
+DEPS_TESTLIBS_MK=$(foreach mod,$(DEFAULT_ABS_EXISTING_TESTLIBS),$(MODULE_MK_TEST_DIR)/module_$(mod).mk)
+PROJDEPS_MODS_MK=$(foreach mod,$(PROJECT_MODS),$(MODULE_MK_DIR)/module_$(mod).mk)
+
+$(MODULE_MK_OBJ_PATH): module.cfg
+	@$(ABS_PRINT_debug) "Creation of $@"
+	@mkdir -p $(@D)
+	@echo "_module_$(APPNAME)_$(MODNAME)_depends:=$(foreach lib,$(sort $(DEFAULT_ABS_EXISTING_LIBS)),$(lib))" > $@
+
+$(MODULE_MK_PATH): $(MODULE_MK_OBJ_PATH) $(DEPS_LIBS_MK) module.cfg
+	@$(ABS_PRINT_debug) "Creation of project module $@"
+	@mkdir -p $(@D)
+	@echo '$(foreach modMk,$(DEPS_LIBS_MK),\n-include $(modMk))' > $@.tmp
+	@echo "ABS_INCLUDE_LIBS+=$(sort $(DEFAULT_ABS_EXISTING_LIBS))" >> $@.tmp
+	@echo "_app_$(APPNAME)_dir:=$(TRDIR)" >> $@.tmp
+	@echo "_module_$(APPNAME)_$(MODNAME)_dir:=$(TRDIR)" >> $@.tmp
+	@mv $@.tmp $@
+	
+$(MODULE_MK_TEST_PATH): $(MODULE_MK_OBJ_PATH) $(DEPS_TESTLIBS_MK) module.cfg
+	@$(ABS_PRINT_debug) "Creation of project module $@"
+	@mkdir -p $(@D)
+	@echo '$(foreach modMk,$(DEPS_TESTLIBS_MK),\n-include $(modMk))' > $@.tmp
+	@echo "ABS_INCLUDE_TESTLIBS+=$(sort $(DEFAULT_ABS_EXISTING_TESTLIBS))" >> $@.tmp
+	@echo "_app_$(APPNAME)_dir:=$(TRDIR)" >> $@.tmp
+	@echo "_module_$(APPNAME)_$(MODNAME)_dir:=$(TRDIR)" >> $@.tmp
+	@mv $@.tmp $@
+
+$(PROJDEPS_MODS_MK): $(DEPENDENCY_FILE)
+
+PROJECT_MODS_LINED=$(subst $(_space_),\n,$(PROJECT_MODS))
+define createModuleMkFile
+	@echo -e "\n$(PROJECT_MODS_LINED)" | egrep -q "^$*$$" && $(ABS_PRINT_debug) "Reading of $@ (project module)" || $(ABS_PRINT_debug) "Creation of $@ (external module)"
+	@echo -e "\n$(PROJECT_MODS_LINED)" | egrep -q "^$*$$" || mkdir -p $(@D)
+	@echo -e "\n$(PROJECT_MODS_LINED)" | egrep -q "^$*$$" || echo "" > $@.tmp
+	@# when _module_$*_depends exists, use it to get dependencies of the module/app.
+	@echo -e "\n$(PROJECT_MODS_LINED)" | egrep -q "^$*$$" || test -z "$(_module_$*_depends)" || (\
+		echo "$(sort $(_module_$*_depends))" | sed ':N;s/ /\n/g' | sed -E 's~(.*)~-include $(@D)/module_\1.mk~g' >> $@.tmp && \
+		echo "$(1)+=$(sort $(_module_$*_depends))" >> $@.tmp)
+	@# when _module_$*_depends not exists, use the variable _app_$*_depends to get the dependencies of the app.
+	@echo -e "\n$(PROJECT_MODS_LINED)" | egrep -q "^$*$$" || test -n "$(_module_$*_depends)" || test -z "$(_app_$*_depends)" || (\
+		echo "$(sort $(_app_$*_depends))" | sed ':N;s/ /\n/g' | sed -E 's~(.*)~-include $(@D)/module_\1.mk~g' >> $@.tmp && \
+		echo "$(1)+=$(sort $(_app_$*_depends))" >> $@.tmp)
+	@# These variables to permit app.mk to find module/app
+	@echo -e "\n$(PROJECT_MODS_LINED)" | egrep -q "^$*$$" || test -z "$(_app_$*_dir)" || echo "_app_$*_dir?=$(_app_$*_dir)" >> $@.tmp
+	@echo -e "\n$(PROJECT_MODS_LINED)" | egrep -q "^$*$$" || test -z "$(_module_$*_dir)" || echo "_module_$*_dir?=$(_module_$*_dir)" >> $@.tmp
+	@echo -e "\n$(PROJECT_MODS_LINED)" | egrep -q "^$*$$" || mv $@.tmp $@
 endef
 
-$(foreach entry,$(MODDEPS),$(eval $(call moduleDependencyRule,$(patsubst %.mod.dep,%,$(entry)))))
+# this rule only execute its command if the mod is not a project mod. 
+# (one rule because cannot distinct modules of two project with almost same name ex: 'proj' and 'proj_lkm')
+$(MODULE_MK_DIR)/module_%.mk:
+	$(call createModuleMkFile,ABS_INCLUDE_LIBS)
+	
+$(MODULE_MK_TEST_DIR)/module_%.mk:
+	$(call createModuleMkFile,ABS_INCLUDE_TESTLIBS)
+
+ifneq ($(INCTESTS),)
+
+include $(MODULE_MK_TEST_PATH)
+
+endif # ifneq ($(INCTESTS),)
+
+# this include permit to generate the full ABS_INCLUDE_LIBS (including externals dependencies and transitionnal dependencies.)
+include $(MODULE_MK_PATH)
 
 ifneq ($(SRCFILES),)
-$(SRCFILES): $(LASTMODDEP)
+$(SRCFILES): $(MODULE_MK_PATH) $(MODULE_MK_TEST_PATH)
 else
-all: $(LASTMODDEP)
+all: $(MODULE_MK_PATH) $(MODULE_MK_TEST_PATH)
 endif

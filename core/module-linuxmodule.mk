@@ -11,9 +11,9 @@ LKMNAME:=$(patsubst %_lkm,%,$(MODNAME))
 include $(ABSROOT)/core/module-cheaders.mk
 
 EXTRA_SIMVERS:=$(patsubst %,$(TRDIR)/obj/%/Module.symvers,$(USELKMOD))
-CFGFILES:=$(patsubst %,$(TRDIR)/%,$(shell find etc -name $(LKMNAME).conf -o -name $(LKMNAME)))
+CFGFILES:=$(patsubst %,$(TRDIR)/%,$(shell find etc -type f -a \( -name $(LKMNAME).conf -o -name $(LKMNAME) \)))
 SERVICEFILES:=$(patsubst %,$(TRDIR)/%,$(shell find etc -name $(LKMNAME).service))
-INITSFILES:=$(patsubst %,$(TRDIR)/%,$(shell find etc -name $(LKMNAME)))
+INITSFILES:=$(patsubst %,$(TRDIR)/%,$(shell find etc -type f -name $(LKMNAME)))
 
 $(TRDIR)/etc/$(APPNAME)/%: src/etc/$(APPNAME)/%
 	mkdir -p $(@D)
@@ -26,8 +26,8 @@ $(TRDIR)/etc/init.d/%: src/etc/init.d/%
 
 all-impl:: $(OBJDIR)/Makefile $(PUBLISHED_HEADERS) $(CFGFILES) $(SERVICEFILES) $(INITSFILES)
 	$(MAKE) -C $(KERNELDIR) M=$(OBJDIR) KBUILD_EXTRA_SYMBOLS="$(EXTRA_SIMVERS)" modules
-	mkdir -p $(TRDIR)/lib/modules/
-	cp $(TRDIR)/obj/$(MODNAME)/*.ko $(TRDIR)/lib/modules
+	@mkdir -p $(TRDIR)/lib/modules/
+	@cp $(OBJDIR)/*.ko $(TRDIR)/lib/modules
 
 install:: all
 	@( test -x /etc/init.d/$(LKMNAME) && ( \
@@ -78,7 +78,7 @@ LKMH=$(patsubst src/%,$(OBJDIR)/%,$(shell find src -name "*.h"))
 $(TRDIR)/include/$(APPNAME)/%: $(PRJROOT)/%/Makefile
 	make -C $(^D)
 
-$(OBJDIR)/Makefile: $(LKMSRC) $(LKMH) $(patsubst %,$(TRDIR)/include/$(APPNAME)/%,$(USELKMOD))
+$(OBJDIR)/Makefile: $(LKMSRC) $(LKMH)
 	printf "\
 INSTALL_MOD_DIR=$(APPNAME)\n\
 obj-m:=$(LKMNAME).o\n\

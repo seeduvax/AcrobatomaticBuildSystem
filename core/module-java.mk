@@ -69,7 +69,7 @@ all-impl:: $(TARGETFILE)
 $(JARIMGDIR)/%.class: src/%.java
 	@$(ABS_PRINT_info) "Compiling $< ..."
 	@mkdir -p $(JARIMGDIR)
-	@echo `date --rfc-3339 s`'> $(JC) $(JCFLAGS) $<' >> $(TRDIR)/build.log
+	@echo `date --rfc-3339 s`'> $(JC) $(JCFLAGS) $<' >> $(BUILDLOG)
 	@$(JC) $(JCFLAGS) $(if $(ISWINDOWS),`cygpath -m $<`,$<) || ( echo 'Failed: JFLAGS=$(JCFLAGS)' ; exit 1 )
 
 # Resource file copy
@@ -100,18 +100,18 @@ $(TARGETFILE): $(OBJDIR)/$(MODNAME).Manifest $(RESFILES)
 	@$(ABS_PRINT_info) "Building archive $@ ..."
 	@mkdir -p $(TARGETDIR)
 ifeq ($(ISWINDOWS),true)
-	@echo `date --rfc-3339 s`'> $(JAR) cf $@ -C $(JARIMGDIR) .' >> $(TRDIR)/build.log
+	@echo `date --rfc-3339 s`'> $(JAR) cf $@ -C $(JARIMGDIR) .' >> $(BUILDLOG)
 	@$(JAR) cf `cygpath -m $@` -C `cygpath -m $(JARIMGDIR)` .
 else
 ifeq ($(JAR),dx)
-	@echo `date --rfc-3339 s`'> $(JAR) --dex --output $@ $(JARIMGDIR)' >> $(TRDIR)/build.log
+	@echo `date --rfc-3339 s`'> $(JAR) --dex --output $@ $(JARIMGDIR)' >> $(BUILDLOG)
 	@$(JAR) --dex --output $@ $(JARIMGDIR)
 else
-	@echo `date --rfc-3339 s`'> $(JAR) cf $@ -C $(JARIMGDIR) .' >> $(TRDIR)/build.log
+	@echo `date --rfc-3339 s`'> $(JAR) cf $@ -C $(JARIMGDIR) .' >> $(BUILDLOG)
 	@$(JAR) cf $@ -C $(JARIMGDIR) .
 endif
 endif
-	@echo `date --rfc-3339 s`'$(JAR) umf $(OBJDIR)/$(MODNAME).Manifest $@' >> $(TRDIR)/build.log
+	@echo `date --rfc-3339 s`'$(JAR) umf $(OBJDIR)/$(MODNAME).Manifest $@' >> $(BUILDLOG)
 ifeq ($(ISWINDOWS),true)
 	@$(JAR) umf `cygpath -m $(OBJDIR)/$(MODNAME).Manifest` `cygpath -m $@`
 else
