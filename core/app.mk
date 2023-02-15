@@ -41,7 +41,7 @@ INSTALLTAR_EXCLUDE:=.abs import.mk
 ##  - LIGHT_INSTALLER: when set to 1, add share/*/doxygen and include to the 
 ##      list of file to exclude on packaging.
 ifeq ($(LIGHT_INSTALLER),1)
-INSTALLTAR_EXCLUDE+=share/doc/$(APPNAME)/doxygen include src
+INSTALLTAR_EXCLUDE+=share/doc/*/doxygen include src
 endif
 ##  - DISTTARFLAGS: arguments to add to tar command when packing files on dist
 ##      and distinstall target.
