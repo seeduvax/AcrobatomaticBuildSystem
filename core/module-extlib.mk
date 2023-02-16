@@ -37,12 +37,13 @@ ABS_DEPDOWNLOAD_RULE_OVERLOADED:=1
 .PRECIOUS: $(ABS_CACHE)/%
 .PRECIOUS: $(ABSWS_EXTLIBDIR)/%/import.mk $(ABSWS_NDEXTLIBDIR)/%/import.mk $(ABSWS_NA_EXTLIBDIR)/%/import.mk $(ABSWS_NDNA_EXTLIBDIR)/%/import.mk
 
-# Download an archive from repositories
-# $1: File to download
-# $2: Repositories list
-# $3: Dest file
-#
-define downloadFromRepos
+# Download an archive from an URL list
+# Each URL from given list is tried successively according the list order.
+# No longer tries anything once the file has been succesfully downloaded once.
+# $1: Name of file to download
+# $2: URL list
+# $3: Destination file path
+define downloadFromURLs
 @for repo in $2 ; do \
 	$(ABS_PRINT_info) "Fetching $1 from $$repo" ; \
 	case $$repo in \
@@ -59,6 +60,16 @@ define downloadFromRepos
 done ; $(ABS_PRINT_error) "Can't fetch $1." ; rm -rf $3 ; exit 1
 endef
 
+# Download an archive from repositories
+# !!! Deprecated, downloadFromURLs shall be used.
+# $1: File to download
+# $2: Repositories list
+# $3: Dest file
+define downloadFromRepos
+	$(ABS_PRINT_warning) "Macro dowloadFromRepos is deprecated. ABS extension or project configuration should be updated to new ABS standards."
+$(call downloadFromURLs,$1,$(patsubst %,%/$1,$2),$3)
+endef
+
 ifeq ($(findstring %,$(ABS_REPO)),)
 ABS_REPO_PATTERN:=$(patsubst %,%/$(ARCH)/%,$(ABS_REPO))
 ABS_REPO_NA_PATTERN:=$(patsubst %,%/noarch/%,$(ABS_REPO))
@@ -69,11 +80,11 @@ endif
 
 $(ABS_CACHE)/noarch/%:
 	@mkdir -p $(@D)
-	$(call downloadFromRepos,$*,$(foreach pat,$(ABS_REPO_NA_PATTERN),$(patsubst %,$(pat),$(@F))),$@)
+	$(call downloadFromURLs,$*,$(foreach pat,$(ABS_REPO_NA_PATTERN),$(patsubst %,$(pat),$(@F))),$@)
 
 $(ABS_CACHE)/%:
 	@mkdir -p $(@D)
-	$(call downloadFromRepos,$*,$(foreach pat,$(ABS_REPO_PATTERN),$(patsubst %,$(pat),$(@F))),$@)
+	$(call downloadFromURLs,$*,$(foreach pat,$(ABS_REPO_PATTERN),$(patsubst %,$(pat),$(@F))),$@)
 
 define unpackArchive
 	@$(ABS_PRINT_info) "Unpacking library : $(patsubst $(1)/%/import.mk,%,$@)"
