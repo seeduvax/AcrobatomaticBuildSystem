@@ -15,11 +15,17 @@ WORKSPACE_IS_TAG:=0
 endif
 
 define abs_scm_tag
-@git tag -a $(APPNAME)-$(TAG_VERSION) $(TAG_REVISION) -m "#$(VISSUE) $(M)" && \
+@if git diff --quiet ; then \
+ git tag -a $(APPNAME)-$(TAG_VERSION) $(TAG_REVISION) -m "#$(VISSUE) $(M)" && \
  git push $(GIT_REPOSITORY) $(APPNAME)-$(TAG_VERSION) || (\
  git tag -d $(APPNAME)-$(TAG_VERSION) ;\
  $(ABS_PRINT_error) "Tag push to $(GIT_REPOSITORY) failed. Tag removed." ;\
- exit 1 )
+ exit 1 ) ;\
+ else \
+ git status -s ; \
+ $(ABS_PRINT_error) "Tag rejected, workspace is dirty. Commit or stash local changes and try again." ;\
+ exit 1 ;\
+ fi
 endef
 
 define abs_scm_commit

@@ -1,0 +1,241 @@
+{?set %encoding=utf-8}
+{document 
+  {title ABS 3.3 test report}
+  {reference d840bd0}
+  {author %%Sébastien Devaux}
+  {copyright %year=2023 %holder=Sébastien DEVAUX}
+  {abstract Test report from the application of the validation plan as described in abs definition file (170983b, edition 1)}
+  {keywords validation, report, abs, buidlscripts}
+  {history
+    {edition %version=1 %date=2023-02-17 %%First issue of document}
+  }
+  {section %title=References
+    {references %title=Applicable documents %id=A
+{ref %id=ABSDef %ref=170983b %author=S.Devaux %edition=1, 2019-01-01 %% Acrobatomatic Build System - generic make files and companion scripts.}
+    }
+    {definitions %title=Glossary
+{def %entry=ABS %%Acrobatomatic Build System}
+    }
+  }
+{section %title=ABS 3.3 Validation report
+{report 
+  {context %reference=170983b
+           %edition=3, 2022-01-01
+           %start=2022-02-17
+           %end=2022-02-17
+           %operator=S.Devaux
+ABS is validated for closure of the abs-3.3 branch and ensure critical core
+features are running well and final tagged version can be used:
+  - Validated tag: abs-3.3.20
+  - Means: 
+    - Linux x86/64 PC running Debian GNU/Linux 11
+    - Linux x86/64 QEmu virtual machine running Debian GNU/Linux 10 image.
+  }
+  
+{check %title=General functional test
+       %id=general
+       %ref=3.2.1
+  {operation %id=1
+             %summary=Checkout the abs release to be tested, then go to the sampleprj sub-directory (r... 
+             %status=Done
+  }
+
+  {operation %id=2
+             %summary=Build the sample project's install archive: $ make distinstall 
+             %status=Done
+  }
+
+  {assert %id=1
+          %summary=Project is built. At the end of the process the installation archive is availabl... 
+          %status=OK 
+
+  }
+
+  {operation %id=3
+             %summary=Install the package to the test install location <installpath> : $ ./dist/sample... 
+             %status=Done
+  }
+
+  {assert %id=2
+          %summary=The project C/C++ binaires are built and installed (from <installpath>): 
+          %status=OK
+
+    {req abs.lang.1}
+  }
+
+  {assert %id=3
+          %summary=The project java packages are built and installed (from <installpath>): 
+          %status=OK 
+
+    {req abs.lang.2}
+  }
+
+  {assert %id=4
+          %summary=The project python scripts are integrated and installed (from <installpath>): 
+          %status=OK
+
+    {req abs.lang.3}
+  }
+
+  {assert %id=5
+          %summary=The project's dependencies are integrated and installed (from <installpath>): 
+          %status=OK 
+
+    {req abs.dep.1}
+  }
+
+  {operation %id=4
+             %summary=Extract configuration management information from the binaries: $ ident <install... 
+             %status=Done
+  }
+
+  {assert %id=6
+          %summary=Configuration management data (product name, version, subversion revision, build... 
+          %status=OK
+
+    {req abs.cm.1}
+    {req abs.cm.2}
+  }
+
+}
+
+{check %title=multi architecture support
+       %id=arch
+       %ref=3.2.2
+    {req abs.arch.1}
+  {operation %id=1
+             %summary=Run the check procedure general (see section CheckGen ) from a Debian 8 x86/64 h... 
+             %status=Done
+Alternate architechure used. 1st run was on Debian_11_x86_64, second run was on Debian_10_x86_64.
+  }
+
+  {assert %id=1
+          %summary=All assertions from the procedure general are satisfied. 
+          %status=OK 
+
+  }
+
+  {assert %id=2
+          %summary=The install package file name is sampleprj-0.4.Xd.Debian_8_x86_64-install.bin . 
+          %status=OK 
+
+  }
+
+  {operation %id=2
+             %summary=Run the check procedure general (see section CheckGen ) from a RedHawk 7 x86/64... 
+             %status=N/A
+No available architecture used.
+  }
+
+  {assert %id=3
+          %summary=All assertions from the procedure general are satisfied. 
+          %status=N/A 
+
+  }
+
+  {assert %id=4
+          %summary=The install package file name is sampleprj-0.4.Xd.CentOS_7_x86_64-install.bin . 
+          %status=N/A 
+
+  }
+
+}
+
+{check %title=Running debugging and testing features test
+       %id=run
+       %ref=3.2.3
+  {operation %id=1
+             %summary=Go to <wsroot> and checkout sampleprj-0.4, the go to the downloaded project's ro... 
+             %status=Done
+  }
+
+  {operation %id=2
+             %summary=Enter the cppexe module directory $ cd <wsroot>/sampleprj-0.4/cppexe 
+             %status=Done
+  }
+
+  {operation %id=3
+             %summary=Build and Run the sampleprj cppexe module: $ make run 
+             %status=Done
+  }
+
+  {assert %id=1
+          %summary=The software is built and run. It's dummy output is printed on the console. Hell... 
+          %status=OK
+
+    {req abs.run.1}
+  }
+
+  {operation %id=4
+             %summary=Start the debugger to run cppexe into: $ make debug 
+             %status=Done
+  }
+
+  {assert %id=2
+          %summary=gdb is started 
+          %status=OK
+
+  }
+
+  {operation %id=5
+             %summary=Start cppexe from the debugger: (gdb) runapp 
+             %status=Done
+  }
+
+  {assert %id=3
+          %summary=cppexe is run, and returns to the debugger prompt when done. 
+          %status=OK
+
+    {req abs.run.2}
+  }
+
+  {operation %id=6
+             %summary=exit the debugger 
+             %status=Done
+  }
+
+  {operation %id=7
+             %summary=Jump to cpplib module and run unit tests $ cd ../cpplib $ make test 
+             %status=Done
+  }
+
+  {assert %id=4
+          %summary=Unit test are run and the test report is printed on the console. The sampleprj i... 
+          %status=OK 
+
+    {req abs.run.3}
+  }
+
+  {operation %id=8
+             %summary=Start the debugger to run the tests: $ make debugtest 
+             %status=Done
+  }
+
+  {assert %id=5
+          %summary=gdb is started 
+          %status=OK
+
+  }
+
+  {operation %id=9
+             %summary=Run the tests from the debugger: (gdb) runtests 
+             %status=Done
+  }
+
+  {assert %id=6
+          %summary=Tests are run as previously (but the final summary is not displayed) and returns... 
+          %status=OK
+
+    {req abs.run.4}
+  }
+
+  {operation %id=10
+             %summary=Exit the debugger, the test is completed. 
+             %status=Done
+  }
+
+}
+
+}
+  }
+}
