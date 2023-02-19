@@ -11,10 +11,12 @@ package, fetch dependencies package, run tests, support continuous integration
 automated builds, and generate documentation.}
   {keywords build, compilation, document generation, unit test, software package}
   {history
-    {edition %version=4 %data=2023-02-17
+    {edition %version=4 %date=2023-02-17
 Refreshing manual according changes implemented in abs-3.2 et abs-3.2 branches:
   - build tree layout includes a {kw .abs} directory (§{xref SecExtLibDep})
   - added validation procedure for better requirement coverage (§{xref SecValPlan})
+  - few additional miss typo fixes.
+  - ABS_REPO is now an URL pattern list (§{xref SecAppCfg}). 
     }
     {edition %version=3 %date=2022-01-01
 Minor layout improvement using the upgraded heml and tex styling feature. 
@@ -90,6 +92,18 @@ use conditional compilation)}
 Only one build process should be used from both developer's workspace and
 continuous integration tools such as jenkins to ensure consistency of builds and
 coherence from various context.
+{req %id=abs.cm.5
+  On user request ABS shall create tag according the current version number 
+found in the project configuration file.
+}
+{req %id=abs.cm.5.1
+  When tag is requested, ABS shall first check the workspace status and reject 
+the tag if the workspace is dirty (contains local changes not registered yet).
+}
+{req %id=abs.cm.5.2
+  ABS shall increment the version number in the project configuration file just
+after creation of a tag.
+}
 {req %id=abs.arch.1 
   ABS shall support several target computing architecture (various processor and
 operating systems)}
@@ -1230,6 +1244,7 @@ cd AcrobatomaticBuildSystem
 git checkout abs-X.Y.Z
 cd sampleprj/_doc
 make!}}
+      }
       {operation
 Once the build process is completed, display the list of the generated HTML
 files:
@@ -1309,7 +1324,149 @@ HTML content checks are verified in the PDF file and both format contents are co
 
 
 
+    }
+    {check %id=tag %title=Tagging service
+{req abs.cm.5}
+      {operation
+Checkout abs test project and enter the newly created workspace.
+{code %language=sh
+{!$ cd <wsroot>
+$ git clone https://www.eduvax.net/git/absvalid.git
+cd absvalid!}}
       }
+      {operation
+Edit {kw app.cfg} to set the {kw VABS} variable value to the ABS version to
+be tested.
+      }
+      {operation
+Get from the {kw app.cfg} file, the current value of the {kw VERSION} variable.
+This value shall be remembered for a later check.
+      }
+      {operation
+Edit any file among the registered files to add some dummy lines and ensure the
+workspace is becoming dirty (there are local changes not registered yet).
+      }
+      {operation
+Request for the creation of a new tag. 
+{code %language=sh
+{!$ make tag M="abs tag feature testing"!}}
+      }
+      {assert
+{req abs.cm.5.1}
+The tag creation is rejected. The current status is displayed followed by the
+error message.
+      }
+      {operation
+Commit all changes so that the workspace is no longer dirty, then run again the
+tag request command.
+      }
+      {assert
+The tag sampleprj-X.Y.Z has been created, where X.Y.Z is the version number that
+was set in the {kw app.cfg} file's {kw VERSION} variable, just before tagging.
+      }
+      {assert
+{req abs.cm.5.2}
+The version number has been incremented and recorded in the {kw VERSION}
+variable of the {kw app.cfg} file.
+      }
+    }
+    {check %id=charm %title=Change request management
+{req abs.charm.1}
+      {operation
+Checkout abs test project and enter the newly created workspace.
+{code %language=sh
+{!$ cd <wsroot>
+$ git clone https://www.eduvax.net/git/absvalid.git
+cd absvalid!}}
+       }
+       {operation
+Request display of change request applicable to the current branch
+{code %language=sh
+{!$ make crls!}}
+       }
+       {assert
+A list of change request, starting with the current branch's tracking request is
+displayed.
+{code
+{!cf4b535 [open]	Release sampleprj 0.5
+2184f99 [working]	Dummy CR for charm testing!}}
+More or less change request may be reported according the testing history.
+       }
+       {operation
+List content of {kw _charm/src} directory.
+{code %language=sh
+{!$ ls _charm/src!}}
+       }
+       {assert
+{req abs.charm.2}
+The command reports at least one file per change request.
+{code
+{!2184f9985569defe9a69902b24c12c183d8cfd14a65a196382ce27ba55414b94.cr
+cf4b535c5dae2d1cafbe6ccc5a0086983baf6ef984db524315ed810ea8b3c13a.cr!}}
+
+More files may appear according the test project history.
+       }
+       {operation
+Create a new change request:
+{code %language=sh
+{!$ make crnew!}}
+Enter the new change request title as requested.
+       }
+       {operation
+Display the currently selected change request.
+{code %language=sh
+{!$ make crcat!}}
+       }
+       {assert
+{req abs.charm.3}
+The just create change request details are printed:
+{code
+{!===============================================================================
+2184f99 [open]	Dummy CR for charm testing
+-------------------------------------------------------------------------------
+Creation: 2023-02-19 14:46:32+01:00
+Reporter: sdevaux
+-------------------------------------------------------------------------------
+
+-------------------------------------------------------------------------------
+ - parent: cf4b535  Release sampleprj 0.5
+
+-------------------------------------------------------------------------------!}}
+The change request status is {kw open}.
+The other attributes shall reflect the current status of the previous operation:
+who, identifiers, title, etc are related to the circumstances. 
+       }
+       {operation
+Edit a file in the project and commit the changes.
+       }
+       {assert
+{req abs.charm.4.2}
+A commit message shall be requested and it is pre-filled with a reference to the
+lastly created change request.
+       }
+       {operation
+Validate the commit, then print again the current change request details
+       }
+       {assert
+{req abs.charm.4.4}
+The change request status is now {kw working}.
+       }
+       {operation
+Select another change request as the active change request. If needed, regarding
+the test project history, to first retrieve a valid change request identifier,
+invoke {kw make crls}.
+{code %language=sh
+{!$ make crsel cf4b!}}
+        }
+       {operation
+Display the currently selected change request.
+{code %language=sh
+{!$ make crcat!}}
+       }
+       {assert
+{req abs.charm.4.1}
+The printed details are related to the just selected change request.
+       }
     }
   }
 }
@@ -1321,7 +1478,8 @@ apply its generic rules and perform all needed actions to achieve to build
 according the current project state. The standard layout is:
   - {kw <project name>-X.Y/}: root directory for the project's X.Y branch
     workspace.
-    - {kw _doc/}: documentation module
+    - {kw _charm/} (optional): the change requests' local storage.
+    - {kw _doc/} (optional): documentation module
     - {kw <1st module name>/}: 1st module directory. 
     - {kw <2nd module name>/}: 2nd module directory. 
     - ...
@@ -1330,10 +1488,10 @@ according the current project state. The standard layout is:
     - {kw Makefile}: project's root makefile, copy of the {a %href=http://www.eduvax.net/dist/noarch/abs-3.0-bootstrap.mk %%ABS bootstrap makefile}.
     - {kw build/}: root directory for all generated artifacts during the build
       process. Shall not be inserted into the version control system.
-    - {kw local.cfg}: optional workspace local configuration file. Shall not be
+    - {kw local.cfg} (optional): workspace local configuration file. Shall not be
       inserted into the version control system.
     }
-    {section %title=Project configuration file app.cfg
+    {section %title=Project configuration file app.cfg %xref=SecAppCfg
 This file hosts the application wide parameters. The mandatory definitions are:
   - {kw APPNAME=<application name>}: name of the application. Caution: since
     this name is used to define some output files names, it shall not contain
@@ -1343,8 +1501,11 @@ This file hosts the application wide parameters. The mandatory definitions are:
     project creation consistently with branch name set in the version control
     system. Then it is automatically maintained when branches are created from
     existing branch and when a branch is tagged. 
-  - {kw ABS_REPO:=<URL>}: URL of the abs distribution repository.
-  - {kw VABS:=X.Y}: version of ABS to be used to build the application.
+  - {kw ABS_REPO:=<URL>}: list of URL patterns to fetch dependencies and ABS
+    itself with the first entry. Percent (\%) char is used to identify the place
+    of the dependency file name in the URL. The dependency file naming pattern
+    is: {kw <name>-<version>.<arch>.tar.gz}
+  - {kw VABS:=X.Y.Z}: version of ABS to be used to build the application.
 
 The optionals definitions are:
   - {kw COMPANY=<company name>}: the name of the company or organization that
@@ -1354,12 +1515,12 @@ The optionals definitions are:
   - {kw EXPMOD=<mod name>*}: list of modules to be exported. Any module that is
     a library to be used by another application should be exported.
   - {kw DOMAIN=<reversed domain name>}: Java package name prefix.
-  - {kw USELIB=<<libname>-X.Y.Z>*}: list of external libraries directly used by
+  - {kw USELIB=<<libname>-<version>>*}: list of external libraries directly used by
     the project.
   - {kw extra_import_defs=<any makefile content>}: additional rules and macro
     definitions to be inserted into the {kw import.mk} file packaged with the
     product. This {kw import.mk} file is included in any user application that,
-    through its own cnofiguration and {kw USELIB} value, makes reference to the
+    through its own configuration and {kw USELIB} value, makes reference to the
     product.
 
     }
@@ -1675,6 +1836,9 @@ examples of use:
 {!LIB_REPO:=/the/local/path,$(LIB_REPO)!}}
 {code %title=local.cfg - force architecture name %language=make 
 {!ARCH=RedHatEnterpriseWorkstation_6.3_x86_64!}}
+
+Optionnaly, settings common to many projects of a user can also be stored in
+{kw ~/.abs/local.cfg}.
     }
   }
   {section %title=Dependencies management
@@ -1903,7 +2067,7 @@ command line take precedence over any other definition.
 {th %w=0.5 %%Variable}{th %w=1.5 %%Default value}{th %w=2 %%Description, role and usage}
 }
 {?table
-ABS_REPO % % URL of the distribution repository to use to fetch ABS.
+ABS_REPO % % list of URL patterns to fetch for dependencies and ABS itself.
 APPNAME % % Application name
 ARCH % $(SYSNAME)_$(HWNAME) % Target's architecture name. Without other overloading, it shall reflect the real architecture of the current compilation host.
 CC % gcc % C compiler command.

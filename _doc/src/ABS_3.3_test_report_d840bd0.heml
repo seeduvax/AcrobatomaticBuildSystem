@@ -11,7 +11,7 @@
   }
   {section %title=References
     {references %title=Applicable documents %id=A
-{ref %id=ABSDef %ref=170983b %author=S.Devaux %edition=1, 2019-01-01 %% Acrobatomatic Build System - generic make files and companion scripts.}
+{ref %id=ABSDef %ref=170983b %author=S.Devaux %edition=4, 2023-02-17 %% Acrobatomatic Build System - generic make files and companion scripts.}
     }
     {definitions %title=Glossary
 {def %entry=ABS %%Acrobatomatic Build System}
@@ -20,9 +20,9 @@
 {section %title=ABS 3.3 Validation report
 {report 
   {context %reference=170983b
-           %edition=3, 2022-01-01
+           %edition=4, 2023-02-17
            %start=2022-02-17
-           %end=2022-02-17
+           %end=2022-02-19
            %operator=S.Devaux
 ABS is validated for closure of the abs-3.3 branch and ensure critical core
 features are running well and final tagged version can be used:
@@ -104,37 +104,31 @@ features are running well and final tagged version can be used:
        %ref=3.2.2
     {req abs.arch.1}
   {operation %id=1
-             %summary=Run the check procedure general (see section CheckGen ) from a Debian 8 x86/64 h... 
-             %status=Done
-Alternate architechure used. 1st run was on Debian_11_x86_64, second run was on Debian_10_x86_64.
+             %summary=Run the check procedure general (see section CheckGen ) using an alternate archi... 
+             %status=OK
+1st validation architecture was Debian 11 x86/64. The additional was Debian 10
+x86/64 running in a qEmu.
   }
 
   {assert %id=1
           %summary=All assertions from the procedure general are satisfied. 
-          %status=OK 
+          %status=OK
 
   }
 
   {assert %id=2
-          %summary=The install package file name is sampleprj-0.4.Xd.Debian_8_x86_64-install.bin . 
+          %summary=The install package file name is sampleprj-0.4.Xd.<archbis>-install.bin . 
           %status=OK 
 
   }
 
   {operation %id=2
-             %summary=Run the check procedure general (see section CheckGen ) from a RedHawk 7 x86/64... 
-             %status=N/A
-No available architecture used.
+             %summary=Consider repeating the procedure with as many operating systems and computing ha... 
+             %status=Skipped
   }
 
   {assert %id=3
-          %summary=All assertions from the procedure general are satisfied. 
-          %status=N/A 
-
-  }
-
-  {assert %id=4
-          %summary=The install package file name is sampleprj-0.4.Xd.CentOS_7_x86_64-install.bin . 
+          %summary=All assertions from the procedure general are satisfied for all used platforms. 
           %status=N/A 
 
   }
@@ -232,6 +226,253 @@ No available architecture used.
   {operation %id=10
              %summary=Exit the debugger, the test is completed. 
              %status=Done
+  }
+
+}
+
+{check %title=Documentation services
+       %id=doc
+       %ref=3.2.4
+  {operation %id=1
+             %summary=Checkout ABS release to be tested (if not alredy done. Then go to the sampleprj... 
+             %status=Done
+  }
+
+  {operation %id=2
+             %summary=Once the build process is completed, display the list of the generated HTML file... 
+             %status=Done
+  }
+
+  {assert %id=1
+          %summary=One HTML file per HEML file present in source directory has been generated: ../b... 
+          %status=OK 
+
+    {req abs.doc.2}
+  }
+
+  {operation %id=3
+             %summary=Display the list of the generated PDF files: $ ls ../build/*/debug/share/doc/sam... 
+             %status=OK
+  }
+
+  {assert %id=2
+          %summary=One PDF file per HEML file present in source directory has been generated: ../bu... 
+          %status=OK 
+
+  }
+
+  {operation %id=4
+             %summary=Open the example1 HTML file with your favorite web browser to see its contents. 
+             %status=Done
+  }
+
+  {assert %id=3
+          %summary=An UML diagram is present in the "figure / UML" section. 
+          %status=OK 
+
+    {req abs.doc.5}
+  }
+
+  {assert %id=4
+          %summary=A digraph diagram is present in the "figure / UML" section 
+          %status=OK 
+
+    {req abs.doc.6}
+  }
+
+  {assert %id=5
+          %summary=Two more or less famous physics equation are present in the "figure / UML" secti... 
+          %status=OK
+
+    {req abs.doc.8}
+  }
+
+  {assert %id=6
+          %summary=The "included section" is matching the definition found in src/incsection.heml.i... 
+          %status=OK
+
+    {req abs.doc.9}
+  }
+
+  {assert %id=7
+          %summary=At the beginning of the document, the summary is shown and enable direct navigat... 
+          %status=OK
+
+    {req abs.doc.10.1}
+  }
+
+  {assert %id=8
+          %summary=The "Requirement reference" appendix contains a table showing where are all refe... 
+          %status=OK
+
+    {req abs.doc.10.2}
+  }
+
+  {assert %id=9
+          %summary=The "Automated test index" is showing index of the test case defined in the samp... 
+          %status=OK
+
+    {req abs.doc.10.3}
+  }
+
+  {operation %id=5
+             %summary=Open the example1 PDF file with your PDF file browser to see its contents and pe... 
+             %status=Done
+  }
+
+  {assert %id=10
+          %summary=HTML content checks are verified in the PDF file and both format contents are co... 
+          %status=OK
+
+    {req abs.doc.3}
+  }
+
+}
+
+{check %title=Tagging service
+       %id=tag
+       %ref=3.2.5
+    {req abs.cm.5}
+  {operation %id=1
+             %summary=Checkout abs test project and enter the newly created workspace. $ cd <wsroot> $... 
+             %status=Done
+  }
+
+  {operation %id=2
+             %summary=Edit app.cfg to set the VABS variable value to the ABS version to be tested. 
+             %status=Done
+  }
+
+  {operation %id=3
+             %summary=Get from the app.cfg file, the current value of the VERSION variable. This value... 
+             %status=Done
+  }
+
+  {operation %id=4
+             %summary=Edit any file among the registered files to add some dummy lines and ensure the... 
+             %status=Done
+  }
+
+  {operation %id=5
+             %summary=Request for the creation of a new tag. $ make tag M="abs tag feature testing" 
+             %status=Done
+  }
+
+  {assert %id=1
+          %summary=The tag creation is rejected. The current status is displayed followed by the er... 
+          %status=OK
+
+    {req abs.cm.5.1}
+  }
+
+  {operation %id=6
+             %summary=Commit all changes so that the workspace is no longer dirty, then run again the... 
+             %status=Done
+  }
+
+  {assert %id=2
+          %summary=The tag sampleprj-X.Y.Z has been created, where X.Y.Z is the version number that... 
+          %status=OK
+
+  }
+
+  {assert %id=3
+          %summary=The version number has been incremented and recorded in the VERSION variable of... 
+          %status=OK
+
+    {req abs.cm.5.2}
+  }
+
+}
+
+{check %title=Change request management
+       %id=charm
+       %ref=3.2.6
+    {req abs.charm.1}
+  {operation %id=1
+             %summary=Checkout abs test project and enter the newly created workspace. $ cd <wsroot> $... 
+             %status=Done
+  }
+
+  {operation %id=2
+             %summary=Request display of change request applicable to the current branch $ make crls 
+             %status=OK
+  }
+
+  {assert %id=1
+          %summary=A list of change request, starting with the current branch's tracking request is... 
+          %status=OK
+
+  }
+
+  {operation %id=3
+             %summary=List content of _charm/src directory. $ ls _charm/src 
+             %status=Done
+  }
+
+  {assert %id=2
+          %summary=The command reports at least one file per change request. 2184f9985569defe9a6990... 
+          %status=OK 
+
+    {req abs.charm.2}
+  }
+
+  {operation %id=4
+             %summary=Create a new change request: $ make crnew Enter the new change request title as... 
+             %status=OK
+  }
+
+  {operation %id=5
+             %summary=Display the currently selected change request. $ make crcat 
+             %status=Done
+  }
+
+  {assert %id=3
+          %summary=The just create change request details are printed: ============================... 
+          %status=OK
+
+    {req abs.charm.3}
+  }
+
+  {operation %id=6
+             %summary=Edit a file in the project and commit the changes. 
+             %status=Done
+  }
+
+  {assert %id=4
+          %summary=A commit message shall be requested and it is pre-filled with a reference to the... 
+          %status=OK 
+
+    {req abs.charm.4.2}
+  }
+
+  {operation %id=7
+             %summary=Validate the commit, then print again the current change request details 
+             %status=Done
+  }
+
+  {assert %id=5
+          %summary=The change request status is now working . 
+          %status=OK
+
+    {req abs.charm.4.4}
+  }
+
+  {operation %id=8
+             %summary=Select another change request as the active change request. If needed, regarding... 
+             %status=Done
+  }
+
+  {operation %id=9
+             %summary=Display the currently selected change request. $ make crcat 
+             %status=Done
+  }
+
+  {assert %id=6
+          %summary=The printed details are related to the just selected change request. 
+          %status=OK
+
+    {req abs.charm.4.1}
   }
 
 }
