@@ -155,7 +155,7 @@ $(BUILDROOT)/.abs/moddeps.mk:
 	@$(ABS_PRINT_info) "Gererating module dependencies file."
 	@mkdir -p $(@D)
 	@for mod in $(patsubst mod.%,%,$(MODULES_DEPS)) ; do \
-	make OBJDIR=$(PRJOBJDIR)/$$mod INCLUDE_EXTLIB=false PRJROOT=$(PRJROOT) MODROOT=$(PRJROOT)/$$mod ABSROOT=$(ABSROOT) -C $$mod generateAppModsNeeds --makefile $(ABSROOT)/core/module-depends_standalone.mk && \
+	make OBJDIR=$(PRJOBJDIR)/$$mod INCLUDE_EXTLIB=false PRJROOT=$(PRJROOT) MODROOT=$(PRJROOT)/$$mod ABSROOT=$(ABSROOT) -C $$mod generateAppModsNeeds --makefile $(ABSROOT)/core/module-depends_standalone.mk --no-print-directory && \
 	printf "mod.$$mod:: " >> $@.tmp && \
 	cat $(PRJOBJDIR)/$$mod/moddeps.needs >> $@.tmp && echo "" >> $@.tmp; \
 	done
@@ -171,7 +171,9 @@ mod.%::
 	@$(if $(filter $*,$(EXPMOD)),test ! -d $*/include || find $*/include -type f | sed 's~^$*/~~g' >> $(TRDIR)/.abs/content/$(APPNAME)_$*.filelist)
 	@rm -f $(TRDIR)/obj/$*/files.ts
 
+ifeq ($(filter clean%,$(MAKECMDGOALS)),)
 include $(BUILDROOT)/.abs/moddeps.mk
+endif
 
 # depends on mod.% to compile dependencies of module.
 testmod.%: mod.%
