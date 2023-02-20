@@ -11,6 +11,13 @@ package, fetch dependencies package, run tests, support continuous integration
 automated builds, and generate documentation.}
   {keywords build, compilation, document generation, unit test, software package}
   {history
+    {edition %version=4 %date=2023-02-17
+Refreshing manual according changes implemented in abs-3.2 et abs-3.2 branches:
+  - build tree layout includes a {kw .abs} directory (§{xref SecExtLibDep})
+  - added validation procedure for better requirement coverage (§{xref SecValPlan})
+  - few additional miss typo fixes.
+  - ABS_REPO is now an URL pattern list (§{xref SecAppCfg}). 
+    }
     {edition %version=3 %date=2022-01-01
 Minor layout improvement using the upgraded heml and tex styling feature. 
 Completed with few misstypo fixes.
@@ -85,6 +92,18 @@ use conditional compilation)}
 Only one build process should be used from both developer's workspace and
 continuous integration tools such as jenkins to ensure consistency of builds and
 coherence from various context.
+{req %id=abs.cm.5
+  On user request ABS shall create tag according the current version number 
+found in the project configuration file.
+}
+{req %id=abs.cm.5.1
+  When tag is requested, ABS shall first check the workspace status and reject 
+the tag if the workspace is dirty (contains local changes not registered yet).
+}
+{req %id=abs.cm.5.2
+  ABS shall increment the version number in the project configuration file just
+after creation of a tag.
+}
 {req %id=abs.arch.1 
   ABS shall support several target computing architecture (various processor and
 operating systems)}
@@ -151,7 +170,7 @@ since it is processed using the here specified features.
   ABS shall process specific macro to define procedures defines as sequences of
   operation and asserts including traceability references to requirements.}
 {req %id=abs.doc.12.2
-  ABS shall on use request generate a procedure execution report document source
+  ABS shall on user request generate a procedure execution report document source
   file automatically from the procedures definitions found in the user's given
   document source file.}
     }
@@ -721,7 +740,7 @@ rules (see for instance {kw core/module-crules-*.mk}) to compute the needed
 command flags to let commands retrieve the files from the dependent modules (see
 for instance CFLAGS, LDFLAGS definitions).
        }
-       {section %title=External library dependencies
+       {section %title=External library dependencies %xref=SecExtLibDep
 In a similar way, to make use of an external library, the application wide
 configuration file ({kw app.mk}) shall define the {kw USELIB} variable with the
 names (including version number) of the needed external libraries.
@@ -745,6 +764,9 @@ inspired from standard Unix file organization:
     - {kw lib}: shared libraries and objects binaries.
     - {kw etc}: configuration files
     - {kw share}: additional shared files, documentation, ...
+    - {kw .abs}: additional files for own ABS processing. When user projects
+      are implementing and publishing ABS extension, the related files are 
+      stored there among other ABS private files.
 
 An ABS library package should be named according this scheme:
 {kw <libname>-<version>.<arch>.tar.gz}.
@@ -913,7 +935,7 @@ Automated configuration management % subversion, GNU ed
 }
   }
 }
-{section %title=Validation plan
+{section %title=Validation plan %xref=SecValPlan
   {section %title=Test strategy
 The dummy project named sampleprj is setup to check many ABS features:
   - the module management is checked through the several modules created in
@@ -1033,44 +1055,47 @@ operation done in first steps of the current test procedure.
     {check %id=arch %title=multi architecture support
       {req abs.arch.1}
       {operation
-Run the check procedure {kw general} (see section {xref CheckGen}) from a Debian
-8 x86/64 host.
+Run the check procedure {kw general} (see section {xref CheckGen}) using an 
+alternate architecture (different operating system and/or different hardware).
+
+In the following, the alternate architecture will be referred as {kw <archbis>},
+and is expected to match the pattern {kw <distribution>_<version>_<cpu>}.
       }
       {assert
 All assertions from the procedure {kw general} are satisfied.
       }
       {assert
-The install package file name is {kw sampleprj-0.4.Xd.Debian_8_x86_64-install.bin}.
+The install package file name is {kw sampleprj-0.4.Xd.<archbis>-install.bin}.
       }
       {operation
-Run the check procedure {kw general} (see section {xref CheckGen}) from
-a RedHawk 7 x86/64 host.
+Consider repeating the procedure with as many operating systems and computing
+hardware as possible and record for each the results.
       }
       {assert
-All assertions from the procedure {kw general} are satisfied.
-      }
-      {assert
-The install package file name is {kw sampleprj-0.4.Xd.CentOS_7_x86_64-install.bin}.
+All assertions from the procedure {kw general} are satisfied for all used
+platforms.
       }
     }
     {check %id=run %title=Running debugging and testing features test %xref=CheckRun
       {operation
-Go to {kw <wsroot>} and checkout sampleprj-0.4, the go to the downloaded
-project's root directory:
+Checkout ABS release to be tested (if not already done. Then go to the {kw sampleprj}
+directory:
 {code %language=sh
 {!$ cd <wsroot>
-$ svn co <repo_url>/branches/sampleprj-0.4
-cd sampleprj-0.4!}}
+$ git clone https://github.com/seeduvax/AcrobatomaticBuildSystem.git
+cd AcrobatomaticBuildSystem
+git checkout abs-X.Y.Z
+cd sampleprj!}}
       }
       {operation
 Enter the cppexe module directory
 {code %language=sh
-{!$ cd <wsroot>/sampleprj-0.4/cppexe!}}
+{!$ cd cppexe!}}
       }
       {operation
-Build and Run the sampleprj cppexe module:
+Build using an extra preprocessor setting and Run the sampleprj cppexe module:
 {code %language=sh
-{!$ make run!}}
+{!$ make DEFINES=COMPILATION_SWITCH run!}}
       }
       {assert
 {req abs.run.1}
@@ -1082,7 +1107,33 @@ bufptr=b3820e60
 [Text to be embedded as resource
 
 ]!}}
-Note: the bufptr value can be different, it is a non predictible pointer value.
+Note: the bufptr value can be different, it is a non predictable pointer value.
+      }
+      {operation
+Print embedded build identification:
+{code %language=sh
+{!$ ident ../build/*/debug/bin/sampleprj_cppexe!}}
+      }
+      {assert
+{req abs.cm.3}
+The build identification is printed as in the following sample output.
+{code
+{!     $Attr: app.name=sampleprj $
+     $Attr: app.version=0.4.2d $
+     $Attr: app.revision=abs-3.3.19-7-gf9b30f7-dirty $
+     $Attr: app.file=sampleprj_cppexe $
+     $Attr: company=eduvax $
+     $Attr: copyright= $
+     $Attr: build.mode=debug $
+     $Attr: build.opts=COMPILATION_SWITCH $
+     $Attr: build.date=ven. 17 fevr. 2023 18:48:10 CET $
+     $Attr: build.host=ummon $
+     $Attr: build.user=sdevaux $
+     $Attr: build.id=null $!}}
+
+The {kw build.opts} attribute includes
+the {kw COMPILATION_SWITCH} keyword.  Other attributes may change according the
+build context.
       }
       {operation
 Start the debugger to run cppexe into:
@@ -1120,17 +1171,18 @@ following:
 {!# ---------------------------------------------------------------------
 # Successful tests
 # ---------------------------------------------------------------------
-- N4test11TestExampleE::testCaseSuccess 1.7083e-05 s (0.017083 ms).
+- test::TestExample::testCaseSuccess	0.000131981 s (0.131981 ms).
 
 # ---------------------------------------------------------------------
 # Disabled tests
 # ---------------------------------------------------------------------
+- test::TestExample::testProfiler__disabled_by_condition__[profiler_enabled]	0 s (0 ms).
 
 # ---------------------------------------------------------------------
 # Failed tests
 # ---------------------------------------------------------------------
-- N4test11TestExampleE::testCaseFail    9.1389e-05 s (0.091389 ms).
-test/TestExample.cpp:32
+- test::TestExample::testCaseFail	0.0803103 s (80.3103 ms).
+test/TestExample.cpp:58
 equality assertion failed
 - Expected: 0
 - Actual  : 1
@@ -1138,12 +1190,26 @@ equality assertion failed
 # ---------------------------------------------------------------------
 # Statistics
 # ---------------------------------------------------------------------
-- Tests: 2
+- Tests: 3
+- Total Successes: 1
 - Total Failures: 1
 - Total Errors: 0
-- Total Disabled: 0
-- Total time: 0.000108472 s (0.108472 ms)!}}
-Of course, the exact timings may be different.
+- Total Disabled: 1
+- Total time: 0.080442281 s (80.442281 ms)!}}
+Test case success does not require strict identity of results:
+  - the exact timings may be different according the available performance of
+    the system running the test.
+  - more examples may be added into the sample automated procedure ran through
+    this test case and additional tests may be reported and line numbers can
+    change accordingly.
+
+What is expected at least (this is also a note for the maintainer):
+  - at least one test case is OK, demonstrating the capability to report test
+    case success.
+  - at least one test case is failed, demonstrating the capability to report a
+    test failure.
+  - at least one test case is disabled, demonstrating the capability to run some
+    test cases on specific conditions only.
       }
       {operation
 Start the debugger to run the tests:
@@ -1167,6 +1233,241 @@ to the debugger prompt when done.
 Exit the debugger, the test is completed.
       }
     }
+    {check %id=doc %title=Documentation services
+      {operation
+Checkout ABS release to be tested (if not alredy done. Then go to the {kw sampleprj}
+document directory and run documentation build.
+{code %language=sh
+{!$ cd <wsroot>
+$ git clone https://github.com/seeduvax/AcrobatomaticBuildSystem.git
+cd AcrobatomaticBuildSystem
+git checkout abs-X.Y.Z
+cd sampleprj/_doc
+make!}}
+      }
+      {operation
+Once the build process is completed, display the list of the generated HTML
+files:
+{code %language=sh
+{!$ ls ../build/*/debug/share/doc/sampleprj/html/*.html!}}
+      }
+      {assert
+{req abs.doc.2}
+One HTML file per HEML file present in source directory has been generated:
+{code
+{!../build/Debian_11_x86_64/debug/share/doc/sampleprj/html/example1.html
+../build/Debian_11_x86_64/debug/share/doc/sampleprj/html/example2.html!}}
+      }
+      {operation
+Display the list of the generated PDF files:
+{code %language=sh
+{!$ ls ../build/*/debug/share/doc/sampleprj/html/*.html!}}
+      }
+      {assert
+One PDF file per HEML file present in source directory has been generated:
+{code
+{!../build/Debian_11_x86_64/debug/share/doc/sampleprj/pdf/example1.pdf
+../build/Debian_11_x86_64/debug/share/doc/sampleprj/pdf/example2.pdf!}}
+      }
+      {operation
+Open the example1 HTML file with your favorite web browser to see its contents.
+      }
+      {assert
+{req abs.doc.5}
+An UML diagram is present in the "figure / UML" section.
+      }
+      {assert
+{req abs.doc.6}
+A digraph diagram is present in the "figure / UML" section
+      }
+      {assert
+{req abs.doc.8}
+Two more or less famous physics equation are present in the "figure / UML" 
+section, the first one being in-lined.
+      }
+      {assert
+{req abs.doc.9}
+The "included section" is matching the definition found in {kw src/incsection.heml.inc} 
+source file.
+      }
+      {assert
+{req abs.doc.10.1}
+At the beginning of the document, the summary is shown and enable direct 
+navigation to each sections.
+
+Alt: when applying this check later with PDF file, the behavior can change 
+according the PDF file viewer that may support or not index view and hyperlinks.
+On linux, {kw atril} supports both.
+      }
+      {assert
+{req abs.doc.10.2}
+The "Requirement reference" appendix contains a table showing where are all 
+references of each requirement included in the document. The example document is
+intentionally setup to leave few requirements without any reference and the "No
+reference" notice is expected.
+      }
+      {assert
+{req abs.doc.10.3}
+The "Automated test index" is showing index of the test case defined in the
+samplprj/ccpexe/test/TestSample.cpp and sampleprj/cpplib/test/TestExample.cpp
+files, including references to requirements. 
+      }
+
+      {operation
+Open the example1 PDF file with your PDF file browser to see its contents 
+and perform the same checks than for HTML in previous steps.
+      }
+      {assert
+{req abs.doc.3}
+HTML content checks are verified in the PDF file and both format contents are consistent.
+      }
+
+
+
+    }
+    {check %id=tag %title=Tagging service
+{req abs.cm.5}
+      {operation
+Checkout abs test project and enter the newly created workspace.
+{code %language=sh
+{!$ cd <wsroot>
+$ git clone https://www.eduvax.net/git/absvalid.git
+cd absvalid!}}
+      }
+      {operation
+Edit {kw app.cfg} to set the {kw VABS} variable value to the ABS version to
+be tested.
+      }
+      {operation
+Get from the {kw app.cfg} file, the current value of the {kw VERSION} variable.
+This value shall be remembered for a later check.
+      }
+      {operation
+Edit any file among the registered files to add some dummy lines and ensure the
+workspace is becoming dirty (there are local changes not registered yet).
+      }
+      {operation
+Request for the creation of a new tag. 
+{code %language=sh
+{!$ make tag M="abs tag feature testing"!}}
+      }
+      {assert
+{req abs.cm.5.1}
+The tag creation is rejected. The current status is displayed followed by the
+error message.
+      }
+      {operation
+Commit all changes so that the workspace is no longer dirty, then run again the
+tag request command.
+      }
+      {assert
+The tag sampleprj-X.Y.Z has been created, where X.Y.Z is the version number that
+was set in the {kw app.cfg} file's {kw VERSION} variable, just before tagging.
+      }
+      {assert
+{req abs.cm.5.2}
+The version number has been incremented and recorded in the {kw VERSION}
+variable of the {kw app.cfg} file.
+      }
+    }
+    {check %id=charm %title=Change request management
+{req abs.charm.1}
+      {operation
+Checkout abs test project and enter the newly created workspace.
+{code %language=sh
+{!$ cd <wsroot>
+$ git clone https://www.eduvax.net/git/absvalid.git
+cd absvalid!}}
+       }
+       {operation
+Request display of change request applicable to the current branch
+{code %language=sh
+{!$ make crls!}}
+       }
+       {assert
+A list of change request, starting with the current branch's tracking request is
+displayed.
+{code
+{!cf4b535 [open]	Release sampleprj 0.5
+2184f99 [working]	Dummy CR for charm testing!}}
+More or less change request may be reported according the testing history.
+       }
+       {operation
+List content of {kw _charm/src} directory.
+{code %language=sh
+{!$ ls _charm/src!}}
+       }
+       {assert
+{req abs.charm.2}
+The command reports at least one file per change request.
+{code
+{!2184f9985569defe9a69902b24c12c183d8cfd14a65a196382ce27ba55414b94.cr
+cf4b535c5dae2d1cafbe6ccc5a0086983baf6ef984db524315ed810ea8b3c13a.cr!}}
+
+More files may appear according the test project history.
+       }
+       {operation
+Create a new change request:
+{code %language=sh
+{!$ make crnew!}}
+Enter the new change request title as requested.
+       }
+       {operation
+Display the currently selected change request.
+{code %language=sh
+{!$ make crcat!}}
+       }
+       {assert
+{req abs.charm.3}
+The just create change request details are printed:
+{code
+{!===============================================================================
+2184f99 [open]	Dummy CR for charm testing
+-------------------------------------------------------------------------------
+Creation: 2023-02-19 14:46:32+01:00
+Reporter: sdevaux
+-------------------------------------------------------------------------------
+
+-------------------------------------------------------------------------------
+ - parent: cf4b535  Release sampleprj 0.5
+
+-------------------------------------------------------------------------------!}}
+The change request status is {kw open}.
+The other attributes shall reflect the current status of the previous operation:
+who, identifiers, title, etc are related to the circumstances. 
+       }
+       {operation
+Edit a file in the project and commit the changes.
+       }
+       {assert
+{req abs.charm.4.2}
+A commit message shall be requested and it is pre-filled with a reference to the
+lastly created change request.
+       }
+       {operation
+Validate the commit, then print again the current change request details
+       }
+       {assert
+{req abs.charm.4.4}
+The change request status is now {kw working}.
+       }
+       {operation
+Select another change request as the active change request. If needed, regarding
+the test project history, to first retrieve a valid change request identifier,
+invoke {kw make crls}.
+{code %language=sh
+{!$ make crsel cf4b!}}
+        }
+       {operation
+Display the currently selected change request.
+{code %language=sh
+{!$ make crcat!}}
+       }
+       {assert
+{req abs.charm.4.1}
+The printed details are related to the just selected change request.
+       }
+    }
   }
 }
 {section %title=User guide %xref=SecUM
@@ -1177,7 +1478,8 @@ apply its generic rules and perform all needed actions to achieve to build
 according the current project state. The standard layout is:
   - {kw <project name>-X.Y/}: root directory for the project's X.Y branch
     workspace.
-    - {kw _doc/}: documentation module
+    - {kw _charm/} (optional): the change requests' local storage.
+    - {kw _doc/} (optional): documentation module
     - {kw <1st module name>/}: 1st module directory. 
     - {kw <2nd module name>/}: 2nd module directory. 
     - ...
@@ -1186,10 +1488,10 @@ according the current project state. The standard layout is:
     - {kw Makefile}: project's root makefile, copy of the {a %href=http://www.eduvax.net/dist/noarch/abs-3.0-bootstrap.mk %%ABS bootstrap makefile}.
     - {kw build/}: root directory for all generated artifacts during the build
       process. Shall not be inserted into the version control system.
-    - {kw local.cfg}: optional workspace local configuration file. Shall not be
+    - {kw local.cfg} (optional): workspace local configuration file. Shall not be
       inserted into the version control system.
     }
-    {section %title=Project configuration file app.cfg
+    {section %title=Project configuration file app.cfg %xref=SecAppCfg
 This file hosts the application wide parameters. The mandatory definitions are:
   - {kw APPNAME=<application name>}: name of the application. Caution: since
     this name is used to define some output files names, it shall not contain
@@ -1199,8 +1501,11 @@ This file hosts the application wide parameters. The mandatory definitions are:
     project creation consistently with branch name set in the version control
     system. Then it is automatically maintained when branches are created from
     existing branch and when a branch is tagged. 
-  - {kw ABS_REPO:=<URL>}: URL of the abs distribution repository.
-  - {kw VABS:=X.Y}: version of ABS to be used to build the application.
+  - {kw ABS_REPO:=<URL>}: list of URL patterns to fetch dependencies and ABS
+    itself with the first entry. Percent (\%) char is used to identify the place
+    of the dependency file name in the URL. The dependency file naming pattern
+    is: {kw <name>-<version>.<arch>.tar.gz}
+  - {kw VABS:=X.Y.Z}: version of ABS to be used to build the application.
 
 The optionals definitions are:
   - {kw COMPANY=<company name>}: the name of the company or organization that
@@ -1210,12 +1515,12 @@ The optionals definitions are:
   - {kw EXPMOD=<mod name>*}: list of modules to be exported. Any module that is
     a library to be used by another application should be exported.
   - {kw DOMAIN=<reversed domain name>}: Java package name prefix.
-  - {kw USELIB=<<libname>-X.Y.Z>*}: list of external libraries directly used by
+  - {kw USELIB=<<libname>-<version>>*}: list of external libraries directly used by
     the project.
   - {kw extra_import_defs=<any makefile content>}: additional rules and macro
     definitions to be inserted into the {kw import.mk} file packaged with the
     product. This {kw import.mk} file is included in any user application that,
-    through its own cnofiguration and {kw USELIB} value, makes reference to the
+    through its own configuration and {kw USELIB} value, makes reference to the
     product.
 
     }
@@ -1531,6 +1836,9 @@ examples of use:
 {!LIB_REPO:=/the/local/path,$(LIB_REPO)!}}
 {code %title=local.cfg - force architecture name %language=make 
 {!ARCH=RedHatEnterpriseWorkstation_6.3_x86_64!}}
+
+Optionnaly, settings common to many projects of a user can also be stored in
+{kw ~/.abs/local.cfg}.
     }
   }
   {section %title=Dependencies management
@@ -1759,7 +2067,7 @@ command line take precedence over any other definition.
 {th %w=0.5 %%Variable}{th %w=1.5 %%Default value}{th %w=2 %%Description, role and usage}
 }
 {?table
-ABS_REPO % % URL of the distribution repository to use to fetch ABS.
+ABS_REPO % % list of URL patterns to fetch for dependencies and ABS itself.
 APPNAME % % Application name
 ARCH % $(SYSNAME)_$(HWNAME) % Target's architecture name. Without other overloading, it shall reflect the real architecture of the current compilation host.
 CC % gcc % C compiler command.

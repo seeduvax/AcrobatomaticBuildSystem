@@ -1,12 +1,13 @@
 {?set %encoding=utf-8}
 {document
-  {title Release note - ABS 3.2}
+  {title Release note - ABS 3.3}
   {reference fd8b7d0}
   {author %%Sebastien DEVAUX}
-  {copyright %year=2020-2021 %holder=Sébastien DEVAUX / ArianGroup SAS}
+  {copyright %year=2020-2023 %holder=Sébastien DEVAUX / ArianGroup SAS}
   {abstract ABS release note. Acrobatomatic Build System is a generic software project build tool. It is first based on make files a few shell script helpers. Any project following the proposed default directory layout should be compatible with ABS.}
   {keywords release, configuration, version, ABS, build scripts, make, executable generation}
   {history
+    {edition %version=3.3 %date=2023-02-20 %%Release abs-3.3}
     {edition %version=3.2 %date=2020-06-15 %%Release abs-3.2}
     {edition %version=3.1 %date=2020-11-28 %%Release abs-3.1}
     {edition %version=3.0 %date=2020-03-03 %%Release abs-3.0}
@@ -16,10 +17,10 @@
   {table
 {?table %fields=th,td
 Product name % Acrobatomatic Build System (ABS)
-Version % abs-3.2
-Parent version % abs-3.1.9
+Version % abs-3.3
+Parent version % abs-3.2.13
 repository URL % https://github.com/seeduvax/AcrobatomaticBuildSystem.git
-Tag % abs-3.2.13
+Tag % abs-3.3.21
 Tracking Issue % 9b2cb58
 }
   }
@@ -45,7 +46,7 @@ Tracking Issue % 9b2cb58
   {th Type}{th Reference}{th Edition}{th Title}
  }
 {?table
-Software Definition File % 170983b % 4, 2019-06-13 % Acrobatomatic Build System - generic make files and companion scripts
+Software Definition File % 170983b % 4, 2023-02-17 % Acrobatomatic Build System - generic make files and companion scripts
 Software Executable Generation Procedure % % % See dedicated section in this document
 Software Installation Procedure % % % See dedicated section in this document
 Software Release Document % % % This document
@@ -69,15 +70,14 @@ No specific tooling is needed to maintain ABS. Make files, and shell scripts are
   }
   {section %title=Dependencies
 ABS handles software project build process and was originally designed fro GNU/Linux systems but has demonstrated capabilities for any Posix like system including windows with the help of posix compatibility tools such as Cygwin or MinGW. ABS is currently validated with the following systems:
-  - RedHawk Linux 7.2
-  - Debian Linux 9.3
-  - Debian Linux 10.5
-  - SUSE Linux 12
-  - Raspberry Pi OS
+  - Debian Linux 10
+  - Debian Linux 11
+  - Raspberry Pi OS 10
 
 Some feedback was reported of use with:
   - Windows 10/Cygwin
-  - Raspberry Pi OS 10
+  - Raspberry Pi OS 9
+  - SUSE Linux 12
   - Android within termux application.
 
 But those configurations may experience more trouble since are not include in the formal test process.
@@ -113,36 +113,57 @@ About the use of GPL licensed products: ABS does not link itself with any produc
  {th Id}{th State}{th Summary}
 }
 {?table
-113b92b % [closed] % Remove use of ed command
-ff4c22d % [closed] % cint and test targets are failing in a project without any test.
-273739c % [closed] % fix regular expression when creating new branch
-d562593 % [closed] % whitespace are improperly added into the generated import.mk when applying extra_import_defs configuration
-b8ed9cf % [closed] % Add code generation handling capability to java modules
-2624922 % [closed] % ada compilation is confused by abs layout
-32ae373 % [closed] % jar files from abs dist package can not be used by other app managed with abs.
-76680dc % [closed] % Add Cygwin as target OS
-e2f125b % [closed] % Need finer dependency management to process heml files
-25292ec % [closed] % Add option to compile cpp using sanitizers
-53d40eb % [closed] % Improve the prepare commit message for charm issue
-daf31d7 % [closed] % Use space instead of tabulation for new class
-912acbe % [closed] % FPGA and de10nano support extension
-9a11314 % [closed] % heml tag set and style to support doc review and comments.
-9d8f8c8 % [closed] % Display a summary of test at the end of application level targets that run tests.
-a9bc2e1 % [closed] % add colors and remove duplicate links from the dependency graph
-9391998 % [closed] % Missing information on git push failure when creating tags and branches
+fa5acdb % closed % Profiling tools
+22359d2 % closed % cppunit library no longer builds.
+b97ed27 % closed % add lua abs packager.
+a6e15ac % closed % add tracy abs packager
+30875d1 % closed % TestSummary macro not working on cint target which requires release MOD
+333ef11 % closed % Adapt charm hook installation rules in case where project doesnt container .git folder
+bcd1cea % closed % Package 2 absext modules
+aebaf2d % closed % VHDL library handling
+4856f49 % closed % TBC/TBD sentances are not properly line wrapped when rendiring heml doc in pdf.
+0f19eb6 % closed % Test report generator and styling
+1c883c3 % closed % Unit test report no more readable by jenkins
+40dcbef % closed % Starting from debian 10, no more background color in table of pdf generated from heml.
+2c10b82 % closed % Symbolic links in fileset modules are not copied to build target
+26a751b % closed % The editions table contains sentence "-0.5cm" when compiling heml doc on debian9
+2151768 % closed % SCM type detection not working when project root does not match the workspace/local repository/local copy root
+0254625 % closed % upward traceability for requirements in heml docs
+c4bd4d7 % closed % Force single heml doc helper
+9ab0aaa % closed % Cannot publish compilation result because cannot find dist or distinstall
+a94308d % closed % Profiling with easy-profiler leads to override LINKLIB variable.
+78442c3 % closed % Java compilation not working on windows/cygwin
+b82a282 % closed % git hooks shall be stackable
+2d904a8 % closed % charm CR commit timestamping does not work after CR edit.
+026fb50 % closed % build chain package support
+2d25998 % closed % profilng with easy profiler needs to be explicitely started and stopped
+17d63bf % closed % Python support broken with python 3
+27f5d96 % closed % HEML doc: enable use of section in check and procedure elements
+2949521 % closed % cint target shall defaultly no longer include pubdist for non tagged workspace
+575d893 % closed % Equation support in heml docs
+f9fefc8 % closed % error on local.cfg donwload attempt when invoking make dist on abs project itself.
+67c8595 % closed % JUnit features not working from windows/cygwin
+9bc09c6 % closed % install script shall include and check signature of embedded tar before trying installation.
+1be57e3 % closed % Test case requirement coverage and traceability helpers
+34a59d3 % closed % TestXXX target to run one JUnit class does not work anymore
+54a47e9 % closed % ABS_PRINT level filtering
+9a99a92 % closed % Generate compile_commands.json at PRJROOT (used for clangd daemon, for modern editors like VSCode)
+522e55b % closed % Update default Python version to 3 as Python 2 is deprecated since 1/1/2020
+744cf90 % closed % percent char in heml doc attribute makes pdf rendering fail
+dc32bb0 % closed % HTML rendering of the summary of heml doc is broken
+0e2c238 % closed % default to read-only extlib dir
+5299b80 % closed % Charm post commit hook no more running with freshly created workspace
+a2506c3 % closed % Dist abs module into a single package
+f4062c4 % closed % Long requirement identifiers are trunkated in pdf output.
+c687dee % closed % Enable user define dist repo layout
+480c6aa % closed % Java package handling issues on make dist with cygwin
+8bcf1b2 % closed % Do not commit local uncommited changes on tag
+d840bd0 % closed % ABS 3.3 test report
 }
 }
   }
   {section %title=Issues not fixed
-{table
-{tr
- {th Id}{th State}{th Summary}
-}
-{?table
-e01dc23 % [open] % Add .ko rule from src/*.obj
-}
-}
-For this single issue, the user request is not yet fully analyzed and nothing was started for its implementation. This is not a bug but an improvement request.
+None
   }
   {section %title=Known limitations
 None
@@ -180,7 +201,7 @@ ln -sf abs.core-X.Y.Z.tar.gz abs.core-X.Y.tar.gz!}
   {section %title=Impacted Source Code
 {table
 {tr
- {th Change}{th File path}
+ {th %w=1 %%Change}{th %w=10 %%File path}
 }
 {?table %src=../build/scm/diff.txt}
 }

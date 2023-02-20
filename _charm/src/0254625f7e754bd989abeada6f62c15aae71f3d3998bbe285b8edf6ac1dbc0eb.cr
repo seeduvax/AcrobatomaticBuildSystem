@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<cr id="0254625f7e754bd989abeada6f62c15aae71f3d3998bbe285b8edf6ac1dbc0eb" state="working">
+<cr id="0254625f7e754bd989abeada6f62c15aae71f3d3998bbe285b8edf6ac1dbc0eb" state="closed" delivered="abs-3.3.21">
 <title>upward traceability for requirements in heml docs</title>
 <reporter>sdevaux</reporter>
 <creation>2022-01-19 18:22:51+01:00</creation>

@@ -23,13 +23,27 @@ NDEXTLIBDIR:=$(EXTLIBDIR).nodist
 NDNA_EXTLIBDIR:=$(NA_EXTLIBDIR).nodist
 EXTLIBDIR_READONLY?=1
 
+ifeq ($(ISWINDOWS),true)
+	LNDIR:=cp -r
+	LNFILE:=cp
+else
+	LNDIR:=ln -sf
+	LNFILE:=ln -sf
+endif
+
 # tell the bootstrap makefile to not define its own default download rule.
 ABS_DEPDOWNLOAD_RULE_OVERLOADED:=1
 # download files from repository
 .PRECIOUS: $(ABS_CACHE)/%
 .PRECIOUS: $(ABSWS_EXTLIBDIR)/%/import.mk $(ABSWS_NDEXTLIBDIR)/%/import.mk $(ABSWS_NA_EXTLIBDIR)/%/import.mk $(ABSWS_NDNA_EXTLIBDIR)/%/import.mk
 
-define downloadFromRepos2
+# Download an archive from an URL list
+# Each URL from given list is tried successively according the list order.
+# No longer tries anything once the file has been succesfully downloaded once.
+# $1: Name of file to download
+# $2: URL list
+# $3: Destination file path
+define downloadFromURLs
 @for repo in $2 ; do \
 	$(ABS_PRINT_info) "Fetching $1 from $$repo" ; \
 	case $$repo in \
@@ -46,14 +60,14 @@ define downloadFromRepos2
 done ; $(ABS_PRINT_error) "Can't fetch $1." ; rm -rf $3 ; exit 1
 endef
 
-
 # Download an archive from repositories
+# !!! Deprecated, downloadFromURLs shall be used.
 # $1: File to download
 # $2: Repositories list
 # $3: Dest file
-#
 define downloadFromRepos
-$(call downloadFromRepos2,$1,$(patsubst %,%/$1,$2),$3)
+	$(ABS_PRINT_warning) "Macro dowloadFromRepos is deprecated. ABS extension or project configuration should be updated to new ABS standards."
+$(call downloadFromURLs,$1,$(patsubst %,%/$1,$2),$3)
 endef
 
 ifeq ($(findstring %,$(ABS_REPO)),)
@@ -66,11 +80,11 @@ endif
 
 $(ABS_CACHE)/noarch/%:
 	@mkdir -p $(@D)
-	$(call downloadFromRepos2,$*,$(foreach pat,$(ABS_REPO_NA_PATTERN),$(patsubst %,$(pat),$(@F))),$@)
+	$(call downloadFromURLs,$*,$(foreach pat,$(ABS_REPO_NA_PATTERN),$(patsubst %,$(pat),$(@F))),$@)
 
 $(ABS_CACHE)/%:
 	@mkdir -p $(@D)
-	$(call downloadFromRepos2,$*,$(foreach pat,$(ABS_REPO_PATTERN),$(patsubst %,$(pat),$(@F))),$@)
+	$(call downloadFromURLs,$*,$(foreach pat,$(ABS_REPO_PATTERN),$(patsubst %,$(pat),$(@F))),$@)
 
 define unpackArchive
 	@$(ABS_PRINT_info) "Unpacking library : $(patsubst $(1)/%/import.mk,%,$@)"
@@ -97,10 +111,11 @@ $(ABSWS_NA_EXTLIBDIR)/%/import.mk: $(ABS_CACHE)/noarch/%.tar.gz
 $(ABSWS_NDNA_EXTLIBDIR)/%/import.mk: $(ABS_CACHE)/noarch/%.tar.gz
 	$(call unpackArchive,$(ABSWS_NDNA_EXTLIBDIR))
 
+
 define extlib_linkLibrary
 	@mkdir -p `dirname $(@D)`
 	@test -d $(@D) && rm $(@D) || true
-	@ln -s $(<D) $(@D)
+	@$(LNDIR) $(<D) $(@D)
 endef	
 
 # unpack arch specific external lib
@@ -122,19 +137,11 @@ $(NDNA_EXTLIBDIR)/%/import.mk: $(ABSWS_NDNA_EXTLIBDIR)/%/import.mk
 # same for java libraries
 $(NA_EXTLIBDIR)/%.jar: $(ABS_CACHE)/noarch/%.jar
 	@mkdir -p $(@D)
-ifeq ($(ISWINDOWS),true)
-	@cp $^ $@
-else
-	@ln -sf $^ $@
-endif
+	@$(LNFILE) -sf $^ $@
 
 $(NDNA_EXTLIBDIR)/%.jar: $(ABS_CACHE)/noarch/%.jar
 	mkdir -p $(@D)
-ifeq ($(ISWINDOWS),true)
-	@cp $^ $@
-else
-	@ln -sf $^ $@
-endif
+	@$(LNFILE) $^ $@
 
 # --------------------------------------------------------------------
 # general purpose noarch file sets
@@ -240,7 +247,7 @@ endif
 $(NA_EXTLIBDIR)/%.jar: $(EXTLIBDIR)/$(1)-$(2)/lib/%.jar
 	@$$(ABS_PRINT_info) "Importing jar lib $$(@F)..."
 	@mkdir -p $$(@D)
-	@ln -sf $$^ $$@
+	@$(LNFILE) $$^ $$@
 
 endef
 

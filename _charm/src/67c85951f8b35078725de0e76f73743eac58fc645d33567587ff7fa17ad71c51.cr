@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<cr id="67c85951f8b35078725de0e76f73743eac58fc645d33567587ff7fa17ad71c51" state="working">
+<cr id="67c85951f8b35078725de0e76f73743eac58fc645d33567587ff7fa17ad71c51" state="closed" delivered="abs-3.3.21">
 <title>JUnit features not working from windows/cygwin</title>
 <reporter>m026258</reporter>
 <creation>2022-07-29 14:44:35+02:00</creation>
