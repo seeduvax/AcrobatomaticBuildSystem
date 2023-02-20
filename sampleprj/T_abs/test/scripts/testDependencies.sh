@@ -6,7 +6,8 @@ if [ ! -d $TTARGETDIR ]; then
 fi
 
 testDirectory=$TTARGETDIR/testDependencies
-PRJROOT=`pwd`/../../
+MODROOT=`pwd`
+PRJROOT=$MODROOT/../../
 rm -rf $testDirectory
 mkdir -p $testDirectory
 mkdir -p $testDirectory/absws
@@ -52,5 +53,16 @@ if [ $? -ne 0 ]; then
     echo "Error while executing make distinstall on projC"
     exit 1
 fi
+
+tail -n +2 $testDirectory/projC/dist/flatten/projC-2.4.3d/import.mk > $testDirectory/projC/dist/flatten/projC-2.4.3d/import2.mk
+
+function testFile {
+    diff -q $1 $2
+    if [ $? -ne 0 ]; then
+        echo "Error: $1 not equal to $2"
+        exit 1
+    fi
+}
+testFile $testDirectory/projC/dist/flatten/projC-2.4.3d/import2.mk $MODROOT/test/resources/expected/import2.mk
 
 exit 0
