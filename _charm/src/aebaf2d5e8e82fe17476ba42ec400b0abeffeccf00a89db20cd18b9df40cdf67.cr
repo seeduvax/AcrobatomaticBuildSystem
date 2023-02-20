@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<cr id="aebaf2d5e8e82fe17476ba42ec400b0abeffeccf00a89db20cd18b9df40cdf67" state="working">
+<cr id="aebaf2d5e8e82fe17476ba42ec400b0abeffeccf00a89db20cd18b9df40cdf67" state="closed" delivered="abs-3.3.21">
 <title>VHDL library handling</title>
 <reporter>sdevaux</reporter>
 <creation>2021-10-03 15:11:18+02:00</creation>

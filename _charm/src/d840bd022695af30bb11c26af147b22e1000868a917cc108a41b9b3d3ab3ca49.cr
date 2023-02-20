@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<cr id="d840bd022695af30bb11c26af147b22e1000868a917cc108a41b9b3d3ab3ca49" state="open">
+<cr id="d840bd022695af30bb11c26af147b22e1000868a917cc108a41b9b3d3ab3ca49" state="closed" delivered="abs-3.3.21">
 <title>ABS 3.3 test report</title>
 <reporter>sdevaux</reporter>
 <creation>2023-02-16 15:54:57+01:00</creation>

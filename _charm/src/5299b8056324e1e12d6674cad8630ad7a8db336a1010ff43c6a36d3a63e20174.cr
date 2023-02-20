@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<cr id="5299b8056324e1e12d6674cad8630ad7a8db336a1010ff43c6a36d3a63e20174" state="working">
+<cr id="5299b8056324e1e12d6674cad8630ad7a8db336a1010ff43c6a36d3a63e20174" state="closed" delivered="abs-3.3.21">
 <title>Charm post commit hook no more running with freshly created workspace</title>
 <reporter>sdevaux</reporter>
 <creation>2022-12-02 12:59:53+01:00</creation>

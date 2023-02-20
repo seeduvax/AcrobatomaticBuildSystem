@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><cr id="480c6aa9e411034c81c6855e69349b6fd3b95812e66d260b01a4afaf3ac6598d" state="working">
+<?xml version="1.0" encoding="UTF-8"?><cr id="480c6aa9e411034c81c6855e69349b6fd3b95812e66d260b01a4afaf3ac6598d" state="closed" delivered="abs-3.3.21">
     <title>Java package handling issues on make dist with cygwin</title>
     <reporter>sdevaux</reporter>
     <creation>2023-02-09 13:02:43+01:00</creation>

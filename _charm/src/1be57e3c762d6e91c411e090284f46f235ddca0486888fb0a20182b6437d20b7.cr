@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<cr id="1be57e3c762d6e91c411e090284f46f235ddca0486888fb0a20182b6437d20b7" state="working">
+<cr id="1be57e3c762d6e91c411e090284f46f235ddca0486888fb0a20182b6437d20b7" state="closed" delivered="abs-3.3.21">
 <title>Test case requirement coverage and traceability helpers</title>
 <reporter>m026258</reporter>
 <creation>2022-09-01 12:02:36+02:00</creation>

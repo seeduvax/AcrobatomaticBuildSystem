@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><cr id="8bcf1b216918ed84e942c7d710a611a3b768b3dbc31320361c29203976a08693" state="working">
+<?xml version="1.0" encoding="UTF-8"?><cr id="8bcf1b216918ed84e942c7d710a611a3b768b3dbc31320361c29203976a08693" state="closed" delivered="abs-3.3.21">
     <title>Do not commit local uncommited changes on tag</title>
     <reporter>sdevaux</reporter>
     <creation>2023-02-16 14:23:43+01:00</creation>
