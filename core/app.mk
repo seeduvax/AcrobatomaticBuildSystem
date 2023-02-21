@@ -52,12 +52,12 @@ INSTALLTARFLAGS+=$(patsubst %,--exclude=%,$(INSTALLTAR_EXCLUDE))
 
 ifeq ($(MODULES),)
 # search for module only if not explicitely defined from app.cfg.
-MODULES:=$(patsubst %/Makefile,%,$(wildcard */Makefile))
+MODULES:=$(patsubst %/module.cfg,%,$(wildcard */module.cfg))
 MODULES_DEPS:=$(filter-out $(NOBUILD),$(MODULES))
 MODULES_TARGET:=$(patsubst %,mod.%,$(MODULES_DEPS)) $(patsubst %,warnnobuild.%,$(NOBUILD))
-MODULES_TEST:=$(filter-out $(patsubst %,testmod.%,$(NOBUILD) $(NOTEST)),$(patsubst %/Makefile,testmod.%,$(shell ls */Makefile))) $(patsubst %,warnnotest.%,$(NOTEST) $(NOBUILD))
-MODULES_VALGRINDTEST:=$(filter-out $(patsubst %,valgrindtestmod.%,$(NOBUILD) $(NOTEST)),$(patsubst %/Makefile,valgrindtestmod.%,$(shell ls */Makefile))) $(patsubst %,warnnotest.%,$(NOTEST) $(NOBUILD))
-MODULES_TESTBUILD:=$(filter-out $(patsubst %,testbuildmod.%,$(NOBUILD)),$(patsubst %/Makefile,testbuildmod.%,$(shell ls */Makefile))) $(patsubst %,warnnobuild.%,$(NOBUILD))
+MODULES_TEST:=$(filter-out $(patsubst %,testmod.%,$(NOBUILD) $(NOTEST)),$(patsubst %,testmod.%,$(MODULES))) $(patsubst %,warnnotest.%,$(NOTEST) $(NOBUILD))
+MODULES_VALGRINDTEST:=$(filter-out $(patsubst %,valgrindtestmod.%,$(NOBUILD) $(NOTEST)),$(patsubst %,valgrindtestmod.%,$(MODULES))) $(patsubst %,warnnotest.%,$(NOTEST) $(NOBUILD))
+MODULES_TESTBUILD:=$(filter-out $(patsubst %,testbuildmod.%,$(NOBUILD)),$(patsubst %,testbuildmod.%,$(MODULES))) $(patsubst %,warnnobuild.%,$(NOBUILD))
 else
 MODULES_DEPS:=$(MODULES)
 MODULES_TARGET:=$(patsubst %,mod.%,$(MODULES))
@@ -98,11 +98,11 @@ ifneq ($(shell ls $(PRJROOT)/*/test 2>/dev/null),)
 define test-synthesis
 	@rm -rf build/unit_test_results
 	@mkdir -p build/unit_test_results
-	@cp $(foreach mod,$(MODULES_DEPS),$(wildcard $(TRDIR)/test/$(APPNAME)_$(mod).xml)) build/unit_test_results
+	@$(if $(wildcard $(TRDIR)/test/$(APPNAME)_*.xml),cp $(TRDIR)/test/$(APPNAME)_*.xml build/unit_test_results)
 endef
 define test-summary
 	@$(ABS_PRINT_info) "#### #### Tests summary #### ####"
-	@for report in build/unit_test_results/*.xml; do $(ABS_PRINT_info) "Test result: "`basename $$report` ; xsltproc --stringparam mode short $(ABSROOT)/core/xunit2txt.xsl $$report;  done
+	@for report in `ls build/unit_test_results/*.xml`; do $(ABS_PRINT_info) "Test result: "`basename $$report` ; xsltproc --stringparam mode short $(ABSROOT)/core/xunit2txt.xsl $$report;  done
 endef
 
 testsummary:
@@ -150,19 +150,19 @@ clean:
 	@rm -rf build
 	@$(ABS_PRINT_info) "Removing dist"
 	@rm -rf dist
-	@$(ABS_PRINT_info) "Removing tmp"
-	@rm -rf tmp
 
 $(BUILDROOT)/.abs/moddeps.mk:
 	@$(ABS_PRINT_info) "Gererating module dependencies file."
 	@mkdir -p $(@D)
 	@for mod in $(patsubst mod.%,%,$(MODULES_DEPS)) ; do \
-	echo "mod.$$mod:: "'$$(patsubst %,'`echo mod`.%','`grep 'USE\(LK\)*MOD=' $$mod/module.cfg | cut -d '=' -f 2`")" >> $@ ; \
-	echo >> $@; \
+	make OBJDIR=$(PRJOBJDIR)/$$mod INCLUDE_EXTLIB=false PRJROOT=$(PRJROOT) MODROOT=$(PRJROOT)/$$mod ABSROOT=$(ABSROOT) -C $$mod generateAppModsNeeds --makefile $(ABSROOT)/core/module-depends_standalone.mk --no-print-directory && \
+	printf "mod.$$mod:: " >> $@.tmp && \
+	cat $(PRJOBJDIR)/$$mod/moddeps.needs >> $@.tmp && echo "" >> $@.tmp; \
 	done
+	@mv $@.tmp $@
 
 mod.%::
-	@MODNAME=`cat $*/module.cfg | grep MODNAME | sed -E 's/.*=(.*)/\1/g'` && test $$MODNAME = $* || $(ABS_PRINT_warning) "The name of the module $$MODNAME doesn't match the name of the module directory $*. This can have side effects."
+	@MODNAME=`cat $*/module.cfg | grep MODNAME | sed -E 's/.*=(.*)/\1/g'` && test "$$MODNAME" = "$*" || $(ABS_PRINT_warning) "The name of the module $$MODNAME doesn't match the name of the module directory $*. This can have side effects."
 	@mkdir -p $(TRDIR)/obj/$*
 	@mkdir -p $(TRDIR)/.abs/content
 	@touch $(TRDIR)/obj/$*/files.ts
@@ -171,7 +171,9 @@ mod.%::
 	@$(if $(filter $*,$(EXPMOD)),test ! -d $*/include || find $*/include -type f | sed 's~^$*/~~g' >> $(TRDIR)/.abs/content/$(APPNAME)_$*.filelist)
 	@rm -f $(TRDIR)/obj/$*/files.ts
 
+ifeq ($(filter clean%,$(MAKECMDGOALS)),)
 include $(BUILDROOT)/.abs/moddeps.mk
+endif
 
 # depends on mod.% to compile dependencies of module.
 testmod.%: mod.%
@@ -236,7 +238,7 @@ $(DIST_FLATTEN_DIR)/import.mk: $(DIST_FLATTEN_DIR)/obj/compiled
 	done
 	@test -f export.mk && m4 -D__app__=$(APPNAME) -D__version__=$(VERSION) export.mk -D__uselib__="$(sort $(USELIB))" > $@.tmp || true
 	@echo "# generated: ABS-$(__ABS_VERSION__) $(USER)@"`hostname`" "`date --rfc-3339 s` >> $@.tmp
-	@test -f export.mk || echo '_app_$(APPNAME)_dir:=$$(dir $$(lastword $$(MAKEFILE_LIST)))\n' >> $@.tmp
+	@test -f export.mk || printf '_app_$(APPNAME)_dir:=$$(dir $$(lastword $$(MAKEFILE_LIST)))\n\n' >> $@.tmp
 	@test -f export.mk || echo '-include $$(wildcard $$(_app_$(APPNAME)_dir)/.abs/index_*.mk)' >> $@.tmp
 	@test -f export.mk || printf '$$(eval $$(call extlib_import_template,$(APPNAME),$(VERSION),$(sort $(USELIB))))\n' >> $@.tmp
 	@test -f export.mk || for mod in $(foreach mod,$(DIST_MODS),"$(mod)"); do \
@@ -486,7 +488,7 @@ DOCKER_TARGET:=$(TARGET)
 DOCKER_ARGS+=--rm --hostname $(shell hostname).$(subst /,.,$(DOCKER_IMAGE))
 DOCKER_WORKSPACE:=/home/$(USER)
 # preliminary command to create user env in the container.
-DOCKER_CREATEUSERENV:=echo $(USER):x:$(shell id -u):$(shell id -g)::$(DOCKER_WORKSPACE):/bin/bash >> /etc/passwd && chown $(USER) $(DOCKER_WORKSPACE)
+DOCKER_CREATEUSERENV:=echo $(USER):x:$(shell id -u):$(shell id -g)::$(DOCKER_WORKSPACE):/bin/bash >> /etc/passwd && chown $(USER) $(DOCKER_WORKSPACE) && echo $(USER):*:18464:0:99999:7::: >> /etc/shadow
 # let the dockerized build open ssh session as the user from the host.
 DOCKER_ARGS+=-v $(HOME)/.ssh:$(DOCKER_WORKSPACE)/.ssh
 ##  - DOCKER_WORKSPACE: workspace root dir inside the container ot use for the

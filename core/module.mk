@@ -92,19 +92,13 @@ BUILDLOG=$(PRJOBJDIR)/build.log
 
 # Variable for the module dependencies management.
 MODULE_MK_PATH=$(MODULE_MK_DIR)/module_$(APPNAME)_$(MODNAME).mk
-MODULE_MK_TEST_PATH=$(OBJDIR)/module_test.mk
+MODULE_MK_TEST_PATH=$(MODULE_MK_TEST_DIR)/module_$(APPNAME)_$(MODNAME).mk
 
 MODULE_MK_OBJ_PATH=$(OBJDIR)/module.mk
+
 # these variables will be modified later by reading module.mk files.
 ABS_INCLUDE_MODS+=
 ABS_INCLUDE_TESTMODS+=
-# the includes modules directly associated to this module
-DEFAULT_ABS_INCLUDE_MODS:=$(patsubst %,$(APPNAME)_%,$(USEMOD) $(USELKMOD)) $(LINKLIB) $(INCLUDE_MODS)
-DEFAULT_ABS_INCLUDE_TESTMODS:=$(patsubst %,$(APPNAME)_%,$(TESTUSEMOD)) $(TLINKLIB) $(INCLUDE_TESTMODS)
-# definition of variables used to find the path to modules trdir.
-MODULES_DEPS:=$(patsubst ../%/Makefile,%,$(wildcard ../*/Makefile))
-PROJECT_MODS:=$(patsubst %,$(APPNAME)_%,$(MODULES_DEPS))
-$(foreach mod,$(MODULES_DEPS),$(eval _module_$(APPNAME)_$(mod)_dir=$(TRDIR)))
 
 ## 
 ## Common make targets:
@@ -218,11 +212,13 @@ endif
 ## ---------------------------------------------------------------------
 ##  dependencies beetween modules management
 ## ---------------------------------------------------------------------
-ALL_NEEDED_MODS:=$(USEMOD) $(USELKMOD)
-ifneq ($(filter test,$(MAKECMDGOALS)),)
-ALL_NEEDED_MODS:=$(ALL_NEEDED_MODS) $(TESTUSEMOD)
-endif
-MODDEPS:=$(patsubst %,%.mod.dep,$(ALL_NEEDED_MODS))
+include $(ABSROOT)/core/module-depends.mk
+
+DEFAULT_ABS_EXISTING_LIBS=$(foreach mod,$(DEFAULT_ABS_INCLUDE_MODS),$(if $(_module_$(mod)_dir)$(_app_$(mod)_dir),$(mod),$(if $(_app_lib$(mod)_dir),lib$(mod))))
+DEFAULT_ABS_EXISTING_TESTLIBS=$(foreach mod,$(DEFAULT_ABS_INCLUDE_TESTMODS),$(if $(_module_$(mod)_dir)$(_app_$(mod)_dir),$(mod),$(if $(_app_lib$(mod)_dir),lib$(mod))))
+DEPS_LIBS_MK=$(foreach mod,$(DEFAULT_ABS_EXISTING_LIBS),$(MODULE_MK_DIR)/module_$(mod).mk)
+DEPS_TESTLIBS_MK=$(foreach mod,$(DEFAULT_ABS_EXISTING_TESTLIBS) $(DEFAULT_ABS_EXISTING_LIBS),$(MODULE_MK_TEST_DIR)/module_$(mod).mk)
+PROJDEPS_MODS_MK=$(foreach mod,$(PROJECT_MODS),$(MODULE_MK_DIR)/module_$(mod).mk)
 
 ALL_DEPS_SRC_FILES=$(foreach mod,$(filter-out $(MODNAME),$(MODULES_DEPS)),$(wildcard $(PRJROOT)/$(mod)/src/*) $(wildcard $(PRJROOT)/$(mod)/include/*))
 
@@ -231,6 +227,7 @@ CURRENT_DEPENDENCY_FILE:=$(PRJOBJDIR)/currentDependencies
 ifeq ($(DEPS_MNGMT_LEVEL),DISABLED)
 DEPENDENCY_FILE:=$(OBJDIR)/noDependencyCompilation
 $(DEPENDENCY_FILE):
+	@mkdir -p $(@D)
 	@$(ABS_PRINT_debug) "$(MODNAME): Dependency management disabled"
 	@touch $@
 
@@ -257,13 +254,6 @@ endif
 
 endif # ifeq($(DEPS_MNGMT_LEVEL),DISABLED)
 
-
-DEFAULT_ABS_EXISTING_LIBS=$(foreach mod,$(DEFAULT_ABS_INCLUDE_MODS),$(if $(_module_$(mod)_dir)$(_app_$(mod)_dir),$(mod),$(if $(_app_lib$(mod)_dir),lib$(mod))))
-DEFAULT_ABS_EXISTING_TESTLIBS=$(foreach mod,$(DEFAULT_ABS_INCLUDE_TESTMODS),$(if $(_module_$(mod)_dir)$(_app_$(mod)_dir),$(mod),$(if $(_app_lib$(mod)_dir),lib$(mod))))
-DEPS_LIBS_MK=$(foreach mod,$(DEFAULT_ABS_EXISTING_LIBS),$(MODULE_MK_DIR)/module_$(mod).mk)
-DEPS_TESTLIBS_MK=$(foreach mod,$(DEFAULT_ABS_EXISTING_TESTLIBS),$(MODULE_MK_TEST_DIR)/module_$(mod).mk)
-PROJDEPS_MODS_MK=$(foreach mod,$(PROJECT_MODS),$(MODULE_MK_DIR)/module_$(mod).mk)
-
 $(MODULE_MK_OBJ_PATH): module.cfg
 	@$(ABS_PRINT_debug) "Creation of $@"
 	@mkdir -p $(@D)
@@ -282,7 +272,7 @@ $(MODULE_MK_TEST_PATH): $(MODULE_MK_OBJ_PATH) $(DEPS_TESTLIBS_MK) module.cfg
 	@$(ABS_PRINT_debug) "Creation of project module $@"
 	@mkdir -p $(@D)
 	@echo '$(foreach modMk,$(DEPS_TESTLIBS_MK),\n-include $(modMk))' > $@.tmp
-	@echo "ABS_INCLUDE_TESTMODS+=$(sort $(DEFAULT_ABS_EXISTING_TESTLIBS))" >> $@.tmp
+	@echo "ABS_INCLUDE_TESTMODS+=$(sort $(DEFAULT_ABS_EXISTING_TESTLIBS) $(DEFAULT_ABS_EXISTING_LIBS))" >> $@.tmp
 	@echo "_app_$(APPNAME)_dir:=$(TRDIR)" >> $@.tmp
 	@echo "_module_$(APPNAME)_$(MODNAME)_dir:=$(TRDIR)" >> $@.tmp
 	@mv $@.tmp $@
@@ -291,21 +281,25 @@ $(PROJDEPS_MODS_MK): $(DEPENDENCY_FILE)
 
 PROJECT_MODS_LINED=$(subst $(_space_),\n,$(PROJECT_MODS))
 define createModuleMkFile
-	@echo -e "\n$(PROJECT_MODS_LINED)" | egrep -q "^$*$$" && $(ABS_PRINT_debug) "Reading of $@ (project module)" || $(ABS_PRINT_debug) "Creation of $@ (external module)"
-	@echo -e "\n$(PROJECT_MODS_LINED)" | egrep -q "^$*$$" || mkdir -p $(@D)
-	@echo -e "\n$(PROJECT_MODS_LINED)" | egrep -q "^$*$$" || echo "" > $@.tmp
+	$(call __createModuleMkFile,$1,echo -e "\n$(PROJECT_MODS_LINED)" | egrep -q "^$*$$")
+endef
+
+define __createModuleMkFile
+	@$2 && $(ABS_PRINT_debug) "Reading of $@ (project module)" || $(ABS_PRINT_debug) "Creation of $@ (external module)"
+	@$2 || mkdir -p $(@D)
+	@$2 || echo "" > $@.tmp
 	@# when _module_$*_depends exists, use it to get dependencies of the module/app.
-	@echo -e "\n$(PROJECT_MODS_LINED)" | egrep -q "^$*$$" || test -z "$(_module_$*_depends)" || (\
+	@$2 || test -z "$(_module_$*_depends)" || (\
 		echo "$(sort $(_module_$*_depends))" | sed ':N;s/ /\n/g' | sed -E 's~(.*)~-include $(@D)/module_\1.mk~g' >> $@.tmp && \
 		echo "$(1)+=$(sort $(_module_$*_depends))" >> $@.tmp)
 	@# when _module_$*_depends not exists, use the variable _app_$*_depends to get the dependencies of the app.
-	@echo -e "\n$(PROJECT_MODS_LINED)" | egrep -q "^$*$$" || test -n "$(_module_$*_depends)" || test -z "$(_app_$*_depends)" || (\
+	@$2 || test -n "$(_module_$*_depends)" || test -z "$(_app_$*_depends)" || (\
 		echo "$(sort $(_app_$*_depends))" | sed ':N;s/ /\n/g' | sed -E 's~(.*)~-include $(@D)/module_\1.mk~g' >> $@.tmp && \
 		echo "$(1)+=$(sort $(_app_$*_depends))" >> $@.tmp)
 	@# These variables to permit app.mk to find module/app
-	@echo -e "\n$(PROJECT_MODS_LINED)" | egrep -q "^$*$$" || test -z "$(_app_$*_dir)" || echo "_app_$*_dir?=$(_app_$*_dir)" >> $@.tmp
-	@echo -e "\n$(PROJECT_MODS_LINED)" | egrep -q "^$*$$" || test -z "$(_module_$*_dir)" || echo "_module_$*_dir?=$(_module_$*_dir)" >> $@.tmp
-	@echo -e "\n$(PROJECT_MODS_LINED)" | egrep -q "^$*$$" || mv $@.tmp $@
+	@$2 || test -z "$(_app_$*_dir)" || echo "_app_$*_dir?=$(_app_$*_dir)" >> $@.tmp
+	@$2 || test -z "$(_module_$*_dir)" || echo "_module_$*_dir?=$(_module_$*_dir)" >> $@.tmp
+	@$2 || mv $@.tmp $@
 endef
 
 # this rule only execute its command if the mod is not a project mod. 
