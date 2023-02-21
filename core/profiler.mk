@@ -30,6 +30,7 @@ ifneq ($(filter tracy-%,$(PROFILER_TOOL)),)
 PROFILER_FILE:=$(PROFILER_FILE).tracy
 CFLAGS+=-DTRACY_ENABLE
 LINKLIB+=tracy_cli
+INCLUDE_MODS+=tracy
 LDFLAGS+=-pthread -ldl
 RUNTIME_PROLOG+=( sleep 1 ; $(EXTLIBDIR)/$(PROFILER_TOOL)/bin/tracy-capture -f -o $(PROFILER_FILE) ) &
 RUNTIME_EPILOG+=sleep 1; test -r $(PROFILER_FILE) && make PROFILER=true profiler PROFILER_ARGS=$(PROFILER_FILE) || $(ABS_PRINT_warning) "Profiler record is missing. Check profiling configuration"
