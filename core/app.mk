@@ -162,7 +162,7 @@ $(BUILDROOT)/.abs/moddeps.mk:
 	@mv $@.tmp $@
 
 mod.%::
-	@MODNAME=`cat $*/module.cfg | grep MODNAME | sed -E 's/.*=(.*)/\1/g'` && test "$$MODNAME" = "$*" || $(ABS_PRINT_warning) "The name of the module $$MODNAME doesn't match the name of the module directory $*. This can have side effects."
+	@MODNAME=`cat $*/module.cfg | grep -E "^MODNAME" | sed -E 's/.*=(.*)/\1/g'` && test "$$MODNAME" = "$*" || $(ABS_PRINT_warning) "The name of the module $$MODNAME doesn't match the name of the module directory $*. This can have side effects."
 	@mkdir -p $(TRDIR)/obj/$*
 	@mkdir -p $(TRDIR)/.abs/content
 	@touch $(TRDIR)/obj/$*/files.ts

@@ -215,29 +215,30 @@ endef
 # $1 lib name
 # $2 lib version
 # $3 lib's dependencies.
+# Regex to get the name of module from lib can accept pattern like (projA-1.2.3_clang-13, projA-1.2.3, proj12A-2.63, ...)
 define extlib_import_template
 ifneq ($$(filter $(1)-$(2),$$(TRANSUSELIB)),)
 $(foreach lib,$3,$(call condIncludeExtLib,$(lib),$(1)-$(2),$(EXTLIBDIR),TRANSUSELIB))
 _app_$(1)_dir:=$(EXTLIBDIR)/$(1)-$(2)
-_app_$(1)_depends+=$(foreach lib,$3,$(shell echo $(lib) | sed -E 's/(.*)-[^-]+/\1/g'))
+_app_$(1)_depends+=$(foreach lib,$3,$(shell echo $(lib) | sed -E 's/([^-]+)-.+/\1/g'))
 ALL_LIBS_LOADED+=$1
 else
 ifneq ($$(filter $(1)-$(2),$$(NA_USELIB)),)
 $(foreach lib,$3,$(call condIncludeExtLib,$(lib),$(1)-$(2),$(NA_EXTLIBDIR),NA_USELIB))
 _app_$(1)_dir:=$(NA_EXTLIBDIR)/$(1)-$(2)
-_app_$(1)_depends+=$(foreach lib,$3,$(shell echo $(lib) | sed -E 's/(.*)-[^-]+/\1/g'))
+_app_$(1)_depends+=$(foreach lib,$3,$(shell echo $(lib) | sed -E 's/([^-]+)-.+/\1/g'))
 ALL_LIBS_LOADED+=$1
 else
 ifneq ($$(filter $(1)-$(2),$$(NDUSELIB)),)
 $(foreach lib,$3,$(call condIncludeExtLib,$(lib),$(1)-$(2),$(NDEXTLIBDIR),NDUSELIB))
 _app_$(1)_dir:=$(NDEXTLIBDIR)/$(1)-$(2)
-_app_$(1)_depends+=$(foreach lib,$3,$(shell echo $(lib) | sed -E 's/(.*)-[^-]+/\1/g'))
+_app_$(1)_depends+=$(foreach lib,$3,$(shell echo $(lib) | sed -E 's/([^-]+)-.+/\1/g'))
 ALL_LIBS_LOADED+=$1
 else
 ifneq ($$(filter $(1)-$(2),$$(NDNA_USELIB)),)
 $(foreach lib,$3,$(call condIncludeExtLib,$(lib),$(1)-$(2),$(NDNA_EXTLIBDIR),NDNA_USELIB))
 _app_$(1)_dir:=$(NDNA_EXTLIBDIR)/$(1)-$(2)
-_app_$(1)_depends+=$(foreach lib,$3,$(shell echo $(lib) | sed -E 's/(.*)-[^-]+/\1/g'))
+_app_$(1)_depends+=$(foreach lib,$3,$(shell echo $(lib) | sed -E 's/([^-]+)-.+/\1/g'))
 ALL_LIBS_LOADED+=$1
 endif
 endif
