@@ -171,7 +171,7 @@ mod.%::
 	@$(if $(filter $*,$(EXPMOD)),test ! -d $*/include || find $*/include -type f | sed 's~^$*/~~g' >> $(TRDIR)/.abs/content/$(APPNAME)_$*.filelist)
 	@rm -f $(TRDIR)/obj/$*/files.ts
 
-ifeq ($(filter clean%,$(MAKECMDGOALS)),)
+ifeq ($(filter clean% docker%,$(MAKECMDGOALS)),)
 include $(BUILDROOT)/.abs/moddeps.mk
 endif
 
