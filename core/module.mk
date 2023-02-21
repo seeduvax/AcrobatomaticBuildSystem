@@ -262,16 +262,18 @@ $(MODULE_MK_OBJ_PATH): module.cfg
 $(MODULE_MK_PATH): $(MODULE_MK_OBJ_PATH) $(DEPS_LIBS_MK) module.cfg
 	@$(ABS_PRINT_debug) "Creation of project module $@"
 	@mkdir -p $(@D)
-	@echo '$(foreach modMk,$(DEPS_LIBS_MK),\n-include $(modMk))' > $@.tmp
+	@echo "" > $@.tmp
+	@$(foreach modMk,$(DEPS_LIBS_MK),echo "-include $(modMk)" >> $@.tmp;)
 	@echo "ABS_INCLUDE_MODS+=$(sort $(DEFAULT_ABS_EXISTING_LIBS))" >> $@.tmp
 	@echo "_app_$(APPNAME)_dir:=$(TRDIR)" >> $@.tmp
 	@echo "_module_$(APPNAME)_$(MODNAME)_dir:=$(TRDIR)" >> $@.tmp
 	@mv $@.tmp $@
 	
 $(MODULE_MK_TEST_PATH): $(MODULE_MK_OBJ_PATH) $(DEPS_TESTLIBS_MK) module.cfg
-	@$(ABS_PRINT_debug) "Creation of project module $@"
+	@$(ABS_PRINT_debug) "Creation of project test module $@"
 	@mkdir -p $(@D)
-	@echo '$(foreach modMk,$(DEPS_TESTLIBS_MK),\n-include $(modMk))' > $@.tmp
+	@echo "" > $@.tmp
+	@$(foreach modMk,$(DEPS_TESTLIBS_MK),echo "-include $(modMk)" >> $@.tmp;)
 	@echo "ABS_INCLUDE_TESTMODS+=$(sort $(DEFAULT_ABS_EXISTING_TESTLIBS) $(DEFAULT_ABS_EXISTING_LIBS))" >> $@.tmp
 	@echo "_app_$(APPNAME)_dir:=$(TRDIR)" >> $@.tmp
 	@echo "_module_$(APPNAME)_$(MODNAME)_dir:=$(TRDIR)" >> $@.tmp
@@ -279,9 +281,9 @@ $(MODULE_MK_TEST_PATH): $(MODULE_MK_OBJ_PATH) $(DEPS_TESTLIBS_MK) module.cfg
 
 $(PROJDEPS_MODS_MK): $(DEPENDENCY_FILE)
 
-PROJECT_MODS_LINED=$(subst $(_space_),\n,$(PROJECT_MODS))
+PROJECT_MODS_LINED=$(subst $(_space_),|,$(PROJECT_MODS))
 define createModuleMkFile
-	$(call __createModuleMkFile,$1,echo -e "\n$(PROJECT_MODS_LINED)" | egrep -q "^$*$$")
+	$(call __createModuleMkFile,$1,echo "|$(PROJECT_MODS_LINED)|" | grep -q "|$*|")
 endef
 
 define __createModuleMkFile
@@ -290,11 +292,11 @@ define __createModuleMkFile
 	@$2 || echo "" > $@.tmp
 	@# when _module_$*_depends exists, use it to get dependencies of the module/app.
 	@$2 || test -z "$(_module_$*_depends)" || (\
-		echo "$(sort $(_module_$*_depends))" | sed ':N;s/ /\n/g' | sed -E 's~(.*)~-include $(@D)/module_\1.mk~g' >> $@.tmp && \
+		$(foreach depend,$(sort $(_module_$*_depends)),echo "-include $(@D)/module_$(depend).mk" >> $@.tmp &&) \
 		echo "$(1)+=$(sort $(_module_$*_depends))" >> $@.tmp)
 	@# when _module_$*_depends not exists, use the variable _app_$*_depends to get the dependencies of the app.
 	@$2 || test -n "$(_module_$*_depends)" || test -z "$(_app_$*_depends)" || (\
-		echo "$(sort $(_app_$*_depends))" | sed ':N;s/ /\n/g' | sed -E 's~(.*)~-include $(@D)/module_\1.mk~g' >> $@.tmp && \
+		$(foreach depend,$(sort $(_app_$*_depends)),echo "-include $(@D)/module_$(depend).mk" >> $@.tmp &&) \
 		echo "$(1)+=$(sort $(_app_$*_depends))" >> $@.tmp)
 	@# These variables to permit app.mk to find module/app
 	@$2 || test -z "$(_app_$*_dir)" || echo "_app_$*_dir?=$(_app_$*_dir)" >> $@.tmp
