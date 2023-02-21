@@ -162,7 +162,7 @@ CONFIGFILES:=$(patsubst %,$(TRDIR)/%,$(shell find etc -type f 2>/dev/null | grep
 # module type adaptation
 # -------------------------------------------------
 
-MODULE_TYPES_MAP+=$(ABSROOT)/core/module-%.mk:linuxmodule,java,python,library,exe,fileset,absext,arduino \
+MODULE_TYPES_MAP+=$(ABSROOT)/core/module-%.mk:linuxmodule,java,rust,python,library,exe,fileset,absext,arduino \
     $(ABSROOT)/%/main.mk:doc \
     $(ABSROOT)/core/module-java.mk:jar \
 	$(ABSROOT)/%/main.mk:fpga
