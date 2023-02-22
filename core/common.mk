@@ -147,11 +147,6 @@ else
 PATH_SEP:=:
 endif
 
-ifneq ($(BUILDCHAIN),)
-NDUSELIB+=$(BUILDCHAIN)
-VFLAVOR+= $(BUILDCHAIN)
-endif
-
 ##  - TRDIR: target root directory (where the installed product image is stored)
 TRDIR?=$(BUILDROOT)/$(ARCH)/$(MODE)
 VERSION_OVERLOADED:=$(filter VERSION=%,$(MAKEOVERRIDES))
@@ -180,6 +175,12 @@ endif
 
 -include $(ABSWS)/local.cfg
 -include $(PRJROOT)/local.cfg
+
+# process BUILDCHAIN after re-include because NDUSELIB can be resetted
+ifneq ($(BUILDCHAIN),)
+NDUSELIB+=$(BUILDCHAIN)
+VFLAVOR+= $(BUILDCHAIN)
+endif
 
 PRJOBJDIR=$(TRDIR)/obj
 MODULE_MK_DIR=$(PRJOBJDIR)/_dependencies
