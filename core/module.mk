@@ -262,34 +262,39 @@ $(MODULE_MK_OBJ_PATH): module.cfg
 $(MODULE_MK_PATH): $(MODULE_MK_OBJ_PATH) $(DEPS_LIBS_MK) module.cfg
 	@$(ABS_PRINT_debug) "Creation of project module $@"
 	@mkdir -p $(@D)
-	@echo "" > $@.tmp
+	@echo "ifeq (\$$(filter $(APPNAME)_$(MODNAME),\$$(MODULE_MK_READ)),)" > $@.tmp
+	@echo "MODULE_MK_READ+=$(APPNAME)_$(MODNAME)" >> $@.tmp
 	@$(foreach modMk,$(DEPS_LIBS_MK),echo "-include $(modMk)" >> $@.tmp;)
 	@echo "ABS_INCLUDE_MODS+=$(sort $(DEFAULT_ABS_EXISTING_LIBS))" >> $@.tmp
 	@echo "_app_$(APPNAME)_dir:=$(TRDIR)" >> $@.tmp
 	@echo "_module_$(APPNAME)_$(MODNAME)_dir:=$(TRDIR)" >> $@.tmp
+	@echo "endif" >> $@.tmp
 	@mv $@.tmp $@
 	
 $(MODULE_MK_TEST_PATH): $(MODULE_MK_OBJ_PATH) $(DEPS_TESTLIBS_MK) module.cfg
 	@$(ABS_PRINT_debug) "Creation of project test module $@"
 	@mkdir -p $(@D)
-	@echo "" > $@.tmp
+	@echo "ifeq (\$$(filter $(APPNAME)_$(MODNAME),\$$(MODULE_MK_TEST_READ)),)" > $@.tmp
+	@echo "MODULE_MK_TEST_READ+=$(APPNAME)_$(MODNAME)" >> $@.tmp
 	@$(foreach modMk,$(DEPS_TESTLIBS_MK),echo "-include $(modMk)" >> $@.tmp;)
 	@echo "ABS_INCLUDE_TESTMODS+=$(sort $(DEFAULT_ABS_EXISTING_TESTLIBS) $(DEFAULT_ABS_EXISTING_LIBS))" >> $@.tmp
 	@echo "_app_$(APPNAME)_dir:=$(TRDIR)" >> $@.tmp
 	@echo "_module_$(APPNAME)_$(MODNAME)_dir:=$(TRDIR)" >> $@.tmp
+	@echo "endif" >> $@.tmp
 	@mv $@.tmp $@
 
 $(PROJDEPS_MODS_MK): $(DEPENDENCY_FILE)
 
 PROJECT_MODS_LINED=$(subst $(_space_),|,$(PROJECT_MODS))
 define createModuleMkFile
-	$(call __createModuleMkFile,$1,echo "|$(PROJECT_MODS_LINED)|" | grep -q "|$*|")
+	$(call __createModuleMkFile,$1,echo "|$(PROJECT_MODS_LINED)|" | grep -q "|$*|",$2)
 endef
 
 define __createModuleMkFile
 	@$2 && $(ABS_PRINT_debug) "Reading of $@ (project module)" || $(ABS_PRINT_debug) "Creation of $@ (external module)"
 	@$2 || mkdir -p $(@D)
-	@$2 || echo "" > $@.tmp
+	@$2 || echo "ifeq (\$$(filter $*,\$$($3)),)" > $@.tmp
+	@$2 || echo "$3+=$*" >> $@.tmp
 	@# when _module_$*_depends exists, use it to get dependencies of the module/app.
 	@$2 || test -z "$(_module_$*_depends)" || (\
 		$(foreach depend,$(sort $(_module_$*_depends)),echo "-include $(@D)/module_$(depend).mk" >> $@.tmp &&) \
@@ -301,16 +306,17 @@ define __createModuleMkFile
 	@# These variables to permit app.mk to find module/app
 	@$2 || test -z "$(_app_$*_dir)" || echo "_app_$*_dir?=$(_app_$*_dir)" >> $@.tmp
 	@$2 || test -z "$(_module_$*_dir)" || echo "_module_$*_dir?=$(_module_$*_dir)" >> $@.tmp
+	@$2 || echo "endif" >> $@.tmp
 	@$2 || mv $@.tmp $@
 endef
 
 # this rule only execute its command if the mod is not a project mod. 
 # (one rule because cannot distinct modules of two project with almost same name ex: 'proj' and 'proj_lkm')
 $(MODULE_MK_DIR)/module_%.mk:
-	$(call createModuleMkFile,ABS_INCLUDE_MODS)
+	$(call createModuleMkFile,ABS_INCLUDE_MODS,MODULE_MK_READ)
 	
 $(MODULE_MK_TEST_DIR)/module_%.mk:
-	$(call createModuleMkFile,ABS_INCLUDE_TESTMODS)
+	$(call createModuleMkFile,ABS_INCLUDE_TESTMODS,MODULE_MK_TEST_READ)
 
 ifneq ($(INCTESTS),)
 
