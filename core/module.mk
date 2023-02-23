@@ -220,7 +220,9 @@ DEPS_LIBS_MK=$(foreach mod,$(DEFAULT_ABS_EXISTING_LIBS),$(MODULE_MK_DIR)/module_
 DEPS_TESTLIBS_MK=$(foreach mod,$(DEFAULT_ABS_EXISTING_TESTLIBS) $(DEFAULT_ABS_EXISTING_LIBS),$(MODULE_MK_TEST_DIR)/module_$(mod).mk)
 PROJDEPS_MODS_MK=$(foreach mod,$(PROJECT_MODS),$(MODULE_MK_DIR)/module_$(mod).mk)
 
-ALL_DEPS_SRC_FILES=$(foreach mod,$(filter-out $(MODNAME),$(MODULES_DEPS)),$(wildcard $(PRJROOT)/$(mod)/src/*) $(wildcard $(PRJROOT)/$(mod)/include/*))
+# these variables permit to trig the dependencies compilation if a file changed in one other module.
+ALL_DEPS_SRC_DIRS=src include etc
+ALL_DEPS_SRC_FILES=$(foreach mod,$(filter-out $(MODNAME),$(MODULES_DEPS)),$(foreach dir,$(ALL_DEPS_SRC_DIRS),$(shell find $(PRJROOT)/$(mod)/$(dir)/ -type f 2> /dev/null)))
 
 CURRENT_DEPENDENCY_FILE:=$(PRJOBJDIR)/currentDependencies
 
