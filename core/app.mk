@@ -36,8 +36,8 @@ PREFIX=/opt/$(APPNAME)-$(VERSION)
 
 ##  - DIST_EXCLUDE: pattern for files to be excluded on packaging.
 ##      (default: share/*/tex)
-DIST_EXCLUDE:=share/doc/$(APPNAME)/tex obj extlib extlib.nodist
-INSTALLTAR_EXCLUDE:=.abs import.mk
+DIST_EXCLUDE+=share/doc/$(APPNAME)/tex obj extlib extlib.nodist
+INSTALLTAR_EXCLUDE+=.abs import.mk
 ##  - LIGHT_INSTALLER: when set to 1, add share/*/doxygen and include to the 
 ##      list of file to exclude on packaging.
 ifeq ($(LIGHT_INSTALLER),1)
@@ -140,24 +140,31 @@ All:
 
 ##  - clean: deletes all built files and build process outputs
 # User can have not the right to modify permission, but have the right to remove elements. => not failed on chmod error.
-clean:
-	@$(ABS_PRINT_info) "Cleaning ..."
+clean: cleandist cleanbuild
+
+
+cleanbuild:
+	@$(ABS_PRINT_info) "Cleaning build ..."
 	@$(ABS_PRINT_info) "Changing permissions of build"
-	@-if [ -d build ]; then chmod -R u+w build 2> /dev/null; fi
-	@$(ABS_PRINT_info)  "Changing permissions of dist"
-	@-if [ -d dist ]; then chmod -R u+w dist 2> /dev/null; fi
+	@-test ! -d build || chmod -R u+w build 2> /dev/null
 	@$(ABS_PRINT_info) "Removing build"
 	@rm -rf build
+
+cleandist:
+	@$(ABS_PRINT_info) "Cleaning dist ..."
+	@$(ABS_PRINT_info) "Changing permissions of dist"
+	@-test ! -d dist || chmod -R u+w dist 2> /dev/null
 	@$(ABS_PRINT_info) "Removing dist"
 	@rm -rf dist
 
-$(BUILDROOT)/.abs/moddeps.mk:
+
+$(PRJOBJDIR)/moddeps.mk:
 	@$(ABS_PRINT_info) "Generating module dependencies file."
 	@mkdir -p $(@D)
-	@for mod in $(patsubst mod.%,%,$(MODULES_DEPS)) ; do \
+	@+for mod in $(patsubst mod.%,%,$(MODULES_DEPS)) ; do \
 	make OBJDIR=$(PRJOBJDIR)/$$mod INCLUDE_EXTLIB=false PRJROOT=$(PRJROOT) MODROOT=$(PRJROOT)/$$mod ABSROOT=$(ABSROOT) -C $$mod generateAppModsNeeds --makefile $(ABSROOT)/core/module-depends_standalone.mk --no-print-directory && \
-	printf "mod.$$mod:: " >> $@.tmp && \
-	cat $(PRJOBJDIR)/$$mod/moddeps.needs >> $@.tmp && echo "" >> $@.tmp; \
+	echo "mod.$$mod:: \$$(patsubst %,mod.%,"`head -n 1 $(PRJOBJDIR)/$$mod/moddeps.needs`")" >> $@.tmp && \
+	echo "" >> $@.tmp; \
 	done
 	@mv $@.tmp $@
 
@@ -167,12 +174,12 @@ mod.%::
 	@mkdir -p $(TRDIR)/.abs/content
 	@touch $(TRDIR)/obj/$*/files.ts
 	make $(MMARGS) MODE=$(MODE) -C $* DEPS_MNGMT_LEVEL=DISABLED
-	@find $(TRDIR) -type f -cnewer $(TRDIR)/obj/$*/files.ts | grep -v $(TRDIR)/obj | sed 's~$(TRDIR)/~~g' | grep -E -v "$(subst *,.*,$(subst $(_space_),|,$(DIST_EXCLUDE)))" > $(TRDIR)/.abs/content/$(APPNAME)_$*.filelist || true
+	@find $(TRDIR) -type f -cnewer $(TRDIR)/obj/$*/files.ts | grep -v $(TRDIR)/obj | sed 's~$(TRDIR)/~~g' | grep -E -v "^$(subst *,.*,$(subst $(_space_),|,$(DIST_EXCLUDE)))" > $(TRDIR)/.abs/content/$(APPNAME)_$*.filelist || true
 	@$(if $(filter $*,$(EXPMOD)),test ! -d $*/include || find $*/include -type f | sed 's~^$*/~~g' >> $(TRDIR)/.abs/content/$(APPNAME)_$*.filelist)
 	@rm -f $(TRDIR)/obj/$*/files.ts
 
 ifeq ($(filter clean% docker%,$(MAKECMDGOALS)),)
-include $(BUILDROOT)/.abs/moddeps.mk
+include $(PRJOBJDIR)/moddeps.mk
 endif
 
 # depends on mod.% to compile dependencies of module.

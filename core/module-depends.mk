@@ -22,4 +22,4 @@ ALL_NEEDED_MODS:=$(sort $(patsubst $(APPNAME)_%,%,$(filter $(PROJECT_MODS),$(DEF
 
 generateAppModsNeeds:
 	@mkdir -p $(OBJDIR)
-	@echo $(patsubst %,mod.%,$(ALL_NEEDED_MODS)) > $(OBJDIR)/moddeps.needs
+	@echo $(ALL_NEEDED_MODS) > $(OBJDIR)/moddeps.needs
