@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<cr id="71f4176ab9692bdc39092679646c812b11c8ebc89a93e8b10a39dafed2ca5eb1" state="working">
+<cr id="71f4176ab9692bdc39092679646c812b11c8ebc89a93e8b10a39dafed2ca5eb1" state="closed" delivered="abs-3.3.22">
 <title>Regression on 1st dependencies download from bootstrap</title>
 <reporter>devaux</reporter>
 <creation>2023-02-24 13:53:23+01:00</creation>
