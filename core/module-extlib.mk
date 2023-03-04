@@ -265,6 +265,7 @@ endif
 # external libraries are expected before starting compilation.
 $(OBJS): $(EXTLIBMAKES)
 
+
 # --------------------------------
 # Print warning or fail according strict checking mode when
 # USELIB check has detected inconsistencies
@@ -330,3 +331,10 @@ checkdep:
 	@$(ABS_PRINT_info) "No dependencies set in USELIB project parameter."
 endif
 endif
+
+##  - getdep: download dependencies
+getdep: $(EXTLIBMAKES)
+	@:
+
+getdeps: $(EXTLIBMAKES)
+	@:
