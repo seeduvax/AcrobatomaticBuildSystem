@@ -161,6 +161,7 @@ cleandist:
 $(PRJOBJDIR)/moddeps.mk:
 	@$(ABS_PRINT_info) "Generating module dependencies file."
 	@mkdir -p $(@D)
+	@echo "# "`date` > $@.tmp
 	@+for mod in $(patsubst mod.%,%,$(MODULES_DEPS)) ; do \
 	make OBJDIR=$(PRJOBJDIR)/$$mod INCLUDE_EXTLIB=false PRJROOT=$(PRJROOT) MODROOT=$(PRJROOT)/$$mod ABSROOT=$(ABSROOT) -C $$mod generateAppModsNeeds --makefile $(ABSROOT)/core/module-depends_standalone.mk --no-print-directory && \
 	echo "mod.$$mod:: \$$(patsubst %,mod.%,"`head -n 1 $(PRJOBJDIR)/$$mod/moddeps.needs`")" >> $@.tmp && \
