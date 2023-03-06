@@ -8,6 +8,7 @@
 ##        python3 first, then fallback on default host system's python.
 PP?=$(shell which python3 2>/dev/null)
 ifeq ($(PP),)
+# XXX how is that a wildcard..? and in what world which won't find this?
 PP:=$(wildcard /usr/bin/python3)
 ifeq ($(PP),)
 PP:=$(shell which python 2>/dev/null)
@@ -75,8 +76,9 @@ $(PY_MODULE_EXE):
 realpath=\`readlink -f \$$0\`\n\
 bin=\`dirname \$$realpath\`\n\
 dir=\`dirname \$$bin\`\n\
-# the following command may fail if PYTHONPATH variable isn't initialized. To do so: type 'export PYTHONPATH='\n\
-PYTHONPATH=\$$dir/lib/python:\$$PYTHONPATH;LD_LIBRARY_PATH=\$$dir/lib:\$$LD_LIBRARY_PATH;$(PP) \$$dir/lib/python/$(APPNAME)/$(MODNAME) \$$*">$@
+export PYTHONPATH=\$$dir/lib/python:\$${PYTHONPATH}\n\
+export LD_LIBRARY_PATH=\$$dir/lib:\$${LD_LIBRARY_PATH}\n\
+$(PP) \$$dir/lib/python/$(APPNAME)/$(MODNAME) \$$*" > $@
 	@chmod +x $@
 
 # PYTHON MODULE BYTECODE COMPILATION RULES 
