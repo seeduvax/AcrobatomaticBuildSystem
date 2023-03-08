@@ -33,7 +33,7 @@ public:
     ABS_TEST_CASE_END
 
 /* Test case template, uncomment and complete according this pattern for each test case
-    //ABS_TEST_CASE_BEGIN(NameOfTestCase)
+    ABS_TEST_CASE_BEGIN(NameOfTestCase)
         ABS_TEST_DESCR(Test case description)
         ABS_TEST_CASE_REQ(req.id) // one entry for eache requrement checked by this case
         // init/call service / function to be tested and collect results
