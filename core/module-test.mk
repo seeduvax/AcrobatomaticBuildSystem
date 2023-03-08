@@ -111,7 +111,7 @@ $(OBJDIR)/test/%.o: test/%.cpp
 	@$(ABS_PRINT_info) "Compiling test $< ..."
 	@mkdir -p $(@D)
 	@echo `date --rfc-3339 s`"> $(CPPC) $(CXXFLAGS) $(CFLAGS) $(TCFLAGS) -c $< -o $@" >> $(BUILDLOG)
-	@grep -E "ABS_TEST_.*_BEGIN|ABS_TEST_SUITE_END" $< | cpp -include $(ABSROOT)/core/include/abs/testdef2cppunitdecl.h | sed -e '/^#/d;s/!$$//g;s/ !!!/\n!!!/g;s/!!!/#/g' > $(patsubst %.o,%.h,$@)
+	@grep -v "#\s*include" $< | cpp -E | grep -E "ABS_TEST_.*_BEGIN|ABS_TEST_SUITE_END" | cpp -include $(ABSROOT)/core/include/abs/testdef2cppunitdecl.h | sed -e '/^#/d;s/!$$//g;s/ !!!/\n!!!/g;s/!!!/#/g' > $(patsubst %.o,%.h,$@)
 	@$(CPPC) $(CXXFLAGS) $(CFLAGS) $(TCFLAGS) -include $(patsubst %.o,%.h,$@) -MMD -MF $@.d -c $< -o $@ \
 	&& ( cp $@.d $@.d.tmp ; sed -e 's/#.*//' -e 's/^[^:]*: *//' -e 's/ *\\$$//' -e '/^$$/ d' -e 's/$$/ :/' $@.d.tmp >> $@.d ; rm $@.d.tmp ) \
 	|| ( $(ABS_PRINT_error) "Failed: CFLAGS=$(CXXFLAGS) $(CFLAGS) $(TCFLAGS)" ; exit 1 )
