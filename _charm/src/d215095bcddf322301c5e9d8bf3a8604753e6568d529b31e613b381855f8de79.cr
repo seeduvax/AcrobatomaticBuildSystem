@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<cr id="d215095bcddf322301c5e9d8bf3a8604753e6568d529b31e613b381855f8de79" state="working">
+<cr id="d215095bcddf322301c5e9d8bf3a8604753e6568d529b31e613b381855f8de79" state="resolved">
 <title>Cannot compile test after the creation with newtest rule</title>
 <reporter>fred</reporter>
 <creation>2023-03-08 13:24:16+01:00</creation>
