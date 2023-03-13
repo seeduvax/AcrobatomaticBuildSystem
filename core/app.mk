@@ -368,8 +368,8 @@ kdistinstall: $(KDISTINSTALL_BINARY)
 
 endif
 
-$(KDISTINSTALL_BINARY): $(INSTALL_TMP_DIR)/import.mk
-	tar -C $(INSTALL_TMP_DIR) $(DISTTARFLAGS) -cvzf "$@.tmp2" etc/ lib/
+$(KDISTINSTALL_BINARY): $(DIST_FLATTEN_DIR)/import.mk
+	tar -C $(DIST_FLATTEN_DIR) $(DISTTARFLAGS) -cvzf "$@.tmp2" etc/ lib/
 	sed -e 's/__app__/$(APPNAME)/g' $(ABSROOT)/core/kinstall-template.sh | sed -e 's/__version__/$(VERSION)/g' | sed -e 's/__kversion__/$(KVERSION)/g' > "$@.tmp"
 	cat "$@.tmp2" >> "$@.tmp"
 	chmod +x "$@.tmp"
