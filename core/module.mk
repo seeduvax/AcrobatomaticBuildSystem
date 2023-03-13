@@ -318,6 +318,8 @@ $(MODULE_MK_DIR)/module_%.mk:
 $(MODULE_MK_TEST_DIR)/module_%.mk:
 	$(call createModuleMkFile,ABS_INCLUDE_TESTMODS,MODULE_MK_TEST_READ)
 
+ifeq ($(filter clean%,$(MAKECMDGOALS)),)
+
 ifneq ($(INCTESTS),)
 
 include $(MODULE_MK_TEST_PATH)
@@ -332,3 +334,5 @@ $(SRCFILES): $(MODULE_MK_PATH) $(MODULE_MK_TEST_PATH)
 else
 all: $(MODULE_MK_PATH) $(MODULE_MK_TEST_PATH)
 endif
+
+endif # ifeq ($(filter clean%,$(MAKECMDGOALS)),)
