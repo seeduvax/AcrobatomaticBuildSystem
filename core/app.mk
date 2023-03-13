@@ -319,10 +319,10 @@ $(INSTALL_TMP_DIR)/import.mk: $(DIST_FLATTEN_DIR)/import.mk
 	@$(ABS_PRINT_info) "Copying file tree..."
 	@tar -cf - $(patsubst %,--exclude %,obj extlib extlib.nodist import.mk) -C $(<D) . | tar -C $(@D) -xf -
 	@$(ABS_PRINT_info)  "Copying dependencies..."
-	@for lib in `ls $(EXTLIBDIR) | fgrep -v cppunit-` ; do \
-	if [ ! -d $(EXTLIBDIR)/$$lib ]; then \
+	@test ! -d $(DIST_FLATTEN_DIR)/extlib || for lib in `ls $(DIST_FLATTEN_DIR)/extlib | fgrep -v cppunit-` ; do \
+	if [ ! -d $(DIST_FLATTEN_DIR)/extlib/$$lib ]; then \
 	$(ABS_PRINT_info) "  Processing $$lib..." ; \
-	cp $(EXTLIBDIR)/$$lib $(@D)/lib ; \
+	cp $(DIST_FLATTEN_DIR)/extlib/$$lib $(@D)/lib ; \
 	fi; \
 	done
 	@cp $< $@
