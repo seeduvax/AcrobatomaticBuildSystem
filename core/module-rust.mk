@@ -1,6 +1,8 @@
 $(info Rust module detected)
 
-
+# ---------------------------------------------------------------------
+# Common Rust variables and dependency management
+# ---------------------------------------------------------------------
 ifeq ($(ISWINDOWS),true)
 SOEXT=.dll
 else
@@ -35,10 +37,13 @@ TARGET=$(APPNAME)_$(MODNAME)
 endif
 
 TARGETFILE:=$(TARGETDIR)/$(TARGET)
+DOCTARGET:=$(TRDIR)/rustdoc/$(APPNAME)_$(MODNAME)
 
 RUSTSRCFILES:=$(filter %.rs,$(SRCFILES))
 
 RUSTC=rustc
+
+RUSTDOC=rustdoc
 
 RUSTLIBDIR=$(TRDIR)/lib
 
@@ -99,6 +104,9 @@ debug:: all
 endif
 
 
+# ---------------------------------------------------------------------
+# Build rule
+# ---------------------------------------------------------------------
 $(TARGETFILE): $(RUSTSRCFILES)
 	@$(ABS_PRINT_info) "Rust compile $(CRATETYPE) from src/$(ENTRYFILENAME).rs"
 	@mkdir -p $(@D)
@@ -107,6 +115,19 @@ $(TARGETFILE): $(RUSTSRCFILES)
 
 all-impl:: $(TARGETFILE) 
 
+
+# ---------------------------------------------------------------------
+# Doc rule
+# ---------------------------------------------------------------------
+doc:
+	@$(ABS_PRINT_info) "Generating Rust docs for $(APPNAME)_$(MODNAME)"
+	mkdir -p $(DOCTARGET)
+	$(RUSTDOC) --edition=$(EDITION) --crate-name $(MODNAME) --crate-type $(CRATETYPE) $(RUSTLIBS) src/$(ENTRYFILENAME).rs -o $(DOCTARGET)
+
+
+# ---------------------------------------------------------------------
+# Include test module
+# ---------------------------------------------------------------------
 ifneq ($(INCTESTS),)
 include $(ABSROOT)/core/module-testrust.mk
 endif
