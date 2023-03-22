@@ -53,6 +53,52 @@ ifeq ($(MODE),release)
 RUSTFLAGS+=-O
 endif
 
+
+# ---------------------------------------------------------------------
+# Run & debug rules
+# ---------------------------------------------------------------------
+RUNTIME_PROLOG?=:
+RUNTIME_EPILOG?=:
+ifeq ($(CRATETYPE),bin)
+# run application
+run:: all
+	@$(ABS_PRINT_info) "Starting $(TARGETFILE) $(RUNARGS)"
+	@$(RUNTIME_PROLOG)
+	@LD_LIBRARY_PATH=$(LDLIBP) $(RUNTIME_ENV) $(TARGETFILE) $(RUNARGS) \
+      || $(ABS_PRINT_error) "Run failed: $(TARGETFILE) $(RUNARGS)"
+	@$(RUNTIME_EPILOG)
+
+# run application with gdb
+debug:: $(TARGETFILE)
+	@printf "define runapp\nrun $(RUNARGS)\nend\n" > cmd.gdb
+	@printf "\e[1;4mUse runapp command to launch app from gdb\n\e[37;37;0m"
+	@LD_LIBRARY_PATH=$(LDLIBP) $(RUNTIME_ENV) gdb $(TARGETFILE) -x cmd.gdb
+	@rm cmd.gdb
+
+# print eclipse setup
+.PHONY:	edebug
+edebug:
+	@echo "**** Eclipse debugger setup : ****"
+	@echo
+	@printf "Application:\t\t"
+	@echo "$(patsubst $(PRJROOT)/%,%,$(TARGETFILE))"
+	@printf "Arguments:\t\t"
+	@echo $(RUNARGS)
+	@echo
+	@echo "* Environment (replace native) :"
+	@echo
+	@printf "LD_LIBRARY_PATH\t"
+	@echo "$(subst $(eval) ,:,$(foreach entry,$(subst :, ,$(LDLIBP)),$(patsubst $(PRJROOT)/%,%,$(entry))))"
+else
+# don't run a library !
+run:: all
+	$(ABS_PRINT_error) "won't run a library !"
+
+debug:: all
+	$(ABS_PRINT_error) "won't debug a library !"
+endif
+
+
 $(TARGETFILE): $(RUSTSRCFILES)
 	@$(ABS_PRINT_info) "Rust compile $(CRATETYPE) from src/$(ENTRYFILENAME).rs"
 	@mkdir -p $(@D)
