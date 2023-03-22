@@ -106,3 +106,8 @@ $(TARGETFILE): $(RUSTSRCFILES)
         $(ABS_PRINT_info) "Rust crate built: $@"
 
 all-impl:: $(TARGETFILE) 
+
+ifneq ($(INCTESTS),)
+include $(ABSROOT)/core/module-testrust.mk
+endif
+
