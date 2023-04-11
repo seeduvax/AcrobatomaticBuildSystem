@@ -3,8 +3,10 @@
 # ---------------------------------------------------------------------
 ifeq ($(ISWINDOWS),true)
 SOEXT=.dll
+EXEEXT=.exe
 else
 SOEXT=.so
+EXEEXT=
 endif
 
 # Initialize name of rustc entry file
@@ -24,14 +26,26 @@ endif
 
 ifeq ($(CRATETYPE),dylib)
 TARGETDIR:=$(TRDIR)/lib
+ifeq ($(APPNAME),$(MODNAME))
+TARGET=lib$(APPNAME)$(SOEXT)
+else
 TARGET=lib$(APPNAME)_$(MODNAME)$(SOEXT)
+endif
 else ifeq ($(CRATETYPE),rlib)
 TARGETDIR:=$(TRDIR)/lib
+ifeq ($(APPNAME),$(MODNAME))
+TARGET=lib$(APPNAME).rlib
+else
 TARGET=lib$(APPNAME)_$(MODNAME).rlib
+endif
 else
 ENTRYFILENAME=main
 TARGETDIR:=$(TRDIR)/bin
-TARGET=$(APPNAME)_$(MODNAME)
+ifeq ($(APPNAME),$(MODNAME))
+TARGET=$(APPNAME)$(EXEEXT)
+else
+TARGET=$(APPNAME)_$(MODNAME)$(EXEEXT)
+endif
 endif
 
 TARGETFILE:=$(TARGETDIR)/$(TARGET)
