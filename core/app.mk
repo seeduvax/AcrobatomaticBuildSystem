@@ -252,7 +252,7 @@ $(DIST_FLATTEN_DIR)/import.mk: $(DIST_FLATTEN_DIR)/obj/compiled
 	@test -f export.mk || for mod in $(foreach mod,$(DIST_MODS),"$(mod)"); do \
 		test ! -f $(@D)/obj/$$mod/module.mk || cat $(@D)/obj/$$mod/module.mk >> $@.tmp; \
 	done
-	@test -f export.mk || printf '$(subst $(_space_),\n,$(foreach mod,$(DIST_MODS),_module_$(APPNAME)_$(mod)_dir:=$$(_app_$(APPNAME)_dir)))\n\n' >> $@.tmp
+	@test -f export.mk || printf '$(subst $(_space_),\n,$(foreach mod,$(DIST_MODS) _extra,_module_$(APPNAME)_$(mod)_dir:=$$(_app_$(APPNAME)_dir)))\n\n' >> $@.tmp
 	@test -f export.mk || printf '$(_extra_import_defs_)\n\n' >> $@.tmp
 	@touch $(@D)/obj/extraFiles.ts
 	@if [ -x extradist.sh ]; then VERSION=$(VERSION) APP=$(APPNAME) APPNAME=$(APPNAME) ./extradist.sh `dirname $@`; fi
