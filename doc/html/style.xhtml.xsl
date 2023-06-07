@@ -228,9 +228,9 @@ include(<xsl:value-of select="@src"/>.txt)
 <xsl:template match="up"><xsl:value-of select="."/>&#160;</xsl:template><xsl:template match="req">
 <xsl:choose>
 <xsl:when test="@id!=''">
-<div class="req">
+<div class="req{@state}">
 <table><tr>
-<th><a name="req.{@id}"><xsl:value-of select="@id"/></a></th><td><xsl:apply-templates select="text()|*[not(self::up)]"/></td>
+<th><a name="req.{@id}"><xsl:value-of select="@id"/>&#160;<xsl:value-of select="@state"/><xsl:if test="@replaced-by!=''">&#160;replaced&#160;by:&#160;<xsl:value-of select="@replaced-by"/></xsl:if></a></th><td><xsl:apply-templates select="text()|*[not(self::up)]"/></td>
 </tr>
 <xsl:if test="count(up)&gt;0">
 <tr>

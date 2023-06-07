@@ -71,6 +71,8 @@ Add here an include example
 {def %entry=two %%2nd number}
   }
   {section %title=Requirements
+{req %id=req.del %state=removed %%Messages shall be sent by pigeons.}
+{req %id=req.replaced %state=removed %replaced-by=req.1 %%A requirement shall not be too long} 
 {req %id=req.1 
 {up uprec.A}
 {up uprec.C}
