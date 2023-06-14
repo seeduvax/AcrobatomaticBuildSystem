@@ -225,12 +225,17 @@ include(<xsl:value-of select="@src"/>.txt)
 <!--************************************************
      	requirements
 -->
-<xsl:template match="up"><xsl:value-of select="."/>&#160;</xsl:template><xsl:template match="req">
+<xsl:template match="up"><xsl:value-of select="."/>&#160;</xsl:template>
+<xsl:template match="req">
+<xsl:param name="style"><xsl:choose>
+<xsl:when test="@state!=''"><xsl:value-of select="@state"/></xsl:when>
+<xsl:when test="@replaced-by!=''">removed</xsl:when>
+</xsl:choose></xsl:param>
 <xsl:choose>
 <xsl:when test="@id!=''">
-<div class="req{@state}">
+<div class="req{$style}">
 <table><tr>
-<th><a name="req.{@id}"><xsl:value-of select="@id"/>&#160;<xsl:value-of select="@state"/><xsl:if test="@replaced-by!=''">&#160;replaced&#160;by:&#160;<xsl:value-of select="@replaced-by"/></xsl:if></a></th><td><xsl:apply-templates select="text()|*[not(self::up)]"/></td>
+<th><a name="req.{@id}"><xsl:value-of select="@id"/>&#160;<xsl:if test="@state!='' or @replace-by!='' or @cr!=''">[<xsl:value-of select="@state"/><xsl:if test="@replaced-by!=''">&#160;replaced&#160;by:&#160;<xsl:value-of select="@replaced-by"/></xsl:if>&#160;<xsl:value-of select="@cr"/>]</xsl:if></a></th><td><xsl:apply-templates select="text()|*[not(self::up)]"/></td>
 </tr>
 <xsl:if test="count(up)&gt;0">
 <tr>
@@ -283,18 +288,19 @@ include(<xsl:value-of select="@src"/>.txt)
 
 <!-- internal requirement coverage matrix -->
 <xsl:template match="req" mode="index">
+  <xsl:param name="style"><xsl:if test="@state='removed' or @replaced-by!=''">removed</xsl:if></xsl:param>
 <xsl:if test="@id!=''">
   <xsl:variable name="rid"><xsl:value-of select="@id"/></xsl:variable>
   <xsl:variable name="trclass"><xsl:choose>
 	<xsl:when test="(position() + 1) mod 2 = 0">even</xsl:when>
 	<xsl:otherwise>odd</xsl:otherwise>
   </xsl:choose></xsl:variable>
-  <tr class="{$trclass}"><td><xsl:call-template name="reqref"><xsl:with-param name="rid"><xsl:value-of select="@id"/></xsl:with-param></xsl:call-template></td><td>
+  <tr class="{$trclass}"><td class="{$style}"><xsl:call-template name="reqref"><xsl:with-param name="rid"><xsl:value-of select="@id"/></xsl:with-param></xsl:call-template><xsl:if test="@state!='' or @replace-by!='' or @cr!=''"> [<xsl:value-of select="@state"/><xsl:if test="@replaced-by!=''"><xsl:text> </xsl:text>replaced by: <xsl:value-of select="@replaced-by"/></xsl:if><xsl:text> </xsl:text><xsl:value-of select="@cr"/>]</xsl:if></td><td class="{$style}">
     <xsl:choose>
       <xsl:when test="count(//req[text()=$rid])&gt;0">
 	<xsl:apply-templates select="//req[text()=$rid]/.." mode="index"/>
       </xsl:when>
-      <xsl:otherwise>No reference.</xsl:otherwise>
+      <xsl:otherwise><xsl:if test="$style!='removed'">No reference.</xsl:if></xsl:otherwise>
     </xsl:choose>
   </td></tr>
 </xsl:if>

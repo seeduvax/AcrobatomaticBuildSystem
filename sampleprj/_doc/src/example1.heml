@@ -7,6 +7,9 @@
  {keywords documentation, word processing, pdf} 
  {author %sigle=ACME %%Sebastien DEVAUX}
  {history
+   {edition %version=3 %date=2023-06-08
+Change request #4771050: added examples of requirement management attributes.
+   }
    {edition %version=2 %date=2018-04-30
 Added test procedure section (§{xref SecTest}):
   - detailed change information
@@ -71,9 +74,9 @@ Add here an include example
 {def %entry=two %%2nd number}
   }
   {section %title=Requirements
-{req %id=req.del %state=removed %%Messages shall be sent by pigeons.}
-{req %id=req.replaced %state=removed %replaced-by=req.1 %%A requirement shall not be too long} 
-{req %id=req.1 
+{req %id=req.del %state=removed %cr=4771050 %%Messages shall be sent by pigeons.}
+{req %id=req.replaced %replaced-by=req.1 %cr=4771050 %%A requirement shall not be too long} 
+{req %id=req.1 %cr=4771050
 {up uprec.A}
 {up uprec.C}
 A requirement shall be a short sentence defining a single characteristic of the specified {kw object}.
@@ -123,7 +126,10 @@ is needed to check line wrap}.
 {tbc tbc as a standalone paragraph.}
 
 %{tbc tbc starting a new pargraph.} And the paragraph complement.
-  }
+
+Inline reference to requirements (to be checked in coverage matrix): 
+[{req req.1}{req req.4}]
+  } 
   {section %title=Tables
 {table %title=Example of table %xref=TableEX
 {tr

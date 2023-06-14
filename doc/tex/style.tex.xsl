@@ -288,9 +288,10 @@ TBD<xsl:value-of select="count(preceding::tbd)+1"/> &amp; \S\ref{tbd.<xsl:value-
      	requirements
 -->
 <xsl:template match="req">
+<xsl:param name="style"><xsl:if test="@state='removed' or @replaced-by!=''">Removed</xsl:if></xsl:param>
 <xsl:choose>
 <xsl:when test="@id!=''">
-\HEMLrequirement{<xsl:apply-templates select="@id"/>}{
+\HEMLrequirement<xsl:value-of select="$style"/>{<xsl:apply-templates select="@id"/><xsl:if test="@state!='' or @replace-by!='' or @cr!=''"> [<xsl:value-of select="@state"/><xsl:if test="@replaced-by!=''"><xsl:text> </xsl:text>replaced by: <xsl:value-of select="@replaced-by"/></xsl:if><xsl:text> </xsl:text><xsl:value-of select="@cr"/>]</xsl:if>}{
 <xsl:apply-templates select="text()|*[not(self::up)]"/>
 }{<xsl:if test="count(up)&gt;0">
 \textbf{Upward req.:} <xsl:apply-templates select="up"/>
@@ -369,7 +370,11 @@ TBD<xsl:value-of select="count(preceding::tbd)+1"/> &amp; \S\ref{tbd.<xsl:value-
      Reference table
 -->
 <xsl:template match="references">
-\subsection{<xsl:apply-templates select="@title"/>}
+<xsl:call-template name="sectionHead">
+	<xsl:with-param name="title"><xsl:apply-templates select="@title"/></xsl:with-param>
+	<xsl:with-param name="level"><xsl:value-of select="count(ancestor-or-self::section)+count(ancestor-or-self::article)+2"/></xsl:with-param>
+</xsl:call-template>	
+	<xsl:if test="@xref!=''">\label{<xsl:value-of select="@xref"/>}</xsl:if>
 \begin{HEMLtable}{p{0.1\linewidth-2\tabcolsep}p{0.9\linewidth-2\tabcolsep}}
 \hline
 \HEMLoddHeadCell
@@ -405,7 +410,11 @@ TBD<xsl:value-of select="count(preceding::tbd)+1"/> &amp; \S\ref{tbd.<xsl:value-
      Definition table
 -->
 <xsl:template match="definitions">
-\subsection{<xsl:apply-templates select="@title"/>}
+<xsl:call-template name="sectionHead">
+	<xsl:with-param name="title"><xsl:apply-templates select="@title"/></xsl:with-param>
+	<xsl:with-param name="level"><xsl:value-of select="count(ancestor-or-self::section)+count(ancestor-or-self::article)+2"/></xsl:with-param>
+</xsl:call-template>	
+	<xsl:if test="@xref!=''">\label{<xsl:value-of select="@xref"/>}</xsl:if>
 \begin{HEMLtable}{p{0.2\linewidth-2\tabcolsep}p{0.8\linewidth-2\tabcolsep}}
 \hline
 <xsl:apply-templates select="def" mode="detail">
@@ -972,6 +981,7 @@ Unchecked requirements: </xsl:text><xsl:apply-templates select="req|.//assert[tr
 \end{HEMLtable}
 </xsl:template>
 <xsl:template match="req" mode="index">
+  <xsl:param name="style"><xsl:if test="@state='removed' or @replaced-by!=''">Removed</xsl:if></xsl:param>
   <xsl:param name="rid"><xsl:value-of select="@id"/></xsl:param>
 <xsl:if test="@id!=''">
 <xsl:choose>
@@ -982,13 +992,15 @@ Unchecked requirements: </xsl:text><xsl:apply-templates select="req|.//assert[tr
 \HEMLevenRow
   </xsl:otherwise>
 </xsl:choose>
-  <xsl:apply-templates select="@id"/>&amp;
+  <xsl:if test="$style='Removed'">\footnotesize{\textit{</xsl:if><xsl:apply-templates select="@id"/><xsl:if test="@state!='' or @replace-by!='' or @cr!=''"> [<xsl:value-of select="@state"/><xsl:if test="@replaced-by!=''"><xsl:text> </xsl:text>replaced by: <xsl:value-of select="@replaced-by"/></xsl:if><xsl:text> </xsl:text><xsl:value-of select="@cr"/>]</xsl:if><xsl:if test="$style='Removed'">}}</xsl:if>&amp;
+    <xsl:if test="$style='Removed'">\footnotesize{\textit{</xsl:if>
     <xsl:choose>
       <xsl:when test="count(//req[text()=$rid])&gt;0">
 	<xsl:apply-templates select="//req[text()=$rid]/.." mode="index"/>
       </xsl:when>
-      <xsl:otherwise>No reference.</xsl:otherwise>
+      <xsl:otherwise><xsl:if test="$style!='Removed'">No reference.</xsl:if></xsl:otherwise>
     </xsl:choose>
+    <xsl:if test="$style='Removed'">}}</xsl:if>
   \\  
 </xsl:if>
 </xsl:template>
