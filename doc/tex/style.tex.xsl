@@ -976,7 +976,14 @@ Unchecked requirements: </xsl:text><xsl:apply-templates select="req|.//assert[tr
 \HEMLoddHeadCell
 \textbf{Requirement}&amp; \HEMLoddHeadCell \textbf{Referenced by} \\
 \endhead
-  <xsl:apply-templates select="/document/section//req" mode="index"/>
+  <xsl:choose>
+  <xsl:when test='count(.//req)&gt;0'>
+    <xsl:apply-templates select=".//req" mode="index"/>
+  </xsl:when>
+  <xsl:otherwise>
+    <xsl:apply-templates select="/document/section//req" mode="index"/>
+  </xsl:otherwise>
+  </xsl:choose>
 \hline
 \end{HEMLtable}
 </xsl:template>

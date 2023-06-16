@@ -128,7 +128,7 @@ is needed to check line wrap}.
 %{tbc tbc starting a new pargraph.} And the paragraph complement.
 
 Inline reference to requirements (to be checked in coverage matrix): 
-[{req req.1}{req req.4}]
+[{req req.1}{req req.4}{req ext.2}]
   } 
   {section %title=Tables
 {table %title=Example of table %xref=TableEX
@@ -307,6 +307,12 @@ System in operating state.
 {section %title=Requirement references
   {index %type=req}
   {index %type=upreq}
+  {index %type=req
+{req %id=ext.1}
+{section %title=plop
+{req %id=ext.2}
+}
+  }
 }
 {section %title=Open points
   {index %type=tbd}

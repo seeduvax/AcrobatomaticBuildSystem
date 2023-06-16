@@ -258,7 +258,14 @@ include(<xsl:value-of select="@src"/>.txt)
 <xsl:template match="index[@type='req']">
   <table>
   <tr><th>Requirement</th><th>Referenced by</th></tr>
-  <xsl:apply-templates select="/document/section//req" mode="index"/>
+  <xsl:choose>
+  <xsl:when test='count(.//req)&gt;0'>
+    <xsl:apply-templates select=".//req" mode="index"/>
+  </xsl:when>
+  <xsl:otherwise>
+    <xsl:apply-templates select="/document/section//req" mode="index"/>
+  </xsl:otherwise>
+  </xsl:choose>
   </table>
 </xsl:template>
 <xsl:template match="index[@type='upreq']">
