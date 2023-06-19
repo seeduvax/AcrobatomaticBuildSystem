@@ -308,9 +308,15 @@ System in operating state.
   {index %type=req}
   {index %type=upreq}
   {index %type=req
-{req %id=ext.1}
+{req %id=ext.1 %%external requirement 1}
 {section %title=plop
-{req %id=ext.2}
+{req %id=ext.2 %%external requirement 2}
+}
+{section %title=inclosed section
+In this section, the reference to the external requirement are inserted to test
+thoses references shall not be part of the hosting matrix. (because the intend
+use is to include documents and only consider requirement definitions.
+{req ext.1}{req ext.2}
 }
   }
 }
