@@ -53,7 +53,7 @@ define downloadFromURLs
 			$(ABS_PRINT_warning) "$1 not available from $$repo";; \
 		scp:*) srcfile=`echo "$$repo" | cut -f 2,3 -d ':'`;\
 			scp $(SCPFLAGS) $$srcfile $3 && exit 0;;\
-		*) wget -q $(WGETFLAGS) $$repo -O $3 && exit 0 || \
+		*) wget -q $(WGETFLAGS) $$repo -O $3 && touch $3 && exit 0 || \
 			rm -rf $3 ; \
 			 $(ABS_PRINT_warning) "$1 not available from $$repo";; \
 	esac \
@@ -91,7 +91,7 @@ define unpackArchive
 	@$(ABS_PRINT_debug) "$^"
 	@if [ -d $(@D)  ]; then chmod -R u+w $(@D) && rm -rf $(@D); fi
 	@mkdir -p $(@D)
-	@tar -xzf $^ -C $(1) && touch $@
+	@tar -xmzf $^ -C $(1) && touch $@
 	@if [ $(EXTLIBDIR_READONLY) -eq 1 ]; then chmod -R a-w $(@D); else true; fi
 endef
 
