@@ -308,9 +308,12 @@ System in operating state.
   {index %type=req}
   {index %type=upreq}
   {index %type=req
-{req %id=ext.1}
+{req %id=ext.1 %req definition}
 {section %title=plop
 {req %id=ext.2}
+{section %%title=subsection with req ref
+{req ext.1}{req ext.2}
+}
 }
   }
 }

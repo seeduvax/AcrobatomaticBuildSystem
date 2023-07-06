@@ -304,8 +304,8 @@ include(<xsl:value-of select="@src"/>.txt)
   </xsl:choose></xsl:variable>
   <tr class="{$trclass}"><td class="{$style}"><xsl:call-template name="reqref"><xsl:with-param name="rid"><xsl:value-of select="@id"/></xsl:with-param></xsl:call-template><xsl:if test="@state!='' or @replace-by!='' or @cr!=''"> [<xsl:value-of select="@state"/><xsl:if test="@replaced-by!=''"><xsl:text> </xsl:text>replaced by: <xsl:value-of select="@replaced-by"/></xsl:if><xsl:text> </xsl:text><xsl:value-of select="@cr"/>]</xsl:if></td><td class="{$style}">
     <xsl:choose>
-      <xsl:when test="count(//req[text()=$rid])&gt;0">
-	<xsl:apply-templates select="//req[text()=$rid]/.." mode="index"/>
+      <xsl:when test="count(//req[text()=$rid and count(ancestor::index)=0])&gt;0">
+	<xsl:apply-templates select="//req[text()=$rid and count(ancestor::index)=0]/.." mode="index"/>
       </xsl:when>
       <xsl:otherwise><xsl:if test="$style!='removed'">No reference.</xsl:if></xsl:otherwise>
     </xsl:choose>
