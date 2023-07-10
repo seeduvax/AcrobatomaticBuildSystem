@@ -457,7 +457,10 @@ TBD<xsl:value-of select="count(preceding::tbd)+1"/> &amp; \S\ref{tbd.<xsl:value-
 \lstset{language=<xsl:value-of select="$lng"/>}
 \begin{lstlisting}[xleftmargin=0.5cm<xsl:choose><xsl:when 
     test="@title!=''">,caption=<xsl:apply-templates select="@title"/></xsl:when><xsl:otherwise>,nolol</xsl:otherwise></xsl:choose><xsl:if test="@size!=''">,basicstyle=\<xsl:value-of select="@size"/></xsl:if><xsl:if test="@xref!=''">,label=<xsl:value-of select="@xref"/></xsl:if>]<xsl:text>
-</xsl:text><xsl:for-each select="pre"><xsl:value-of select="text()"/></xsl:for-each><xsl:text>
+</xsl:text><xsl:choose>
+<xsl:when test="count(pre)&gt;0"><xsl:for-each select="pre"><xsl:value-of select="text()"/></xsl:for-each></xsl:when>
+<xsl:otherwise><xsl:apply-templates/></xsl:otherwise>
+</xsl:choose><xsl:text>
 </xsl:text>\end{lstlisting}
 </xsl:template>
 <!-- **************************************************

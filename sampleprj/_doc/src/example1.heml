@@ -259,6 +259,11 @@ void Example::helloWorld() {
 function helloWorld()
     print("Hello world !")
 end!}}
+{code %title=one liner code %%1 2 3 4 5}
+{code %title=multi liner code not explictitely preformatted %%1 2 3 4 5
+6 7 8 9
+   2.2 2.3
+10 11 12}
   }
   {section %title=Cross reference
 UML diagram exemple is Fig {xref FigUML}.
