@@ -117,7 +117,7 @@
 			<p>Listing <xsl:value-of select="$num"/> - <xsl:value-of select="@title"/></p>
 		</xsl:if>
 		<a name="code-{$num}" class="noHoverable"/>
-		<pre><code class="{@language}"><xsl:apply-templates select="pre/text()"/></code></pre>
+		<pre><code class="{@language}"><xsl:choose><xsl:when test="count(pre)&gt;0"><xsl:apply-templates select="pre/text()"/></xsl:when><xsl:otherwise><xsl:apply-templates/></xsl:otherwise></xsl:choose></code></pre>
 	</div>	
 </xsl:template>
 <!--******************************
