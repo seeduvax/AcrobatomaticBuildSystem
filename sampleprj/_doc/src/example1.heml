@@ -77,14 +77,14 @@ Add here an include example
 {req %id=req.del %state=removed %cr=4771050 %%Messages shall be sent by pigeons.}
 {req %id=req.replaced %replaced-by=req.1 %cr=4771050 %%A requirement shall not be too long} 
 {req %id=req.1 %cr=4771050
-{up uprec.A}
+{req uprec.A}
 {up uprec.C}
 A requirement shall be a short sentence defining a single characteristic of the specified {kw object}.
 }
 This is not a requirement, but just companion text to provide a better understanding of the requirements.
 {req %id=req.2
 {up uprec.C}
-{up uprec.B}
+{req uprec.B}
 A sentance without the verb shall is not a requirement.
 }
 {req %id=req.3 %%Each requirement shall have a unique identifier}
@@ -311,6 +311,14 @@ System in operating state.
 {appendices
 {section %title=Requirement references
   {index %type=req}
+  {index %type=upreq
+{req %id=uprec.A}
+{req %id=uprec.B}
+{req %id=uprec.C}
+{req %id=uprec.D}
+  }
+
+This second up requirement matrix shows only used requirements:
   {index %type=upreq}
   {index %type=req
 {req %id=ext.1 %req definition}
