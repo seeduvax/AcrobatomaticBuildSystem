@@ -137,7 +137,7 @@
     right=0.1cm,
     top=0.1cm,
     bottom=0.1cm,
-    colback=yellow!10,
+    colback=yellow!20,
     colframe=black,
     boxrule=0pt,
     toprule=0.5pt,
@@ -146,14 +146,19 @@
     boxsep=0cm,
     arc=0pt,outer arc=0pt]
 \textbf{\textcolor{darkblue}{#1}} 
-
-\hspace*{1cm}\begin{minipage}{\textwidth-1cm}
+\hspace*{1cm}\begin{tcolorbox}[left=1cm,
+    right=0cm,
+    top=0cm,
+    bottom=0cm,
+    colback=yellow!8,
+    colframe=yellow!8,
+    boxrule=0pt,
+    width=\dimexpr\textwidth\relax,
+    enlarge left by=0mm,
+    boxsep=0cm,
+    arc=0pt,outer arc=0pt]
 #2
-\end{minipage}
-
-#3
-
-\end{tcolorbox}
+\end{tcolorbox} \ifthenelse{\equal{#3}{}}{}{\textbf{#3}} \end{tcolorbox}
 }
 \newcommand{\HEMLrequirementRemoved}[3]{
 \begin{tcolorbox}[left=0.1cm,

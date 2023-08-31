@@ -292,9 +292,9 @@ TBD<xsl:value-of select="count(preceding::tbd)+1"/> &amp; \S\ref{tbd.<xsl:value-
 <xsl:choose>
 <xsl:when test="@id!=''">
 \HEMLrequirement<xsl:value-of select="$style"/>{<xsl:apply-templates select="@id"/><xsl:if test="@state!='' or @replace-by!='' or @cr!=''"> [<xsl:value-of select="@state"/><xsl:if test="@replaced-by!=''"><xsl:text> </xsl:text>replaced by: <xsl:value-of select="@replaced-by"/></xsl:if><xsl:text> </xsl:text><xsl:value-of select="@cr"/>]</xsl:if>}{
-<xsl:apply-templates select="text()|*[not(self::up)]"/>
-}{<xsl:if test="count(up)&gt;0">
-\textbf{Upward req.:} <xsl:apply-templates select="up"/>
+<xsl:apply-templates select="text()|*[not(self::up) and not(self::req)]"/>
+}{<xsl:if test="count(up)+count(req)&gt;0">
+<xsl:apply-templates select="up|req" mode="up"/>
 </xsl:if>}
 </xsl:when>
 <xsl:otherwise>\HEMLreqReference{<xsl:value-of select="."/>}</xsl:otherwise>
@@ -304,7 +304,7 @@ TBD<xsl:value-of select="count(preceding::tbd)+1"/> &amp; \S\ref{tbd.<xsl:value-
 <xsl:value-of select="text()"/><xsl:text> </xsl:text>
 </xsl:template>
 <!-- upware requiremnt -->
-<xsl:template match="up"><xsl:value-of select="."/><xsl:text> </xsl:text></xsl:template>
+<xsl:template match="up|rep" mode="up"><xsl:value-of select="."/><xsl:text> . </xsl:text></xsl:template>
 <!--************************************************
      	tables
 -->
@@ -990,12 +990,16 @@ Unchecked requirements: </xsl:text><xsl:apply-templates select="req|.//assert[tr
 \hline
 \end{HEMLtable}
 </xsl:template>
+
+<xsl:template match="req|up" mode="indexup">
+<xsl:value-of select="../@id"/>
+</xsl:template>
 <xsl:template match="req" mode="index">
   <xsl:param name="style"><xsl:if test="@state='removed' or @replaced-by!=''">Removed</xsl:if></xsl:param>
   <xsl:param name="rid"><xsl:value-of select="@id"/></xsl:param>
 <xsl:if test="@id!=''">
 <xsl:choose>
-  <xsl:when test="position() mod 2 = 0">
+  <xsl:when test="count(preceding::req[count(ancestor::req)=0]) mod 2 = 0">
 \HEMLoddRow
   </xsl:when>
   <xsl:otherwise>
@@ -1005,6 +1009,9 @@ Unchecked requirements: </xsl:text><xsl:apply-templates select="req|.//assert[tr
   <xsl:if test="$style='Removed'">\footnotesize{\textit{</xsl:if><xsl:apply-templates select="@id"/><xsl:if test="@state!='' or @replace-by!='' or @cr!=''"> [<xsl:value-of select="@state"/><xsl:if test="@replaced-by!=''"><xsl:text> </xsl:text>replaced by: <xsl:value-of select="@replaced-by"/></xsl:if><xsl:text> </xsl:text><xsl:value-of select="@cr"/>]</xsl:if><xsl:if test="$style='Removed'">}}</xsl:if>&amp;
     <xsl:if test="$style='Removed'">\footnotesize{\textit{</xsl:if>
     <xsl:choose>
+      <xsl:when test="count(//req/req[text()=$rid and count(ancestor::index)=0]) + count(//up[text()=$rid and count(ancestor::index)=0])&gt;0">
+        <xsl:apply-templates select="//req/req[text()=$rid and count(ancestor::index)=0]|//up[text()=$rid and count(ancestor::index)=0]" mode="indexup"/>
+      </xsl:when>
       <xsl:when test="count(//req[text()=$rid and count(ancestor::index)=0])&gt;0">
 	<xsl:apply-templates select="//req[text()=$rid and count(ancestor::index)=0]/.." mode="index"/>
       </xsl:when>
@@ -1015,25 +1022,33 @@ Unchecked requirements: </xsl:text><xsl:apply-templates select="req|.//assert[tr
 </xsl:if>
 </xsl:template>
 
-<!-- -->
+<!-- upward requirement traceability -->
 <xsl:template match="index[@type='upreq']">
 \begin{HEMLtable}{|p{0.3\linewidth-2\tabcolsep}|p{0.7\linewidth-2\tabcolsep}|}
 \hline
 \HEMLoddHeadCell
 \textbf{Upward req.}&amp; \HEMLoddHeadCell \textbf{Downward req.} \\
 \endhead
-  <xsl:for-each select="//req/up[not(.=preceding::*)]">
+<xsl:choose>
+<xsl:when test="count(.//req)&gt;0">
+    <xsl:apply-templates select=".//req" mode="index"/>
+</xsl:when>
+<xsl:otherwise>
+  <xsl:for-each select="//req/req[not(.=preceding::*)]|//req/up[not(.=preceding::*)]">
 	<xsl:sort/>
 <xsl:variable name="upreqid"><xsl:value-of select="."/></xsl:variable>
   <xsl:choose>
 	<xsl:when test="(position() + 1) mod 2 = 0">\HEMLevenRow</xsl:when>
 	<xsl:otherwise>\HEMLoddRow</xsl:otherwise>
   </xsl:choose><xsl:text>
-</xsl:text><xsl:value-of select="$upreqid"/> &amp; <xsl:apply-templates select="//up[text()=$upreqid]/.." mode="upindex"/> \\
+</xsl:text><xsl:value-of select="$upreqid"/> &amp; <xsl:apply-templates select="//req/req[text()=$upreqid]/..|//up[text()=$upreqid]/.." mode="upindex"/> \\
   </xsl:for-each>
+</xsl:otherwise>
+</xsl:choose>
 \hline
 \end{HEMLtable}
 </xsl:template>
+<!-- upward/downward requirement matrix -->
 <xsl:template match="req" mode="upindex"><xsl:apply-templates select="@id"/><xsl:text> </xsl:text></xsl:template>
 
 <!-- -->
