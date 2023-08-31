@@ -21,7 +21,10 @@
 <xsl:param name="showComments">true</xsl:param>
 <xsl:variable name="upperCase">ABCDEFGHIJKLMNOPQRSTUVWXYZ</xsl:variable>
 <xsl:variable name="lowerCase">abcdefghijklmnopqrstuvwxyz</xsl:variable>
-
+<!--************************************************
+  section and related items count
+-->
+<xsl:template name="secid"><xsl:number count="appendices|section|references|definitions|check|procedure|testmodule[count(testuite)&gt;0]|testsuite|testcase" level="multiple" format="1.1"/></xsl:template>
 <!--************************************************
      Str replace template
 -->     
@@ -126,9 +129,10 @@ select="substring-after($text,$from)"/>
 		$level niveau de section
 -->
 <xsl:template name="sectionHead">
-	<xsl:param name="id">none</xsl:param>
+	<xsl:param name="id"><xsl:number level="multiple" count="appendices|definitions|references|section|article|procedure|check|testmodule[count(testuite)&gt;0]|testsuite|testcase"/></xsl:param>
 	<xsl:param name="title"></xsl:param>
 	<xsl:param name="level">1</xsl:param>
+\hypertarget{sec.<xsl:value-of select="$id"/>}{}
 <xsl:choose>
   <xsl:when test="$level=1">\chapter</xsl:when>
   <xsl:when test="$level=2">\section</xsl:when>
@@ -139,7 +143,7 @@ select="substring-after($text,$from)"/>
   <xsl:when test="$level=7">\subsubparagraph</xsl:when>
   <xsl:when test="$level=8">\subsubsubparagraph</xsl:when>
   <xsl:when test="$level=9">\subsubsubsubparagraph</xsl:when>
-  </xsl:choose>{<xsl:value-of select="$title"/>} 
+  </xsl:choose>{ DBG:<xsl:value-of select="$id"/>: <xsl:value-of select="$title"/>} 
   <xsl:if test="$level&gt;4">~\\</xsl:if>
 </xsl:template>
 <!--************************************************
@@ -149,7 +153,6 @@ select="substring-after($text,$from)"/>
 	<xsl:choose>
 		<xsl:when test="count(ancestor::chapter)&gt;0">
 			<xsl:call-template name="sectionHead">
-				<xsl:with-param name="id"><xsl:number level="multiple" count="section|article|procedure|check|testmodule[count(testuite)&gt;0]|testsuite|testcase"/></xsl:with-param> 
 				<xsl:with-param name="title"><xsl:apply-templates select="@title"/></xsl:with-param> 
 				<xsl:with-param name="level"><xsl:value-of select="count(ancestor-or-self::section)+count(ancestor-or-self::article)+count(ancestor-or-self::procedure)+count(ancestor-or-self::check)"/></xsl:with-param> 
 			</xsl:call-template>	
@@ -291,17 +294,18 @@ TBD<xsl:value-of select="count(preceding::tbd)+1"/> &amp; \S\ref{tbd.<xsl:value-
 <xsl:param name="style"><xsl:if test="@state='removed' or @replaced-by!=''">Removed</xsl:if></xsl:param>
 <xsl:choose>
 <xsl:when test="@id!=''">
+\hypertarget{req.<xsl:value-of select="@id"/>}{}
 \HEMLrequirement<xsl:value-of select="$style"/>{<xsl:apply-templates select="@id"/><xsl:if test="@state!='' or @replace-by!='' or @cr!=''"> [<xsl:value-of select="@state"/><xsl:if test="@replaced-by!=''"><xsl:text> </xsl:text>replaced by: <xsl:value-of select="@replaced-by"/></xsl:if><xsl:text> </xsl:text><xsl:value-of select="@cr"/>]</xsl:if>}{
 <xsl:apply-templates select="text()|*[not(self::up) and not(self::req)]"/>
 }{<xsl:if test="count(up)+count(req)&gt;0">
 <xsl:apply-templates select="up|req" mode="up"/>
 </xsl:if>}
 </xsl:when>
-<xsl:otherwise>\HEMLreqReference{<xsl:value-of select="."/>}</xsl:otherwise>
+<xsl:otherwise>\hyperlink{req.<xsl:value-of select="."/>}{\HEMLreqReference{<xsl:value-of select="."/>}}</xsl:otherwise>
 </xsl:choose>
 </xsl:template>
 <xsl:template match="req" mode="ref">
-<xsl:value-of select="text()"/><xsl:text> </xsl:text>
+\hyperlink{req.<xsl:value-of select="text()"/>}{<xsl:value-of select="text()"/>}<xsl:text> </xsl:text>
 </xsl:template>
 <!-- upware requiremnt -->
 <xsl:template match="up|rep" mode="up"><xsl:value-of select="."/><xsl:text> . </xsl:text></xsl:template>
@@ -845,6 +849,7 @@ Checksum function: <xsl:value-of select="@type"/>
 <xsl:template match="assert">
   <xsl:param name="aid"><xsl:number count="section|references|definitions|check|procedure|assert" level="multiple" format="1.1"/></xsl:param>
 \HEMLassertBegin
+\hypertarget{assert.<xsl:value-of select="$aid"/>}{}
 \textbf{Assert \#<xsl:number count="assert|check//section|procedure//section" level="multiple" format="1.1"/> <xsl:apply-templates select="@id"/> <xsl:apply-templates select="@title"/>} 
  
 <xsl:apply-templates select="*[not(self::req)]"/>
@@ -991,9 +996,9 @@ Unchecked requirements: </xsl:text><xsl:apply-templates select="req|.//assert[tr
 \end{HEMLtable}
 </xsl:template>
 
-<xsl:template match="req|up" mode="indexup">
-<xsl:value-of select="../@id"/>
-</xsl:template>
+<xsl:template match="req|up" mode="indexup"
+> \hyperlink{req.<xsl:apply-templates select="../@id"/>}{<xsl:value-of select="../@id"/>}<xsl:text> </xsl:text
+></xsl:template>
 <xsl:template match="req" mode="index">
   <xsl:param name="style"><xsl:if test="@state='removed' or @replaced-by!=''">Removed</xsl:if></xsl:param>
   <xsl:param name="rid"><xsl:value-of select="@id"/></xsl:param>
@@ -1006,14 +1011,19 @@ Unchecked requirements: </xsl:text><xsl:apply-templates select="req|.//assert[tr
 \HEMLevenRow
   </xsl:otherwise>
 </xsl:choose>
-  <xsl:if test="$style='Removed'">\footnotesize{\textit{</xsl:if><xsl:apply-templates select="@id"/><xsl:if test="@state!='' or @replace-by!='' or @cr!=''"> [<xsl:value-of select="@state"/><xsl:if test="@replaced-by!=''"><xsl:text> </xsl:text>replaced by: <xsl:value-of select="@replaced-by"/></xsl:if><xsl:text> </xsl:text><xsl:value-of select="@cr"/>]</xsl:if><xsl:if test="$style='Removed'">}}</xsl:if>&amp;
+  <xsl:if test="$style='Removed'">\footnotesize{\textit{</xsl:if>\hyperlink{req.<xsl:apply-templates select="@id"/>}{<xsl:apply-templates select="@id"/>}<xsl:if test="@state!='' or @replace-by!='' or @cr!=''"> [<xsl:value-of select="@state"/><xsl:if test="@replaced-by!=''"><xsl:text> </xsl:text>replaced by: <xsl:value-of select="@replaced-by"/></xsl:if><xsl:text> </xsl:text><xsl:value-of select="@cr"/>]</xsl:if><xsl:if test="$style='Removed'">}}</xsl:if>&amp;
     <xsl:if test="$style='Removed'">\footnotesize{\textit{</xsl:if>
     <xsl:choose>
       <xsl:when test="count(//req/req[text()=$rid and count(ancestor::index)=0]) + count(//up[text()=$rid and count(ancestor::index)=0])&gt;0">
         <xsl:apply-templates select="//req/req[text()=$rid and count(ancestor::index)=0]|//up[text()=$rid and count(ancestor::index)=0]" mode="indexup"/>
       </xsl:when>
       <xsl:when test="count(//req[text()=$rid and count(ancestor::index)=0])&gt;0">
-	<xsl:apply-templates select="//req[text()=$rid and count(ancestor::index)=0]/.." mode="index"/>
+	<xsl:apply-templates select="//req[text()=$rid and count(ancestor::check)=0 and count(ancestor::index)=0 and count(ancestor::testsuite)=0]/.." mode="index"/>
+	<xsl:apply-templates select="//check[count(descendant::req[text()=$rid])&gt;0 and count(ancestor::index)=0]" mode="index"><xsl:with-param name="rid"><xsl:value-of select="$rid"/></xsl:with-param></xsl:apply-templates>
+	<xsl:apply-templates select="//procedure[count(descendant::req[text()=$rid])&gt;0 and count(ancestor::index)=0]" mode="index"/>
+<!--
+	<xsl:apply-templates select="//check[count(assert/req[text()=$rid])&gt;0 and count(ancestor::index()=0]" mode="index"/>
+-->
       </xsl:when>
       <xsl:otherwise><xsl:if test="$style!='Removed'">No reference.</xsl:if></xsl:otherwise>
     </xsl:choose>
@@ -1049,20 +1059,37 @@ Unchecked requirements: </xsl:text><xsl:apply-templates select="req|.//assert[tr
 \end{HEMLtable}
 </xsl:template>
 <!-- upward/downward requirement matrix -->
-<xsl:template match="req" mode="upindex"><xsl:apply-templates select="@id"/><xsl:text> </xsl:text></xsl:template>
+<xsl:template match="req" mode="upindex">\hyperlink{req.<xsl:apply-templates select="@id"/>}{<xsl:apply-templates select="@id"/>}<xsl:text> </xsl:text></xsl:template>
 
-<!-- -->
+<!-- check reference in index -->
+<xsl:template match="check" mode="index">
+  <xsl:param name="rid"/>
+  <xsl:param name="secid"><xsl:call-template name="secid"/></xsl:param>
+<xsl:choose>
+<xsl:when test="count(assert//req[text=$rid])&gt;0"><xsl:apply-templates select="@id"/>[<xsl:apply-templates select=".//assert[count(descendant::req[text()=$rid])&gt;0]"><xsl:with-param name="rid"><xsl:value-of select="$rid"/></xsl:with-param></xsl:apply-templates>] </xsl:when>
+<xsl:otherwise>
+\hyperlink{sec.<xsl:value-of select="$secid"/>}{<xsl:apply-templates select="@id"/>} 
+</xsl:otherwise>
+</xsl:choose>
+</xsl:template>
+<!-- assert reference in index -->
+<xsl:template match="assert" mode="index">
+  <xsl:param name="rid"/>
+  <xsl:param name="secid"><xsl:call-template name="secid"/></xsl:param>
+\hyperlink{<xsl:value-of select="$rid"/>}{A\#}
+</xsl:template>
+<!-- default template for reference in index -->
 <xsl:template match="*" mode="index">
-<xsl:param name="num"><xsl:number count="section|references|definitions|check|procedure|testmodule[count(testuite)&gt;0]|testsuite|testcase" level="multiple" format="1.1"/></xsl:param>
-\S<xsl:value-of select="$num"/><xsl:text> </xsl:text>
+<xsl:param name="num"><xsl:number count="appendices|section|references|definitions|check|procedure|testmodule[count(testuite)&gt;0]|testsuite|testcase" level="multiple" format="1.1"/></xsl:param>
+\hyperlink{sec.<xsl:value-of select="$num"/>}{\S<xsl:value-of select="$num"/>}<xsl:text> </xsl:text>
 </xsl:template>
 <xsl:template match="check|procedure" mode="index">
-<xsl:param name="num"><xsl:number count="section|references|definitions|check|procedure|testmodule[count(testuite)&gt;0]|testsuite|testcase" level="multiple" format="1.1"/></xsl:param>
+<xsl:param name="num"><xsl:number count="appendices|section|references|definitions|check|procedure|testmodule[count(testuite)&gt;0]|testsuite|testcase" level="multiple" format="1.1"/></xsl:param>
   <xsl:value-of select="name()"/><xsl:text> </xsl:text><xsl:value-of select="$num"/>
 </xsl:template>
 <xsl:template match="assert" mode="index">
 <xsl:param name="num"><xsl:number count="section|references|definitions|check|procedure|assert|testmodule[count(testuite)&gt;0]|testsuite|testcase" level="multiple" format="1.1"/></xsl:param>
-  assert <xsl:value-of select="$num"/>
+  \hyperlink{assert.<xsl:value-of select="$num"/>}{assert <xsl:value-of select="$num"/>}
 </xsl:template>
 <xsl:template match="testcase" mode="index">
 <xsl:param name="num"><xsl:number count="section|references|definitions|check|procedure|testsuite|testmodule[count(testsuite)&gt;0]|testcase" level="multiple" format="1.1"/></xsl:param>
