@@ -343,11 +343,11 @@ include(<xsl:value-of select="@src"/>.txt)
 <xsl:template match="check|procedure|testmodule" mode="index">
   <xsl:param name="rid"/>
   <xsl:param name="secid"><xsl:call-template name="secid"/></xsl:param>
-DBG<a href="#{$secid}">§<xsl:value-of select="$secid"/>:<xsl:apply-templates select="@id"/><xsl:value-of select="@name"/></a> 
-<xsl:if test="count(.//assert//req[text()=$rid]|.//testmodule//req[text()=$rid])&gt;0"> [<xsl:apply-templates select=".//assert[count(descendant::req[text()=$rid])&gt;0]|.//testcase[count(descendant::req[text()=$rid])&gt;0]" mode="index"><xsl:with-param name="rid"><xsl:value-of select="$rid"/></xsl:with-param></xsl:apply-templates>] </xsl:if>
+<a href="#{$secid}">§<xsl:value-of select="$secid"/>:<xsl:apply-templates select="@id"/><xsl:value-of select="@name"/></a> 
+<xsl:if test="count(.//assert//req[text()=$rid]|.//testcase//req[text()=$rid])&gt;0"> [<xsl:apply-templates select=".//assert[count(descendant::req[text()=$rid])&gt;0]|.//testcase[count(descendant::req[text()=$rid])&gt;0]" mode="index"><xsl:with-param name="rid"><xsl:value-of select="$rid"/></xsl:with-param></xsl:apply-templates>] </xsl:if>
 </xsl:template>
 <!-- assert reference in index -->
-<xsl:template match="assert|testmodule" mode="index">
+<xsl:template match="assert|testcase" mode="index">
   <xsl:param name="rid"/>
   <xsl:param name="secid"><xsl:call-template name="secid"/></xsl:param>
   <xsl:param name="key"><xsl:choose>
