@@ -27,6 +27,11 @@
 <xsl:variable name="upperCase">ABCDEFGHIJKLMNOPQRSTUVWXYZ</xsl:variable>
 <xsl:variable name="lowerCase">abcdefghijklmnopqrstuvwxyz</xsl:variable>
 
+<!--************************************************
+  section and related items count
+-->
+<xsl:template name="secid"><xsl:number count="appendices|section|references|definitions|check|procedure|testmodule[count(testuite)&gt;0]|testsuite|testcase" level="multiple" format="1.1"/></xsl:template>
+
 <!--********************************************
 !-->
 <xsl:template name="getbackpath">
@@ -324,30 +329,38 @@ include(<xsl:value-of select="@src"/>.txt)
         <xsl:apply-templates select="//req/req[text()=$rid and count(ancestor::index)=0]|//up[text()=$rid and count(ancestor::index)=0]" mode="indexup"/>
       </xsl:when>
       <xsl:when test="count(//req[text()=$rid and count(ancestor::index)=0])&gt;0">
-	<xsl:apply-templates select="//req[text()=$rid and count(ancestor::index)=0]/.." mode="index"/>
+	<xsl:apply-templates select="//req[text()=$rid and count(ancestor::check)=0 and count(ancestor::index)=0 and count(ancestor::testmodule)=0]/.." mode="index"/>
+	<xsl:apply-templates select="//check[count(descendant::req[text()=$rid])&gt;0 and count(ancestor::index)=0]" mode="index"><xsl:with-param name="rid"><xsl:value-of select="$rid"/></xsl:with-param></xsl:apply-templates>
+	<xsl:apply-templates select="//procedure[count(descendant::req[text()=$rid])&gt;0 and count(ancestor::index)=0]" mode="index"><xsl:with-param name="rid"><xsl:value-of select="$rid"/></xsl:with-param></xsl:apply-templates>
+	<xsl:apply-templates select="//testmodule[count(descendant::req[text()=$rid])&gt;0 and count(ancestor::index)=0]" mode="index"><xsl:with-param name="rid"><xsl:value-of select="$rid"/></xsl:with-param></xsl:apply-templates>
       </xsl:when>
       <xsl:otherwise><xsl:if test="$style!='removed'">No reference.</xsl:if></xsl:otherwise>
     </xsl:choose>
   </td></tr>
 </xsl:if>
 </xsl:template>
-
+<!-- check reference in index -->
+<xsl:template match="check|procedure|testmodule" mode="index">
+  <xsl:param name="rid"/>
+  <xsl:param name="secid"><xsl:call-template name="secid"/></xsl:param>
+DBG<a href="#{$secid}">§<xsl:value-of select="$secid"/>:<xsl:apply-templates select="@id"/><xsl:value-of select="@name"/></a> 
+<xsl:if test="count(.//assert//req[text()=$rid]|.//testmodule//req[text()=$rid])&gt;0"> [<xsl:apply-templates select=".//assert[count(descendant::req[text()=$rid])&gt;0]|.//testcase[count(descendant::req[text()=$rid])&gt;0]" mode="index"><xsl:with-param name="rid"><xsl:value-of select="$rid"/></xsl:with-param></xsl:apply-templates>] </xsl:if>
+</xsl:template>
+<!-- assert reference in index -->
+<xsl:template match="assert|testmodule" mode="index">
+  <xsl:param name="rid"/>
+  <xsl:param name="secid"><xsl:call-template name="secid"/></xsl:param>
+  <xsl:param name="key"><xsl:choose>
+    <xsl:when test="name()='assert'">A</xsl:when>
+    <xsl:when test="name()='testcase'">C</xsl:when>
+    <xsl:otherwise/>
+  </xsl:choose></xsl:param>
+<a href="#{$secid}"><xsl:value-of select="$key"/>#<xsl:number count="testcase|testsuite|assert|check//section|procedure//section" level="multiple" format="1.1"/></a>
+</xsl:template>
 <!-- Summary table -->
 <xsl:template match="*" mode="index">
 <xsl:param name="num"><xsl:number count="section|references|definitions" level="multiple" format="1.1"/></xsl:param>
 <a href="#{$num}">§<xsl:value-of select="$num"/> </a>
-</xsl:template>
-<xsl:template match="testcase" mode="index">
-<xsl:param name="num"><xsl:number count="section|references|definitions|check|procedure|testsuite|testmodule[count(testsuite)&gt;0]|testcase" level="multiple" format="1.1"/></xsl:param>
-case <a href="#{$num}"><xsl:value-of select="$num"/></a>
-</xsl:template>
-<xsl:template match="check|procedure" mode="index">
-<xsl:param name="num"><xsl:number count="section|references|definitions|check|procedure" level="multiple" format="1.1"/></xsl:param>
-  <xsl:value-of select="name()"/> <a href="#{$num}"><xsl:value-of select="$num"/></a>
-</xsl:template>
-<xsl:template match="assert" mode="index">
-<xsl:param name="num"><xsl:number count="section|references|definitions|check|procedure|assert" level="multiple" format="1.1"/></xsl:param>
-  assert <a href="#{$num}"><xsl:value-of select="$num"/></a>
 </xsl:template>
 
 <xsl:template match="index[@type='tbc']">
@@ -422,7 +435,7 @@ case <a href="#{$num}"><xsl:value-of select="$num"/></a>
 <xsl:apply-templates select="testcase"/>
 </xsl:template>
 <xsl:template match="testcase">
-  <xsl:param name="aid"><xsl:number count="section|references|definitions|check|procedure|testmodule[count(testsuite)&gt;0]|testsuite|testcase" level="multiple" format="1.1"/></xsl:param>
+  <xsl:param name="aid"><xsl:call-template name="secid"/></xsl:param>
 <tr>
 <xsl:choose>
   <xsl:when test="count(preceding-sibling::testcase) mod 2 = 1">
