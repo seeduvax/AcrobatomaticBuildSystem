@@ -30,7 +30,7 @@
 <!--************************************************
   section and related items count
 -->
-<xsl:template name="secid"><xsl:number count="appendices|section|references|definitions|check|procedure|testmodule[count(testuite)&gt;0]|testsuite|testcase" level="multiple" format="1.1"/></xsl:template>
+<xsl:template name="secid"><xsl:number count="appendices|section|references|definitions|check|procedure|testmodule[count(testsuite)&gt;0]|testsuite|testcase|operation|assert" level="multiple" format="1.1"/></xsl:template>
 
 <!--********************************************
 !-->
