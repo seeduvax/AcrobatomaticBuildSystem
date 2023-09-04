@@ -56,12 +56,12 @@ endif
 $(ABS_CACHE)/noarch/%:
 	@mkdir -p $(@D)
 ifeq ($(findstring file://,$(ABS_REPO_NA_PATTERN_1ST)),file://)
-	test -r $(patsubst file://%,%,$(patsubst %,$(ABS_REPO_NA_PATTERN_1ST),$(@F))) || exit 1
-	echo "Linking $(@F) from $(ABS_REPO_NA_PATTERN_1ST)"
-	ln -sf $(patsubst file://%,%,$(patsubst /%,$(ABS_REPO_NA_PATTERN_1ST)/%,$(@F))) $@
+	@test -r $(patsubst file://%,%,$(patsubst %,$(ABS_REPO_NA_PATTERN_1ST),$(@F))) || exit 1
+	@echo "Linking $(@F) from $(ABS_REPO_NA_PATTERN_1ST)"
+	@ln -sf $(patsubst file://%,%,$(patsubst %,$(ABS_REPO_NA_PATTERN_1ST),$(@F))) $@
 else
-	echo "Fetching $(@F) from $(ABS_REPO_NA_PATTERN_1ST)"
-	wget -q $(WGETFLAGS) $(patsubst %,$(ABS_REPO_NA_PATTERN_1ST)/%,$(@F)) -O $@
+	@echo "Fetching $(@F) from $(ABS_REPO_NA_PATTERN_1ST)"
+	@wget -q $(WGETFLAGS) $(patsubst %,$(ABS_REPO_NA_PATTERN_1ST),$(@F)) -O $@
 endif
 
 $(ABS_CACHE)/%:
@@ -69,10 +69,10 @@ $(ABS_CACHE)/%:
 ifeq ($(findstring file://,$(ABS_REPO_PATTERN_1ST)),file://)
 	@test -r $(patsubst file://%,%,$(patsubst %,$(ABS_REPO_PATTERN_1ST),$(@F))) || exit 1
 	@echo "Linking $(@F) from $(ABS_REPO_PATTERN_1ST)"
-	@ln -sf $(patsubst file://%,%,$(patsubst /%,$(ABS_REPO_PATTERN_1ST)/%,$(@F))) $@
+	@ln -sf $(patsubst file://%,%,$(patsubst %,$(ABS_REPO_PATTERN_1ST),$(@F))) $@
 else
 	@echo "Fetching $(@F) from $(ABS_REPO_PATTERN_1ST)"
-	@wget -q $(WGETFLAGS) $(patsubst %,$(ABS_REPO_PATTERN_1ST)/%,$(@F)) -O $@
+	@wget -q $(WGETFLAGS) $(patsubst %,$(ABS_REPO_PATTERN_1ST),$(@F)) -O $@
 endif
 
 endif

@@ -292,6 +292,7 @@ TBD<xsl:value-of select="count(preceding::tbd)+1"/> &amp; \S\ref{tbd.<xsl:value-
 -->
 <xsl:template match="req">
 <xsl:param name="style"><xsl:if test="@state='removed' or @replaced-by!=''">Removed</xsl:if></xsl:param>
+<xsl:param name="rid"><xsl:value-of select="text()"/></xsl:param>
 <xsl:choose>
 <xsl:when test="@id!=''">
 \hypertarget{req.<xsl:value-of select="@id"/>}{}
@@ -301,14 +302,16 @@ TBD<xsl:value-of select="count(preceding::tbd)+1"/> &amp; \S\ref{tbd.<xsl:value-
 <xsl:apply-templates select="up|req" mode="up"/>
 </xsl:if>}
 </xsl:when>
-<xsl:otherwise>\hyperlink{req.<xsl:value-of select="."/>}{\HEMLreqReference{<xsl:value-of select="."/>}}</xsl:otherwise>
+<xsl:otherwise><xsl:if test="count(//req[@id=$rid and count(ancestor::index)=0])&gt;0">\hyperlink{req.<xsl:value-of select="."/>}</xsl:if>{\HEMLreqReference{<xsl:value-of select="."/>}}</xsl:otherwise>
 </xsl:choose>
 </xsl:template>
+<!-- Requirement reference -->
 <xsl:template match="req" mode="ref">
-\hyperlink{req.<xsl:value-of select="text()"/>}{<xsl:value-of select="text()"/>}<xsl:text> </xsl:text>
+<xsl:param name="rid"><xsl:value-of select="text()"/></xsl:param>
+<xsl:if test="count(//req[@id=$rid and count(ancestor::index)=0])&gt;0">\hyperlink{req.<xsl:value-of select="text()"/>}</xsl:if>{<xsl:value-of select="text()"/>}<xsl:text> </xsl:text>
 </xsl:template>
 <!-- upware requiremnt -->
-<xsl:template match="up|rep" mode="up"><xsl:value-of select="."/><xsl:text> . </xsl:text></xsl:template>
+<xsl:template match="up|req" mode="up"><xsl:value-of select="text()"/><xsl:text> </xsl:text></xsl:template>
 <!--************************************************
      	tables
 -->
@@ -997,8 +1000,8 @@ Unchecked requirements: </xsl:text><xsl:apply-templates select="req|.//assert[tr
 \end{HEMLtable}
 </xsl:template>
 
-<xsl:template match="req|up" mode="indexup"
-> \hyperlink{req.<xsl:apply-templates select="../@id"/>}{<xsl:value-of select="../@id"/>}<xsl:text> </xsl:text
+<xsl:template match="req|up" mode="indexup">
+ \hyperlink{req.<xsl:apply-templates select="../@id"/>}{<xsl:value-of select="../@id"/>}<xsl:text> </xsl:text
 ></xsl:template>
 <xsl:template match="req" mode="index">
   <xsl:param name="style"><xsl:if test="@state='removed' or @replaced-by!=''">Removed</xsl:if></xsl:param>
@@ -1012,7 +1015,7 @@ Unchecked requirements: </xsl:text><xsl:apply-templates select="req|.//assert[tr
 \HEMLevenRow
   </xsl:otherwise>
 </xsl:choose>
-  <xsl:if test="$style='Removed'">\footnotesize{\textit{</xsl:if>\hyperlink{req.<xsl:apply-templates select="@id"/>}{<xsl:apply-templates select="@id"/>}<xsl:if test="@state!='' or @replace-by!='' or @cr!=''"> [<xsl:value-of select="@state"/><xsl:if test="@replaced-by!=''"><xsl:text> </xsl:text>replaced by: <xsl:value-of select="@replaced-by"/></xsl:if><xsl:text> </xsl:text><xsl:value-of select="@cr"/>]</xsl:if><xsl:if test="$style='Removed'">}}</xsl:if>&amp;
+  <xsl:if test="$style='Removed'">\footnotesize{\textit{</xsl:if><xsl:if test="count(//req[@id=$rid and count(ancestor::index)=0])&gt;0">\hyperlink{req.<xsl:apply-templates select="@id"/>}</xsl:if>{<xsl:apply-templates select="@id"/>}<xsl:if test="@state!='' or @replace-by!='' or @cr!=''"> [<xsl:value-of select="@state"/><xsl:if test="@replaced-by!=''"><xsl:text> </xsl:text>replaced by: <xsl:value-of select="@replaced-by"/></xsl:if><xsl:text> </xsl:text><xsl:value-of select="@cr"/>]</xsl:if><xsl:if test="$style='Removed'">}}</xsl:if>&amp;
     <xsl:if test="$style='Removed'">\footnotesize{\textit{</xsl:if>
     <xsl:choose>
       <xsl:when test="count(//req/req[text()=$rid and count(ancestor::index)=0]) + count(//up[text()=$rid and count(ancestor::index)=0])&gt;0">
@@ -1058,7 +1061,9 @@ Unchecked requirements: </xsl:text><xsl:apply-templates select="req|.//assert[tr
 \end{HEMLtable}
 </xsl:template>
 <!-- upward/downward requirement matrix -->
-<xsl:template match="req" mode="upindex">\hyperlink{req.<xsl:apply-templates select="@id"/>}{<xsl:apply-templates select="@id"/>}<xsl:text> </xsl:text></xsl:template>
+<xsl:template match="req" mode="upindex">
+\hyperlink{req.<xsl:apply-templates select="@id"/>}{<xsl:apply-templates select="@id"/>}<xsl:text> </xsl:text>
+</xsl:template>
 
 <!-- check reference in index -->
 <xsl:template match="check|procedure|testmodule" mode="index">
