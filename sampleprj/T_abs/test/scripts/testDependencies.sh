@@ -20,38 +20,45 @@ cp -R test/resources/proj* $testDirectory
 unset TTARGETDIR
 unset TRDIR
 
+doExit() {
+    # The symlink over PRJROOT strangely makes pdflatex hangs when heml doc is generated
+    # after this test, then remove the directory to make it run.
+    rm $testDirectory/absws/abs-99.99.99
+    exit $1
+}
+
 cd $testDirectory/projA
 ARCH=NotALinux make pubdist
 if [ $? -ne 0 ]; then
     echo "Error while executing make pubdist on projA"
-    exit 1
+    doExit 1
 fi
 
 cd $testDirectory/projB
 ARCH=NotALinux make pubdist
 if [ $? -ne 0 ]; then
     echo "Error while executing make pubdist on projB"
-    exit 1
+    doExit 2
 fi
 
 cd $testDirectory/projD
 ARCH=NotALinux make pubdist
 if [ $? -ne 0 ]; then
     echo "Error while executing make pubdist on projD"
-    exit 1
+    doExit 3
 fi
 
 cd $testDirectory/projC
 ARCH=NotALinux make testbuild
 if [ $? -ne 0 ]; then
     echo "Error while executing make on projC"
-    exit 1
+    doExit 4
 fi
 
 ARCH=NotALinux make distinstall
 if [ $? -ne 0 ]; then
     echo "Error while executing make distinstall on projC"
-    exit 1
+    doExit 5
 fi
 
 tail -n +2 $testDirectory/projC/dist/flatten/projC-2.4.3d/import.mk > $testDirectory/projC/dist/flatten/projC-2.4.3d/import2.mk
@@ -60,9 +67,9 @@ function testFile {
     diff -q $1 $2
     if [ $? -ne 0 ]; then
         echo "Error: $1 not equal to $2"
-        exit 1
+        doExit 6
     fi
 }
 testFile $testDirectory/projC/dist/flatten/projC-2.4.3d/import2.mk $MODROOT/test/resources/expected/import2.mk
 
-exit 0
+doExit 0
