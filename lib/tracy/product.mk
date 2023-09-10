@@ -8,6 +8,9 @@ INCLUDES:= \
 ./TracyC.h \
 ./TracyVulkan.hpp
 
+CLICFLAGS:=
+CLICPPFILE:=TracyClient.cpp
+
 INCLUDES_COMMON:= \
 ./common/TracyAlloc.hpp \
 ./common/TracyMutex.hpp \
@@ -31,11 +34,19 @@ INCLUDES_CLIENT:=\
 ./client/TracyLock.hpp \
 ./client/tracy_SPSCQueue.h
 
+ifneq ($(filter 0.9.%,$(VERSION)),)
+CLICFLAGS+=-Ipublic
+CLICPPFILE:=public/$(CLICPPFILE)
+INCLUDES:=$(patsubst ./%,./public/tracy/%,$(INCLUDES))
+INCLUDES_COMMON:=$(patsubst ./%,./public/%,$(INCLUDES_COMMON))
+INCLUDES_CLIENT:=$(patsubst ./%,./public/%,$(INCLUDES_CLIENT))
+endif
+
 all:
 	cd capture/build/unix ; make
 	cd csvexport/build/unix ; make
 	cd profiler/build/unix ; make
-	g++ -shared -o libtracy_cli.so -fPIC -DTRACY_ENABLE TracyClient.cpp
+	g++ -shared -o libtracy_cli.so -fPIC -DTRACY_ENABLE $(CLICFLAGS) $(CLICPPFILE)
 
 install:
 	mkdir -p $(INSTDIR)/bin
