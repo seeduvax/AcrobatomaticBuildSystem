@@ -61,7 +61,8 @@ RUSTLIBDIR=$(TRDIR)/lib
 
 RUSTLIBS=$(foreach MOD,$(USEMOD),--extern $(MOD)=$(RUSTLIBDIR)/lib$(APPNAME)_$(MOD).rlib)
 
-RUSTFLAGS+=-L dependency=$(RUSTLIBDIR) $(RUSTLIBS)
+RUSTFLAGS+=-L$(TRDIR)/lib
+RUSTFLAGS+=$(patsubst %/import.mk,-L%/lib,$(EXTLIBMAKES))
 
 ifeq ($(MODE),debug)
 RUSTFLAGS+=-g
