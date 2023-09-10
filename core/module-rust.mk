@@ -20,8 +20,8 @@ CRATETYPE=bin
 endif
 
 # Initialize rustc edition
-ifeq ($(EDITION),)
-EDITION=2018
+ifneq ($(EDITION),)
+RUSTFLAGS+=--edition $(EDITION)
 endif
 
 ifeq ($(CRATETYPE),dylib)
@@ -123,7 +123,7 @@ endif
 $(TARGETFILE): $(RUSTSRCFILES)
 	@$(ABS_PRINT_info) "Rust compile $(CRATETYPE) from src/$(ENTRYFILENAME).rs"
 	@mkdir -p $(@D)
-	@$(RUSTC) --edition=$(EDITION) --crate-type $(CRATETYPE) $(RUSTFLAGS) src/$(ENTRYFILENAME).rs -o $@ && \
+	@$(RUSTC) --crate-type $(CRATETYPE) $(RUSTFLAGS) src/$(ENTRYFILENAME).rs -o $@ && \
         $(ABS_PRINT_info) "Rust crate built: $@"
 
 all-impl:: $(TARGETFILE) 
@@ -135,7 +135,7 @@ all-impl:: $(TARGETFILE)
 doc:
 	@$(ABS_PRINT_info) "Generating Rust docs for $(APPNAME)_$(MODNAME)"
 	mkdir -p $(DOCTARGET)
-	$(RUSTDOC) --edition=$(EDITION) --crate-name $(MODNAME) --crate-type $(CRATETYPE) $(RUSTLIBS) src/$(ENTRYFILENAME).rs -o $(DOCTARGET)
+	$(RUSTDOC) --crate-name $(MODNAME) --crate-type $(CRATETYPE) $(RUSTLIBS) src/$(ENTRYFILENAME).rs -o $(DOCTARGET)
 
 
 # ---------------------------------------------------------------------
