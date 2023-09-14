@@ -1081,8 +1081,8 @@ Unchecked requirements: </xsl:text><xsl:apply-templates select="req|.//assert[tr
     <xsl:when test="name()='testcase'">C</xsl:when>
     <xsl:otherwise/>
   </xsl:choose></xsl:param>
-\hyperlink{sec.<xsl:value-of select="$secid"/>}{<xsl:value-of select="$key"/>\#<xsl:number count="testcase|testsuite|assert|check//section|procedure//section" level="multiple" format="1.1"/>}
-</xsl:template>
+\hyperlink{sec.<xsl:value-of select="$secid"/>}{<xsl:value-of select="$key"/>\#<xsl:number count="testcase|testsuite|assert|check//section|procedure//section" level="multiple" format="1.1"/>}<xsl:text> </xsl:text
+></xsl:template>
 <!-- default template for reference in index -->
 <xsl:template match="*" mode="index">
 <xsl:param name="num"><xsl:call-template name="secid"/></xsl:param>

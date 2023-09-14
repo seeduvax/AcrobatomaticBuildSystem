@@ -276,7 +276,6 @@ Code example is in §{xref SCode}.
 {section %title=Test and procedures %xref=SecTest
   {check %id=Test1 %type=manual test %title=Test example 1
     {req req.1}
-    {req req.2}
 {section %title=part 1
     {operation
 1st action to be performed
@@ -291,6 +290,7 @@ No error on 1st action.
 2nd action
     }
     {assert
+      {req req.2}
 Action 2 result is 42.
     }
 {tbd the question that match 42 answer.}
