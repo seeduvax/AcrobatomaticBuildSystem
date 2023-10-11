@@ -29,8 +29,8 @@ SPACECHAR=
 # - linklib : independant extlib's CFLAGS/LDFLAGS settings, see RD_TEA332-776
 BUILDSCRIPTS_CAPS:=linklib
 
-# xtype permit to get symbolic links too. Important for fileset module type.
-SRCFILES:=$(shell find src -xtype f 2>/dev/null | grep -v "/\.")
+# -L permit to get symbolic links too. Important for fileset module type.
+SRCFILES:=$(shell find -L src -type f 2>/dev/null | grep -v "/\.")
 # initialize variable that must not be forwared in recursive make call
 COBJS:=
 CPPOBJS:=
