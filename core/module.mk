@@ -21,6 +21,7 @@ CPPC=
 LD=
 SPACECHAR= 
 
+
 # Buildcript capabilities
 # introduced in buildscrip 0.4, may be used to have some fallback
 # behavior to support several buildscript versions from imported precompiled

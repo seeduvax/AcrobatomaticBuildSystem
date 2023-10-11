@@ -20,13 +20,13 @@ endif
 $(OBJDIR)/test/%.class: test/%.java
 	@$(ABS_PRINT_info) "Compiling test class $< ..."
 	@mkdir -p $(OBJDIR)
-	@echo `date --rfc-3339 s`'> $(JC) $(JUFLAGS) $<' >> $(BUILDLOG)
+	@echo `$(TRACE_DATE_CMD)`'> $(JC) $(JUFLAGS) $<' >> $(BUILDLOG)
 	@$(JC) $(JUFLAGS) $< || ( echo 'Failed: JUFLAGS=$(JUFLAGS)' ; exit 1 )
 
 $(OBJDIR)/test/%.class: src/test/%.java
 	@$(ABS_PRINT_info) "Compiling test class $< ..."
 	@mkdir -p $(OBJDIR)
-	@echo `date --rfc-3339 s`'> $(JC) $(JUFLAGS) $<' >> $(BUILDLOG)
+	@echo `$(TRACE_DATE_CMD)`'> $(JC) $(JUFLAGS) $<' >> $(BUILDLOG)
 	@$(JC) $(JUFLAGS) $< || ( echo 'Failed: JUFLAGS=$(JUFLAGS)' ; exit 1 )
 
 $(TESTCLASSFILES): $(NA_EXTLIBDIR)/$(JUNITXML).jar $(NA_EXTLIBDIR)/$(JUNIT).jar $(TARGETFILE)

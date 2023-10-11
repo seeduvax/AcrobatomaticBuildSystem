@@ -73,6 +73,8 @@ define abs_error
 $(info $(shell $(ABS_PRINT_ERROR_CMD) "$(ABS_COLOR_ERROR)[abs-info]\t$1$(ABS_COLOR_RESTORE)"))
 endef
 
+TRACE_DATE_CMD:=date '+%Y-%m-%d %H:%M:%S%z'
+
 # some vars to store some particular chars for their use in macros.
 define _carriage_return_
 !!
