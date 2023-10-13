@@ -11,6 +11,11 @@ package, fetch dependencies package, run tests, support continuous integration
 automated builds, and generate documentation.}
   {keywords build, compilation, document generation, unit test, software package}
   {history
+    {edition %version=4 %date=2023-10-13
+New sections:
+- advanced dependency management.
+- time profiler helpers
+    }
     {edition %version=4 %date=2023-02-17
 Refreshing manual according changes implemented in abs-3.2 et abs-3.2 branches:
   - build tree layout includes a {kw .abs} directory (§{xref SecExtLibDep})
@@ -1981,6 +1986,49 @@ node [width=2, shape=box, style="rounded"];
 @enddot
 #}
     }
+  }
+  {section %title=C/C++ code CPU profiling %xref=SecCProfiling
+ABS includes target and provide macros to help performing code section tracing
+with the help of graphical profile tools. Two profilers are supported:
+  - {a %href=https://github.com/wolfpld/tracy %%Tracy Profiler}
+  - {a %href=https://gitbub.com/yse/easy_profiler %%Easy Profiler}
+
+Both tools rely on adding instrumentation code to delimit code regions and trace
+points. To be open to various similar tools, ABS comes with a specific and 
+dedicated header file that defines its own tracing macro set, in the hope each
+tracing tool's macro can be bound. Of course real tracing and profiling results
+are tool dependant.  All the macros are defined to nothing when the PROFILER
+build option is not set.
+
+{table %title=Profiler traces macro
+{tr
+{th macro}{th C}{th C++}{th description}
+}
+{?table
+PROFILER_FUNCTION % % X % Place at function/method start to activate the function tracing. 
+PROFILER_FUNCTION_COL(color) % % X % % Same as PROFILER_FUNCTION but using a specific color for its rendering.
+PROFILER_REGION(name) % % X % Trace region inside a code section, from the location of the macro, until the next closure.
+PROFILER_REGION_COL(name,color) % % X % Same as PROFILER_REGION with color argument.
+PROFILER_REGION_BEGIN(name) % X % X % Trace the beginning of a region not related to the code closure. Section shall be explicitly ended (see PROFILER_REGION_END)
+PROFILER_REGION_END % X % X % Close the region lastly open with PROFILER_REGION_START. Caution, user shall take care itself of proper nesting and closure when using PROFILER_REGION_BEGIN and PROFILER_REGION_END.
+PROFILER_THREAD % % X % Define the name to use to render the current thread.
+PROFILER_FRAME(name) % X % X % Named frame delimiter.
+PROFILER_PLOT(name,value) % % X % Plot a scalar value.
+PROFILER_SETUP % % X % To be place somewhere at program start before first use of other tracing macro to instanciate the profiler service.
+PROFILER_START % X % X % Activate the profiling service.
+PROFILER_STOP % X % X % Deactivate the profiling service. 
+}
+}
+
+To build a module or the whole project with the profiling instrumentation 
+activated, invoke make setting the {kw PROFILER} variable value to {kw true}:
+{code
+{!make PROFILER=true!}}
+Because it use conditional preprocessing, clean the project before switching
+from non activated to activated profiling (and reverse) to ensure compilation is
+redone with the proper macro definition. As well when the {kw PROFILER_TOOL}
+variable value is changed to change to profiling tool to be used for the debug
+session.
   }
   {section %title=Documentation module
     {section %title=Extend documentation templates
