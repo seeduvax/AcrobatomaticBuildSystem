@@ -82,6 +82,7 @@ CLANGD_DB=compile_commands.json
 define gen-clangd-db
 @echo "[" > $(CLANGD_DB)
 @find $(BUILDROOT) -name '*.o.json' | xargs cat >> $(CLANGD_DB)
+@sed -i "$$(wc -l < $(CLANGD_DB))s/,$$//" $(CLANGD_DB)
 @echo "]" >> $(CLANGD_DB)
 endef
 
