@@ -31,6 +31,10 @@ public:
     ABS_TEST_CASE_BEGIN(Dependencies)
         CPPUNIT_ASSERT_EQUAL(0, ::system("./test/scripts/testDependencies.sh"));
     ABS_TEST_CASE_END
+    
+    ABS_TEST_CASE_BEGIN(DistInstall)
+        CPPUNIT_ASSERT_EQUAL(0, ::system("./test/scripts/testDistInstall.sh"));
+    ABS_TEST_CASE_END
 
 /* Test case template, uncomment and complete according this pattern for each test case
     ABS_TEST_CASE_BEGIN(NameOfTestCase)

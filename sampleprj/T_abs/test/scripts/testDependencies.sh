@@ -8,6 +8,7 @@ fi
 testDirectory=$TTARGETDIR/testDependencies
 MODROOT=`pwd`
 PRJROOT=$MODROOT/../../
+chmod -R +w $testDirectory
 rm -rf $testDirectory
 mkdir -p $testDirectory
 mkdir -p $testDirectory/absws
