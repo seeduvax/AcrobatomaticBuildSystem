@@ -13,7 +13,9 @@ include $(ABSROOT)/core/module-cheaders.mk
 
 # object files : one for each c and cpp file.
 COBJS+=$(patsubst src/%.c,$(OBJDIR)/%.o,$(filter-out $(patsubst %,src/%,$(DISABLE_SRC)),$(filter %.c,$(SRCFILES))))
+#COBJS+=$(patsubst src/%.c,$(OBJDIR)/%.o,$(filter-out $(patsubst %,$(EXT_SRC_DIR)/%,$(DISABLE_SRC)),$(filter %.c,$(EXTSRCFILES))))
 CPPOBJS+=$(patsubst src/%.cpp,$(OBJDIR)/%.o,$(filter-out $(patsubst %,src/%,$(DISABLE_SRC)),$(filter %.cpp,$(SRCFILES))))
+CPPOBJS+=$(patsubst $(EXT_SRC_DIR)/%.cpp,$(OBJDIR)/%.o,$(filter-out $(patsubst %,$(EXT_SRC_DIR)/%,$(DISABLE_SRC)),$(filter %.cpp,$(EXTSRCFILES))))
 RESSRC:=$(filter src/embedded_lua/%.lua src/res/%,$(SRCFILES))
 GENSRC+=$(patsubst src/%,$(OBJDIR)/%.c,$(RESSRC))
 GENOBJS+=$(patsubst %.c,%.o,$(filter %.c,$(GENSRC)))
@@ -47,12 +49,20 @@ $(OBJDIR)/%.o: src/%.c
 $(OBJDIR)/%.o: $(OBJDIR)/%.c
 	$(cc-command)
 
+# external C file compilation
+$(OBJDIR)/%.o: $(EXT_SRC_DIR)/%.c
+	$(cc-command)
+
 # from idl generated cpp files compilation
 $(OBJDIR)/idl/%.o: $(OBJDIR)/idl/%.cpp 
 	$(CPPC) $(CFLAGS) -c $< -o $@
 
 # generated cpp files compilation
 $(OBJDIR)/%.o: $(OBJDIR)/%.cpp
+	$(cxx-command)
+
+# external cpp files compilation
+$(OBJDIR)/%.o: $(EXT_SRC_DIR)/%.cpp
 	$(cxx-command)
 
 # cpp files compilation
