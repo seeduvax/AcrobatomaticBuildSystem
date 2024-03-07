@@ -61,7 +61,8 @@ ifeq ($(findstring file://,$(ABS_REPO_NA_PATTERN_1ST)),file://)
 	@ln -sf $(patsubst file://%,%,$(patsubst %,$(ABS_REPO_NA_PATTERN_1ST),$(@F))) $@
 else
 	@echo "Fetching $(@F) from $(ABS_REPO_NA_PATTERN_1ST)"
-	@wget -q $(WGETFLAGS) $(patsubst %,$(ABS_REPO_NA_PATTERN_1ST),$(@F)) -O $@
+	@wget -q $(WGETFLAGS) $(patsubst %,$(ABS_REPO_NA_PATTERN_1ST),$(@F)) -O $@.tmp
+	@mv $@.tmp $@
 endif
 
 $(ABS_CACHE)/%:
@@ -72,7 +73,8 @@ ifeq ($(findstring file://,$(ABS_REPO_PATTERN_1ST)),file://)
 	@ln -sf $(patsubst file://%,%,$(patsubst %,$(ABS_REPO_PATTERN_1ST),$(@F))) $@
 else
 	@echo "Fetching $(@F) from $(ABS_REPO_PATTERN_1ST)"
-	@wget -q $(WGETFLAGS) $(patsubst %,$(ABS_REPO_PATTERN_1ST),$(@F)) -O $@
+	@wget -q $(WGETFLAGS) $(patsubst %,$(ABS_REPO_PATTERN_1ST),$(@F)) -O $@.tmp
+	@mv $@.tmp $@
 endif
 
 endif
