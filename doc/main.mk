@@ -78,8 +78,8 @@ $(OBJDIR)/testdefindex.heml: $(TESTSRCFILES)
 	@for testmoduledir in $(PRJROOT)* ; do \
 	  test -d "$$testmoduledir/test" && echo " {testmodule %name="`basename "$$testmoduledir"` >> $@ || : ; \
 	  for testcasefile in "$$testmoduledir/test/Test"*.cpp ; do \
-		testDocfile=$(OBJDIR)/`basename "$$testmoduledir"`_`basename $$testcasefile` ;\
-		testDocfile=`echo $$testDocfile | sed s/.cpp/.heml/ `
+		testDocfile=$(OBJDIR)/`basename "$$testmoduledir"`_`basename $$testcasefile` \
+		testDocfile=`echo $$testDocfile | sed s/.cpp/.heml/ `;\
 		test -r "$$testcasefile" && grep -v "#\s*include" "$$testcasefile" | cpp -E | fgrep "ABS_TEST_" | cpp -D__TESTFILE__="$$testcasefile" -include $(ABSROOT)/core/include/abs/testdef2heml.h | sed -e "/^# /d;s:$(PRJROOT)::g;s/{/\n{/g" > $$testDocfile || : ; \
 		test -r "$$testcasefile" && echo "   {?include %src="$$testDocfile" }" >> $@ || : ; \
 	  done ; \
