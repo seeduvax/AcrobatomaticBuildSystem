@@ -91,8 +91,9 @@ define unpackArchive
 	@$(ABS_PRINT_debug) "$^"
 	@if [ -d $(@D)  ]; then chmod -R u+w $(@D) && rm -rf $(@D); fi
 	@mkdir -p $(@D)
-	@tar -xmzf $^ -C $(1) && touch $@
+	@tar -xmzf $^ -C $(1)
 	@if [ $(EXTLIBDIR_READONLY) -eq 1 ]; then chmod -R a-w $(@D); else true; fi
+	@touch $@
 endef
 
 # unpack arch specific external lib
@@ -116,7 +117,30 @@ define extlib_linkLibrary
 	@mkdir -p `dirname $(@D)`
 	@test -d $(@D) && rm $(@D) || true
 	@$(LNDIR) $(<D) $(@D)
-endef	
+	@function createSymLinks() { \
+		basedir=$$(readlink -f $$1) ;\
+		subdir=$$2 ;\
+		root=$$(readlink -f $$3) ;\
+		[ -z "$${basedir}" ] && return ;\
+		[ ! -d "$${basedir}/$${subdir}" ] && return ;\
+		n=$$(echo "$${basedir}/$${subdir}" | wc -c) ;\
+		subdirs=$$(find $${basedir}/$${subdir} -type d | sort | uniq) ;\
+		for s in $${subdirs}; do \
+			sd=$${s:$${n}} ;\
+			[ ! -z "$${sd}" ] && mkdir -p $${root}/$${subdir}/$${sd} ;\
+		done ;\
+		files=$$(find $${basedir}/$${subdir} -type f) ;\
+		for f in $${files}; do \
+			df=$$(dirname $$f) ;\
+			d=$${df:$${n}} ;\
+			[ -z "$$d" ] && d='.' ;\
+			dest_dir=$${root}/$${subdir}/$${d};\
+			mkdir -p $${dest_dir};\
+			( cd $${dest_dir} ; ln -sf $$f ) ;\
+		done ;\
+	} ;\
+	for extd in etc share; do createSymLinks $(<D) $$extd $(TRDIR); done
+endef
 
 # unpack arch specific external lib
 $(EXTLIBDIR)/%/import.mk: $(ABSWS_EXTLIBDIR)/%/import.mk
@@ -145,7 +169,7 @@ $(NDNA_EXTLIBDIR)/%.jar: $(ABS_CACHE)/noarch/%.jar
 
 # --------------------------------------------------------------------
 # general purpose noarch file sets
-# for now activated only for doc modules since bad side effects have 
+# for now activated only for doc modules since bad side effects have
 # been encoutered on some projects (conflicting with smart responder
 # models code generation).
 $(ABSWS_NA_EXTLIBDIR)/%/.dir: $(ABS_CACHE)/noarch/%.tar.gz
@@ -311,7 +335,7 @@ endif
 endif
 
 ## Targets:
-##  - checkdep: show currently defined dependencies (full graph including 
+##  - checkdep: show currently defined dependencies (full graph including
 ##    dependencies of dependencies).
 ifneq ($(USELIB),)
 $(BUILDROOT)/$(APPNAME)_deps.dot: $(PRJROOT)/app.cfg

@@ -1,14 +1,16 @@
-## 
+##
 ## --------------------------------------------------------------------
 ## Global overloadable variables:
 ## --------------------------------------------------------------------
 ##  - MODE: compilation mode
-##          debug (default): with debug symbols, without compiler 
+##          debug (default): with debug symbols, without compiler
 ##                           optimizations
 ##          release: without debug symbols, with some compiler
 ##                           optimizations
 MODE?=debug
 ABSROOT?=$(ABSWS)/abs-$(VABS)
+# to avoid ancient sh behaviour on debian
+SHELL=/bin/bash
 # macro for pretty message print, use color if available
 COLORS_TCAP:=$(shell ncolors=`tput colors 2>/dev/null` ; ( [ "$$ncolors" != "" ] && [ "$$ncolors" -ge 0 ] ) && echo yes || echo no)
 
@@ -40,11 +42,11 @@ ifneq ($(ABS_LOG_LEVEL),info)
 ABS_PRINT_INFO_CMD:=:
 endif
 endif
-ABS_PRINT_debug:=$(ABS_PRINT_DEBUG_CMD) "$(ABS_COLOR_DEBUG)[abs-debug]\t%s$(ABS_COLOR_RESTORE)\n" 
-ABS_PRINT_info:=$(ABS_PRINT_INFO_CMD) "$(ABS_COLOR_INFO)[abs-info]\t%s$(ABS_COLOR_RESTORE)\n" 
-ABS_PRINT_warning:=$(ABS_PRINT_WARNING_CMD) "$(ABS_COLOR_WARNING)[abs-warning]\t%s$(ABS_COLOR_RESTORE)\n" 
-ABS_PRINT_error:=$(ABS_PRINT_ERROR_CMD) "$(ABS_COLOR_ERROR)[abs-error]\t%s$(ABS_COLOR_RESTORE)\n" 
-ABS_PRINT:=$(ABS_PRINT_CMD) "$(ABS_COLOR_HILIGHT)[[abs-%s]]\t%s$(ABS_COLOR_RESTORE)\n" 
+ABS_PRINT_debug:=$(ABS_PRINT_DEBUG_CMD) "$(ABS_COLOR_DEBUG)[abs-debug]\t%s$(ABS_COLOR_RESTORE)\n"
+ABS_PRINT_info:=$(ABS_PRINT_INFO_CMD) "$(ABS_COLOR_INFO)[abs-info]\t%s$(ABS_COLOR_RESTORE)\n"
+ABS_PRINT_warning:=$(ABS_PRINT_WARNING_CMD) "$(ABS_COLOR_WARNING)[abs-warning]\t%s$(ABS_COLOR_RESTORE)\n"
+ABS_PRINT_error:=$(ABS_PRINT_ERROR_CMD) "$(ABS_COLOR_ERROR)[abs-error]\t%s$(ABS_COLOR_RESTORE)\n"
+ABS_PRINT:=$(ABS_PRINT_CMD) "$(ABS_COLOR_HILIGHT)[[abs-%s]]\t%s$(ABS_COLOR_RESTORE)\n"
 export ABS_PRINT_debug
 export ABS_PRINT_info
 export ABS_PRINT_warning
