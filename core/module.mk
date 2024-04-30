@@ -106,9 +106,9 @@ MODULE_MK_OBJ_PATH=$(OBJDIR)/module.mk
 ABS_INCLUDE_MODS+=
 ABS_INCLUDE_TESTMODS+=
 
-## 
+##
 ## Common make targets:
-## 
+##
 ##  - all (default): builds all
 .PHONY: all
 all: all-impl
@@ -119,7 +119,7 @@ clean:: clean-module
 
 # copy config files
 .PHONY: etc
-etc:: 
+etc::
 
 ##  - run [RUNARGS="<arg> [<arg>]*": run application
 .PHONY: run
@@ -161,7 +161,7 @@ CONFIGFILES:=$(patsubst %,$(TRDIR)/%,$(shell find etc -type f 2>/dev/null | grep
 # external sources / svn checkout
 # ---------------------------------------------------------------------
 # .....................................................................
-# external sources / svn checkout 
+# external sources / svn checkout
 ifneq ($(SVN_CHECKOUTS),)
 
 $(EXT_SRC_DIR)/svn/%/.mk:
@@ -200,6 +200,7 @@ endif
 $(TRDIR)/etc/%: etc/%
 	@$(ABS_PRINT_info) "Copying config file $< ..."
 	@mkdir -p $(@D)
+	@[ -L $@ ] && unlink $@ || true
 	@cp $< $@
 	@$(call executeFiltering, $<, $@)
 
@@ -228,7 +229,7 @@ Makefile: ../Makefile
 	@cp $^ $@
 endif
 
-## 
+##
 ## ---------------------------------------------------------------------
 ##  dependencies beetween modules management
 ## ---------------------------------------------------------------------
@@ -290,7 +291,7 @@ $(MODULE_MK_PATH): $(MODULE_MK_OBJ_PATH) $(DEPS_LIBS_MK) module.cfg
 	@echo "_module_$(APPNAME)_$(MODNAME)_dir:=$(TRDIR)" >> $@.tmp
 	@echo "endif" >> $@.tmp
 	@mv $@.tmp $@
-	
+
 $(MODULE_MK_TEST_PATH): $(MODULE_MK_OBJ_PATH) $(DEPS_TESTLIBS_MK) module.cfg
 	@$(ABS_PRINT_debug) "Creation of project test module $@"
 	@mkdir -p $(@D)
@@ -330,11 +331,11 @@ define __createModuleMkFile
 	@$2 || mv $@.tmp $@
 endef
 
-# this rule only execute its command if the mod is not a project mod. 
+# this rule only execute its command if the mod is not a project mod.
 # (one rule because cannot distinct modules of two project with almost same name ex: 'proj' and 'proj_lkm')
 $(MODULE_MK_DIR)/module_%.mk:
 	$(call createModuleMkFile,ABS_INCLUDE_MODS,MODULE_MK_READ)
-	
+
 $(MODULE_MK_TEST_DIR)/module_%.mk:
 	$(call createModuleMkFile,ABS_INCLUDE_TESTMODS,MODULE_MK_TEST_READ)
 
