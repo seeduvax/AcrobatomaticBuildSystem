@@ -139,7 +139,10 @@ define extlib_linkLibrary
 			( cd $${dest_dir} ; ln -sf $$f ) ;\
 		done ;\
 	} ;\
-	for extd in etc share; do createSymLinks $(<D) $$extd $(TRDIR); done
+	if [[ ! "$(TRDIR)" == *"/dist/flatten/"* ]]; then \
+		$(ABS_PRINT_debug) "Creating symlinks for $$(basename $(@D)) dependency ..." ;\
+		for extd in etc share; do createSymLinks $(<D) $$extd $(TRDIR); done ;\
+	fi
 endef
 
 # unpack arch specific external lib
