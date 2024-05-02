@@ -45,7 +45,7 @@ endif
 all:
 	cd capture/build/unix ; make
 	cd csvexport/build/unix ; make
-	cd profiler/build/unix ; make
+	cd profiler/build/unix ; make LEGACY=1
 	g++ -shared -o libtracy_cli.so -fPIC -DTRACY_ENABLE $(CLICFLAGS) $(CLICPPFILE)
 
 install:
@@ -61,4 +61,10 @@ install:
 	cp $(INCLUDES) $(INSTDIR)/include/
 	cp $(INCLUDES_COMMON) $(INSTDIR)/include/common
 	cp $(INCLUDES_CLIENT) $(INSTDIR)/include/client
+ifneq ($(filter 0.9.%,$(VERSION)),)
+	sed -i -e 's:../common/:common/:g' $(INSTDIR)/include/Tracy.hpp
+	sed -i -e 's:../client/:client/:g' $(INSTDIR)/include/Tracy.hpp
+	sed -i -e 's:../common/:common/:g' $(INSTDIR)/include/TracyC.h
+	sed -i -e 's:../client/:client/:g' $(INSTDIR)/include/TracyC.h
+endif
 

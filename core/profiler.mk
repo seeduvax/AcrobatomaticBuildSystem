@@ -8,7 +8,7 @@
 ##     - tracy-0.8.1 (default)
 ##     - tracy-0.7.8
 ##     - easy_profiler-2.1.0
-PROFILER_TOOL?=tracy-0.8.1
+PROFILER_TOOL?=tracy-0.9.1
 ifeq ($(wildcard app.cfg),app.cfg)
 ifeq ($(PROFILER),true)
 VFLAVOR+= $(PROFILER_TOOL)
