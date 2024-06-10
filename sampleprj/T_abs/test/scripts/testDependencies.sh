@@ -29,34 +29,34 @@ doExit() {
 }
 
 cd $testDirectory/projA
-ARCH=NotALinux make pubdist
+ARCH=NotALinux make pubdist ABS_LOG_LEVEL=debug
 if [ $? -ne 0 ]; then
     echo "Error while executing make pubdist on projA"
     doExit 1
 fi
 
 cd $testDirectory/projB
-ARCH=NotALinux make pubdist
+ARCH=NotALinux make pubdist ABS_LOG_LEVEL=debug
 if [ $? -ne 0 ]; then
     echo "Error while executing make pubdist on projB"
     doExit 2
 fi
 
 cd $testDirectory/projD
-ARCH=NotALinux make pubdist
+ARCH=NotALinux make pubdist ABS_LOG_LEVEL=debug
 if [ $? -ne 0 ]; then
     echo "Error while executing make pubdist on projD"
     doExit 3
 fi
 
 cd $testDirectory/projC
-ARCH=NotALinux make testbuild
+ARCH=NotALinux make testbuild ABS_LOG_LEVEL=debug
 if [ $? -ne 0 ]; then
     echo "Error while executing make on projC"
     doExit 4
 fi
 
-ARCH=NotALinux make distinstall
+ARCH=NotALinux make distinstall ABS_LOG_LEVEL=debug
 if [ $? -ne 0 ]; then
     echo "Error while executing make distinstall on projC"
     doExit 5
