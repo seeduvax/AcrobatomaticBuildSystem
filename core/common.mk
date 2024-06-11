@@ -7,6 +7,9 @@
 ##                           optimizations
 ##          release: without debug symbols, with some compiler
 ##                           optimizations
+##  - ABS_LOG_LEVEL: Logs minimal level
+##          debug: all logs are shown
+##          info (default): only logs from info level are shown.
 MODE?=debug
 ABSROOT?=$(ABSWS)/abs-$(VABS)
 # to avoid ancient sh behaviour on debian
