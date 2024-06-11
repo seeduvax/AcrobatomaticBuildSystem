@@ -124,12 +124,12 @@ define extlib_linkLibrary
 		[ -z "$${basedir}" ] && return ;\
 		[ ! -d "$${basedir}/$${subdir}" ] && return ;\
 		n=$$(echo "$${basedir}/$${subdir}" | wc -c) ;\
-		subdirs=$$(find $${basedir}/$${subdir} -type d | sort | uniq) ;\
+		subdirs=$$(find $${basedir}/$${subdir} -type d -not -path "*/doc/*" | sort | uniq) ;\
 		for s in $${subdirs}; do \
 			sd=$${s:$${n}} ;\
 			[ ! -z "$${sd}" ] && mkdir -p $${root}/$${subdir}/$${sd} ;\
 		done ;\
-		files=$$(find $${basedir}/$${subdir} -type f) ;\
+		files=$$(find $${basedir}/$${subdir} -type f -not -path "*/doc/*") ;\
 		for f in $${files}; do \
 			df=$$(dirname $$f) ;\
 			d=$${df:$${n}} ;\
