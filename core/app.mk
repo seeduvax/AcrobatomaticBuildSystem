@@ -15,9 +15,9 @@ JENKINS_USER?=jenkins
 DISTUSER?=$(USER)
 DISTHOST?=$(DISTUSER)@moneta.eduvax.net
 DISTREPO?=$(DISTHOST):/home/httpd/www.eduvax.net/www/dist
-## - MAXJOBS: max allowed parallel tasks.
+##  - MAXJOBS: max allowed parallel tasks.
 MAXJOBS:=$(shell getconf _NPROCESSORS_ONLN)
-## - MMARGS: extra make arguments to forward to modules sub-make.
+##  - MMARGS: extra make arguments to forward to modules sub-make.
 MMARGS?=-j$(MAXJOBS)
 
 ifeq ($(ABS_SCM_TYPE),null)
@@ -143,7 +143,11 @@ All:
 # User can have not the right to modify permission, but have the right to remove elements. => not failed on chmod error.
 clean: cleandist cleanbuild
 
+##  - loadDependencies: load all the dependencies of the project.
+loadDependencies: app.cfg
+	@$(ABS_PRINT_info) "Dependencies loaded"
 
+#   - cleanbuild: remove the build directory
 cleanbuild:
 	@$(ABS_PRINT_info) "Cleaning build ..."
 	@$(ABS_PRINT_info) "Changing permissions of build"
@@ -151,6 +155,7 @@ cleanbuild:
 	@$(ABS_PRINT_info) "Removing build"
 	@rm -rf build
 
+#   - cleandist: remove the dist directory
 cleandist:
 	@$(ABS_PRINT_info) "Cleaning dist ..."
 	@$(ABS_PRINT_info) "Changing permissions of dist"

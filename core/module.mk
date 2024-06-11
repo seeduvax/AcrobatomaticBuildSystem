@@ -237,7 +237,7 @@ include $(ABSROOT)/core/module-depends.mk
 
 DEFAULT_ABS_EXISTING_LIBS=$(foreach mod,$(DEFAULT_ABS_INCLUDE_MODS),$(if $(_module_$(mod)_dir)$(_app_$(mod)_dir),$(mod),$(if $(_app_lib$(mod)_dir),lib$(mod))))
 DEFAULT_ABS_EXISTING_TESTLIBS=$(foreach mod,$(DEFAULT_ABS_INCLUDE_TESTMODS),$(if $(_module_$(mod)_dir)$(_app_$(mod)_dir),$(mod),$(if $(_app_lib$(mod)_dir),lib$(mod))))
-DEPS_LIBS_MK=$(foreach mod,$(DEFAULT_ABS_EXISTING_LIBS),$(MODULE_MK_DIR)/module_$(mod).mk)
+DEPS_LIBS_MK=$(foreach mod,$(sort $(DEFAULT_ABS_EXISTING_LIBS)),$(MODULE_MK_DIR)/module_$(mod).mk)
 # project mods must no be included in testlibs mk because there is no creation in dependencies/_test directory.
 DEPS_TESTLIBS_MK=$(foreach mod,$(filter-out $(PROJECT_MODS),$(DEFAULT_ABS_EXISTING_TESTLIBS) $(DEFAULT_ABS_EXISTING_LIBS)),$(MODULE_MK_TEST_DIR)/module_$(mod).mk)
 PROJDEPS_MODS_MK=$(foreach mod,$(PROJECT_MODS),$(MODULE_MK_DIR)/module_$(mod).mk)
@@ -247,6 +247,14 @@ ALL_DEPS_SRC_DIRS=src include etc
 ALL_DEPS_SRC_FILES=$(foreach mod,$(filter-out $(MODNAME),$(MODULES_DEPS)),$(foreach dir,$(ALL_DEPS_SRC_DIRS),$(shell find $(PRJROOT)/$(mod)/$(dir)/ -type f 2> /dev/null)))
 
 CURRENT_DEPENDENCY_FILE:=$(PRJOBJDIR)/currentDependencies
+LOADED_DEPENDENCIES_FILE:=$(PRJOBJDIR)/dependencies.loaded
+
+# load dependencies from app level to be sure all import.mk are available
+# when generating module mk
+$(LOADED_DEPENDENCIES_FILE): $(PRJROOT)/app.cfg $(EXTLIBMAKES)
+	@$(ABS_PRINT_info) "Loading dependencies from module ..."
+	@+make -C $(PRJROOT) loadDependencies
+	@touch $@
 
 ifeq ($(DEPS_MNGMT_LEVEL),DISABLED)
 DEPENDENCY_FILE:=$(OBJDIR)/noDependencyCompilation
@@ -257,7 +265,7 @@ $(DEPENDENCY_FILE):
 
 else #ifeq ($(DEPS_MNGMT_LEVEL),DISABLED)
 DEPENDENCY_FILE:=$(OBJDIR)/dependencyCompilation
-$(DEPENDENCY_FILE): $(EXTLIBMAKES) $(ALL_DEPS_SRC_FILES)
+$(DEPENDENCY_FILE): $(EXTLIBMAKES) $(ALL_DEPS_SRC_FILES) $(LOADED_DEPENDENCIES_FILE)
 	@mkdir -p $(@D)
 	@mkdir -p $(PRJOBJDIR)
 	@$(ABS_PRINT_debug) "Creation of $@"
