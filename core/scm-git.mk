@@ -69,7 +69,7 @@ $(BUILDROOT)/scm/log.xml:
 	@git log $(APPNAME)-$(VPARENT)..$(APPNAME)-$(VERSION) --pretty=format:'<logentry revision="%h"><author>%an</author><date>%ad</date><msg>%B</msg></logentry>' | sed -e 's/&/&amp;/g' >> $@
 	@echo "</log>" >> $@
 ## Targets:
-## - scm-release: build configuration management indexes
+##   - scm-release: build configuration management indexes
 scm-release:: $(patsubst %,$(BUILDROOT)/scm/%, file-list.txt diff.txt log.xml)
 
 # install generic hook to enable plugin and stacking
@@ -84,7 +84,7 @@ ABS_GIT_HOOKS:=$(patsubst %.sample,%,$(wildcard $(PRJROOT)/.git/hooks/*.sample))
 
 $(PRJROOT)/app.cfg: $(ABS_GIT_HOOKS)
 
-## - cleangithooks: reset git hooks.
+##   - cleangithooks: reset git hooks.
 cleangithooks:
 	for hook in $(ABS_GIT_HOOKS); do rm -rf $$hook $$hook.d ; done
 
