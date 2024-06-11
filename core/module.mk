@@ -272,7 +272,7 @@ $(DEPENDENCY_FILE): $(EXTLIBMAKES) $(ALL_DEPS_SRC_FILES) $(LOADED_DEPENDENCIES_F
 ifeq ($(DEPS_MNGMT_LEVEL),FIRST)
 	@echo "" > $(CURRENT_DEPENDENCY_FILE)
 endif
-	@+$(foreach mod,$(sort $(ALL_NEEDED_MODS)),(egrep -q $(mod) $(CURRENT_DEPENDENCY_FILE) || (\
+	@+$(foreach mod,$(sort $(ALL_NEEDED_MODS)),(egrep -q $(mod) '^$(CURRENT_DEPENDENCY_FILE)$$' || (\
 			$(ABS_PRINT_info) "$(MODNAME): Build of dependency: $(mod)" && \
 			echo $(mod) >> $(CURRENT_DEPENDENCY_FILE) && \
 			DEPS_MNGMT_LEVEL="NEXT" make $(MMARGS) MODE=$(MODE) -C $(PRJROOT)/$(mod) && \
