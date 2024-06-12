@@ -1,5 +1,8 @@
 __ABS_VERSION__:=__ABS_MODULE_VERSION_MARKER__
+
+ifeq ($(MAKE_RESTARTS),)
 $(info # Acrobatomatic Build System Core V $(__ABS_VERSION__))
+endif
 
 ifeq ($(MAKE_RESTARTS),20)
 $(error  Too many restart of make ($(MAKE_RESTARTS)) ! A error occured !)

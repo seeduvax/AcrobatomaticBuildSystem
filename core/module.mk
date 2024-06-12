@@ -238,8 +238,10 @@ include $(ABSROOT)/core/module-depends.mk
 DEFAULT_ABS_EXISTING_LIBS=$(foreach mod,$(DEFAULT_ABS_INCLUDE_MODS),$(if $(_module_$(mod)_dir)$(_app_$(mod)_dir),$(mod),$(if $(_app_lib$(mod)_dir),lib$(mod))))
 DEFAULT_ABS_EXISTING_TESTLIBS=$(foreach mod,$(DEFAULT_ABS_INCLUDE_TESTMODS),$(if $(_module_$(mod)_dir)$(_app_$(mod)_dir),$(mod),$(if $(_app_lib$(mod)_dir),lib$(mod))))
 DEPS_LIBS_MK=$(foreach mod,$(sort $(DEFAULT_ABS_EXISTING_LIBS)),$(MODULE_MK_DIR)/module_$(mod).mk)
-# project mods must no be included in testlibs mk because there is no creation in dependencies/_test directory.
+# variable for the external mods needed in test target.
 DEPS_TESTLIBS_MK=$(foreach mod,$(filter-out $(PROJECT_MODS),$(DEFAULT_ABS_EXISTING_TESTLIBS) $(DEFAULT_ABS_EXISTING_LIBS)),$(MODULE_MK_TEST_DIR)/module_$(mod).mk)
+# variable for the project mods needed in test target.
+DEPS_PROJ_TESTLIBS_MK=$(foreach mod,$(filter $(PROJECT_MODS),$(DEFAULT_ABS_EXISTING_TESTLIBS) $(DEFAULT_ABS_EXISTING_LIBS)),$(MODULE_MK_DIR)/module_$(mod).mk)
 PROJDEPS_MODS_MK=$(foreach mod,$(PROJECT_MODS),$(MODULE_MK_DIR)/module_$(mod).mk)
 
 # these variables permit to trig the dependencies compilation if a file changed in one other module.
@@ -272,7 +274,7 @@ $(DEPENDENCY_FILE): $(EXTLIBMAKES) $(ALL_DEPS_SRC_FILES) $(LOADED_DEPENDENCIES_F
 ifeq ($(DEPS_MNGMT_LEVEL),FIRST)
 	@echo "" > $(CURRENT_DEPENDENCY_FILE)
 endif
-	@+$(foreach mod,$(sort $(ALL_NEEDED_MODS)),(egrep -q $(mod) '^$(CURRENT_DEPENDENCY_FILE)$$' || (\
+	@+$(foreach mod,$(sort $(ALL_NEEDED_MODS)),(egrep -q '^$(mod)$$' $(CURRENT_DEPENDENCY_FILE) || (\
 			$(ABS_PRINT_info) "$(MODNAME): Build of dependency: $(mod)" && \
 			echo $(mod) >> $(CURRENT_DEPENDENCY_FILE) && \
 			DEPS_MNGMT_LEVEL="NEXT" make $(MMARGS) MODE=$(MODE) -C $(PRJROOT)/$(mod) && \
@@ -301,12 +303,13 @@ $(MODULE_MK_PATH): $(MODULE_MK_OBJ_PATH) $(DEPS_LIBS_MK) module.cfg
 	@echo "endif" >> $@.tmp
 	@mv $@.tmp $@
 
-$(MODULE_MK_TEST_PATH): $(MODULE_MK_OBJ_PATH) $(DEPS_TESTLIBS_MK) module.cfg
+$(MODULE_MK_TEST_PATH): $(MODULE_MK_OBJ_PATH) $(DEPS_TESTLIBS_MK) $(DEPS_PROJ_TESTLIBS_MK) module.cfg
 	@$(ABS_PRINT_debug) "Creation of project test module $@"
 	@mkdir -p $(@D)
 	@echo "ifeq (\$$(filter $(APPNAME)_$(MODNAME),\$$(MODULE_MK_TEST_READ)),)" > $@.tmp
 	@echo "MODULE_MK_TEST_READ+=$(APPNAME)_$(MODNAME)" >> $@.tmp
 	@$(foreach modMk,$(DEPS_TESTLIBS_MK),echo "-include $(modMk)" >> $@.tmp;)
+	@$(foreach modMk,$(DEPS_PROJ_TESTLIBS_MK),echo "-include $(modMk)" >> $@.tmp;)
 	@echo "ABS_INCLUDE_TESTMODS+=$(sort $(DEFAULT_ABS_EXISTING_TESTLIBS) $(DEFAULT_ABS_EXISTING_LIBS))" >> $@.tmp
 	@echo "_app_$(APPNAME)_dir:=$(TRDIR)" >> $@.tmp
 	@echo "_module_$(APPNAME)_$(MODNAME)_dir:=$(TRDIR)" >> $@.tmp
