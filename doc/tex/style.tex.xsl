@@ -296,6 +296,20 @@ TBD<xsl:value-of select="count(preceding::tbd)+1"/> &amp; \S\ref{tbd.<xsl:value-
   <xsl:otherwise> \(<xsl:value-of select="./text()"/>\) </xsl:otherwise>
 </xsl:choose>
 </xsl:template>
+<!--************************************************
+     	Generic item with identifier
+-->
+<xsl:template match="item">
+<xsl:choose>
+<xsl:when test="@id!=''">
+\hypertarget{item.<xsl:value-of select="@id"/>}{}
+\HEMLitem{<xsl:apply-templates select="@id"/>}{
+<xsl:apply-templates select="text()|*"/>
+}
+</xsl:when>
+<xsl:otherwise>\hyperlink{item.<xsl:value-of select="text()"/>}{\HEMLitemReference{<xsl:value-of select="text()"/>}}</xsl:otherwise>
+</xsl:choose>
+</xsl:template>
 
 <!--************************************************
      	requirements

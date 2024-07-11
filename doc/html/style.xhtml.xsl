@@ -228,6 +228,29 @@ include(<xsl:value-of select="@src"/>.txt)
 </xsl:choose>
 </xsl:template>
 <!--************************************************
+     	Generic item with identifer
+-->
+<xsl:template match="item">
+<xsl:choose>
+<xsl:when test="@id!=''">
+<div class="item">
+<table><tr>
+<th><a name="item.{@id}"><xsl:value-of select="@id"/></a></th>
+</tr>
+<tr><td><xsl:apply-templates select="text()|*"/></td></tr>
+</table>
+</div>
+</xsl:when>
+<xsl:otherwise>
+  <xsl:call-template name="itemref"><xsl:with-param name="iid"><xsl:value-of select="text()"/></xsl:with-param></xsl:call-template>
+</xsl:otherwise>
+</xsl:choose>
+</xsl:template>
+<xsl:template name="itemref">
+  <xsl:param name="iid"/>
+  <span class="xref"><a href="#item.{$iid}"><xsl:value-of select="$iid"/></a></span>
+</xsl:template>
+<!--************************************************
      	requirements
 -->
 <xsl:template match="up"><xsl:value-of select="."/>&#160;</xsl:template>
@@ -264,6 +287,32 @@ include(<xsl:value-of select="@src"/>.txt)
 <!-- *********************************************************************
    traceability 
 -->
+<!-- item references -->
+<xsl:template match="index[@type='item']">
+  <table>
+  <tr><th>Item</th><th>Referenced by</th></tr>
+  <xsl:choose>
+  <xsl:when test='count(.//item)&gt;0'>
+    <xsl:apply-templates select=".//item" mode="index"/>
+  </xsl:when>
+  <xsl:otherwise>
+    <xsl:apply-templates select="/document/section//item" mode="index"/>
+  </xsl:otherwise>
+  </xsl:choose>
+  </table>
+</xsl:template>
+<xsl:template match="item" mode="index">
+<xsl:if test="@id!=''">
+  <xsl:variable name="iid"><xsl:value-of select="@id"/></xsl:variable>
+  <xsl:variable name="trclass"><xsl:choose>
+	<xsl:when test="(count(preceding::req[count(ancestor::item)=0]) + 1) mod 2 = 0">even</xsl:when>
+	<xsl:otherwise>odd</xsl:otherwise>
+  </xsl:choose></xsl:variable>
+  <tr class="{$trclass}"><td><xsl:call-template name="itemref"><xsl:with-param name="iid"><xsl:value-of select="@id"/></xsl:with-param></xsl:call-template></td><td>
+	<xsl:apply-templates select="//item[text()=$iid and count(ancestor::check)=0 and count(ancestor::index)=0 and count(ancestor::testmodule)=0]/.." mode="index"/>
+  </td></tr>
+</xsl:if>
+</xsl:template>
 <!-- requirement references -->
 <xsl:template match="index[@type='req']">
   <table>

@@ -131,6 +131,35 @@
 
 \newcommand\HEMLfigScale{0.5}
 \definecolor{darkblue}{rgb}{0.0, 0.0, 0.55}
+\newcommand{\HEMLitemReference}[1]{\colorbox{blue!10}{\textbf{\textcolor{darkblue}{#1}}}}
+\newcommand{\HEMLitem}[2]{
+\begin{tcolorbox}[left=0.1cm,
+    right=0.1cm,
+    top=0.1cm,
+    bottom=0.1cm,
+    colback=blue!20,
+    colframe=black,
+    boxrule=0pt,
+    toprule=0.5pt,
+    width=\dimexpr\textwidth\relax,
+    enlarge left by=0mm,
+    boxsep=0cm,
+    arc=0pt,outer arc=0pt]
+\textbf{\textcolor{darkblue}{#1}} 
+\hspace*{1cm}\begin{tcolorbox}[left=1cm,
+    right=0cm,
+    top=0cm,
+    bottom=0cm,
+    colback=blue!8,
+    colframe=blue!8,
+    boxrule=0pt,
+    width=\dimexpr\textwidth\relax,
+    enlarge left by=0mm,
+    boxsep=0cm,
+    arc=0pt,outer arc=0pt]
+#2
+\end{tcolorbox} \end{tcolorbox}
+}
 \newcommand{\HEMLreqReference}[1]{\colorbox{yellow!10}{\textbf{\textcolor{darkblue}{#1}}}}
 \newcommand{\HEMLrequirement}[3]{
 \begin{tcolorbox}[left=0.1cm,

@@ -130,6 +130,15 @@ is needed to check line wrap}.
 Inline reference to requirements (to be checked in coverage matrix): 
 [{req req.1}{req req.4}{req ext.2}]
   } 
+  {section %title=Items with identifer
+{item %id=i.1
+Item 1
+}
+{item %id=i.2
+Item 2
+{item i.1}
+}
+  }
   {section %title=Tables
 {table %title=Example of table %xref=TableEX
 {tr
@@ -271,6 +280,8 @@ UML diagram exemple is Fig {xref FigUML}.
 Long table exemple is Table {xref TableEX}.
 
 Code example is in §{xref SCode}.
+
+Reference to an item: {item i.2}.
   }
 }
 {section %title=Test and procedures %xref=SecTest
@@ -329,6 +340,9 @@ This second up requirement matrix shows only used requirements:
 }
 }
   }
+}
+{section %title=Item index
+  {index %type=item}
 }
 {section %title=Open points
   {index %type=tbd}
