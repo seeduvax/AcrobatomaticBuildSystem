@@ -303,6 +303,7 @@ TBD<xsl:value-of select="count(preceding::tbd)+1"/> &amp; \S\ref{tbd.<xsl:value-
 <xsl:choose>
 <xsl:when test="@id!=''">
 \hypertarget{item.<xsl:value-of select="@id"/>}{}
+\label{item.<xsl:value-of select="@id"/>}
 \HEMLitem{<xsl:apply-templates select="@id"/>}{
 <xsl:apply-templates select="text()|*"/>
 }
@@ -320,6 +321,7 @@ TBD<xsl:value-of select="count(preceding::tbd)+1"/> &amp; \S\ref{tbd.<xsl:value-
 <xsl:choose>
 <xsl:when test="@id!=''">
 \hypertarget{req.<xsl:value-of select="@id"/>}{}
+\label{req.<xsl:value-of select="@id"/>}
 \HEMLrequirement<xsl:value-of select="$style"/>{<xsl:apply-templates select="@id"/><xsl:if test="@state!='' or @replace-by!='' or @cr!=''"> [<xsl:value-of select="@state"/><xsl:if test="@replaced-by!=''"><xsl:text> </xsl:text>replaced by: <xsl:value-of select="@replaced-by"/></xsl:if><xsl:text> </xsl:text><xsl:value-of select="@cr"/>]</xsl:if>}{
 <xsl:apply-templates select="text()|*[not(self::up) and not(self::req)]"/>
 }{<xsl:if test="count(up)+count(req)&gt;0">
@@ -1004,13 +1006,46 @@ Unchecked requirements: </xsl:text><xsl:apply-templates select="req|.//assert[tr
 <!-- **********************************************************
      indexs
 -->  
+<xsl:template match="index[@type='item']">
+\begin{HEMLtable}{|p{0.25\linewidth-2\tabcolsep}|p{0.15\linewidth-2\tabcolsep}|p{0.6\linewidth-2\tabcolsep}|}
+\hline
+\HEMLoddHeadCell
+\textbf{item}&amp; \HEMLoddHeadCell \textbf{location}&amp; \HEMLoddHeadCell \textbf{referenced by} \\
+\endhead
+    <xsl:apply-templates select="/document/section//item" mode="index"/>
+\hline
+\end{HEMLtable}
+</xsl:template>
+
+<xsl:template match="item" mode="index">
+  <xsl:param name="style"><xsl:if test="@state='removed' or @replaced-by!=''">Removed</xsl:if></xsl:param>
+  <xsl:param name="iid"><xsl:value-of select="@id"/></xsl:param>
+<xsl:if test="@id!=''">
+<xsl:choose>
+  <xsl:when test="count(preceding::req[count(ancestor::req)=0]) mod 2 = 0">
+\HEMLoddRow
+  </xsl:when>
+  <xsl:otherwise>
+\HEMLevenRow
+  </xsl:otherwise>
+</xsl:choose>
+  <xsl:if test="count(//item[@id=$iid and count(ancestor::index)=0])&gt;0">\hyperlink{item.<xsl:apply-templates select="@id"/>}</xsl:if>{<xsl:apply-templates select="@id"/>}&amp;\S\ref{item.<xsl:value-of select="@id"/>}, p\pageref{item.<xsl:value-of select="@id"/>}&amp;
+      <xsl:if test="count(//item[text()=$iid and count(ancestor::index)=0])&gt;0">
+	<xsl:apply-templates select="//item[text()=$iid and count(ancestor::check)=0 and count(ancestor::index)=0 and count(ancestor::testmodule)=0]/.." mode="index"/>
+	<xsl:apply-templates select="//check[count(descendant::item[text()=$iid])&gt;0 and count(ancestor::index)=0]" mode="index"><xsl:with-param name="rid"><xsl:value-of select="$iid"/></xsl:with-param></xsl:apply-templates>
+	<xsl:apply-templates select="//procedure[count(descendant::item[text()=$iid])&gt;0 and count(ancestor::index)=0]" mode="index"><xsl:with-param name="rid"><xsl:value-of select="$iid"/></xsl:with-param></xsl:apply-templates>
+	<xsl:apply-templates select="//testmodule[count(descendant::item[text()=$iid])&gt;0 and count(ancestor::index)=0]" mode="index"><xsl:with-param name="rid"><xsl:value-of select="$iid"/></xsl:with-param></xsl:apply-templates>
+      </xsl:if>
+  \\  
+</xsl:if>
+</xsl:template>
    
 <!-- internal requirement coverage matrix -->
 <xsl:template match="index[@type='req']">
 \begin{HEMLtable}{|p{0.3\linewidth-2\tabcolsep}|p{0.7\linewidth-2\tabcolsep}|}
 \hline
 \HEMLoddHeadCell
-\textbf{Requirement}&amp; \HEMLoddHeadCell \textbf{Referenced by} \\
+\textbf{requirement}&amp; \HEMLoddHeadCell \textbf{referenced by} \\
 \endhead
   <xsl:choose>
   <xsl:when test='count(.//req)&gt;0'>
