@@ -31,9 +31,6 @@ EXT_SRC_DIR=$(BUILDROOT)/extsrc/
 # - linklib : independant extlib's CFLAGS/LDFLAGS settings, see RD_TEA332-776
 BUILDSCRIPTS_CAPS:=linklib
 
-# -L permit to get symbolic links too. Important for fileset module type.
-SRCFILES:=$(shell find -L src -type f 2>/dev/null | grep -v "/\.")
-EXTSRCFILES:=
 
 
 # initialize variable that must not be forwared in recursive make call
@@ -51,6 +48,9 @@ LUA_MDL_MODEL_HEADERS:=
 DEPS_MNGMT_LEVEL?=FIRST
 
 include $(ABSROOT)/core/common.mk
+
+SRCFILES:=$(call find,src,*)
+EXTSRCFILES:=
 
 TTARGETDIR?=$(TRDIR)/test
 TEST_REPORT_PATH:=$(TTARGETDIR)/$(APPNAME)_$(MODNAME).xml
@@ -155,7 +155,7 @@ all-impl::
 # ---------------------------------------------------------------------
 # Config files
 # ---------------------------------------------------------------------
-CONFIGFILES:=$(patsubst %,$(TRDIR)/%,$(shell find etc -type f 2>/dev/null | grep -v "/.svn/"))
+CONFIGFILES:=$(patsubst %,$(TRDIR)/%,$(call filter_out_substr,/.svn/,$(call find,etc,*)))
 
 # ---------------------------------------------------------------------
 # external sources / svn checkout
@@ -167,7 +167,7 @@ ifneq ($(SVN_CHECKOUTS),)
 $(EXT_SRC_DIR)/svn/%/.mk:
 	@mkdir -p $(@D)
 	svn co $(word 2,$(subst =, ,$(filter $(patsubst $(EXT_SRC_DIR)/svn/%/.mk,%,$@)=%,$(SVN_CHECKOUTS)))) $(@D)
-	@echo 'EXTSRCFILES+=$$(shell find -L $(@D) -name "*.c" -o -name "*.cpp")' > $@
+	@echo 'EXTSRCFILES+=$$(call find,$(@D),*.c *.cpp)' > $@
 
 include $(foreach entry,$(SVN_CHECKOUTS),$(patsubst %,$(EXT_SRC_DIR)/svn/%/.mk,$(word 1,$(subst =, ,$(entry)))))
 

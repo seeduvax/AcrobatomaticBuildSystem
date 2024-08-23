@@ -14,6 +14,8 @@ MODE?=debug
 ABSROOT?=$(ABSWS)/abs-$(VABS)
 # to avoid ancient sh behaviour on debian
 SHELL=/bin/bash
+
+# ------------------------------------------------------
 # macro for pretty message print, use color if available
 COLORS_TCAP:=$(shell ncolors=`tput colors 2>/dev/null` ; ( [ "$$ncolors" != "" ] && [ "$$ncolors" -ge 0 ] ) && echo yes || echo no)
 
@@ -76,6 +78,18 @@ $(info $(shell $(ABS_PRINT_WARNING_CMD) "$(ABS_COLOR_WARNING)[abs-info]\t$1$(ABS
 endef
 define abs_error
 $(info $(shell $(ABS_PRINT_ERROR_CMD) "$(ABS_COLOR_ERROR)[abs-info]\t$1$(ABS_COLOR_RESTORE)"))
+endef
+
+# -----------------------------------------------------
+# Misc utility macros
+define find
+$(foreach d,$(wildcard $1/*),$(if $(wildcard $d/.),$(call find,$d,$2),$(filter $(subst *,%,$2),$d)))
+endef
+define filter_substr
+$(foreach w,$2,$(if $(findstring $1,$w),$w,))
+endef
+define filter_out_substr
+$(foreach w,$2,$(if $(findstring $1,$w),,$w))
 endef
 
 TRACE_DATE_CMD:=date '+%Y-%m-%d %H:%M:%S%z'
