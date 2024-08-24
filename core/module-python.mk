@@ -54,7 +54,7 @@ PY_MODDIR=$(PY_APPDIR)/$(MODNAME)
 # scripts .py directory 
 PY_SRCDIR=src/$(APPNAME)/$(MODNAME)
 # scripts .py
-PY_SRC=$(shell find $(PY_SRCDIR) -name '*.py')
+PY_SRC=$(filter src/$(APPNAME)/$(MODNAME)/%.py,$(SRCFILES))
 # scripts .pyc
 ifneq ($(filter 2.%,$(PYTHON_VERSION)),)
 PY_OBJS:=$(patsubst $(PY_SRCDIR)/%.py,$(PY_MODDIR)/%.pyc,$(PY_SRC))

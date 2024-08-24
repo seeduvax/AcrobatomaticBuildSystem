@@ -9,11 +9,13 @@
 
 # by default module dir is directly under project root dir
 ifeq ($(MODROOT),)
-	MODROOT:=$(shell pwd)
+	MODROOT:=$(dir $(abspath $(firstword $(MAKEFILE_LIST))))
 endif
 ifeq ($(PRJROOT),)
-	PRJROOT:=$(shell dirname $(MODROOT))
+	PRJROOT:=$(dir $(MODROOT))
 endif
+
+
 
 # remove some default macros
 CC=

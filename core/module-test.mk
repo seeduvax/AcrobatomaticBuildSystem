@@ -44,9 +44,8 @@ ifeq ($(VALGRIND_XML),true)
 endif
 
 # objects to be generated from test classes.
-TALLSRCFILES=$(shell find test/ -name '*.cpp' -o -name '*.c' 2>/dev/null)
+TALLSRCFILES=$(call find,test/,*.cpp *.c)
 TSRCFILES=$(filter-out $(patsubst %,test/%,$(TDISABLE_SRC)),$(TALLSRCFILES))
-#TSRCFILES=$(shell find test/ -name '*.cpp' 2>/dev/null)
 TCPPOBJS=$(patsubst test/%.cpp,$(OBJDIR)/test/%.o,$(filter %.cpp,$(TSRCFILES))) \
 		$(patsubst test/%.c,$(OBJDIR)/test/%.o,$(filter %.c,$(TSRCFILES)))
 
@@ -83,7 +82,8 @@ else
 ifeq ($(MODTYPE),exe)
 # when the target is an exe, the test lib must include the objects made
 # to build the exe
-	TCPPOBJS+=$(patsubst src/%.cpp,$(OBJDIR)/bintest/%.o,$(shell find src/ -name '*.cpp'))  $(OBJDIR)/vinfo.o
+# TODO: a bit strange, why not just reuse OBJS?
+	TCPPOBJS+=$(patsubst src/%.cpp,$(OBJDIR)/bintest/%.o,$(filter %.cpp,$(SRCFILES)))  $(OBJDIR)/vinfo.o
 endif
 	TLDFLAGS+=-shared -ldl
 endif
