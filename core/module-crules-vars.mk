@@ -82,7 +82,7 @@ TARGETFILE=$(TARGETDIR)/$(TARGET)
 INCLUDE_PROJ_MODS=$(patsubst $(APPNAME)_%,%,$(filter $(PROJECT_MODS),$(sort $(ABS_INCLUDE_MODS))))
 
 LDFLAGS+=$(foreach mod,$(USEMOD),-L$(TRDIR)/$(SODIR) $(if $(wildcard $(TRDIR)/$(SODIR)/lib$(APPNAME)_$(mod).$(SOEXT)),-l$(APPNAME)_$(mod),)$(if $(wildcard $(TRDIR)/$(SODIR)/lib$(mod).*),-l$(mod),))
-LDFLAGS+=$(foreach mod,$(INCLUDE_PROJ_MODS),-L$(TRDIR)/$(SODIR))
+LDFLAGS+=$(if $(INCLUDE_PROJ_MODS),-L$(TRDIR)/$(SODIR),)
 CFLAGS+=$(patsubst %,-I$(TRDIR)/include,$(INCLUDE_PROJ_MODS))
 
 # add paths to used modules' headers & libs.

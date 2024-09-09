@@ -9,7 +9,28 @@
 ABS_FROMAPP:=true
 export ABS_FROMAPP
 
+ifeq ($(MODULES),)
+# search for module only if not explicitely defined from app.cfg.
+MODULES:=$(patsubst %/module.cfg,%,$(wildcard */module.cfg))
+MODULES_DEPS:=$(filter-out $(NOBUILD),$(MODULES))
+else
+MODULES_DEPS:=$(MODULES)
+MODULES_TARGET:=$(patsubst %,$(PRJOBJDIR)/%/.done,$(MODULES))
+endif
+
+ifneq ($(filter kdistinstall,$(MAKECMDGOALS)),)
+KMODULES:=$(filter %_lkm,$(MODULES_DEPS))
+MODULES_DEPS:=$(KMODULES)
+MODULES_TARGET:=$(patsubst %,mod.%,$(KMODULES))
+MODE:=release
+endif
+
 include $(ABSROOT)/core/common.mk
+
+MODULES_TARGET:=$(patsubst %,$(PRJOBJDIR)/%/.done,$(MODULES_DEPS)) $(patsubst %,warnnobuild.%,$(NOBUILD))
+MODULES_TEST:=$(filter-out $(patsubst %,testmod.%,$(NOBUILD) $(NOTEST)),$(patsubst %,testmod.%,$(MODULES))) $(patsubst %,warnnotest.%,$(NOTEST) $(NOBUILD))
+MODULES_VALGRINDTEST:=$(filter-out $(patsubst %,valgrindtestmod.%,$(NOBUILD) $(NOTEST)),$(patsubst %,valgrindtestmod.%,$(MODULES))) $(patsubst %,warnnotest.%,$(NOTEST) $(NOBUILD))
+MODULES_TESTBUILD:=$(filter-out $(patsubst %,testbuildmod.%,$(NOBUILD)),$(patsubst %,testbuildmod.%,$(MODULES))) $(patsubst %,warnnobuild.%,$(NOBUILD))
 
 JENKINS_USER?=jenkins
 DISTUSER?=$(USER)
@@ -49,26 +70,6 @@ DISTTARFLAGS+=$(patsubst %,--exclude=%,$(DIST_EXCLUDE))
 
 ##  - INSTALLTARFLAGS: arguments to add to tar command when packing files on distinstall target.
 INSTALLTARFLAGS+=$(patsubst %,--exclude=%,$(INSTALLTAR_EXCLUDE))
-
-ifeq ($(MODULES),)
-# search for module only if not explicitely defined from app.cfg.
-MODULES:=$(patsubst %/module.cfg,%,$(wildcard */module.cfg))
-MODULES_DEPS:=$(filter-out $(NOBUILD),$(MODULES))
-MODULES_TARGET:=$(patsubst %,mod.%,$(MODULES_DEPS)) $(patsubst %,warnnobuild.%,$(NOBUILD))
-MODULES_TEST:=$(filter-out $(patsubst %,testmod.%,$(NOBUILD) $(NOTEST)),$(patsubst %,testmod.%,$(MODULES))) $(patsubst %,warnnotest.%,$(NOTEST) $(NOBUILD))
-MODULES_VALGRINDTEST:=$(filter-out $(patsubst %,valgrindtestmod.%,$(NOBUILD) $(NOTEST)),$(patsubst %,valgrindtestmod.%,$(MODULES))) $(patsubst %,warnnotest.%,$(NOTEST) $(NOBUILD))
-MODULES_TESTBUILD:=$(filter-out $(patsubst %,testbuildmod.%,$(NOBUILD)),$(patsubst %,testbuildmod.%,$(MODULES))) $(patsubst %,warnnobuild.%,$(NOBUILD))
-else
-MODULES_DEPS:=$(MODULES)
-MODULES_TARGET:=$(patsubst %,mod.%,$(MODULES))
-endif
-
-ifneq ($(filter kdistinstall,$(MAKECMDGOALS)),)
-KMODULES:=$(filter %_lkm,$(MODULES_DEPS))
-MODULES_DEPS:=$(KMODULES)
-MODULES_TARGET:=$(patsubst %,mod.%,$(KMODULES))
-MODE:=release
-endif
 
 # EXPMOD: list of public modules for which includes are inserted into the distribuable archive.
 EXPMOD?=$(MODULES_DEPS)
@@ -163,40 +164,31 @@ cleandist:
 	@$(ABS_PRINT_info) "Removing dist"
 	@rm -rf dist
 
-
-$(PRJOBJDIR)/moddeps.mk:
-	@$(ABS_PRINT_info) "Generating module dependencies file."
-	@mkdir -p $(@D)
-	@echo "# "`date` > $@.tmp
-	@+for mod in $(patsubst mod.%,%,$(MODULES_DEPS)) ; do \
-	make OBJDIR=$(PRJOBJDIR)/$$mod INCLUDE_EXTLIB=false PRJROOT=$(PRJROOT) MODROOT=$(PRJROOT)/$$mod ABSROOT=$(ABSROOT) -C $$mod generateAppModsNeeds --makefile $(ABSROOT)/core/module-depends_standalone.mk --no-print-directory && \
-	echo "mod.$$mod:: \$$(patsubst %,mod.%,"`head -n 1 $(PRJOBJDIR)/$$mod/moddeps.needs`")" >> $@.tmp && \
-	echo "" >> $@.tmp; \
-	done
-	@mv $@.tmp $@
-
-mod.%::
+$(PRJOBJDIR)/%/.depready::
 	@MODNAME=`cat $*/module.cfg | grep -E "^MODNAME" | sed -E 's/.*=(.*)/\1/g'` && test "$$MODNAME" = "$*" || $(ABS_PRINT_warning) "The name of the module $$MODNAME doesn't match the name of the module directory $*. This can have side effects."
-	@mkdir -p $(TRDIR)/obj/$*
+	@mkdir -p $(@D)
+	@mkdir -p $(TRDIR)/.abs/content
+	@echo "# "`date` > $@
+
+$(PRJOBJDIR)/%/.done: $(PRJOBJDIR)/%/.depready
+	@MODNAME=`cat $*/module.cfg | grep -E "^MODNAME" | sed -E 's/.*=(.*)/\1/g'` && test "$$MODNAME" = "$*" || $(ABS_PRINT_warning) "The name of the module $$MODNAME doesn't match the name of the module directory $*. This can have side effects."
+	@mkdir -p $(@D)
 	@mkdir -p $(TRDIR)/.abs/content
 	@touch $(TRDIR)/obj/$*/files.ts
-	make $(MMARGS) MODE=$(MODE) -C $* DEPS_MNGMT_LEVEL=DISABLED
+	make $(MMARGS) MODE=$(MODE) -C $* DEPS_MNGMT_LEVEL=DISABLED | tee $@
 	@find $(TRDIR) -type f -cnewer $(TRDIR)/obj/$*/files.ts | grep -v $(TRDIR)/obj | sed 's~$(TRDIR)/~~g' | grep -E -v "^$(subst *,.*,$(subst $(_space_),|,$(DIST_EXCLUDE)))" > $(TRDIR)/.abs/content/$(APPNAME)_$*.filelist || true
 	@$(if $(filter $*,$(EXPMOD)),test ! -d $*/include || find $*/include -type f | sed 's~^$*/~~g' >> $(TRDIR)/.abs/content/$(APPNAME)_$*.filelist)
 	@rm -f $(TRDIR)/obj/$*/files.ts
 
-ifeq ($(filter clean% docker%,$(MAKECMDGOALS)),)
-include $(PRJOBJDIR)/moddeps.mk
-endif
 
 # depends on mod.% to compile dependencies of module.
-testmod.%: mod.%
+testmod.%: $(PRJOBJDIR)/%/.done
 	make $(MMARGS) MODE=$(MODE) -C $* test DEPS_MNGMT_LEVEL=DISABLED
 
-valgrindtestmod.%: mod.%
+valgrindtestmod.%: $(PRJOBJDIR)/%/.done
 	make $(MMARGS) MODE=$(MODE) -C $* valgrindtest DEPS_MNGMT_LEVEL=DISABLED
 
-testbuildmod.%: mod.%
+testbuildmod.%: $(PRJOBJDIR)/%/.done
 	make $(MMARGS) MODE=$(MODE) -C $* testbuild DEPS_MNGMT_LEVEL=DISABLED
 
 warnnobuild.%:
@@ -241,7 +233,7 @@ $(DIST_FLATTEN_DIR)/obj/compiled:
 	@mkdir -p $(@D)
 	@$(ABS_PRINT_info) "Compilation of the project in mode: $(MODE)"
 	@$(ABS_PRINT_debug) "Compilation of the modules: $(DIST_MODS)"
-	@+make TRDIR=$(PRJROOT)/$(DIST_FLATTEN_DIR) MODE=$(MODE) $(patsubst %,mod.%,$(DIST_MODS))
+	@+make TRDIR=$(PRJROOT)/$(DIST_FLATTEN_DIR) MODE=$(MODE) NOBUILD=$(NOBUILD) $(patsubst %,$(PRJROOT)/$(DIST_FLATTEN_DIR)/obj/%/.done,$(DIST_MODS))
 	@$(ABS_PRINT_info) "Compilation of the project finished !"
 	@touch $@
 
@@ -255,9 +247,7 @@ $(DIST_FLATTEN_DIR)/import.mk: $(DIST_FLATTEN_DIR)/obj/compiled
 	@test -f export.mk || printf '_app_$(APPNAME)_dir:=$$(dir $$(lastword $$(MAKEFILE_LIST)))\n\n' >> $@.tmp
 	@test -f export.mk || echo '-include $$(wildcard $$(_app_$(APPNAME)_dir)/.abs/index_*.mk)' >> $@.tmp
 	@test -f export.mk || printf '$$(eval $$(call extlib_import_template,$(APPNAME),$(VERSION),$(sort $(USELIB))))\n' >> $@.tmp
-	@test -f export.mk || for mod in $(foreach mod,$(DIST_MODS),"$(mod)"); do \
-		test ! -f $(@D)/obj/$$mod/module.mk || cat $(@D)/obj/$$mod/module.mk >> $@.tmp; \
-	done
+	@test -f export.mk || printf '$(foreach mod,$(DIST_MODS),$(strip _module_$(APPNAME)_$(mod)_depends:=$(_module_$(APPNAME)_$(mod)_depends))\n)' >> $@.tmp
 	@test -f export.mk || printf '$(subst $(_space_),\n,$(foreach mod,$(DIST_MODS) _extra,_module_$(APPNAME)_$(mod)_dir:=$$(_app_$(APPNAME)_dir)))\n\n' >> $@.tmp
 	@test -f export.mk || printf '$(_extra_import_defs_)\n\n' >> $@.tmp
 	@touch $(@D)/obj/extraFiles.ts
@@ -285,7 +275,7 @@ ifeq ($(MAKECMDGOALS),__installextlibs)
 
 # this generate ABS_INCLUDE_MODS variable
 PROJMODS=$(patsubst %,$(APPNAME)_%,$(DIST_MODS))
-include $(patsubst %,$(MODULE_MK_DIR)/module_%.mk,$(PROJMODS))
+#include $(patsubst %,$(MODULE_MK_DIR)/module_%.mk,$(PROJMODS))
 # INCLUDE_INSTALL_MODS additionnals mods to include in the installation.
 ABS_INCLUDE_MODS+=$(INCLUDE_INSTALL_MODS)
 include $(foreach mod,$(INCLUDE_INSTALL_MODS),$(wildcard $(MODULE_MK_DIR)/module_$(mod).mk))

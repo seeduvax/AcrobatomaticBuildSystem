@@ -8,7 +8,10 @@
 ##   - SRC_SCRIPTS: list of source files to be handled as scripts.
 ##      Defaulty computed by searching from src dir all files starting with 
 ##      the shebang ("#!"). Those files are copied to the target bin directory.
+
+ifneq ($(SRCFILES),)
 SRC_SCRIPTS:=$(shell grep -ln '^\#!' $(SRCFILES))
+endif
 
 OBJ_SCRIPTS:=$(patsubst src/%,$(OBJDIR)/.sh/%,$(SRC_SCRIPTS))
 

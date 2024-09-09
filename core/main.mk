@@ -1,5 +1,10 @@
 __ABS_VERSION__:=__ABS_MODULE_VERSION_MARKER__
 
+# workaround not so smart PRJROOT definition from bootstrap.mk
+# Don't want to update bootstrap to better abs upgrade in projects without side
+# effects.
+PRJROOT:=$(abspath $(PRJROOT))
+
 ifeq ($(MAKE_RESTARTS),)
 $(info # Acrobatomatic Build System Core V $(__ABS_VERSION__))
 endif

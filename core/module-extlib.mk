@@ -272,6 +272,8 @@ endif
 endif
 endif
 
+ABS_INCLUDE_MODS+=$1
+
 $(NA_EXTLIBDIR)/%.jar: $(EXTLIBDIR)/$(1)-$(2)/lib/%.jar
 	@$$(ABS_PRINT_info) "Importing jar lib $$(@F)..."
 	@mkdir -p $$(@D)

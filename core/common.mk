@@ -15,6 +15,7 @@ ABSROOT?=$(ABSWS)/abs-$(VABS)
 # to avoid ancient sh behaviour on debian
 SHELL=/bin/bash
 
+
 # ------------------------------------------------------
 # macro for pretty message print, use color if available
 COLORS_TCAP:=$(shell ncolors=`tput colors 2>/dev/null` ; ( [ "$$ncolors" != "" ] && [ "$$ncolors" -ge 0 ] ) && echo yes || echo no)
@@ -145,6 +146,11 @@ HOSTNAME?=$(shell hostname)
 
 ABS_SCM_TYPE:=null
 
+
+
+# explicitely checking and forcing variable makefile generation now since 
+# include + rule may lead to delayed include, making this one to late regarding
+# other includes to be done.
 ifeq ($(wildcard $(BUILDROOT)/.abs/vars.mk),)
 $(info $(shell $(ABS_PRINT_info) "Generating workspace variables files."))
 _ABS_FAKE_VAR:=$(shell make -f $(ABSROOT)/core/genvars.mk BUILDROOT=$(BUILDROOT) HOSTNAME=$(HOSTNAME))
@@ -156,7 +162,10 @@ ifeq ($(wildcard $(BUILDROOT)/.abs/$(HOSTNAME)-vars.mk),)
 $(info $(shell $(ABS_PRINT_info) "Generating host variables files."))
 _ABS_FAKE_VAR:=$(shell make -f $(ABSROOT)/core/genvars.mk BUILDROOT=$(BUILDROOT) HOSTNAME=$(HOSTNAME))
 endif
+
 include $(BUILDROOT)/.abs/$(HOSTNAME)-vars.mk
+
+
 
 ifeq ($(ARCH),)
 ##  - ARCH: Architecture (ex: Debian_8_x86_64)
@@ -226,4 +235,18 @@ endif
 ifneq ($(wildcard $(PRJROOT)/_charm),)
 include $(ABSROOT)/charm/main.mk
 endif
+
+# dependencies between modules
+
+$(PRJOBJDIR)/%/moddeps.mk: $(PRJROOT)/%/module.cfg
+	@make -C $(PRJROOT)/$* --no-print-directory PRJROOT="$(PRJROOT)" TRDIR="$(TRDIR)" PRJOBJDIR="$(PRJOBJDIR)" -f $(ABSROOT)/core/module-depends.mk
+
+
+ifeq ($(filter clean% docker%,$(MAKECMDGOALS)),)
+MODULES_TO_BUILD:=$(patsubst %,$(PRJOBJDIR)/%/moddeps.mk,$(USEMOD) $(MODULES_DEPS))
+ifneq ($(MODULES_TO_BUILD),)
+include $(MODULES_TO_BUILD)
+endif
+endif
+
 

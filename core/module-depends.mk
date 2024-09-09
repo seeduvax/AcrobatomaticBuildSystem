@@ -1,25 +1,21 @@
-### MODS dependencies variables:
-### USEMOD (optional/obsolete): list of project mods needed by this mod and linked with
-### LINKLIB: list of libs/mods needed by this mod and linked with. The format is $(APPNAME)_$(MODNAME) for module or $(APPNAME) for entire lib.
-### INCLUDE_MODS: list of libs/mods needed by this mod but not linked with. The format is $(APPNAME)_$(MODNAME) for module or $(APPNAME) for entire lib.
-###
-### TESTUSEMOD (optional/obsolete): list of project mods needed by this mod and linked with
-### TLINKLIB: list of libs/mods needed by the test library of this mod and linked with. The format is $(APPNAME)_$(MODNAME) for module or $(APPNAME) for entire lib.
-### INCLUDE_TESTMODS: list of libs/mods needed by test library of this mod but not linked with. The format is $(APPNAME)_$(MODNAME) for module or $(APPNAME) for entire lib.
-###
+include ../app.cfg
+include module.cfg
 
-# the includes modules directly associated to this module
-DEFAULT_ABS_INCLUDE_MODS:=$(patsubst %,$(APPNAME)_%,$(USEMOD) $(USELKMOD)) $(LINKLIB) $(INCLUDE_MODS)
-DEFAULT_ABS_INCLUDE_TESTMODS:=$(patsubst %,$(APPNAME)_%,$(TESTUSEMOD)) $(TLINKLIB) $(INCLUDE_TESTMODS)
+MODNAME?=$(notdir $(abspath .))
 
-# definition of variables used to find the path to modules trdir.
-MODULES_DEPS:=$(patsubst ../%/module.cfg,%,$(wildcard ../*/module.cfg))
-PROJECT_MODS:=$(patsubst %,$(APPNAME)_%,$(MODULES_DEPS))
-$(foreach mod,$(MODULES_DEPS),$(eval _module_$(APPNAME)_$(mod)_dir=$(TRDIR)))
-
-# ALL_NEEDED_MODS contains all the project modules needed by this module.
-ALL_NEEDED_MODS:=$(sort $(patsubst $(APPNAME)_%,%,$(filter $(PROJECT_MODS),$(DEFAULT_ABS_INCLUDE_MODS) $(DEFAULT_ABS_INCLUDE_TESTMODS))))
-
-generateAppModsNeeds:
-	@mkdir -p $(OBJDIR)
-	@echo $(ALL_NEEDED_MODS) > $(OBJDIR)/moddeps.needs
+$(PRJOBJDIR)/$(MODNAME)/moddeps.mk:
+	@$(ABS_PRINT_info) "Generating $(MODNAME) module dependency file."
+	@mkdir -p $(@D)
+	@echo "# "`date` > $@
+	@printf "\n\
+"'ifeq ($$(filter $$(MODNAME),$$(ABS_INCLUDE_MODS)),)'"\n\
+ABS_INCLUDE_MODS+=$(MODNAME)\n\
+_module_$(MODNAME)_dir=$(PRJROOT)/$(MODNAME)\n\
+_module_$(APPNAME)_$(MODNAME)_dir=$(TRDIR)\n\
+_module_$(APPNAME)_$(MODNAME)_depends=$(LINKLIB) $(patsubst %,$(APPNAME)_%,$(USEMOD))\n\
+\n\
+$(PRJOBJDIR)/$(MODNAME)/.depready: $(patsubst %,$(PRJOBJDIR)/%/.done,$(USEMOD))\n\
+\n\
+$(PRJOBJDIR)/$(MODNAME)/.done: "'$$(call find,$(PRJROOT)/$(MODNAME),*)'"\n\
+\n\
+endif\n" >> $@

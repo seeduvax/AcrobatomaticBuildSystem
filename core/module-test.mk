@@ -44,7 +44,7 @@ ifeq ($(VALGRIND_XML),true)
 endif
 
 # objects to be generated from test classes.
-TALLSRCFILES=$(call find,test/,*.cpp *.c)
+TALLSRCFILES=$(call find,test,*.cpp *.c)
 TSRCFILES=$(filter-out $(patsubst %,test/%,$(TDISABLE_SRC)),$(TALLSRCFILES))
 TCPPOBJS=$(patsubst test/%.cpp,$(OBJDIR)/test/%.o,$(filter %.cpp,$(TSRCFILES))) \
 		$(patsubst test/%.c,$(OBJDIR)/test/%.o,$(filter %.c,$(TSRCFILES)))
