@@ -275,7 +275,6 @@ ifeq ($(MAKECMDGOALS),__installextlibs)
 
 # this generate ABS_INCLUDE_MODS variable
 PROJMODS=$(patsubst %,$(APPNAME)_%,$(DIST_MODS))
-#include $(patsubst %,$(MODULE_MK_DIR)/module_%.mk,$(PROJMODS))
 # INCLUDE_INSTALL_MODS additionnals mods to include in the installation.
 ABS_INCLUDE_MODS+=$(INCLUDE_INSTALL_MODS)
 include $(foreach mod,$(INCLUDE_INSTALL_MODS),$(wildcard $(MODULE_MK_DIR)/module_$(mod).mk))
