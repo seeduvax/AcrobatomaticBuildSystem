@@ -322,11 +322,11 @@ TBD<xsl:value-of select="count(preceding::tbd)+1"/> &amp; \S\ref{tbd.<xsl:value-
 <xsl:when test="@id!=''">
 \hypertarget{req.<xsl:value-of select="@id"/>}{}
 \label{req.<xsl:value-of select="@id"/>}
-\HEMLrequirement<xsl:value-of select="$style"/>{<xsl:apply-templates select="@id"/><xsl:if test="@state!='' or @replace-by!='' or @cr!=''"> [<xsl:value-of select="@state"/><xsl:if test="@replaced-by!=''"><xsl:text> </xsl:text>replaced by: <xsl:value-of select="@replaced-by"/></xsl:if><xsl:text> </xsl:text><xsl:value-of select="@cr"/>]</xsl:if>}{
-<xsl:apply-templates select="text()|*[not(self::up) and not(self::req)]"/>
+\HEMLrequirement<xsl:value-of select="$style"/>{<xsl:apply-templates select="@id"/><xsl:if test="@state!='' or @replace-by!='' or @cr!=''"> [<xsl:value-of select="@state"/><xsl:if test="@replaced-by!=''"><xsl:text> </xsl:text>replaced by: <xsl:value-of select="@replaced-by"/></xsl:if><xsl:text> </xsl:text><xsl:value-of select="@cr"/>]</xsl:if><xsl:text> </xsl:text><xsl:value-of select="@title"/>}{
+<xsl:apply-templates select="text()|*[not(self::up) and not(self::req) and not(self::rational)]"/>
 }{<xsl:if test="count(up)+count(req)&gt;0">
 <xsl:apply-templates select="up|req" mode="up"/>
-</xsl:if>}
+</xsl:if>}{<xsl:apply-templates select="rational"/>}
 </xsl:when>
 <xsl:otherwise><xsl:if test="count(//req[@id=$rid and count(ancestor::index)=0])&gt;0">\hyperlink{req.<xsl:value-of select="."/>}</xsl:if>{\HEMLreqReference{<xsl:value-of select="."/>}}</xsl:otherwise>
 </xsl:choose>

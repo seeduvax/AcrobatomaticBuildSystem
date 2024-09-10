@@ -161,7 +161,7 @@
 \end{tcolorbox} \end{tcolorbox}
 }
 \newcommand{\HEMLreqReference}[1]{\colorbox{yellow!10}{\textbf{\textcolor{darkblue}{#1}}}}
-\newcommand{\HEMLrequirement}[3]{
+\newcommand{\HEMLrequirement}[4]{
 \begin{tcolorbox}[left=0.1cm,
     right=0.1cm,
     top=0.1cm,
@@ -187,9 +187,12 @@
     boxsep=0cm,
     arc=0pt,outer arc=0pt]
 #2
-\end{tcolorbox} \ifthenelse{\equal{#3}{}}{}{\textbf{#3}} \end{tcolorbox}
+\end{tcolorbox} \ifthenelse{\equal{#3}{}}{}{\textbf{#3}} 
+
+#4
+\end{tcolorbox}
 }
-\newcommand{\HEMLrequirementRemoved}[3]{
+\newcommand{\HEMLrequirementRemoved}[4]{
 \begin{tcolorbox}[left=0.1cm,
     right=0.1cm,
     top=0.1cm,

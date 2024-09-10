@@ -104,6 +104,16 @@ structured bullets:
 With additional long text to check how lines break and margins are well handled:
 df kqsjdhf kqjsdhfkjqsdh fkjqshdf kjqsdhf kjqsdhfk jqsdfkjqshd fkjqshdkfj ksdjfh
 kqjsdhf kqjsdf kqsjdf.
+
+{rational
+And structured rational as well:
+  - to check formatting is well applied.
+  - and with very long text, line breaks are clean and convenient. sdfjl
+    skdlskdjf lsslkdslkdjf lsdkf s d fsldfkj sldkfjsl kdfjslkd jflskdjfl skdflk
+    jsldfk jsdf.
+
+And a last sentence to see bullets closure.
+}
 }
 {req %id=requirement_with_a_very_long_identifier_to_check_it_is_not_trunkated
 Some people love huge levels of dotted requirements identifiers.
