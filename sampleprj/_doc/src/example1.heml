@@ -74,6 +74,24 @@ Add here an include example
 {def %entry=two %%2nd number}
   }
   {section %title=Requirements
+{note %title=Requirements format
+All requirements in this document are formalized according the same formatting
+as presented in this following example.
+{reqsample %id=req_identifier %title=Title for requirement sample
+This sentence is the requirement definition, any text outside this frame shall
+not be considered as part of the requirement but only additional text provided
+in the hope to let the reader have a better understanding of the requirement.
+
+{req upward_req_id}
+{rational
+Additional content acting as a rational, that is justification and/or motivation
+about the requirement.
+}
+}
+Requirement title, rational and upward requirement traceability are optional but
+any requirement should be motivated by at least one upward requirement reference
+or a rational sentence.
+}
 {req %id=req.del %state=removed %cr=4771050 %title=pigeon messaging
 Messages shall be sent by pigeons.
 }

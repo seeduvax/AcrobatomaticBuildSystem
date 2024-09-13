@@ -315,7 +315,7 @@ TBD<xsl:value-of select="count(preceding::tbd)+1"/> &amp; \S\ref{tbd.<xsl:value-
 <!--************************************************
      	requirements
 -->
-<xsl:template match="req">
+<xsl:template match="req|reqsample">
 <xsl:param name="style"><xsl:if test="@state='removed' or @replaced-by!=''">Removed</xsl:if></xsl:param>
 <xsl:param name="rid"><xsl:value-of select="text()"/></xsl:param>
 <xsl:choose>
@@ -334,10 +334,10 @@ TBD<xsl:value-of select="count(preceding::tbd)+1"/> &amp; \S\ref{tbd.<xsl:value-
 <!-- Requirement reference -->
 <xsl:template match="req" mode="ref">
 <xsl:param name="rid"><xsl:value-of select="text()"/></xsl:param>
-<xsl:if test="count(//req[@id=$rid and count(ancestor::index)=0])&gt;0">\hyperlink{req.<xsl:value-of select="text()"/>}</xsl:if>{<xsl:value-of select="text()"/>}<xsl:text> </xsl:text>
+<xsl:if test="count(//req[@id=$rid and count(ancestor::index)=0])&gt;0">\hyperlink{req.<xsl:value-of select="text()"/>}</xsl:if>{<xsl:apply-templates select="text()"/>}<xsl:text> </xsl:text>
 </xsl:template>
 <!-- upware requiremnt -->
-<xsl:template match="up|req" mode="up"><xsl:value-of select="text()"/><xsl:text> </xsl:text></xsl:template>
+<xsl:template match="up|req" mode="up"><xsl:apply-templates select="text()"/><xsl:text> </xsl:text></xsl:template>
 <!--************************************************
      	tables
 -->
@@ -1022,7 +1022,7 @@ Unchecked requirements: </xsl:text><xsl:apply-templates select="req|.//assert[tr
   <xsl:param name="iid"><xsl:value-of select="@id"/></xsl:param>
 <xsl:if test="@id!=''">
 <xsl:choose>
-  <xsl:when test="count(preceding::req[count(ancestor::req)=0]) mod 2 = 0">
+  <xsl:when test="count(preceding::item[count(ancestor::item)=0]) mod 2 = 0">
 \HEMLoddRow
   </xsl:when>
   <xsl:otherwise>
@@ -1042,7 +1042,7 @@ Unchecked requirements: </xsl:text><xsl:apply-templates select="req|.//assert[tr
    
 <!-- internal requirement coverage matrix -->
 <xsl:template match="index[@type='req']">
-\begin{HEMLtable}{|p{0.3\linewidth-2\tabcolsep}|p{0.7\linewidth-2\tabcolsep}|}
+\begin{HEMLtable}{|p{0.4\linewidth-2\tabcolsep}|p{0.6\linewidth-2\tabcolsep}|}
 \hline
 \HEMLoddHeadCell
 \textbf{requirement}&amp; \HEMLoddHeadCell \textbf{referenced by} \\
@@ -1074,7 +1074,7 @@ Unchecked requirements: </xsl:text><xsl:apply-templates select="req|.//assert[tr
 \HEMLevenRow
   </xsl:otherwise>
 </xsl:choose>
-  <xsl:if test="$style='Removed'">\footnotesize{\textit{</xsl:if><xsl:if test="count(//req[@id=$rid and count(ancestor::index)=0])&gt;0">\hyperlink{req.<xsl:apply-templates select="@id"/>}</xsl:if>{<xsl:apply-templates select="@id"/>}<xsl:if test="@state!='' or @replace-by!='' or @cr!=''"> [<xsl:value-of select="@state"/><xsl:if test="@replaced-by!=''"><xsl:text> </xsl:text>replaced by: <xsl:value-of select="@replaced-by"/></xsl:if><xsl:text> </xsl:text><xsl:value-of select="@cr"/>]</xsl:if><xsl:if test="$style='Removed'">}}</xsl:if>&amp;
+  <xsl:if test="$style='Removed'">\footnotesize{\textit{</xsl:if><xsl:if test="count(//req[@id=$rid and count(ancestor::index)=0])&gt;0">\hyperlink{req.<xsl:apply-templates select="@id"/>}</xsl:if>{<xsl:apply-templates select="@id"/>}<xsl:if test="@state!='' or @replace-by!='' or @cr!=''"> [<xsl:value-of select="@state"/><xsl:if test="@replaced-by!=''"><xsl:text> </xsl:text>replaced by: <xsl:value-of select="@replaced-by"/></xsl:if><xsl:text> </xsl:text><xsl:value-of select="@cr"/>]</xsl:if><xsl:if test="$style='Removed'">}}</xsl:if><xsl:text> </xsl:text><xsl:value-of select="@title"/>&amp;
     <xsl:if test="$style='Removed'">\footnotesize{\textit{</xsl:if>
     <xsl:choose>
       <xsl:when test="count(//req/req[text()=$rid and count(ancestor::index)=0]) + count(//up[text()=$rid and count(ancestor::index)=0])&gt;0">
