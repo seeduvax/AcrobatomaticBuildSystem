@@ -175,7 +175,7 @@ $(PRJOBJDIR)/%/.done: $(PRJOBJDIR)/%/.depready
 	@mkdir -p $(@D)
 	@mkdir -p $(TRDIR)/.abs/content
 	@touch $(TRDIR)/obj/$*/files.ts
-	make $(MMARGS) MODE=$(MODE) -C $* DEPS_MNGMT_LEVEL=DISABLED | tee $@
+	make $(MMARGS) MODE=$(MODE) -C $* DEPS_MNGMT_LEVEL=DISABLED && date > $@
 	@find $(TRDIR) -type f -cnewer $(TRDIR)/obj/$*/files.ts | grep -v $(TRDIR)/obj | sed 's~$(TRDIR)/~~g' | grep -E -v "^$(subst *,.*,$(subst $(_space_),|,$(DIST_EXCLUDE)))" > $(TRDIR)/.abs/content/$(APPNAME)_$*.filelist || true
 	@$(if $(filter $*,$(EXPMOD)),test ! -d $*/include || find $*/include -type f | sed 's~^$*/~~g' >> $(TRDIR)/.abs/content/$(APPNAME)_$*.filelist)
 	@rm -f $(TRDIR)/obj/$*/files.ts
