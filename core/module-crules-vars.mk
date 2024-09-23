@@ -79,8 +79,8 @@ TARGETFILE=$(TARGETDIR)/$(TARGET)
 
 # LDFLAGS permit to get the created .so that are not MODTYPE library.
 # this variable must be evaluated at the use time because at declaration time, the dependencies are not generated yet.
-INCLUDE_PROJ_MODS=$(foreach mod,$(sort $(ABS_INCLUDE_MODS)),$(if $(wildcard $(PRJROOT)/$(mod)),$(mod),))
-LDFLAGS+=-L$(TRDIR)/$(SODIR) $(foreach mod,$(INCLUDE_PROJ_MODS),$(if $(wildcard $(TRDIR)/$(SODIR)/lib$(APPNAME)_$(mod).$(SOEXT)),-l$(APPNAME)_$(mod),)$(if $(wildcard $(TRDIR)/$(SODIR)/lib$(mod).*),-l$(mod),))
+INCLUDE_PROJ_MODS=$(filter-out $(MODNAME),$(foreach mod,$(sort $(ABS_INCLUDE_MODS)),$(if $(wildcard $(PRJROOT)/$(mod)),$(mod),)))
+LDFLAGS+=-L$(TRDIR)/$(SODIR) $(foreach mod,$(INCLUDE_PROJ_MODS),$(if $(wildcard $(TRDIR)/$(SODIR)/lib$(APPNAME)_$(mod).$(SOEXT)),-l$(APPNAME)_$(mod),)$(if $(wildcard $(TRDIR)/$(SODIR)/lib$(mod).$(SOEXT)),-l$(mod),))
 
 # add paths to used modules' headers & libs.
 CFLAGS+=-I$(TRDIR)/include $(foreach mod,$(INCLUDE_PRJ_MODS),$(if $(wildcard $(PRJROOT)/$(mod)/include),-I$(PRJROOT)/$(mod)/include,))
@@ -202,7 +202,7 @@ ifneq ($(ISWINDOWS),true)
 define ld-command
 @$(ABS_PRINT_info) "Linking $@ ..."
 @mkdir -p $(TARGETDIR)
-@echo `$(TRACE_DATE_CMD)`"> LD_RUN_PATH='$(LDRUNP)' LD_LIBRARY_PATH=$(LDLIBP) $(LD) -o $@ $(OBJS) $(LDFLAGS)" >> $(BUILDLOG)
+@echo `$(TRACE_DATE_CMD)`"> LD_RUN_PATH='"'$(LDRUNP)'"' LD_LIBRARY_PATH=$(LDLIBP) $(LD) -o $@ $(OBJS) XXX:$(LDFLAGS):XXX" >> $(BUILDLOG)
 @LD_RUN_PATH='$(LDRUNP)' LD_LIBRARY_PATH=$(LDLIBP) $(LD) -o $@ $(OBJS) $(LDFLAGS)
 endef
 else
