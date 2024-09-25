@@ -37,7 +37,7 @@ public:
         PROFILER_FUNCTION_COL(Grey);
     }
 
-    ABS_TEST_CASE_BEGIN(CaseSuccess)
+    ABS_TEST_CASE_BEGIN(CaseSuccess) {
         ABS_TEST_DESCR(Simple test expected to be successful showing few features.)
         ABS_TEST_CASE_REQ(req.1)
         PROFILER_FUNCTION;
@@ -49,13 +49,15 @@ public:
             << MACRO_STRVALUE(__MODNAME__) << std::endl;
         CPPUNIT_ASSERT_EQUAL(1,1);
         PROFILER_PLOT("testPlot",1.0);
+    }
     ABS_TEST_CASE_END
 
-    ABS_TEST_CASE_BEGIN(CaseFail) 
+    ABS_TEST_CASE_BEGIN(CaseFail) {
         ABS_TEST_DESCR(This test is designed to fail, in order to check the test infrastructure is able to catch a failure.)
         ABS_TEST_CASE_REQ(req.2)
         PROFILER_FUNCTION;
         CPPUNIT_ASSERT_EQUAL(0,1);
+    }
     ABS_TEST_CASE_END
 
     void funcProfA() {
