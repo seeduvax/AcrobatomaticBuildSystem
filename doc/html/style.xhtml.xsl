@@ -254,8 +254,8 @@ include(<xsl:value-of select="@src"/>.txt)
      	requirements
 -->
 <xsl:template match="up"><xsl:value-of select="."/>&#160;</xsl:template>
-<xsl:template match="rep" mode="up"><xsl:value-of select="."/>&#160;</xsl:template>
-<xsl:template match="req">
+<xsl:template match="req" mode="up"><xsl:value-of select="."/>&#160;</xsl:template>
+<xsl:template match="req|reqsample">
 <xsl:param name="style"><xsl:choose>
 <xsl:when test="@state!=''"><xsl:value-of select="@state"/></xsl:when>
 <xsl:when test="@replaced-by!=''">removed</xsl:when>
