@@ -111,7 +111,7 @@ $(OBJDIR)/test/%.o: test/%.cpp
 	@$(ABS_PRINT_info) "Compiling test $< ..."
 	@mkdir -p $(@D)
 	@echo `$(TRACE_DATE_CMD)`"> $(CPPC) $(CXXFLAGS) $(CFLAGS) $(TCFLAGS) -c $< -o $@" >> $(BUILDLOG)
-	@grep -v "#\s*include" $< | cpp -E | grep -E "ABS_TEST_.*_BEGIN|ABS_TEST_SUITE_END" | cpp -include $(ABSROOT)/core/include/abs/testdef2cppunitdecl.h | sed -e '/^#/d;s/!$$//g;s/ !!!/\n!!!/g;s/!!!/#/g' > $(patsubst %.o,%.h,$@)
+	@grep -v "#\s*include" $< | cpp -E | grep -E "ABS_TEST_.*_BEGIN|ABS_TEST_SUITE_END" | sed -E 's/\{ *$$//g' | cpp -include $(ABSROOT)/core/include/abs/testdef2cppunitdecl.h | sed -e '/^#/d;s/!$$//g;s/ !!!/\n!!!/g;s/!!!/#/g' > $(patsubst %.o,%.h,$@)
 	@$(CPPC) $(CXXFLAGS) $(CFLAGS) $(TCFLAGS) -include $(patsubst %.o,%.h,$@) -MMD -MF $@.d -c $< -o $@ \
 	&& ( cp $@.d $@.d.tmp ; sed -e 's/#.*//' -e 's/^[^:]*: *//' -e 's/ *\\$$//' -e '/^$$/ d' -e 's/$$/ :/' $@.d.tmp >> $@.d ; rm $@.d.tmp ) \
 	|| ( $(ABS_PRINT_error) "Failed: CFLAGS=$(CXXFLAGS) $(CFLAGS) $(TCFLAGS)" ; exit 1 )
@@ -367,14 +367,15 @@ public:\n\
     }\n\
 \n\
 /* Test case template, uncomment and complete according this pattern for each test case\n\
-    ABS_TEST_CASE_BEGIN(NameOfTestCase)\n\
+    ABS_TEST_CASE_BEGIN(NameOfTestCase) {\n\
         ABS_TEST_DESCR(Test case description)\n\
-        ABS_TEST_CASE_REQ(req.id) // one entry for eache requrement checked by this case\n\
+        ABS_TEST_CASE_REQ(req.id) // one entry for each requirement checked by this case\n\
         // init/call service / function to be tested and collect results\n\
 \n\
         // check results with cppunit asserts\n\
         CPPUNIT_ASSERT( bool expr);\n\
         CPPUNIT_ASSERT_EQUAL(expected_value,computed_value);\n\
+    }\n\
     ABS_TEST_CASE_END\n\
 */\n\
 ABS_TEST_SUITE_END\n\

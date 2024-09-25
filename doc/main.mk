@@ -80,7 +80,7 @@ $(OBJDIR)/testdefindex.heml: $(TESTSRCFILES)
 	  for testcasefile in "$$testmoduledir/test/Test"*.cpp ; do \
 		testDocfile=$(OBJDIR)/`basename "$$testmoduledir"`_`basename $$testcasefile` ;\
 		testDocfile=`echo $$testDocfile | sed s/.cpp/.heml/ `;\
-		test -r "$$testcasefile" && grep -v "#\s*include" "$$testcasefile" | cpp -E | fgrep "ABS_TEST_" | cpp -D__TESTFILE__="$$testcasefile" -include $(ABSROOT)/core/include/abs/testdef2heml.h | sed -e "/^# /d;s:$(PRJROOT)::g;s/{/\n{/g" > $$testDocfile || : ; \
+		test -r "$$testcasefile" && grep -v "#\s*include" "$$testcasefile" | cpp -E | fgrep "ABS_TEST_" | sed -E 's/\{ *$$//g' | cpp -D__TESTFILE__="$$testcasefile" -include $(ABSROOT)/core/include/abs/testdef2heml.h | sed -e "/^# /d;s:$(PRJROOT)::g;s/{/\n{/g" > $$testDocfile || : ; \
 		test -r "$$testcasefile" && echo "   {?include %src="$$testDocfile" }" >> $@ || : ; \
 	  done ; \
 	  test -d "$$testmoduledir/test" && echo " }" >> $@ || : ; \
@@ -101,7 +101,7 @@ $(OBJDIR)/testexecindex.heml: $(TESTEXECFILES)
 	@for testfile in $(TESTEXECFILES) ; do \
 	    echo "{testmodule %name="`basename $$testfile | sed -e 's/.stdout$$//g;s/$(APPNAME)_//g'` >> $@ ; \
 	    echo "{dummy" >> $@ ; \
-	    fgrep "ABS_TEST_" "$$testfile" | cpp -include $(ABSROOT)/core/include/abs/testdef2heml.h | sed -e "/^# /d;s/{testcase/}{testcase/g" >> $@ ; \
+	    fgrep "ABS_TEST_" "$$testfile" | sed -E 's/\{ *$$//g' | cpp -include $(ABSROOT)/core/include/abs/testdef2heml.h | sed -e "/^# /d;s/{testcase/}{testcase/g" >> $@ ; \
 		echo "}" >> $@ ; \
 		echo "}" >> $@ ; \
 	done
