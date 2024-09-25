@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<cr id="51648b00992afdb4cf39d3374d071e3af6685ddb39eaaa8708816611d9e5fe55" state="working">
+<cr id="51648b00992afdb4cf39d3374d071e3af6685ddb39eaaa8708816611d9e5fe55" state="resolved">
 <title>Support code section in ABS_TEST_CASE. This will permit to the clang format to better reformate the code</title>
 <reporter>fred</reporter>
 <creation>2024-09-25 08:49:44+02:00</creation>
