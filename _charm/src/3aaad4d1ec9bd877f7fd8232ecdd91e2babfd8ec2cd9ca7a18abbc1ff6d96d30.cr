@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<cr id="3aaad4d1ec9bd877f7fd8232ecdd91e2babfd8ec2cd9ca7a18abbc1ff6d96d30" state="working">
+<cr id="3aaad4d1ec9bd877f7fd8232ecdd91e2babfd8ec2cd9ca7a18abbc1ff6d96d30" state="resolved">
 <title>Hide extraction files during installation by default</title>
 <reporter>fred</reporter>
 <creation>2024-09-26 08:40:00+02:00</creation>
