@@ -10,7 +10,7 @@ PREFIX=/opt/$APPNAME-$VERSION
 THIS=$0
 SKIP=`awk '/^__END_SCRIPT_TAG__$/ { print NR + 1; exit 0; }' "$THIS"`
 
-UNTAR_ARGS="v"
+UNTAR_ARGS=""
 TARGET=
 
 help() {
@@ -28,6 +28,7 @@ $1 <cmd> [args] <target>
 
     options:
         --quiet: Hide the untar process 
+        --verbose: Show more informations
         --nochecksum: disable checksum control (use to force install or extract even
           when checksum control failed).
 
@@ -186,6 +187,9 @@ do
             ;;
         --quiet)
             UNTAR_ARGS=""
+            ;;
+        --verbose)
+            UNTAR_ARGS="v"
             ;;
         *)
             # the last argument is the target if no match with anyother cases
