@@ -35,6 +35,9 @@ endif
 ABS_DEPDOWNLOAD_RULE_OVERLOADED:=1
 # download files from repository
 .PRECIOUS: $(ABS_CACHE)/%
+.PRECIOUS: $(ABS_CACHE)/noarch/%
+.PRECIOUS: $(ABS_CACHE)/noarch/%.tar.gz
+.PRECIOUS: $(ABS_CACHE)/noarch/%.jar
 .PRECIOUS: $(ABSWS_EXTLIBDIR)/%/import.mk $(ABSWS_NDEXTLIBDIR)/%/import.mk $(ABSWS_NA_EXTLIBDIR)/%/import.mk $(ABSWS_NDNA_EXTLIBDIR)/%/import.mk
 
 # Download an archive from an URL list
