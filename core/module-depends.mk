@@ -1,3 +1,5 @@
+all:
+
 include ../app.cfg
 include module.cfg
 
@@ -22,3 +24,5 @@ $(PRJOBJDIR)/$(MODNAME)/.depready: $(patsubst %,$(PRJOBJDIR)/%/.done,$(USEMOD))\
 $(PRJOBJDIR)/$(MODNAME)/.done: "'$$(call find,$(PRJROOT)/$(MODNAME),*)'"\n\
 \n\
 endif\n" >> $@
+
+all: $(PRJOBJDIR)/$(MODNAME)/moddeps.mk
