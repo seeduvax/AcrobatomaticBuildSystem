@@ -5,10 +5,18 @@
 ## Java test services variables:
 ## 
 ##  - JUNIT: junit package name (default is junit-4.8.2)
+##  - TARGS: run only test class with name containing the string given with this variable.
 JUNIT?=junit-4.8.2
 JUNITXML?=junitXmlFormatter-0.0
 TXTXSL=xunit2txt.xsl
 TESTCLASSFILES=$(patsubst %.java,$(OBJDIR)/%.class,$(shell find test -name "Test*.java" 2>/dev/null))
+TESTCLASSES:=$(subst /,.,$(patsubst $(OBJDIR)/test/%.class,test/%,$(TESTCLASSFILES)))
+ifneq ($(TARGS),)
+  # emulate +f argument feature from ccpunint abs integration to filter the tests to run
+  # very basic for now, supports only one entry behind +f
+  # TODO: better way should be to implement feature at test runner level.
+  TESTCLASSES:=$(foreach tc,$(TESTCLASSES),$(if $(findstring $(filter-out +f,$(TARGS)),$(tc)),$(tc),))
+endif
 ifeq ($(ISWINDOWS),true)
 TESTCLASSPATH=$(shell cygpath -mp '$(OBJDIR):$(JARIMGDIR):$(NA_EXTLIBDIR)/$(JUNIT).jar:$(NA_EXTLIBDIR)/$(JUNITXML).jar');$(CLASSPATH)
 JUFLAGS=-classpath "$(TESTCLASSPATH)" -d "$(shell cygpath -m '$(OBJDIR)')" -sourcepath "$(shell cygpath -mp '.:src:$(OBJDIR)')"
@@ -46,12 +54,12 @@ test:: $(TESTCLASSFILES)
 ifeq ($(ISWINDOWS),true)
 	TRDIR="$(shell cygpath -m '$(TRDIR)')" TTARGETDIR="$(shell cygpath -m '$(TTARGETDIR)')" $(JAVA) -cp "$(TESTCLASSPATH)"\
      -Dorg.schmant.task.junit4.target="$(shell cygpath -m '$(TEST_REPORT_PATH)')" $(TOPTS)\
-     barrypitman.junitXmlFormatter.Runner $(subst /,.,$(patsubst $(OBJDIR)/test/%.class,test/%,$(TESTCLASSFILES)))\
+     barrypitman.junitXmlFormatter.Runner $(TESTCLASSES)\
      2>&1 | tee $(TTARGETDIR)/$(APPNAME)_$(MODNAME).stdout  || true
 else
 	@TRDIR="$(TRDIR)" TTARGETDIR="$(TTARGETDIR)" $(JAVA) -cp "$(TESTCLASSPATH)"\
      -Dorg.schmant.task.junit4.target=$(TEST_REPORT_PATH) $(TOPTS)\
-     barrypitman.junitXmlFormatter.Runner $(subst /,.,$(patsubst $(OBJDIR)/test/%.class,test/%,$(TESTCLASSFILES)))\
+     barrypitman.junitXmlFormatter.Runner $(TESTCLASSES)\
      2>&1 | tee $(TTARGETDIR)/$(APPNAME)_$(MODNAME).stdout  || true
 endif
 	@if [ ! -r $(TEST_REPORT_PATH) ]; then $(ABS_PRINT_error) "no test report, test runner exited abnormally."; \

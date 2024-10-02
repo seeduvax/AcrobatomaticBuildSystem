@@ -43,8 +43,9 @@ JARIMGDIR:=$(OBJDIR)/jar
 JGENSRCDIR:=$(OBJDIR)/gjava
 
 # Java default settings
+JARLIBS:=$(patsubst %,$(NA_EXTLIBDIR)/%.jar,$(USEJAR))
 JCLASSES:=$(patsubst src/%.java,$(JARIMGDIR)/%.class,$(filter %.java, $(SRCFILES)))
-CLASSPATH:=$(subst $(_space_),:,$(patsubst %,$(NA_EXTLIBDIR)/%.jar,$(USEJAR)) $(patsubst $(TARGETDIR)/$(DOMAIN).$(APPNAME).$(APPNAME).%,$(TARGETDIR)/$(DOMAIN).$(APPNAME).%,$(patsubst %,$(TARGETDIR)/$(DOMAIN).$(APPNAME).%-$(VERSION).jar,$(USEJMOD))))
+CLASSPATH:=$(subst $(_space_),:,$(JARLIBS)) $(patsubst $(TARGETDIR)/$(DOMAIN).$(APPNAME).$(APPNAME).%,$(TARGETDIR)/$(DOMAIN).$(APPNAME).%,$(patsubst %,$(TARGETDIR)/$(DOMAIN).$(APPNAME).%-$(VERSION).jar,$(USEJMOD))))
 ifeq ($(ISWINDOWS),true)
 CLASSPATH:=$(shell cygpath -mp $(CLASSPATH))
 endif
@@ -79,7 +80,9 @@ $(JARIMGDIR)/%: src/%
 	@cp $< $@
 
 # external dependancies and module dependancies.
-$(JCLASSES): $(patsubst %,$(NA_EXTLIBDIR)/%.jar,$(USEJAR)) $(patsubst %,$(TARGETDIR)/$(DOMAIN).$(APPNAME).%-$(VERSION).jar,$(USEJMOD))
+.PRECIOUS: $(JARLIBS)
+
+$(JCLASSES): $(JARLIBS) $(patsubst %,$(TARGETDIR)/$(DOMAIN).$(APPNAME).%-$(VERSION).jar,$(USEJMOD))
 
 $(OBJDIR)/$(MODNAME).Manifest: $(JCLASSES)
 	@$(ABS_PRINT_info) "Creating manifest file..."
