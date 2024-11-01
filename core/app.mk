@@ -171,25 +171,27 @@ $(PRJOBJDIR)/%/.depready::
 	@echo "# "`date` > $@
 
 $(PRJOBJDIR)/%/.done: $(PRJOBJDIR)/%/.depready
+	@$(ABS_PRINT_info) "Building module $(patsubst $(PRJOBJDIR)/%/.done,%,$@)..."
 	@MODNAME=`cat $*/module.cfg | grep -E "^MODNAME" | sed -E 's/.*=(.*)/\1/g'` && test "$$MODNAME" = "$*" || $(ABS_PRINT_warning) "The name of the module $$MODNAME doesn't match the name of the module directory $*. This can have side effects."
 	@mkdir -p $(@D)
 	@mkdir -p $(TRDIR)/.abs/content
 	@touch $(TRDIR)/obj/$*/files.ts
-	make $(MMARGS) MODE=$(MODE) -C $* DEPS_MNGMT_LEVEL=DISABLED && date > $@
+	@make $(MMARGS) MODE=$(MODE) -C $* && date > $@
 	@find $(TRDIR) -type f -cnewer $(TRDIR)/obj/$*/files.ts | grep -v $(TRDIR)/obj | sed 's~$(TRDIR)/~~g' | grep -E -v "^$(subst *,.*,$(subst $(_space_),|,$(DIST_EXCLUDE)))" > $(TRDIR)/.abs/content/$(APPNAME)_$*.filelist || true
 	@$(if $(filter $*,$(EXPMOD)),test ! -d $*/include || find $*/include -type f | sed 's~^$*/~~g' >> $(TRDIR)/.abs/content/$(APPNAME)_$*.filelist)
 	@rm -f $(TRDIR)/obj/$*/files.ts
+	@$(ABS_PRINT_info) "Module $(patsubst $(PRJOBJDIR)/%/.done,%,$@) built."
 
 
 # depends on mod.% to compile dependencies of module.
 testmod.%: $(PRJOBJDIR)/%/.done
-	make $(MMARGS) MODE=$(MODE) -C $* test DEPS_MNGMT_LEVEL=DISABLED
+	make $(MMARGS) MODE=$(MODE) -C $* test
 
 valgrindtestmod.%: $(PRJOBJDIR)/%/.done
-	make $(MMARGS) MODE=$(MODE) -C $* valgrindtest DEPS_MNGMT_LEVEL=DISABLED
+	make $(MMARGS) MODE=$(MODE) -C $* valgrindtest
 
 testbuildmod.%: $(PRJOBJDIR)/%/.done
-	make $(MMARGS) MODE=$(MODE) -C $* testbuild DEPS_MNGMT_LEVEL=DISABLED
+	make $(MMARGS) MODE=$(MODE) -C $* testbuild
 
 warnnobuild.%:
 	@$(ABS_PRINT_warning) "module $* build is disabled."
@@ -275,12 +277,15 @@ ifeq ($(MAKECMDGOALS),__installextlibs)
 
 # this generate ABS_INCLUDE_MODS variable
 PROJMODS=$(patsubst %,$(APPNAME)_%,$(DIST_MODS))
+include $(patsubst %,$(DIST_FLATTEN_DIR)/obj/%/moddeps.mk,$(DIST_MODS))
 # INCLUDE_INSTALL_MODS additionnals mods to include in the installation.
 ABS_INCLUDE_MODS+=$(INCLUDE_INSTALL_MODS)
 include $(foreach mod,$(INCLUDE_INSTALL_MODS),$(wildcard $(MODULE_MK_DIR)/module_$(mod).mk))
 # Install external dependencies
-INCLUDE_EXT_LIBS=$(sort $(filter-out $(PROJMODS),$(ABS_INCLUDE_MODS)))
-INCLUDE_EXT_LIBS_MODULES=$(foreach lib,$(INCLUDE_EXT_LIBS),$(if $(_module_$(lib)_dir),$(lib)))
+INCLUDE_EXT_LIBS=$(sort $(filter-out $(DIST_MODS),$(ABS_INCLUDE_MODS)))
+INCLUDE_EXT_LIBS_MODULES:=$(sort $(filter-out $(PROJMODS),$(foreach mod,$(PROJMODS),$(_module_$(mod)_depends))))
+INCLUDE_EXT_LIBS_MODULES+=$(sort $(filter-out $(PROJMODS),$(foreach mod,$(INCLUDE_EXT_MODULES),$(_module_$(mod)_depends))))
+INCLUDE_EXT_LIBS_MODULES+=$(sort $(filter-out $(PROJMODS),$(foreach mod,$(INCLUDE_EXT_MODULES),$(_module_$(mod)_depends))))
 INCLUDE_EXT_MODS_TO_INSTALL=$(patsubst %,installExt.%,$(INCLUDE_EXT_LIBS_MODULES))
 INCLUDE_EXT_LIBS_TO_INSTALL=$(patsubst %,installExtLib.%,$(filter-out $(INCLUDE_EXT_LIBS_MODULES),$(INCLUDE_EXT_LIBS)))
 
