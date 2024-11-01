@@ -353,7 +353,7 @@ using namespace $(TNAMESPACE);\n\
 \n\
 // ----------------------------------------------------------\n\
 // test suite implementation\n\
-ABS_TEST_SUITE_BEGIN( Test$(TESTNAME) )\n\
+ABS_TEST_SUITE_BEGIN( $(TESTNAME) )\n\
 // uncomment and cmplete next line for test suite description\n\
 // ABS_TEST_DESCR(test description)\n\
 \n\
