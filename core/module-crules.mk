@@ -134,7 +134,7 @@ extern \"C\" {\n\
 $(OBJDIR)/%.c: src/% $(RES_HEADER)
 	@$(ABS_PRINT_info) "Generating inline constant buffer from $<..."
 	@mkdir -p $(@D)
-	@echo "#include \"$(RES_HEADER)\"" > $@
+	@echo "#include \"$(APPNAME)/$(MODNAME)/res.h\"" > $@
 	@xxd -i $< | sed -e "s/src_/$(APPNAME)_$(MODNAME)_/g"  >> $@
 
 

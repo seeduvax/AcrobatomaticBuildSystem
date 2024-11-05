@@ -179,24 +179,46 @@ define gen-json-cppc
 endef
 endif
 
-define cc-command
+define win-patch-dep
+@sed -i "s,"`cygpath -m $(BUILDROOT)`",$(BUILDROOT),g" $@.d
+@sed -i "s,"`cygpath -m $$HOME`",$$HOME,g" $@.d
+endef
+
+define cc-command-base
 @$(ABS_PRINT_info) "Compiling $< ..."
 @mkdir -p $(@D)
 @echo `$(TRACE_DATE_CMD)`"> $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -c $< -o $@" >> $(BUILDLOG)
 $(gen-json-cc)
-@$(CC) $(CFLAGS) $(EXTRA_CFLAGS) -c $< -o $@ \
-   && ( cp $@.d $@.d.tmp ; sed -e 's/#.*//' -e 's/^[^:]*: *//' -e 's/ *\\$$//' -e '/^$$/ d' -e 's/$$/ :/' $@.d.tmp >> $@.d ; rm $@.d.tmp ) \
-   || ( $(ABS_PRINT_error) "Failed: CFLAGS=$(CFLAGS)" ; exit 1 )
+@$(CC) $(CFLAGS) $(EXTRA_CFLAGS) -c $< -o $@ 
 endef
+ifeq ($(ISWINDOWS),true)
+define cc-command
+$(cc-command-base)
+$(win-patch-dep)
+endef
+else
+define cc-command
+$(cc-command-base)
+endef
+endif
 
-define cxx-command
+define cxx-command-base
 @$(ABS_PRINT_info) "Compiling $< ..."
 @mkdir -p $(@D)
 @echo `$(TRACE_DATE_CMD)`"> $(CPPC) $(CXXFLAGS) $(CFLAGS) $(EXTRA_CXXFLAGS) -c $< -o $@" >> $(BUILDLOG)
 $(gen-json-cppc)
-@$(CPPC) $(CXXFLAGS) $(CFLAGS) $(EXTRA_CXXFLAGS) -c $< -o $@ \
-   && ( cp $@.d $@.d.tmp ; sed -e 's/#.*//' -e 's/^[^:]*: *//' -e 's/ *\\$$//' -e '/^$$/ d' -e 's/$$/ :/' $@.d.tmp >> $@.d ; rm $@.d.tmp ) 
+@$(CPPC) $(CXXFLAGS) $(CFLAGS) $(EXTRA_CXXFLAGS) -c $< -o $@
 endef
+ifeq ($(ISWINDOWS),true)
+define cxx-command
+$(cxx-command-base)
+$(win-patch-dep)
+endef
+else
+define cxx-command
+$(cxx-command-base)
+endef
+endif
 
 ifneq ($(ISWINDOWS),true)
 define ld-command
