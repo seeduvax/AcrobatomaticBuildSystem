@@ -16,13 +16,13 @@ SERVICEFILES:=$(patsubst %,$(TRDIR)/%,$(shell find etc -name $(LKMNAME).service)
 INITSFILES:=$(patsubst %,$(TRDIR)/%,$(shell find etc -type f -name $(LKMNAME)))
 
 $(TRDIR)/etc/$(APPNAME)/%: src/etc/$(APPNAME)/%
-	mkdir -p $(@D)
-	cp $^ $@
+	@mkdir -p $(@D)
+	cp $< $@
 	
 $(TRDIR)/etc/init.d/%: src/etc/init.d/%
-	mkdir -p $(@D)
-	cp $^ $@
-	chmod +x $@
+	@mkdir -p $(@D)
+	cp $< $@
+	@chmod +x $@
 
 all-impl:: $(OBJDIR)/Makefile $(PUBLISHED_HEADERS) $(CFGFILES) $(SERVICEFILES) $(INITSFILES)
 	$(MAKE) -C $(KERNELDIR) M=$(OBJDIR) KBUILD_EXTRA_SYMBOLS="$(EXTRA_SIMVERS)" modules
@@ -52,9 +52,9 @@ $(ABS_PRINT_info) "Stopping device $(LKMNAME) before install" ; \
 
 
 define forward-command
-@$(ABS_PRINT_info) "Forwarding file $^ to $@"
+@$(ABS_PRINT_info) "Forwarding file $< to $@"
 @mkdir -p $(@D)
-@sed -e 's%MODULE_DESCRIPTION[ ]*[(]%MODULE_DESCRIPTION("$$Attr: app.name=$(APPNAME) $$ $$Attr: app.version=$(VERSION) $$ $$Attr: app.revision=$(REVISION) $$ $$Attr: build.mode=$(MODE) $$ $$Attr: build.opts=$(DEFINES) $$ $$Attr: build.date='`date +%Y-%m-%d.%H:%M:%S`' $$ $$Attr: build.host='`hostname`' $$ $$Attr: build.user=$(USER) $$ $$Attr: build.id=$(BUILDNUM) $$ \\n\\t\\t\" %g' $^ > $@
+@sed -e 's%MODULE_DESCRIPTION[ ]*[(]%MODULE_DESCRIPTION("$$Attr: app.name=$(APPNAME) $$ $$Attr: app.version=$(VERSION) $$ $$Attr: app.revision=$(REVISION) $$ $$Attr: build.mode=$(MODE) $$ $$Attr: build.opts=$(DEFINES) $$ $$Attr: build.date='`date +%Y-%m-%d.%H:%M:%S`' $$ $$Attr: build.host='`hostname`' $$ $$Attr: build.user=$(USER) $$ $$Attr: build.id=$(BUILDNUM) $$ \\n\\t\\t\" %g' $< > $@
 endef
 
 $(OBJDIR)/$(LKMNAME)_main__.c: src/$(LKMNAME).c
@@ -67,8 +67,8 @@ $(OBJDIR)/%.obj: src/%.obj
 	$(forward-command)
 
 $(OBJDIR)/%.h: src/%.h
-	mkdir -p $(@D)
-	cp $^ $@
+	@mkdir -p $(@D)
+	cp $< $@
 
 LKMSRC=$(subst /$(LKMNAME).c,/$(LKMNAME)_main__.c,$(patsubst src/%,$(OBJDIR)/%,$(shell find src \( -name "*.c" -o -name "*.obj" \) $(patsubst %, -a -not -name %,$(DISABLE_SRC)))))
 LKMOBJ=$(patsubst $(OBJDIR)/%.obj,%.obj,$(patsubst $(OBJDIR)/%.c,%.o,$(LKMSRC)))
