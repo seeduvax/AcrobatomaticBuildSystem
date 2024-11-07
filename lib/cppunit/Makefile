@@ -5,4 +5,4 @@ $(INSTDIR)/bin/%: $(PRJDIR)/%.cpp $(INSTDIR)/import.mk
 	@cat $(PRJDIR)/extra.h >> $(INSTDIR)/include/cppunit/extensions/HelperMacros.h
 	@echo "Compiling ${<F}..."
 	@mkdir -p ${@D}
-	@g++ $< -o $@ -I$(INSTDIR)/include -L$(INSTDIR)/lib -lcppunit -lregex
+	@g++ $< -o $@ -I$(INSTDIR)/include -L$(INSTDIR)/lib -lcppunit -ldl -lrt
