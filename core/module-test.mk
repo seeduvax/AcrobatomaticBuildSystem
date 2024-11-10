@@ -112,17 +112,19 @@ $(OBJDIR)/test/%.o: test/%.cpp
 	@mkdir -p $(@D)
 	@echo `$(TRACE_DATE_CMD)`"> $(CPPC) $(CXXFLAGS) $(CFLAGS) $(TCFLAGS) -c $< -o $@" >> $(BUILDLOG)
 	@grep -v "#\s*include" $< | cpp -E | grep -E "ABS_TEST_.*_BEGIN|ABS_TEST_SUITE_END" | sed -E 's/\{ *$$//g' | cpp -include $(ABSROOT)/core/include/abs/testdef2cppunitdecl.h | sed -e '/^#/d;s/!$$//g;s/ !!!/\n!!!/g;s/!!!/#/g' > $(patsubst %.o,%.h,$@)
-	@$(CPPC) $(CXXFLAGS) $(CFLAGS) $(TCFLAGS) -include $(patsubst %.o,%.h,$@) -MMD -MF $@.d -c $< -o $@ \
-	&& ( cp $@.d $@.d.tmp ; sed -e 's/#.*//' -e 's/^[^:]*: *//' -e 's/ *\\$$//' -e '/^$$/ d' -e 's/$$/ :/' $@.d.tmp >> $@.d ; rm $@.d.tmp ) \
-	|| ( $(ABS_PRINT_error) "Failed: CFLAGS=$(CXXFLAGS) $(CFLAGS) $(TCFLAGS)" ; exit 1 )
+	@$(CPPC) $(CXXFLAGS) $(CFLAGS) $(TCFLAGS) -include $(patsubst %.o,%.h,$@) -MMD -MF $@.d -c $< -o $@
+ifeq ($(ISWINDOWS),true)
+	$(win-patch-dep)
+endif
 
 $(OBJDIR)/test/%.o: test/%.c
 	@$(ABS_PRINT_info) "Compiling test $< ..."
 	@mkdir -p $(@D)
 	@echo `$(TRACE_DATE_CMD)`"> $(CC) $(CFLAGS) $(TCFLAGS) -c $< -o $@" >> $(BUILDLOG)
-	@$(CC) $(CFLAGS) $(TCFLAGS) -MMD -MF $@.d -c $< -o $@ \
-	&& ( cp $@.d $@.d.tmp ; sed -e 's/#.*//' -e 's/^[^:]*: *//' -e 's/ *\\$$//' -e '/^$$/ d' -e 's/$$/ :/' $@.d.tmp >> $@.d ; rm $@.d.tmp ) \
-	|| ( $(ABS_PRINT_error) "Failed: CFLAGS=$(CFLAGS) $(TCFLAGS)" ; exit 1 )
+	@$(CC) $(CFLAGS) $(TCFLAGS) -MMD -MF $@.d -c $< -o $@
+ifeq ($(ISWINDOWS),true)
+	$(win-patch-dep)
+endif
 
 $(OBJDIR)/bintest/%.o: $(OBJDIR)/%.o
 	@$(ABS_PRINT_info) "Checking $(@F) symbols for Test Mode..."
