@@ -264,7 +264,7 @@ public:
 	TestXmlReporter(string path): _xml("utf-8") {
 		_cNode=NULL;
 		_path=path;
-		//gethostname(_hostname,sizeof(_hostname));
+		gethostname(_hostname,sizeof(_hostname));
 	}
 	virtual ~TestXmlReporter() {
 	}

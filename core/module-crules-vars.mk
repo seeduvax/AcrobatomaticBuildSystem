@@ -55,9 +55,9 @@ endif
 ifeq ($(ISWINDOWS),true)
 	CYGTARGETDIR=$(TRDIR)/bin
 ifeq ($(APPNAME),$(MODNAME))
-	CYGTARGET=cyg$(APPNAME).dll
+	CYGTARGET=$(APPNAME).dll
 else
-	CYGTARGET=cyg$(APPNAME)_$(MODNAME).dll
+	CYGTARGET=$(APPNAME)_$(MODNAME).dll
 endif
 else
 	LDFLAGS+= -shared
@@ -221,18 +221,28 @@ endef
 endif
 
 ifneq ($(ISWINDOWS),true)
-define ld-command
+define ld-command-lib
 @$(ABS_PRINT_info) "Linking $@ ..."
 @mkdir -p $(TARGETDIR)
-@echo `$(TRACE_DATE_CMD)`"> LD_RUN_PATH='"'$(LDRUNP)'"' LD_LIBRARY_PATH=$(LDLIBP) $(LD) -o $@ $(OBJS) XXX:$(LDFLAGS):XXX" >> $(BUILDLOG)
+@echo `$(TRACE_DATE_CMD)`"> LD_RUN_PATH='"'$(LDRUNP)'"' LD_LIBRARY_PATH=$(LDLIBP) $(LD) -o $@ $(OBJS) $(LDFLAGS)" >> $(BUILDLOG)
 @LD_RUN_PATH='$(LDRUNP)' LD_LIBRARY_PATH=$(LDLIBP) $(LD) -o $@ $(OBJS) $(LDFLAGS)
 endef
+define ld-command-exe
+$(ld-command-lib)
+endef
 else
-define ld-command
+define ld-command-lib
 @$(ABS_PRINT_info) "Linking $@ ..."
 @mkdir -p $(TARGETDIR) $(CYGTARGETDIR)
 @echo `$(TRACE_DATE_CMD)`"> $(LD) -shared -o $(CYGTARGETDIR)/$(CYGTARGET) -Wl,--out-implib=$@ -Wl,--export-all-symbols -Wl,--enable-auto-import -Wl,--whole-archive $(OBJS) -Wl,--no-whole-archive $(LDFLAGS)" >> $(BUILDLOG)
 @$(LD) -shared -o $(CYGTARGETDIR)/$(CYGTARGET) -Wl,--out-implib=$@\
 	-Wl,--export-all-symbols -Wl,--enable-auto-import -Wl,--whole-archive $(OBJS) -Wl,--no-whole-archive $(LDFLAGS)
+endef
+define ld-command-exe
+@$(ABS_PRINT_info) "Linking $@ ..."
+@mkdir -p $(TARGETDIR) $(CYGTARGETDIR)
+@echo `$(TRACE_DATE_CMD)`"> $(LD) -shared -o $(CYGTARGETDIR)/$(CYGTARGET) -Wl,--out-implib=$@ -Wl,--export-all-symbols -Wl,--enable-auto-import -Wl,--whole-archive $(OBJS) -Wl,--no-whole-archive $(LDFLAGS)" >> $(BUILDLOG)
+$(LD) -o $@ \
+	-Wl,--enable-auto-import $(OBJS) $(LDFLAGS)
 endef
 endif

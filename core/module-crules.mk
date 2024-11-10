@@ -70,8 +70,13 @@ $(OBJDIR)/%.o: src/%.cpp
 	$(cxx-command)
 
 # link target from objects
+ifeq ($(MODTYPE),library)
 $(TARGETFILE): $(OBJS)
-	$(ld-command)
+	$(ld-command-lib)
+else
+$(TARGETFILE): $(OBJS)
+	$(ld-command-exe)
+endif
 
 # vinfo file generated from make macro value.
 # vinfo must be regenerated each time a source file change, since it
