@@ -44,6 +44,10 @@
 #include <sstream>
 #include <vector>
 
+#if defined(WIN32) || defined(_WIN32) || defined(__NT__) || defined(_WIN64)
+#include <winsock.h>
+#endif
+
 using namespace CPPUNIT_NS;
 using namespace std;
 
