@@ -6,6 +6,7 @@ include module.cfg
 MODNAME?=$(notdir $(abspath .))
 
 
+
 $(PRJOBJDIR)/$(MODNAME)/moddeps.mk:
 	@$(ABS_PRINT_info) "Generating $(MODNAME) module dependency file."
 	@mkdir -p $(@D)
@@ -17,7 +18,7 @@ include $(patsubst %,$(PRJOBJDIR)/%/moddeps.mk,$(USEMOD))\n\
 ABS_INCLUDE_MODS+=$(MODNAME)\n\
 _module_$(MODNAME)_dir=$(PRJROOT)/$(MODNAME)\n\
 _module_$(APPNAME)_$(MODNAME)_dir=$(TRDIR)\n\
-_module_$(APPNAME)_$(MODNAME)_depends=$(LINKLIB) $(patsubst %,$(APPNAME)_%,$(USEMOD))\n\
+_module_$(APPNAME)_$(MODNAME)_depends="'$$(sort $(LINKLIB) $(patsubst %,$(APPNAME)_%,$(USEMOD)) $(foreach dep,$(LINKLIB) $(patsubst %,$(APPNAME)_%,$(USEMOD)),$$(_module_$(dep)_depends)))'"\n\
 \n\
 $(PRJOBJDIR)/$(MODNAME)/.depready: $(patsubst %,$(PRJOBJDIR)/%/.done,$(USEMOD))\n\
 \n\
