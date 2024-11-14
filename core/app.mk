@@ -278,9 +278,8 @@ ifeq ($(MAKECMDGOALS),__installextlibs)
 # needed external modules and libs retreiving
 PROJMODS=$(patsubst %,$(APPNAME)_%,$(DIST_MODS))
 include $(patsubst %,$(DIST_FLATTEN_DIR)/obj/%/moddeps.mk,$(DIST_MODS))
-# INCLUDE_INSTALL_MODS additionnals mods to include in the installation.
-NEEDED_MODS=$(filter-out $(PROJMODS),$(sort $(foreach dmod,$(DIST_MODS),$(_module_$(APPNAME)_$(dmod)_depends))))
-include $(foreach mod,$(INCLUDE_INSTALL_MODS),$(wildcard $(MODULE_MK_DIR)/module_$(mod).mk))
+# INCLUDE_INSTALL_MODS additionnals external mods to include in the installation.
+NEEDED_MODS=$(filter-out $(PROJMODS),$(sort $(foreach dmod,$(DIST_MODS),$(_module_$(APPNAME)_$(dmod)_depends)) $(foreach dmod,$(INCLUDE_INSTALL_MODS),$(_module_$(dmod)_depends)) $(INCLUDE_INSTALL_MODS)))
 # Install external dependencies
 INCLUDE_EXT_MODULES:=$(sort $(foreach mod,$(NEEDED_MODS),$(if $(_module_$(mod)_depends),$(mod),)))
 INCLUDE_EXT_LIBS:=$(sort $(foreach mod,$(NEEDED_MODS),$(if $(_module_$(mod)_depends),,$(mod))))
