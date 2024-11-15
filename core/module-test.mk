@@ -52,17 +52,11 @@ TCPPOBJS=$(patsubst test/%.cpp,$(OBJDIR)/test/%.o,$(filter %.cpp,$(TSRCFILES))) 
 # compiler options specific to test
 TCFLAGS+=$(patsubst %,-I../%/include,$(TESTUSEMOD))
 
-INCLUDE_PROJ_TESTMODS=$(patsubst $(APPNAME)_%,%,$(filter $(PROJECT_MODS),$(sort $(ABS_INCLUDE_TESTMODS))))
-
 # linker options specific to test
 TLDFLAGS+=-L$(TRDIR)/$(SODIR)  $(patsubst %,-l$(APPNAME)_%,$(TESTUSEMOD)) -lcppunit $(patsubst %,-l%,$(TLINKLIB))
 TLDFLAGS+=$(patsubst %,-L$(TRDIR)/$(SODIR),$(TESTUSEMOD))
-TLDFLAGS+=$(foreach mod,$(INCLUDE_PROJ_TESTMODS),-L$(TRDIR)/$(SODIR))
 
-TCFLAGS+=$(patsubst %,-I$(PRJROOT)/%/include,$(INCLUDE_PROJ_TESTMODS))
-TCFLAGS+=$(patsubst %,-I$(TRDIR)/include,$(INCLUDE_PROJ_TESTMODS))
-
-INCLUDE_TESTMODS_EXT=$(filter-out $(PROJECT_MODS),$(sort $(ABS_INCLUDE_TESTMODS))) $(ABS_INCLUDE_TESTMODS) $(TLINKLIB)
+INCLUDE_TESTMODS_EXT=$(filter-out $(PROJECT_MODS),$(sort $(TLINKLIB) $(INCLUDE_TESTMODS)))
 
 INCLUDE_TESTMODS_EXT_LOOKING_PATHS=$(sort $(foreach modExt,$(INCLUDE_TESTMODS_EXT),$(_module_$(modExt)_dir) $(_app_$(modExt)_dir)))
 INCLUDE_TESTMODS_EXT_CPATHS=$(foreach path,$(INCLUDE_TESTMODS_EXT_LOOKING_PATHS),$(wildcard $(path)/include))
