@@ -56,11 +56,15 @@ TCFLAGS+=$(patsubst %,-I../%/include,$(TESTUSEMOD))
 TLDFLAGS+=-L$(TRDIR)/$(SODIR)  $(patsubst %,-l$(APPNAME)_%,$(TESTUSEMOD)) -lcppunit $(patsubst %,-l%,$(TLINKLIB))
 TLDFLAGS+=$(patsubst %,-L$(TRDIR)/$(SODIR),$(TESTUSEMOD))
 
-INCLUDE_TESTMODS_EXT=$(filter-out $(PROJECT_MODS),$(sort $(TLINKLIB) $(INCLUDE_TESTMODS)))
+INCLUDE_TESTMODS_EXT=$(filter-out $(PROJECT_MODS),$(sort $(TLINKLIB)))
 
 INCLUDE_TESTMODS_EXT_LOOKING_PATHS=$(sort $(foreach modExt,$(INCLUDE_TESTMODS_EXT),$(_module_$(modExt)_dir) $(_app_$(modExt)_dir)))
 INCLUDE_TESTMODS_EXT_CPATHS=$(foreach path,$(INCLUDE_TESTMODS_EXT_LOOKING_PATHS),$(wildcard $(path)/include))
 TCFLAGS+=$(foreach extPath,$(INCLUDE_TESTMODS_EXT_CPATHS),-I$(extPath))
+TCFLAGS+=$(foreach mod,$(INCLUDE_TESTMODS),$(if $(_app_$(mod)_dir),-I$(_app_$(mod)_dir)/include,))
+TCFLAGS+=$(foreach mod,$(INCLUDE_TESTMODS),$(if $(_module_$(mod)_dir),-I$(_module_$(mod)_dir)/include,))
+TCFLAGS+=$(foreach mod,$(INCLUDE_TESTMODS),$(if $(wildcard $(PRJROOT)/$(mod)/include),-I$(PRJROOT)/$(mod)/include,))
+
 INCLUDE_TESTMODS_EXT_LDPATHS+=$(foreach path,$(INCLUDE_TESTMODS_EXT_LOOKING_PATHS),$(filter-out %/library.json,$(wildcard $(path)/lib*)))
 TLDFLAGS+=$(foreach extPath,$(INCLUDE_TESTMODS_EXT_LDPATHS),-L$(extPath))
 
