@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<cr id="512390585865e97772e7a7c9beb1b3858ef9e5b1719ed02dac2b5a080fd6010f" state="working">
+<cr id="512390585865e97772e7a7c9beb1b3858ef9e5b1719ed02dac2b5a080fd6010f" state="closed" delivered="abs-3.4.11">
 <title>introduce rational handling for requirements</title>
 <reporter>m026258</reporter>
 <creation>2024-09-09 14:19:39+02:00</creation>

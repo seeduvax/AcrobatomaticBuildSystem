@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<cr id="b526396dc3318e70db4178ef0e76682f9a8685997e78a1aa3096722aa926f26b" state="working">
+<cr id="b526396dc3318e70db4178ef0e76682f9a8685997e78a1aa3096722aa926f26b" state="closed" delivered="abs-3.4.11">
 <title>hemldoc: generic item with identifier</title>
 <reporter>sdevaux</reporter>
 <creation>2024-07-11 14:37:18+02:00</creation>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<cr id="f2f10fec86ca8080877c366d66857ae73dc928b3508d18215f82223c055a7189" state="working">
+<cr id="f2f10fec86ca8080877c366d66857ae73dc928b3508d18215f82223c055a7189" state="closed" delivered="abs-3.4.11">
 <title>Adding new tracy version</title>
 <reporter>sdevaux</reporter>
 <creation>2023-09-10 18:32:50+02:00</creation>

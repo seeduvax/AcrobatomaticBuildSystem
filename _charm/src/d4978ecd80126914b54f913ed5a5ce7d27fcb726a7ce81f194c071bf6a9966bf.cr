@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<cr id="d4978ecd80126914b54f913ed5a5ce7d27fcb726a7ce81f194c071bf6a9966bf" state="working">
+<cr id="d4978ecd80126914b54f913ed5a5ce7d27fcb726a7ce81f194c071bf6a9966bf" state="closed" delivered="abs-3.4.11">
 <title>let module checkout external projects source tree</title>
 <reporter>sdevaux</reporter>
 <creation>2024-03-06 18:35:52+01:00</creation>

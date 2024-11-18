@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<cr id="96958d2c5ead3041b2069d5dd211f6644322bba7efdb66d8e9a1142a1ea9c230" state="working">
+<cr id="96958d2c5ead3041b2069d5dd211f6644322bba7efdb66d8e9a1142a1ea9c230" state="closed" delivered="abs-3.4.11">
 <title>Upward requirement traceability matrix</title>
 <reporter>sdevaux</reporter>
 <creation>2023-08-31 11:12:48+02:00</creation>

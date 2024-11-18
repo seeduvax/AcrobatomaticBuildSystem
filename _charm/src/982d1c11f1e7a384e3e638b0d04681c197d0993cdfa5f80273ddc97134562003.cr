@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<cr id="982d1c11f1e7a384e3e638b0d04681c197d0993cdfa5f80273ddc97134562003" state="working">
+<cr id="982d1c11f1e7a384e3e638b0d04681c197d0993cdfa5f80273ddc97134562003" state="closed" delivered="abs-3.4.11">
 <title>ABS: generate test index in separate files</title>
 <reporter>m026761</reporter>
 <creation>2024-03-21 14:57:02+01:00</creation>
