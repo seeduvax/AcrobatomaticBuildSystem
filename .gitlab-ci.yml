@@ -1,5 +1,9 @@
 variables:
     GIT_SSL_NO_VERIFY: "true"
+    GIT_STRATEGY: clone
+    GIT_CHECKOUT: "true"
+    GIT_CLEAN_FLAGS: -ffdx -e cache/
+    GIT_DEPTH: "3"
 
 stages:
     - test
