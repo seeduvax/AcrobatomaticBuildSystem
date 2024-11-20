@@ -1,0 +1,16 @@
+variables:
+    GIT_SSL_NO_VERIFY: "true"
+
+stages:
+    - test
+
+test:
+    only:
+        - branches
+    tags:
+        - $RUNNER_TAG
+    script:
+        - echo make -C sampleprj test
+        # disable SVN_CHECKOUTS that need internet access.
+        - echo "SVN_CHECKOUTS=" >> sampleprj/cpplib/module.cfg
+        - make -C sampleprj test

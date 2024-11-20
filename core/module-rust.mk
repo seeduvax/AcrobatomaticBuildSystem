@@ -20,8 +20,8 @@ CRATETYPE=bin
 endif
 
 # Initialize rustc edition
-ifneq ($(EDITION),)
-RUSTFLAGS+=--edition $(EDITION)
+ifneq ($(RUST_EDITION),)
+RUSTFLAGS+=--edition $(RUST_EDITION)
 endif
 
 ifeq ($(CRATETYPE),dylib)

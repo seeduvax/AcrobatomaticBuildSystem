@@ -17,7 +17,7 @@ debugtest:: testbuild
 testbuild:: all
 	@$(ABS_PRINT_info) "Rust compile tests from src/$(ENTRYFILENAME).rs"
 	@mkdir -p $(@D)
-	@$(RUSTC) --edition=$(EDITION) --crate-type $(CRATETYPE) --test $(RUSTFLAGS) src/$(ENTRYFILENAME).rs -o $(TTARGETFILE) && \
+	@$(RUSTC) --crate-type $(CRATETYPE) --test $(RUSTFLAGS) src/$(ENTRYFILENAME).rs -o $(TTARGETFILE) && \
         $(ABS_PRINT_info) "Rust tests for crate built: $(TARGETFILE)"
 
 test:: testbuild
