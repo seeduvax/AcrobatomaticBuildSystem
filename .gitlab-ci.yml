@@ -1,5 +1,6 @@
 variables:
     GIT_SSL_NO_VERIFY: "true"
+    RUNNER_TAG: debian
 
 stages:
     - test
