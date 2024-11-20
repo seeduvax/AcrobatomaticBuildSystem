@@ -14,3 +14,5 @@ test:
         # disable SVN_CHECKOUTS that need internet access.
         - echo "SVN_CHECKOUTS=" >> sampleprj/cpplib/module.cfg
         - make -C sampleprj test
+        - egrep -ri 'errors="[1-9]+' sampleprj/build/unit_test_results && exit 1 || echo "ok"
+        - egrep -ri 'failures="[1-9]+' sampleprj/build/unit_test_results && exit 1 || echo "ok"
