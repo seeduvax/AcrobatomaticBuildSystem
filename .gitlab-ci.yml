@@ -1,6 +1,5 @@
 variables:
     GIT_SSL_NO_VERIFY: "true"
-    RUNNER_TAG: debian
 
 stages:
     - test
@@ -9,7 +8,7 @@ test:
     only:
         - branches
     tags:
-        - $RUNNER_TAG
+        - debian
     script:
         - echo make -C sampleprj test
         # disable SVN_CHECKOUTS that need internet access.
