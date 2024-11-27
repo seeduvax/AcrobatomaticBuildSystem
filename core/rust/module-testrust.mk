@@ -1,6 +1,9 @@
 $(info Rust test module loaded)
 
-TTARGETFILE=$(TARGETFILE)-tests
+TTARGETFILE=$(RUST_TARGET_FILE_BIN)_test
+ifneq ($(filter rlib,$(ONE_CRATETYPE)),)
+TTARGETFILE=$(RUST_TARGET_FILE_RLIB)_test
+endif
 
 # ---------------------------------------------------------------------
 # Run & debug rules
@@ -15,13 +18,13 @@ debugtest:: testbuild
 	@rm cmd.gdb
 
 testbuild:: all
-	@$(ABS_PRINT_info) "Rust compile tests from src/$(ENTRYFILENAME).rs"
-	@mkdir -p $(@D)
-	@$(RUSTC) --edition=$(EDITION) --crate-type $(CRATETYPE) --test $(RUSTFLAGS) src/$(ENTRYFILENAME).rs -o $(TTARGETFILE) && \
+	@$(ABS_PRINT_info) "Rust compile tests from src/$(ENTRYFILENAME)"
+	@mkdir -p $(TRDIR)/bin
+	@LD_LIBRARY_PATH=$(LDLIBP) $(RUSTC) --crate-type $(ONE_CRATETYPE) --test $(RUSTFLAGS) $(RUSTLIBS) src/$(ENTRYFILENAME) -o $(TTARGETFILE) && \
         $(ABS_PRINT_info) "Rust tests for crate built: $(TARGETFILE)"
 
 test:: testbuild
-	$(TTARGETFILE)
+	@LD_LIBRARY_PATH=$(LDLIBP) $(TTARGETFILE) --nocapture
 
 valgrindtest:: testbuild
 	valgrind $(TTARGETFILE)

@@ -55,8 +55,8 @@ define downloadFromURLs
 			test -r $3 && exit 0 || \
 			$(ABS_PRINT_warning) "$1 not available from $$repo";; \
 		scp:*) srcfile=`echo "$$repo" | cut -f 2,3 -d ':'`;\
-			scp $(SCPFLAGS) $$srcfile $3 && exit 0;;\
-		*) wget -q $(WGETFLAGS) $$repo -O $3 && touch $3 && exit 0 || \
+			scp $(SCPFLAGS) $$srcfile $3.tmp && mv $3.tmp $3 && exit 0;;\
+		*) wget -q $(WGETFLAGS) $$repo -O $3.tmp && mv $3.tmp $3 && touch $3 && exit 0 || \
 			rm -rf $3 ; \
 			 $(ABS_PRINT_warning) "$1 not available from $$repo";; \
 	esac \

@@ -1,147 +1,63 @@
 # ---------------------------------------------------------------------
-# Common Rust variables and dependency management
+# Main entry point for Rust compilations
 # ---------------------------------------------------------------------
-ifeq ($(ISWINDOWS),true)
-SOEXT=.dll
-EXEEXT=.exe
-else
-SOEXT=.so
-EXEEXT=
-endif
 
-# Initialize name of rustc entry file
-ifeq ($(ENTRYFILENAME),)
-ENTRYFILENAME=lib
-endif
+include $(ABSROOT)/core/rust/module-rust-vars.mk
 
-# Initialize type of crate
-ifeq ($(CRATETYPE),)
-CRATETYPE=bin
-endif
+ifeq ($(USE_CARGO),true)
 
-# Initialize rustc edition
-ifneq ($(EDITION),)
-RUSTFLAGS+=--edition $(EDITION)
-endif
+include $(ABSROOT)/core/rust/module-rust-cargo.mk
 
-ifeq ($(CRATETYPE),dylib)
-TARGETDIR:=$(TRDIR)/lib
-ifeq ($(APPNAME),$(MODNAME))
-TARGET=lib$(APPNAME)$(SOEXT)
-else
-TARGET=lib$(APPNAME)_$(MODNAME)$(SOEXT)
-endif
-else ifeq ($(CRATETYPE),rlib)
-TARGETDIR:=$(TRDIR)/lib
-ifeq ($(APPNAME),$(MODNAME))
-TARGET=lib$(APPNAME).rlib
-else
-TARGET=lib$(APPNAME)_$(MODNAME).rlib
-endif
-else
-ENTRYFILENAME=main
-TARGETDIR:=$(TRDIR)/bin
-ifeq ($(APPNAME),$(MODNAME))
-TARGET=$(APPNAME)$(EXEEXT)
-else
-TARGET=$(APPNAME)_$(MODNAME)$(EXEEXT)
-endif
-endif
+else # ($(USE_CARGO),true)
 
-TARGETFILE:=$(TARGETDIR)/$(TARGET)
-DOCTARGET:=$(TRDIR)/rustdoc/$(APPNAME)_$(MODNAME)
+include $(ABSROOT)/core/rust/module-rust-rustc.mk
 
-RUSTSRCFILES:=$(filter %.rs,$(SRCFILES))
+endif # ($(USE_CARGO),true)
 
-RUSTC=rustc
+all-impl:: $(RUST_TARGET_FILES) 
 
-RUSTDOC=rustdoc
+# this target will create the archive for rust dynamic loaded libraries.
+RUST_GENERATION_DIR=$(OBJDIR)/rust_arch_generation
+RUST_INSTALL_SRC_ARCH=x86_64-unknown-linux-gnu
+RUST_INSTALL_SRC_NAME=rust-$(RUST_VERSION)-$(RUST_INSTALL_SRC_ARCH).tar.xz
+RUST_INSTALL_SRC=$(RUST_GENERATION_DIR)/$(RUST_INSTALL_SRC_NAME)
+RUST_EXTRACT_DIR=$(RUST_GENERATION_DIR)/extracted
+RUST_GENERATION_IMPORT_MK=$(RUST_GENERATION_DIR)/rust-$(RUST_VERSION)/import.mk
+RUST_GENERATION_DEST_ARCHIVE=$(RUST_GENERATION_DIR)/rust-$(RUST_VERSION)_unknown_x86_64.tar.gz
 
-RUSTLIBDIR=$(TRDIR)/lib
+$(RUST_INSTALL_SRC):
+	@mkdir -p $(RUST_GENERATION_DIR)
+	@cd $(RUST_GENERATION_DIR) && wget https://static.rust-lang.org/dist/$(RUST_INSTALL_SRC_NAME) -O $@.tmp
+	@mv $@.tmp $@
 
-RUSTLIBS=$(foreach MOD,$(USEMOD),--extern $(MOD)=$(RUSTLIBDIR)/lib$(APPNAME)_$(MOD).rlib)
+$(RUST_GENERATION_DIR)/.extracted: $(RUST_INSTALL_SRC)
+	@$(ABS_PRINT_info) "Extraction of $<"
+	@mkdir -p $(RUST_EXTRACT_DIR)
+	@cd $(RUST_GENERATION_DIR) && tar -xf $< -C $(RUST_EXTRACT_DIR) --strip-components=1
+	@touch $@
 
-RUSTFLAGS+=-L$(TRDIR)/lib
-RUSTFLAGS+=$(patsubst %/import.mk,-L%/lib,$(EXTLIBMAKES))
+$(RUST_GENERATION_IMPORT_MK): $(RUST_GENERATION_DIR)/.extracted
+	@mkdir -p $(@D)/lib $(@D)/bin
+	@cp -r $(RUST_EXTRACT_DIR)/rust-std-$(RUST_INSTALL_SRC_ARCH)/lib/rustlib/$(RUST_INSTALL_SRC_ARCH)/lib/* $(@D)/lib
+	@cp -r $(RUST_EXTRACT_DIR)/rustc/lib/* $(@D)/lib
+	@cp -r $(RUST_EXTRACT_DIR)/rustc/bin/* $(@D)/bin
+	@cp -r $(RUST_EXTRACT_DIR)/cargo/bin/* $(@D)/bin
+	@echo "# generated: ABS-$(__ABS_VERSION__) $(USER)@"`hostname`" "`$(TRACE_DATE_CMD)` > $@.tmp
+	@printf '_app_rust_dir:=$$(dir $$(lastword $$(MAKEFILE_LIST)))\n\n' >> $@.tmp
+	@printf '$$(eval $$(call extlib_import_template,rust,$(RUST_VERSION),))\n' >> $@.tmp
+	@printf 'RUST_BIN_DIR=$$(_app_rust_dir)/bin/\n' >> $@.tmp
+	@printf 'RUST_LIB_DIR=$$(_app_rust_dir)/lib/\n' >> $@.tmp
+	@mv $@.tmp $@
 
-ifeq ($(MODE),debug)
-RUSTFLAGS+=-g
-endif
-ifeq ($(MODE),release)
-RUSTFLAGS+=-O
-endif
+$(RUST_GENERATION_DEST_ARCHIVE): $(RUST_GENERATION_IMPORT_MK)
+	@$(ABS_PRINT_info) "Creation of $@"
+	@tar -czf $@ -C $(RUST_GENERATION_DIR) rust-$(RUST_VERSION)
+
+#
+# This job generate the archive containing rustc and its libraries
+# to be able to run generated binary from a system without rust installed.
+#
+newRustPackage: $(RUST_GENERATION_DEST_ARCHIVE)
 
 
-# ---------------------------------------------------------------------
-# Run & debug rules
-# ---------------------------------------------------------------------
-RUNTIME_PROLOG?=:
-RUNTIME_EPILOG?=:
-ifeq ($(CRATETYPE),bin)
-# run application
-run:: all
-	@$(ABS_PRINT_info) "Starting $(TARGETFILE) $(RUNARGS)"
-	@$(RUNTIME_PROLOG)
-	@LD_LIBRARY_PATH=$(LDLIBP) $(RUNTIME_ENV) $(TARGETFILE) $(RUNARGS) \
-      || $(ABS_PRINT_error) "Run failed: $(TARGETFILE) $(RUNARGS)"
-	@$(RUNTIME_EPILOG)
-
-# run application with gdb
-debug:: $(TARGETFILE)
-	@printf "define runapp\nrun $(RUNARGS)\nend\n" > cmd.gdb
-	@printf "\e[1;4mUse runapp command to launch app from gdb\n\e[37;37;0m"
-	@LD_LIBRARY_PATH=$(LDLIBP) $(RUNTIME_ENV) gdb $(TARGETFILE) -x cmd.gdb
-	@rm cmd.gdb
-
-# print eclipse setup
-.PHONY:	edebug
-edebug:
-	@echo "**** Eclipse debugger setup : ****"
-	@echo
-	@printf "Application:\t\t"
-	@echo "$(patsubst $(PRJROOT)/%,%,$(TARGETFILE))"
-	@printf "Arguments:\t\t"
-	@echo $(RUNARGS)
-	@echo
-	@echo "* Environment (replace native) :"
-	@echo
-	@printf "LD_LIBRARY_PATH\t"
-	@echo "$(subst $(eval) ,:,$(foreach entry,$(subst :, ,$(LDLIBP)),$(patsubst $(PRJROOT)/%,%,$(entry))))"
-else
-# don't run a library !
-run:: all
-	$(ABS_PRINT_error) "won't run a library !"
-
-debug:: all
-	$(ABS_PRINT_error) "won't debug a library !"
-endif
-
-
-# ---------------------------------------------------------------------
-# Build rule
-# ---------------------------------------------------------------------
-$(TARGETFILE): $(RUSTSRCFILES)
-	@$(ABS_PRINT_info) "Rust compile $(CRATETYPE) from src/$(ENTRYFILENAME).rs"
-	@mkdir -p $(@D)
-	@$(RUSTC) --crate-type $(CRATETYPE) $(RUSTFLAGS) src/$(ENTRYFILENAME).rs -o $@ && \
-        $(ABS_PRINT_info) "Rust crate built: $@"
-
-all-impl:: $(TARGETFILE) 
-
-
-# ---------------------------------------------------------------------
-# Doc rule
-# ---------------------------------------------------------------------
-doc:
-	@$(ABS_PRINT_info) "Generating Rust docs for $(APPNAME)_$(MODNAME)"
-	mkdir -p $(DOCTARGET)
-	$(RUSTDOC) --crate-name $(MODNAME) --crate-type $(CRATETYPE) $(RUSTLIBS) src/$(ENTRYFILENAME).rs -o $(DOCTARGET)
-
-
-# ---------------------------------------------------------------------
-# Include test module
-# ---------------------------------------------------------------------
-ifneq ($(INCTESTS),)
-include $(ABSROOT)/core/module-testrust.mk
-endif
 
