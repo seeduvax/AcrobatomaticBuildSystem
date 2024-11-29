@@ -243,6 +243,30 @@ $(PRJOBJDIR)/%/moddeps.mk: $(PRJROOT)/%/module.cfg
 
 
 ifeq ($(filter clean% docker%,$(MAKECMDGOALS)),)
+
+ifeq ($(ABS_FROMAPP),true)
+# not so common, but can't be done before including common.mk from app.mk
+# to let users configure module list from their app.cfg
+# Can't be done after common.mk include since MODULES_TO_BUILD definition
+# below needs to have MODULDES_DEPS defined before.
+ifeq ($(MODULES),)
+# search for module only if not explicitely defined from app.cfg.
+MODULES:=$(patsubst %/module.cfg,%,$(wildcard */module.cfg))
+MODULES_DEPS:=$(filter-out $(NOBUILD),$(MODULES))
+else
+MODULES_DEPS:=$(MODULES)
+MODULES_TARGET:=$(patsubst %,$(PRJOBJDIR)/%/.done,$(MODULES))
+endif
+
+ifneq ($(filter kdistinstall,$(MAKECMDGOALS)),)
+KMODULES:=$(filter %_lkm,$(MODULES_DEPS))
+MODULES_DEPS:=$(KMODULES)
+MODULES_TARGET:=$(patsubst %,mod.%,$(KMODULES))
+MODE:=release
+endif
+endif
+
+
 MODULES_TO_BUILD:=$(patsubst %,$(PRJOBJDIR)/%/moddeps.mk,$(USEMOD) $(MODULES_DEPS))
 ifneq ($(MODULES_TO_BUILD),)
 include $(MODULES_TO_BUILD)

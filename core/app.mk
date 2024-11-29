@@ -9,22 +9,6 @@
 ABS_FROMAPP:=true
 export ABS_FROMAPP
 
-ifeq ($(MODULES),)
-# search for module only if not explicitely defined from app.cfg.
-MODULES:=$(patsubst %/module.cfg,%,$(wildcard */module.cfg))
-MODULES_DEPS:=$(filter-out $(NOBUILD),$(MODULES))
-else
-MODULES_DEPS:=$(MODULES)
-MODULES_TARGET:=$(patsubst %,$(PRJOBJDIR)/%/.done,$(MODULES))
-endif
-
-ifneq ($(filter kdistinstall,$(MAKECMDGOALS)),)
-KMODULES:=$(filter %_lkm,$(MODULES_DEPS))
-MODULES_DEPS:=$(KMODULES)
-MODULES_TARGET:=$(patsubst %,mod.%,$(KMODULES))
-MODE:=release
-endif
-
 include $(ABSROOT)/core/common.mk
 
 MODULES_TARGET:=$(patsubst %,$(PRJOBJDIR)/%/.done,$(MODULES_DEPS)) $(patsubst %,warnnobuild.%,$(NOBUILD))
