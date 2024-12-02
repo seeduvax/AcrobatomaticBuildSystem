@@ -1,0 +1,23 @@
+variables:
+    GIT_SSL_NO_VERIFY: "true"
+    GIT_STRATEGY: clone
+    GIT_CHECKOUT: "true"
+    GIT_CLEAN_FLAGS: -ffdx -e cache/
+    GIT_DEPTH: "3"
+
+stages:
+    - test
+
+test:
+    only:
+        - branches
+    tags:
+        - debian
+    script:
+        - echo make -C sampleprj test
+        # disable SVN_CHECKOUTS that need internet access.
+        - echo "SVN_CHECKOUTS=" >> sampleprj/cpplib/module.cfg
+        - if [ "$ABS_REPO" != "" ]; then echo "ABS_REPO:=$ABS_REPO" > sampleprj/local.cfg; fi
+        - make -C sampleprj test
+        - egrep -ri 'errors="[1-9]+' sampleprj/build/unit_test_results && exit 1 || echo "ok"
+        - egrep -ri 'failures="[1-9]+' sampleprj/build/unit_test_results && exit 1 || echo "ok"
