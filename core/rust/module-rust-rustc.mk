@@ -39,7 +39,13 @@ RUSTDOC=rustdoc
 RUSTLIBDIR=$(TRDIR)/lib
 
 RUSTLIBS=$(foreach MOD,$(USEMOD),--extern $(MOD)=$(RUSTLIBDIR)/librust_$(APPNAME)_$(MOD).so)
-LDLIBP=$(TRDIR)/lib:$(RUST_LIB_DIR)
+
+INCLUDE_MODS_EXT=$(filter-out $(PROJECT_MODS),$(sort $(ABS_INCLUDE_MODS))) $(LINKLIB)
+INCLUDE_MODS_EXT_LOOKING_PATHS=$(sort $(foreach modExt,$(INCLUDE_MODS_EXT),$(_module_$(modExt)_dir) $(_app_$(modExt)_dir)))
+INCLUDE_MODS_EXT_LDPATHS+=$(foreach path,$(INCLUDE_MODS_EXT_LOOKING_PATHS),$(filter-out %/library.json,$(wildcard $(path)/lib*)))
+LDFLAGS+=$(foreach extPath,$(INCLUDE_MODS_EXT_LDPATHS),-L$(extPath))
+# library dir list (to be forwarded to LD_LIBRARY_PATH env var before running the app)
+LDLIBP=$(TRDIR)/lib:$(RUST_LIB_DIR):$(subst $(_space_),:,$(patsubst -%,,$(patsubst -L%,%,$(filter -L%,$(LDFLAGS)))))
 
 RUSTFLAGS+=-L$(TRDIR)/lib
 RUSTFLAGS+=$(patsubst %/import.mk,-L%/lib,$(EXTLIBMAKES))
@@ -91,7 +97,7 @@ endif
 define rust_compile
 @$(ABS_PRINT_info) "Rust compile $(1) from src/$(ENTRYFILENAME)"
 @mkdir -p $(@D)
-LD_LIBRARY_PATH=$(LDLIBP)  $(RUST_BIN_DIR)$(RUSTC) --crate-type $(1) $(RUSTFLAGS) $(RUSTLIBS) src/$(ENTRYFILENAME) -o $@ && \
+@LD_LIBRARY_PATH=$(LDLIBP) $(RUST_BIN_DIR)$(RUSTC) --crate-type $(1) $(RUSTFLAGS) $(RUSTLIBS) src/$(ENTRYFILENAME) -o $@ && \
 	$(ABS_PRINT_info) "Rust crate built: $@"
 endef
 
