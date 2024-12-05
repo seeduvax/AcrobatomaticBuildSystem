@@ -164,21 +164,33 @@ EXTRA_CXXFLAGS=$(GEN_DEP_FLAGS)
 
 ifneq ($(filter clang%,$(CC)),)
 EXTRA_CFLAGS+=-MJ $@.json
+TCFLAGS+=-MJ $@.json
 define gen-json-cc
+endef
+define gen-json-test-cc
 endef
 else
 define gen-json-cc
 @echo '{"directory":"$(MODROOT)","command":"$(CC) $(CFLAGS) -c $< -o $@","file":"$<","output":"$@"},' > $@.json
 endef
+define gen-json-test-cc
+@echo '{"directory":"$(MODROOT)","command":"$(CC) $(CFLAGS) $(TCFLAGS) -include $(patsubst %.o,%.h,$@) -MMD -MF -c $< -o $@","file":"$<","output":"$@"},' > $@.json
+endef
 endif
 
 ifneq ($(filter clang%,$(CPPC)),)
 EXTRA_CXXFLAGS+=-MJ $@.json
+TCFLAGS+=-MJ $@.json
 define gen-json-cppc
+endef
+define gen-json-test-cppc
 endef
 else
 define gen-json-cppc
 @echo '{"directory":"$(MODROOT)","command":"$(CPPC) $(CXXFLAGS) $(CFLAGS) -c $< -o $@","file":"$<","output":"$@"},' > $@.json
+endef
+define gen-json-test-cppc
+@echo '{"directory":"$(MODROOT)","command":"$(CPPC) $(CXXFLAGS) $(CFLAGS) $(TCFLAGS) -include $(patsubst %.o,%.h,$@) -MMD -MF -c $< -o $@","file":"$<","output":"$@"},' > $@.json
 endef
 endif
 

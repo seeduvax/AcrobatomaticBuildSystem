@@ -110,7 +110,7 @@ $(OBJDIR)/test/%.o: test/%.cpp
 	@mkdir -p $(@D)
 	@echo `$(TRACE_DATE_CMD)`"> $(CPPC) $(CXXFLAGS) $(CFLAGS) $(TCFLAGS) -c $< -o $@" >> $(BUILDLOG)
 	@grep -v "#\s*include" $< | cpp -E | grep -E "ABS_TEST_.*_BEGIN|ABS_TEST_SUITE_END" | sed -E 's/\{ *$$//g' | cpp -include $(ABSROOT)/core/include/abs/testdef2cppunitdecl.h | sed -e '/^#/d;s/!$$//g;s/ !!!/\n!!!/g;s/!!!/#/g' > $(patsubst %.o,%.h,$@)
-	$(gen-json-cppc)
+	$(gen-json-test-cppc)
 	@$(CPPC) $(CXXFLAGS) $(CFLAGS) $(TCFLAGS) -include $(patsubst %.o,%.h,$@) -MMD -MF $@.d -c $< -o $@
 ifeq ($(ISWINDOWS),true)
 	$(win-patch-dep)
@@ -120,7 +120,7 @@ $(OBJDIR)/test/%.o: test/%.c
 	@$(ABS_PRINT_info) "Compiling test $< ..."
 	@mkdir -p $(@D)
 	@echo `$(TRACE_DATE_CMD)`"> $(CC) $(CFLAGS) $(TCFLAGS) -c $< -o $@" >> $(BUILDLOG)
-	$(gen-json-cc)
+	$(gen-json-test-cc)
 	@$(CC) $(CFLAGS) $(TCFLAGS) -MMD -MF $@.d -c $< -o $@
 ifeq ($(ISWINDOWS),true)
 	$(win-patch-dep)
