@@ -15,7 +15,7 @@ namespace test {
 
 // ----------------------------------------------------------
 // test suite implementation
-ABS_TEST_SUITE_BEGIN( TestDependencies )
+ABS_TEST_SUITE_BEGIN( Dependencies )
 // uncomment and cmplete next line for test suite description
 // ABS_TEST_DESCR(test description)
 
