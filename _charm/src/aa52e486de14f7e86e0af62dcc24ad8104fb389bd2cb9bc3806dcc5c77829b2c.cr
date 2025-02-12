@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<cr id="aa52e486de14f7e86e0af62dcc24ad8104fb389bd2cb9bc3806dcc5c77829b2c" state="open">
+<cr id="aa52e486de14f7e86e0af62dcc24ad8104fb389bd2cb9bc3806dcc5c77829b2c" state="closed" delivered="abs-3.4.12">
 <title>Add variable to permit to execute cross-compiled binaries</title>
 <reporter>fred</reporter>
 <creation>2025-02-12 09:34:27+01:00</creation>
