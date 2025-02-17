@@ -13,9 +13,14 @@ endif
 ifeq ($(CPPC),)
 CPPC=g++
 endif
+ifeq ($(AR),)
+AR=ar
+endif
 ifeq ($(LD),)
 LD=g++
 endif
+
+AREXT?=a
 ifeq ($(ISWINDOWS),true)
 SOEXT?=dll.a
 SOPFX?=lib
@@ -37,6 +42,14 @@ CFLAGS+=$(patsubst %,-D%,$(DEFINES))
 ifeq ($(MAKECMDGOALS),coverage)
 CFLAGS+=-coverage
 LDFLAGS+=-lgcov
+endif
+
+# default library mode is DYNAMIC_LIB, STATIC_LIB is disabled
+ifeq ($(DYNAMIC_LIB),)
+DYNAMIC_LIB=true
+endif
+ifeq ($(STATIC_LIB),)
+STATIC_LIB=false
 endif
 
 # Target definition
@@ -75,13 +88,29 @@ endif
 endif
 
 # target full path
+ifeq ($(DYNAMIC_LIB),true)
 TARGETFILE=$(TARGETDIR)/$(TARGET)
+else
+TARGETFILE=
+endif
+
+ifeq ($(MODTYPE),exe)
+TARGETFILE=$(TARGETDIR)/$(TARGET)
+endif
+
+ifeq ($(STATIC_LIB),true)
+TARGETARCHIVE=$(TARGETDIR)/$(patsubst %.$(SOEXT),%.$(AREXT),$(TARGET))
+else
+TARGETARCHIVE=
+endif
 
 # LDFLAGS permit to get the created .so that are not MODTYPE library.
 # this variable must be evaluated at the use time because at declaration time, the dependencies are not generated yet.
 INCLUDE_PROJ_MODS=$(filter-out $(MODNAME),$(foreach mod,$(sort $(ABS_INCLUDE_MODS)),$(if $(wildcard $(PRJROOT)/$(mod)),$(mod),)))
 
 LDFLAGS+=-L$(TRDIR)/$(SODIR) $(foreach mod,$(INCLUDE_PROJ_MODS),$(if $(wildcard $(TRDIR)/$(SODIR)/lib$(APPNAME)_$(mod).$(SOEXT)),-l$(APPNAME)_$(mod),)$(if $(wildcard $(TRDIR)/$(SODIR)/lib$(mod).$(SOEXT)),-l$(mod),))
+
+LDFLAGS+=-L$(TRDIR)/$(SODIR) $(foreach mod,$(INCLUDE_PROJ_MODS),$(if $(wildcard $(TRDIR)/$(SODIR)/lib$(APPNAME)_$(mod).$(AREXT)),-l$(APPNAME)_$(mod),)$(if $(wildcard $(TRDIR)/$(SODIR)/lib$(mod).$(AREXT)),-l$(mod),))
 
 # add paths to used modules' headers & libs.
 CFLAGS+=-I$(TRDIR)/include $(foreach mod,$(INCLUDE_PRJ_MODS),$(if $(wildcard $(PRJROOT)/$(mod)/include),-I$(PRJROOT)/$(mod)/include,))
@@ -235,13 +264,30 @@ $(cxx-command-base)
 endef
 endif
 
+# on none Windows, add creation of static archive
+# for static lib, remove vinfo.o and rename lib.so -> lib.a
 ifneq ($(ISWINDOWS),true)
+define ar-command-lib
+@$(ABS_PRINT_info) "Archiving $@ ..."
+@mkdir -p $(TARGETDIR)
+@echo `$(TRACE_DATE_CMD)`"> LD_RUN_PATH='"'$(LDRUNP)'"' $(AR) rcs $@ $(OBJS_NO_VINFO)" >> $(BUILDLOG)
+@LD_RUN_PATH='$(LDRUNP)' $(AR) rcs $@ $(OBJS_NO_VINFO)
+endef
+ifneq ($(NO_VINFO),)
+define ld-command-lib
+@$(ABS_PRINT_info) "Linking $@ ..."
+@mkdir -p $(TARGETDIR)
+@echo `$(TRACE_DATE_CMD)`"> LD_RUN_PATH='"'$(LDRUNP)'"' LD_LIBRARY_PATH=$(LDLIBP) $(LD) -o $@ $(OBJS) $(LDFLAGS)" >> $(BUILDLOG)
+@LD_RUN_PATH='$(LDRUNP)' LD_LIBRARY_PATH=$(LDLIBP) $(LD) -o $@ $(OBJS_NO_VINFO) $(LDFLAGS)
+endef
+else
 define ld-command-lib
 @$(ABS_PRINT_info) "Linking $@ ..."
 @mkdir -p $(TARGETDIR)
 @echo `$(TRACE_DATE_CMD)`"> LD_RUN_PATH='"'$(LDRUNP)'"' LD_LIBRARY_PATH=$(LDLIBP) $(LD) -o $@ $(OBJS) $(LDFLAGS)" >> $(BUILDLOG)
 @LD_RUN_PATH='$(LDRUNP)' LD_LIBRARY_PATH=$(LDLIBP) $(LD) -o $@ $(OBJS) $(LDFLAGS)
 endef
+endif
 define ld-command-exe
 $(ld-command-lib)
 endef

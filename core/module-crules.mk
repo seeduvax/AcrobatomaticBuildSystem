@@ -8,7 +8,21 @@
 # a removed and no more used header will not make the compilation fail.
 # Check http://mad-scientist.net/make/autodep.html#norule for more
 # details.
-# ---------------------------------------------------------------------
+## ---------------------------------------------------------------------
+## C/C++ build options
+## ---------------------------------------------------------------------
+## STATIC_LIB=true|false, when true, generate static libraries, and link
+##    statically. Default value is false.
+## DYNAMIC_LIB=true|false, when true, generate dynamic libraries, and link
+##    dynamically. Default value is true.
+##    When both STATIC_LIB and DYNAMIC_LIB are true, builds both statict and
+##    dynamic libraries but link executables dynamically only.
+## NO_VINFO=true|false, when true, do not generate and link the source file 
+##    for the target binary embedded identifiers string. Default is false. 
+##    activate this option in case of small memory footprint or reproductible
+##    builds requirements (because the string might be long and include build
+##    context info such as build host and build date).
+##
 include $(ABSROOT)/core/module-cheaders.mk
 
 # object files : one for each c and cpp file.
@@ -26,6 +40,7 @@ GENOBJS+=$(patsubst %.adb,%.o,$(filter %.adb,$(GENSRC)))
 OBJS+=$(COBJS) $(CPPOBJS) $(GENOBJS) $(OBJDIR)/vinfo.o
 # remove duplicates to avoid multiple definitions errors.
 OBJS:=$(sort $(OBJS))
+OBJS_NO_VINFO:=$(filter-out $(OBJDIR)/vinfo.o,$(OBJS))
 
 RES_HEADER=$(TRDIR)/include/$(APPNAME)/$(MODNAME)/res.h
 
@@ -36,7 +51,7 @@ RES_HEADER=$(TRDIR)/include/$(APPNAME)/$(MODNAME)/res.h
 # ---------------------------------------------------------------------
 # Default target : build target file
 # ---------------------------------------------------------------------
-C_RULES_ALL_TARGETS+=$(TARGETFILE) $(PUBLISHED_HEADERS)
+C_RULES_ALL_TARGETS+=$(TARGETFILE) $(TARGETARCHIVE) $(PUBLISHED_HEADERS)
 
 # ---------------------------------------------------------------------
 # Main transformation rules
@@ -71,11 +86,37 @@ $(OBJDIR)/%.o: src/%.cpp
 
 # link target from objects
 ifeq ($(MODTYPE),library)
+ifneq ($(TARGETFILE),)
+ifneq ($(NO_VINFO),)
+ifeq ($(strip $(OBJS_NO_VINFO)),)
+$(TARGETFILE): $(OBJS_NO_VINFO)
+	@echo nothing to do
+else 
+$(TARGETFILE): $(OBJS_NO_VINFO)
+	$(ld-command-lib)
+endif
+else
 $(TARGETFILE): $(OBJS)
 	$(ld-command-lib)
+endif
+endif
+ifneq ($(TARGETARCHIVE),)
+ifeq ($(strip $(OBJS_NO_VINFO)),)
+$(TARGETARCHIVE): $(OBJS_NO_VINFO)
+	@echo nothing to do
+else
+$(TARGETARCHIVE): $(OBJS_NO_VINFO)
+	$(ar-command-lib)
+endif
+endif
+else
+ifneq ($(NO_VINFO),)
+$(TARGETFILE): $(OBJS_NO_VINFO)
+	$(ld-command-exe)
 else
 $(TARGETFILE): $(OBJS)
 	$(ld-command-exe)
+endif
 endif
 
 # vinfo file generated from make macro value.
