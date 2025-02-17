@@ -184,13 +184,22 @@ run:: all
       || $(ABS_PRINT_error) "Run failed: $(TARGETFILE) $(RUNARGS)"
 	@$(RUNTIME_EPILOG)
 
+GDBCMD:=$(BUILDROOT)/gdb-$(MODNAME)
+
+.PHONY: debugcmd
+gdbcmd: $(TARGETFILE)
+	@$(ABS_PRINT_info) "Generating gdb test script $(GDBCMD)"
+	@mkdir -p $(BUILDROOT)
+	@echo 'set environment LD_LIBRARY_PATH=$(TLDLIBP)' > $(GDBCMD)
+	@echo 'set args $(RUNARGS)' >> $(GDBCMD)
+	@echo 'file $(TARGETFILE)' >> $(GDBCMD)
+	@printf "define runapp\nrun\nend\n" >> $(GDBCMD)
+
+
 # run application with gdb
 # TODO cygwin compat
-debug:: $(TARGETFILE)
-	@printf "define runapp\nrun $(RUNARGS)\nend\n" > cmd.gdb
-	@printf "\e[1;4mUse runapp command to launch app from gdb\n\e[37;37;0m"
-	@PATH=$(RUNPATH) LD_LIBRARY_PATH=$(LDLIBP) $(RUNTIME_ENV) gdb $(TARGETFILE) -x cmd.gdb
-	@rm cmd.gdb
+debug:: $(TARGETFILE) gdbcmd
+	@PATH=$(RUNPATH) $(RUNTIME_ENV) gdb -x $(GDBCMD)
 
 # print eclipse setup
 .PHONY:	edebug

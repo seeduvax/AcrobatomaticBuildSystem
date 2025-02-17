@@ -238,12 +238,26 @@ endif
 
 ##  - debugcheck [RUNARGS="<arg> [<arg>]*": run test from gdb debugger
 # TODO add cygwin support
+
+GDBCMDTEST:=$(BUILDROOT)/gdb-$(MODNAME).test
+
+
+.PHONY: gdbcmdtest
+gdbcmdtest: testbuild
+	@$(ABS_PRINT_info) "Generating gdb test script $(GDBCMDTEST)"
+	@mkdir -p $(BUILDROOT)
+	@echo 'set environment LD_LIBRARY_PATH=$(TLDLIBP)' > $(GDBCMDTEST)
+	@echo 'set environment TRDIR=$(TRDIR)' >> $(GDBCMDTEST)
+	@echo 'set environment TTARGETDIR=$(TTARGETDIR)' >> $(GDBCMDTEST)
+	@echo 'set args $(RUNARGS) $(patsubst %,+f %,$(T)) $(TARGS) $(TTARGETFILE)' >> $(GDBCMDTEST)
+	@echo 'file $(patsubst %,$(EXTLIBDIR)/%/bin/$(TESTRUNNER),$(CPPUNIT))' >> $(GDBCMDTEST)
+	@printf "define runtests\nrun\nend\n" >> $(GDBCMDTEST)
+
+
 .PHONY: debugcheck
-debugcheck: testbuild
-	@printf "define runtests\nrun $(TTARGETFILE) $(RUNARGS) $(patsubst %,+f %,$(T)) $(TARGS)\nend\n" > cmd.gdb
+debugcheck: testbuild gdbcmdtest
 	@printf "\e[1;4mUse runtests command to launch tests from gdb\n\e[37;37;0m"
-	@PATH="$(RUNPATH)" LD_LIBRARY_PATH="$(TLDLIBP)" TRDIR="$(TRDIR)" TTARGETDIR="$(TTARGETDIR)" gdb  $(patsubst %,$(EXTLIBDIR)/%/bin/$(TESTRUNNER),$(CPPUNIT)) -x cmd.gdb
-	@rm cmd.gdb
+	@PATH="$(RUNPATH)" gdb  -x $(GDBCMDTEST)
 
 GDBSERVER_PORT?=9091
 ##  - remotedebugtest [RUNARGS="<arg> [<arg>]*": run test from gdbserver debugger] [GDBSERVER_PORT=9091 : default gdbserver port]
