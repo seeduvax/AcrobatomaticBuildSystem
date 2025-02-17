@@ -6,7 +6,8 @@ include module.cfg
 MODNAME?=$(notdir $(abspath .))
 
 
-# add dependencies between module to avoid compile module at the same time.
+# add dependencies between modules to avoid compile module at the same time.
+# .done must depends of other .done to propagate the multithread dependency.
 $(PRJOBJDIR)/$(MODNAME)/moddeps.mk:
 	@$(ABS_PRINT_info) "Generating $(MODNAME) module dependency file."
 	@mkdir -p $(@D)
@@ -20,14 +21,11 @@ _module_$(MODNAME)_dir=$(PRJROOT)/$(MODNAME)\n\
 _module_$(APPNAME)_$(MODNAME)_dir=$(TRDIR)\n\
 _module_$(APPNAME)_$(MODNAME)_depends="'$$(sort $(LINKLIB) $(patsubst %,$(APPNAME)_%,$(USEMOD)) $(foreach dep,$(LINKLIB) $(patsubst %,$(APPNAME)_%,$(USEMOD)),$$(_module_$(dep)_depends)))'"\n\
 \n\
-\$$(PRJOBJDIR)/\$$(MODNAME)/.depready: \$$(patsubst %,\$$(PRJOBJDIR)/%/.done,$(USEMOD))\n\
+\$$(PRJOBJDIR)/$(MODNAME)/.depready: $(patsubst %,\$$(PRJOBJDIR)/%/.done,$(USEMOD))\n\
 \n\
-\$$(PRJOBJDIR)/\$$(MODNAME)/.done: "'$$(call find,\$$(PRJROOT)/\$$(MODNAME),*)'"\n\
+\$$(PRJOBJDIR)/$(MODNAME)/.done: "'$$(call find,\$$(PRJROOT)/$(MODNAME),*)'"\n\
 \n" >> $@.tmp
-	@ALLMODS="$(sort $(USEMOD))"; DEPENDSMODS=; for modName in $$ALLMODS; do\
-		echo "\$$(PRJOBJDIR)/$$modName/.done: \$$(patsubst %,\$$(PRJOBJDIR)/%/.done,$$DEPENDSMODS)\n" >> $@.tmp; \
-		DEPENDSMODS="$$DEPENDSMODS $$modName"; \
-done
+	@echo "\$$(PRJOBJDIR)/$(MODNAME)/.done: \$$(patsubst %,\$$(PRJOBJDIR)/%/.done,$(sort $(USEMOD)))\n" >> $@.tmp
 	@printf "\nendif\n" >> $@.tmp
 	@mv $@.tmp $@
 

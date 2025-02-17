@@ -154,7 +154,7 @@ $(PRJOBJDIR)/%/.depready::
 	@mkdir -p $(TRDIR)/.abs/content
 	@echo "# "`date` > $@
 
-$(PRJOBJDIR)/%/.done: $(PRJOBJDIR)/%/.depready $(PRJOBJDIR)/moddeps.mk
+$(PRJOBJDIR)/%/.done: $(PRJOBJDIR)/%/.depready $(PRJOBJDIR)/%/moddeps.mk
 	@$(ABS_PRINT_info) "Building module $(patsubst $(PRJOBJDIR)/%/.done,%,$@)..."
 	@MODNAME=`cat $*/module.cfg | grep -E "^MODNAME" | sed -E 's/.*=(.*)/\1/g'` && test "$$MODNAME" = "$*" || $(ABS_PRINT_warning) "The name of the module $$MODNAME doesn't match the name of the module directory $*. This can have side effects."
 	@mkdir -p $(@D)
@@ -165,18 +165,6 @@ $(PRJOBJDIR)/%/.done: $(PRJOBJDIR)/%/.depready $(PRJOBJDIR)/moddeps.mk
 	@$(if $(filter $*,$(EXPMOD)),test ! -d $*/include || find $*/include -type f | sed 's~^$*/~~g' >> $(TRDIR)/.abs/content/$(APPNAME)_$*.filelist)
 	@rm -f $(TRDIR)/obj/$*/files.ts
 	@$(ABS_PRINT_info) "Module $(patsubst $(PRJOBJDIR)/%/.done,%,$@) built."
-
-# generate dependencies between module to avoid compile modules at the same time.
-$(PRJOBJDIR)/moddeps.mk:
-	@mkdir -p $(@D)
-	@touch $@.tmp
-	@ALLMODS="$(sort $(MODULES_DEPS))"; DEPENDSMODS=; for modName in $$ALLMODS; do\
-		echo -e "\$$(PRJOBJDIR)/$$modName/.done: \$$(patsubst %,\$$(PRJOBJDIR)/%/.done,$$DEPENDSMODS)\n" >> $@.tmp; \
-		DEPENDSMODS="$$DEPENDSMODS $$modName"; \
-done
-	@mv $@.tmp $@
-
-include $(PRJOBJDIR)/moddeps.mk
 
 # depends on mod.% to compile dependencies of module.
 testmod.%: $(PRJOBJDIR)/%/.done
