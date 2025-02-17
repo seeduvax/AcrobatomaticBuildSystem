@@ -246,4 +246,5 @@ endif
 
 $(PRJOBJDIR)/%/.done:
 	@$(ABS_PRINT_info) "$(MODNAME): Build of dependency: $*"
-	@make $(MMARGS) MODE=$(MODE) -C $(PRJROOT)/$* && date > $@
+	@+make $(MMARGS) MODE=$(MODE) -C $(PRJROOT)/$* && date > $@.tmp
+	@mv $@.tmp $@
