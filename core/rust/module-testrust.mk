@@ -20,7 +20,7 @@ debugtest:: testbuild
 testbuild:: all
 	@$(ABS_PRINT_info) "Rust compile tests from src/$(ENTRYFILENAME)"
 	@mkdir -p $(TRDIR)/bin
-	@LD_LIBRARY_PATH=$(LDLIBP) $(RUSTC) --crate-type $(ONE_CRATETYPE) --test $(RUSTFLAGS) $(RUSTLIBS) src/$(ENTRYFILENAME) -o $(TTARGETFILE) && \
+	@LD_LIBRARY_PATH=$(LDLIBP) $(RUST_BIN_DIR)$(RUSTC) --crate-type $(ONE_CRATETYPE) --test $(RUSTFLAGS) $(RUSTLIBS) src/$(ENTRYFILENAME) -o $(TTARGETFILE) && \
 	$(ABS_PRINT_info) "Rust tests for crate built: $(TARGETFILE)"
 
 test:: testbuild
