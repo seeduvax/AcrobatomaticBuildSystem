@@ -52,7 +52,7 @@ public:
     }
     ABS_TEST_CASE_END
 
-    ABS_TEST_CASE_BEGIN(CaseFail) {
+    ABS_TEST_CONDITIONAL_CASE_BEGIN(IS_INTERACTIVE, CaseFail) {
         ABS_TEST_DESCR(This test is designed to fail, in order to check the test infrastructure is able to catch a failure.)
         ABS_TEST_CASE_REQ(req.2)
         PROFILER_FUNCTION;
