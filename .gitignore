@@ -5,3 +5,4 @@
 /dist/
 /build/
 local.cfg
+compile_commands.json

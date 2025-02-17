@@ -1,3 +1,6 @@
+# to execute cross-compiled binaries (see  module-crules.mk for more informations)
+ARCH_EXECUTOR?=
+
 # default C flags
 CFLAGS+=-I$(ABSROOT)/core/include
 ifneq ($(ISWINDOWS),true)
@@ -154,14 +157,6 @@ else
 RELEASECFLAGS?=-O3
 CFLAGS+=-D_$(APPNAME)_$(MODNAME)_release $(IDENTCFLAGS) $(RELEASECFLAGS)
 endif
-
-
-## - ACTIVATE_SANITIZER: activate the compiler sanitizer
-##     - true: address sanitizer (leak memory detector)
-##     - thread: thread sanitizer (data race detector). Incompatible with address sanitizer
-## To disable the leak detection on sources compiled with address sanitizer, use the environment variable asan_options=detect_leaks=0
-## /!\ Must not be used to compile production binaries.
-## 
 
 # sanitizer
 ifeq ($(ACTIVATE_SANITIZER),true)

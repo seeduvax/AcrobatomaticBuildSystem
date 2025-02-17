@@ -22,7 +22,14 @@
 ##    activate this option in case of small memory footprint or reproductible
 ##    builds requirements (because the string might be long and include build
 ##    context info such as build host and build date).
-##
+## ACTIVATE_SANITIZER: activate the compiler sanitizer
+##    - true: address sanitizer (leak memory detector)
+##    - thread: thread sanitizer (data race detector). Incompatible with address sanitizer
+##    To disable the leak detection on sources compiled with address sanitizer, use the environment variable asan_options=detect_leaks=0
+##    /!\ Must not be used to compile production binaries.
+## ARCH_EXECUTOR: the executable used to execute cross-compiled binaries
+##    Ex: on a aarch64, can be qemu-aarch64-static
+
 include $(ABSROOT)/core/module-cheaders.mk
 
 # object files : one for each c and cpp file.
@@ -221,7 +228,7 @@ else
 run:: all
 	@$(ABS_PRINT_info) "Starting $(TARGETFILE) $(RUNARGS)"
 	@$(RUNTIME_PROLOG)
-	@PATH=$(RUNPATH) LD_LIBRARY_PATH=$(LDLIBP) $(RUNTIME_ENV) $(TARGETFILE) $(RUNARGS) \
+	@PATH=$(RUNPATH) LD_LIBRARY_PATH=$(LDLIBP) $(RUNTIME_ENV) $(ARCH_EXECUTOR) $(TARGETFILE) $(RUNARGS) \
       || $(ABS_PRINT_error) "Run failed: $(TARGETFILE) $(RUNARGS)"
 	@$(RUNTIME_EPILOG)
 
