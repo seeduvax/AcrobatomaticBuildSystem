@@ -98,11 +98,12 @@ define rust_compile
 @$(ABS_PRINT_info) "Rust compile $(1) from src/$(ENTRYFILENAME)"
 @mkdir -p $(@D)
 @LD_LIBRARY_PATH=$(LDLIBP) $(RUST_BIN_DIR)$(RUSTC) --crate-type $(1) $(RUSTFLAGS) $(RUSTLIBS) src/$(ENTRYFILENAME) -o $@ && \
-	$(ABS_PRINT_info) "Rust crate built: $@"
+	$(ABS_PRINT_info) "Rust crate built: $@" || ($(ABS_PRINT_error) "Rust cannot build crate: $@" && false)
 endef
 
 # ---------------------------------------------------------------------
 # Build rule
+# The differents targets must not be construct at the same time because they used the same temporary file.
 # ---------------------------------------------------------------------
 $(RUST_TARGET_FILE_BIN): $(RUSTSRCFILES)
 	$(call rust_compile,bin)
@@ -110,11 +111,18 @@ $(RUST_TARGET_FILE_BIN): $(RUSTSRCFILES)
 $(RUST_TARGET_FILE_RLIB): $(RUSTSRCFILES)
 	$(call rust_compile,rlib)
 
-$(RUST_TARGET_FILE_SO): $(RUSTSRCFILES)
+$(RUST_TARGET_FILE_SO): $(RUSTSRCFILES) $(OBJDIR)/rust_target_file_rlib.done
 	$(call rust_compile,cdylib)
 
-$(RUST_TARGET_FILE_RUST_SO): $(RUSTSRCFILES)
+$(RUST_TARGET_FILE_RUST_SO): $(RUSTSRCFILES) $(OBJDIR)/rust_target_file_cdylib.done
 	$(call rust_compile,dylib)
+	
+# Files to avoid compiling the libs at the same time
+$(OBJDIR)/rust_target_file_rlib.done: $(if $(filter rlib,$(CRATETYPE)),$(RUST_TARGET_FILE_RLIB),)
+	@touch $@
+
+$(OBJDIR)/rust_target_file_cdylib.done: $(if $(filter rlib,$(CRATETYPE)),$(RUST_TARGET_FILE_SO),)
+	@touch $@
 
 # ---------------------------------------------------------------------
 # Doc rule
