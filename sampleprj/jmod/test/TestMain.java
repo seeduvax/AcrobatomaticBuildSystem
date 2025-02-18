@@ -62,7 +62,7 @@ public class TestMain {
         assertEquals(true,Main.getTrue());
         // force failure to check test framework.
         // uncommented when such test is needed.
-         assertEquals(false,Main.getTrue());
+        //  assertEquals(false,Main.getTrue());
         System.out.println(">> testPlip completed.");
    }
 
