@@ -73,4 +73,17 @@ function testFile {
 }
 testFile $testDirectory/projC/dist/flatten/projC-2.4.3d/import2.mk $MODROOT/test/resources/expected/import2.mk
 
+binInstall="$testDirectory/projC/dist/projC-2.4.3d.NotALinux-install.bin"
+if [ ! -f $binInstall ]; then
+    echo "Error: Binary '$binInstall' not generated"
+    doExit 7
+fi
+$binInstall install $testDirectory/projC/dist/installed
+
+testFile="$testDirectory/projC/dist/installed/etc/aFile.txt"
+if [ ! -f $testFile ]; then
+    echo "Error: File '$testFile' not published"
+    doExit 8
+fi
+
 doExit 0

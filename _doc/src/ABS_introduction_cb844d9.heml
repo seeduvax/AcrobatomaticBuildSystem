@@ -98,6 +98,7 @@ MODNAME % string % Module name
 MODTYPE % exe / library / fileset / ... % Module type
 USEMOD % string % list of required modules from the same application
 LINKLIB % string % Libraries to link with (use short name: foo for libfoo.so)
+INCLUDE_MODS % string % Libraries needed for good execution
 }
 }
   }
