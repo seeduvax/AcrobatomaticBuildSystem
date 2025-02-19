@@ -9,16 +9,35 @@ variables:
 stages:
     - test
 
-test:
+.test_base:
     only:
         - branches
-    tags:
-        - debian
+    variables:
+        TASK_OPTVAR: "$USER_TASK_OPTVAR MODE=release"
     script:
         - echo make -C sampleprj test
         # disable SVN_CHECKOUTS that need internet access.
         - echo "SVN_CHECKOUTS=" >> sampleprj/cpplib/module.cfg
         - echo "ABS_REPO=$ABS_REPO" > sampleprj/local.cfg
-        - make -C sampleprj test
+        - make -C sampleprj test $TASK_OPTVAR
         - egrep -ri 'errors="[1-9]+' sampleprj/build/unit_test_results && exit 1 || echo "ok"
         - egrep -ri 'failures="[1-9]+' sampleprj/build/unit_test_results && exit 1 || echo "ok"
+
+test_debian_11:
+    extends: .test_base
+    tags:
+        - debian_11
+
+test_suse_12:
+    extends: .test_base
+    tags:
+        - suse_12
+    variable:
+        DISABLE_DYN_RUST=true
+
+test_suse_15sp5:
+    extends: .test_base
+    tags:
+        - suse_15sp5
+    variable:
+        DISABLE_DYN_RUST=true
