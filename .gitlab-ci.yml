@@ -15,7 +15,7 @@ stages:
     variables:
         TASK_OPTVAR: "$USER_TASK_OPTVAR MODE=release"
     script:
-        - echo make -C sampleprj test
+        - echo make -C sampleprj test $TASK_OPTVAR
         # disable SVN_CHECKOUTS that need internet access.
         - echo "SVN_CHECKOUTS=" >> sampleprj/cpplib/module.cfg
         - echo "ABS_REPO=$ABS_REPO" > sampleprj/local.cfg
@@ -33,11 +33,12 @@ test_suse_12:
     tags:
         - suse_12
     variables:
-        DISABLE_DYN_RUST: "true"
+        TASK_OPTVAR: "$USER_TASK_OPTVAR MODE=release DISABLE_DYN_RUST=true"
+        
 
 test_suse_15sp5:
     extends: .test_base
     tags:
         - suse_15sp5
     variables:
-        DISABLE_DYN_RUST: "true"
+        TASK_OPTVAR: "$USER_TASK_OPTVAR MODE=release DISABLE_DYN_RUST=true"
