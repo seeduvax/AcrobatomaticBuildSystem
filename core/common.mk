@@ -239,7 +239,7 @@ endif
 # dependencies between modules
 
 $(PRJOBJDIR)/%/moddeps.mk: $(PRJROOT)/%/module.cfg
-	@make -C $(PRJROOT)/$* --no-print-directory PRJROOT="$(PRJROOT)" TRDIR="$(TRDIR)" PRJOBJDIR="$(PRJOBJDIR)" -f $(ABSROOT)/core/module-depends.mk
+	@+make -C $(PRJROOT)/$* --no-print-directory PRJROOT="$(PRJROOT)" TRDIR="$(TRDIR)" PRJOBJDIR="$(PRJOBJDIR)" -f $(ABSROOT)/core/module-depends.mk
 
 
 ifeq ($(filter clean% docker%,$(MAKECMDGOALS)),)

@@ -19,7 +19,7 @@ include $(patsubst %,$(PRJOBJDIR)/%/moddeps.mk,$(USEMOD))\n\
 ABS_INCLUDE_MODS+=$(MODNAME)\n\
 _module_$(MODNAME)_dir=$(PRJROOT)/$(MODNAME)\n\
 _module_$(APPNAME)_$(MODNAME)_dir=$(TRDIR)\n\
-_module_$(APPNAME)_$(MODNAME)_depends="'$$(sort $(LINKLIB) $(patsubst %,$(APPNAME)_%,$(USEMOD)) $(foreach dep,$(LINKLIB) $(patsubst %,$(APPNAME)_%,$(USEMOD)),$$(_module_$(dep)_depends)))'"\n\
+_module_$(APPNAME)_$(MODNAME)_depends="'$$(sort $(LINKLIB) $(INCLUDE_MODS) $(patsubst %,$(APPNAME)_%,$(USEMOD)) $(foreach dep,$(LINKLIB) $(INCLUDE_MODS) $(patsubst %,$(APPNAME)_%,$(USEMOD)),$$(_module_$(dep)_depends)))'"\n\
 \n\
 \$$(PRJOBJDIR)/$(MODNAME)/.depready: $(patsubst %,\$$(PRJOBJDIR)/%/.done,$(USEMOD))\n\
 \n\

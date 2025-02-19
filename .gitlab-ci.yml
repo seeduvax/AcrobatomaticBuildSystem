@@ -4,6 +4,7 @@ variables:
     GIT_CHECKOUT: "true"
     GIT_CLEAN_FLAGS: -ffdx -e cache/
     GIT_DEPTH: "3"
+    ABS_REPO: "https://www.eduvax.net/dist"
 
 stages:
     - test
@@ -17,7 +18,7 @@ test:
         - echo make -C sampleprj test
         # disable SVN_CHECKOUTS that need internet access.
         - echo "SVN_CHECKOUTS=" >> sampleprj/cpplib/module.cfg
-        - if [ "$ABS_REPO" != "" ]; then echo "ABS_REPO:=$ABS_REPO" > sampleprj/local.cfg; fi
+        - echo "ABS_REPO=$ABS_REPO" > sampleprj/local.cfg
         - make -C sampleprj test
         - egrep -ri 'errors="[1-9]+' sampleprj/build/unit_test_results && exit 1 || echo "ok"
         - egrep -ri 'failures="[1-9]+' sampleprj/build/unit_test_results && exit 1 || echo "ok"
