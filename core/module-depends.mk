@@ -20,6 +20,7 @@ $(PRJOBJDIR)/$(MODNAME)/moddeps.mk:
 '_module_$(APPNAME)_$(MODNAME)_depends=$$(sort $(LINKLIB) $(INCLUDE_MODS) $(patsubst %,$(APPNAME)_%,$(USEMOD)) $(foreach dep,$(LINKLIB) $(INCLUDE_MODS) $(patsubst %,$(APPNAME)_%,$(USEMOD)),$$(_module_$(dep)_depends)))\n\n'\
 '$$(PRJOBJDIR)/$(MODNAME)/.depready: $(patsubst %,$$(PRJOBJDIR)/%/.done,$(USEMOD) $(TESTUSEMOD))\n\n'\
 '$$(PRJOBJDIR)/$(MODNAME)/.done: $$(call find,$$(PRJROOT)/$(MODNAME),*)\n\n' >> $@.tmp
+	@printf '$$(PRJOBJDIR)/$(MODNAME)/.done: $$(patsubst %%,$$(PRJOBJDIR)/%%/.done,$(sort $(USEMOD) $(TESTUSEMOD)))\n' >> $@.tmp
 	@printf "\nendif\n" >> $@.tmp
 	@mv $@.tmp $@
 
