@@ -15,7 +15,6 @@ MODULES_TARGET:=$(patsubst %,$(PRJOBJDIR)/%/.done,$(MODULES_DEPS)) $(patsubst %,
 MODULES_TEST:=$(filter-out $(patsubst %,testmod.%,$(NOBUILD) $(NOTEST)),$(patsubst %,testmod.%,$(MODULES))) $(patsubst %,warnnotest.%,$(NOTEST) $(NOBUILD))
 MODULES_VALGRINDTEST:=$(filter-out $(patsubst %,valgrindtestmod.%,$(NOBUILD) $(NOTEST)),$(patsubst %,valgrindtestmod.%,$(MODULES))) $(patsubst %,warnnotest.%,$(NOTEST) $(NOBUILD))
 MODULES_TESTBUILD:=$(filter-out $(patsubst %,testbuildmod.%,$(NOBUILD)),$(patsubst %,testbuildmod.%,$(MODULES))) $(patsubst %,warnnobuild.%,$(NOBUILD))
-
 JENKINS_USER?=jenkins
 DISTUSER?=$(USER)
 DISTHOST?=$(DISTUSER)@moneta.eduvax.net
@@ -218,7 +217,7 @@ $(DIST_FLATTEN_DIR)/obj/compiled:
 	@mkdir -p $(@D)
 	@$(ABS_PRINT_info) "Compilation of the project in mode: $(MODE)"
 	@$(ABS_PRINT_debug) "Compilation of the modules: $(DIST_MODS)"
-	@+make TRDIR=$(PRJROOT)/$(DIST_FLATTEN_DIR) MODE=$(MODE) NOBUILD=$(NOBUILD) $(patsubst %,$(PRJROOT)/$(DIST_FLATTEN_DIR)/obj/%/.done,$(DIST_MODS))
+	@+make TRDIR=$(PRJROOT)/$(DIST_FLATTEN_DIR) MODE=$(MODE) NOBUILD="$(NOBUILD)" $(patsubst %,$(PRJROOT)/$(DIST_FLATTEN_DIR)/obj/%/.done,$(DIST_MODS))
 	@$(ABS_PRINT_info) "Compilation of the project finished !"
 	@touch $@
 
