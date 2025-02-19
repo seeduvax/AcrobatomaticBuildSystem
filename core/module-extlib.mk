@@ -69,7 +69,7 @@ endef
 # $2: Repositories list
 # $3: Dest file
 define downloadFromRepos
-	$(ABS_PRINT_warning) "Macro dowloadFromRepos is deprecated. ABS extension or project configuration should be updated to new ABS standards."
+	$(ABS_PRINT_warning) "Macro downloadFromRepos is deprecated. ABS extension or project configuration should be updated to new ABS standards."
 $(call downloadFromURLs,$1,$(patsubst %,%/$1,$2),$3)
 endef
 

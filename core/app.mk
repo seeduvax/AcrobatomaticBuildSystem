@@ -232,7 +232,7 @@ $(DIST_FLATTEN_DIR)/import.mk: $(DIST_FLATTEN_DIR)/obj/compiled
 	@test -f export.mk || printf '_app_$(APPNAME)_dir:=$$(dir $$(lastword $$(MAKEFILE_LIST)))\n\n' >> $@.tmp
 	@test -f export.mk || echo '-include $$(wildcard $$(_app_$(APPNAME)_dir)/.abs/index_*.mk)' >> $@.tmp
 	@test -f export.mk || printf '$$(eval $$(call extlib_import_template,$(APPNAME),$(VERSION),$(sort $(USELIB))))\n' >> $@.tmp
-	@test -f export.mk || printf '$(foreach mod,$(DIST_MODS),$(strip _module_$(APPNAME)_$(mod)_depends:=$(_module_$(APPNAME)_$(mod)_depends))\n)' >> $@.tmp
+	@test -f export.mk || printf '$(foreach mod,$(DIST_MODS),\n_module_$(APPNAME)_$(mod)_depends:=$(_module_$(APPNAME)_$(mod)_depends))\n' >> $@.tmp
 	@test -f export.mk || printf '$(subst $(_space_),\n,$(foreach mod,$(DIST_MODS) _extra,_module_$(APPNAME)_$(mod)_dir:=$$(_app_$(APPNAME)_dir)))\n\n' >> $@.tmp
 	@test -f export.mk || printf '$(_extra_import_defs_)\n\n' >> $@.tmp
 	@touch $(@D)/obj/extraFiles.ts
@@ -254,7 +254,7 @@ echoDID:
 	@echo $(APPNAME)-$(VERSION).$(ARCH)
 
 pubfile: $(FILE)
-	scp $(FILE) $(DISTREPO)/$(ARCH)/`basename $(FILE)`
+	scp $(FILE) $(DISTREPO)/$(ARCH)/$(<F)
 
 ifeq ($(MAKECMDGOALS),__installextlibs)
 

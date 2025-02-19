@@ -86,4 +86,17 @@ if [ ! -f $testFile ]; then
     doExit 8
 fi
 
+# test dependencies transitivity
+testFile="$testDirectory/projC/dist/installed/etc/projB/aFile.txt"
+if [ ! -f $testFile ]; then
+    echo "Error: File '$testFile' not published"
+    doExit 9
+fi
+
+testFile="$testDirectory/projC/dist/installed/etc/projA/aFile.txt"
+if [ ! -f $testFile ]; then
+    echo "Error: File '$testFile' not published"
+    doExit 10
+fi
+
 doExit 0
