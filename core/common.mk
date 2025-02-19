@@ -267,7 +267,7 @@ endif
 endif
 
 
-MODULES_TO_BUILD:=$(patsubst %,$(PRJOBJDIR)/%/moddeps.mk,$(USEMOD) $(MODULES_DEPS))
+MODULES_TO_BUILD:=$(patsubst %,$(PRJOBJDIR)/%/moddeps.mk,$(USEMOD) $(MODULES_DEPS) $(TESTUSEMOD))
 ifneq ($(MODULES_TO_BUILD),)
 include $(MODULES_TO_BUILD)
 endif
