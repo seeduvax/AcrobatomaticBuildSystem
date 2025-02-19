@@ -32,12 +32,12 @@ test_suse_12:
     extends: .test_base
     tags:
         - suse_12
-    variable:
+    variables:
         DISABLE_DYN_RUST=true
 
 test_suse_15sp5:
     extends: .test_base
     tags:
         - suse_15sp5
-    variable:
+    variables:
         DISABLE_DYN_RUST=true
