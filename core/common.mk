@@ -177,8 +177,6 @@ else
 PATH_SEP:=:
 endif
 
-##  - TRDIR: target root directory (where the installed product image is stored)
-TRDIR?=$(BUILDROOT)/$(ARCH)/$(MODE)
 VERSION_OVERLOADED:=$(filter VERSION=%,$(MAKEOVERRIDES))
 
 VERSION_FIELDS:=$(subst ., ,$(VERSION))
@@ -194,6 +192,9 @@ ifneq ($(VERSION_OVERLOADED),)
 WORKSPACE_IS_TAG:=1
 endif
 
+##  - TRDIR: target root directory (where the installed product image is stored)
+TRDIR?=$(BUILDROOT)/$(ARCH)/$(MODE)
+
 KVERSION?=$(shell uname -r)
 
 # include application global parameters
@@ -205,6 +206,19 @@ endif
 
 -include $(ABSWS)/local.cfg
 -include $(PRJROOT)/local.cfg
+
+# identify dev version from tagged version, only when version is not overloaded.
+ifeq ($(ABS_SCM_TYPE),null)
+VERSION:=$(VERSION)e
+endif
+ifeq ($(WORKSPACE_IS_TAG),0)
+VERSION:=$(VERSION)d
+else
+MODE=release
+endif
+ifneq ($(VFLAVOR),)
+VERSION:=$(VERSION)_$(subst $(_space_),_,$(sort $(VFLAVOR)))
+endif
 
 # process BUILDCHAIN after re-include because NDUSELIB can be resetted
 ifneq ($(BUILDCHAIN),)
@@ -272,5 +286,3 @@ ifneq ($(MODULES_TO_BUILD),)
 include $(MODULES_TO_BUILD)
 endif
 endif
-
-

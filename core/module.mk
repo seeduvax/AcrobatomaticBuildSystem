@@ -63,14 +63,6 @@ REVISION:=$(shell svnversion)
 endif
 endif
 
-# identify dev version from tagged version, only when version is not overloaded.
-ifeq ($(WORKSPACE_IS_TAG),0)
-VERSION:=$(VERSION)d
-endif
-ifeq ($(ABS_SCM_TYPE),null)
-VERSION:=$(VERSION)e
-endif
-
 # filterCmd permit to generate the sed commands to replace tokens in input file with FILTER_VARIABLES
 # 1st foreach: create sed command (with | instead of space to permit the replacement of spaces with ;)
 # 1st subst: replace the spaces between sed command with ; to permit the execution of each sed.
