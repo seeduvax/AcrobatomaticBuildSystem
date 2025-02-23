@@ -139,13 +139,13 @@ endif
 ifneq ($(ISWINDOWS),true)
 define ld-test
 @$(ABS_PRINT_info) "Linking $@ ..."
-@$(LD) -o $@ $(TCPPOBJS) $(LDFLAGS) $(TLDFLAGS)
+@$(LD) -o $@ $(TCPPOBJS) $(TLDFLAGS) $(LDFLAGS)
 endef
 else
 define ld-test
 @$(ABS_PRINT_info) "Linking $(TCYGTARGET) ..."
 @$(LD) -shared -o $(TCYGTARGET) -Wl,--out-implib=$@\
-	-Wl,--export-all-symbols -Wl,--enable-auto-import -Wl,--whole-archive $(TCPPOBJS) -Wl,--no-whole-archive $(LDFLAGS) $(TLDFLAGS)
+	-Wl,--export-all-symbols -Wl,--enable-auto-import -Wl,--whole-archive $(TCPPOBJS) -Wl,--no-whole-archive $(TLDFLAGS) $(LDFLAGS)
 endef
 endif
 

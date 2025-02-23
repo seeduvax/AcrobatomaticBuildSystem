@@ -127,6 +127,7 @@ cleanbuild:
 	@-test ! -d build || chmod -R u+w build 2> /dev/null
 	@$(ABS_PRINT_info) "Removing build"
 	@rm -rf build
+	@rm $(CLANGD_DB)
 
 #   - cleandist: remove the dist directory
 cleandist:
