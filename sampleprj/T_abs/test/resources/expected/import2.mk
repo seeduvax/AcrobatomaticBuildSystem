@@ -8,4 +8,3 @@ _module_projC_cpplib_dir:=$(_app_projC_dir)
 _module_projC__extra_dir:=$(_app_projC_dir)
 
 
-

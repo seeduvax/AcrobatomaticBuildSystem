@@ -221,9 +221,9 @@ $(DIST_FLATTEN_DIR)/import.mk: $(DIST_FLATTEN_DIR)/obj/compiled
 	@test -f export.mk || printf '_app_$(APPNAME)_dir:=$$(dir $$(lastword $$(MAKEFILE_LIST)))\n\n' >> $@.tmp
 	@test -f export.mk || echo '-include $$(wildcard $$(_app_$(APPNAME)_dir)/.abs/index_*.mk)' >> $@.tmp
 	@test -f export.mk || printf '$$(eval $$(call extlib_import_template,$(APPNAME),$(VERSION),$(sort $(USELIB))))\n' >> $@.tmp
-	@test -f export.mk || printf '$(foreach mod,$(DIST_MODS),\n_module_$(APPNAME)_$(mod)_depends:=$(_module_$(APPNAME)_$(mod)_depends))\n' >> $@.tmp
-	@test -f export.mk || printf '$(subst $(_space_),\n,$(foreach mod,$(DIST_MODS) _extra,_module_$(APPNAME)_$(mod)_dir:=$$(_app_$(APPNAME)_dir)))\n\n' >> $@.tmp
-	@test -f export.mk || printf '$(_extra_import_defs_)\n\n' >> $@.tmp
+	@test -f export.mk || printf '$(foreach mod,$(sort $(DIST_MODS)),\n_module_$(APPNAME)_$(mod)_depends:=$(_module_$(APPNAME)_$(mod)_depends))\n' >> $@.tmp
+	@test -f export.mk || printf '$(subst $(_space_),\n,$(foreach mod,$(sort $(DIST_MODS)) _extra,_module_$(APPNAME)_$(mod)_dir:=$$(_app_$(APPNAME)_dir)))\n\n' >> $@.tmp
+	@test -f export.mk || printf '$(_extra_import_defs_)\n' >> $@.tmp
 	@touch $(@D)/obj/extraFiles.ts
 	@if [ -x extradist.sh ]; then VERSION=$(VERSION) APP=$(APPNAME) APPNAME=$(APPNAME) ./extradist.sh `dirname $@`; fi
 	@find $(@D) -type f -cnewer $(@D)/obj/extraFiles.ts | grep -v $(@D)/obj | sed 's~$(@D)/~~g' | grep -E -v "$(subst *,.*,$(subst $(_space_),|,$(DIST_EXCLUDE)))" > $(@D)/.abs/content/$(APPNAME)__extra.filelist || true
