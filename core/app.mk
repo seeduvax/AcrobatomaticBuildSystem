@@ -59,8 +59,6 @@ define gen-clangd-db
 @echo "]" >> $(CLANGD_DB)
 endef
 
-
-VSCODE_CPP_CONFIG=$(PRJROOT)/.vscode/c_cpp_properties.json
 ## 
 ## Make targets:
 ## 
@@ -83,9 +81,6 @@ endef
 
 testsummary:
 	$(test-summary)
-
-## - vscodeconfig: Generate the c_cpp_properties.json for vscode to correctly add include paths.
-vscodeconfig: $(VSCODE_CPP_CONFIG)
 
 test: $(MODULES_TEST)
 	$(test-synthesis)
@@ -394,8 +389,10 @@ ifneq ($(IMPORT_ABSMOD),)
 include $(patsubst %,$(ABSROOT)/%/main.mk,$(IMPORT_ABSMOD))
 endif
 
+## 
 ## --------------------------------------------------------------------------
 ## Configuration management services
+## --------------------------------------------------------------------------
 ##
 ## Variables
 ##  - BRANCH_VERSION: current branch identifier
@@ -448,66 +445,6 @@ branch:
 endif # check param I and M
 endif # check NEW_BRANCH
 endif # branch target
-## 
-## --------------------------------------------------------------------
-## Docker utilities.
-##  Enable easy cross build on same hardware architecture for an alternate
-##  OS distribution without setting up a huge VM.
-## Targets:
-##   - docker[.<target>] <image>
-##     call make from current place binded in the provided docker image.
-DOCKER_CMD?=docker
-
-ifneq ($(filter docker%,$(word 1,$(MAKECMDGOALS))),)
-## Variables:
-DOCKER_IMAGE:=$(word 2,$(MAKECMDGOALS))
-ifeq ($(DOCKER_IMAGE),)
-docker.%:
-	@$(ABS_PRINT_error) "argument missing: need a docker image name."
-	@$(ABS_PRINT_error) "   make docker[.<target>] <image>"
-
-else
-DOCKER_TARGET:=$(TARGET)
-DOCKER_ARGS+=--rm --hostname $(shell hostname).$(subst /,.,$(DOCKER_IMAGE))
-DOCKER_WORKSPACE:=/home/$(USER)
-# preliminary command to create user env in the container.
-DOCKER_CREATEUSERENV:=echo $(USER):x:$(shell id -u):$(shell id -g)::$(DOCKER_WORKSPACE):/bin/bash >> /etc/passwd && chown $(USER) $(DOCKER_WORKSPACE) && echo $(USER):*:18464:0:99999:7::: >> /etc/shadow
-# let the dockerized build open ssh session as the user from the host.
-DOCKER_ARGS+=-v $(HOME)/.ssh:$(DOCKER_WORKSPACE)/.ssh
-##  - DOCKER_WORKSPACE: workspace root dir inside the container ot use for the
-##    build. Caution it shall be writeable for the uid/gid calling make, since
-##    it is set from current user to ensure proper access to project source tree
-##    that is bind into the container as 
-##    $(DOCKER_WORKSPACE)/$(APPNAME)-$(VERSION).
-##    Default is set to /tmp that is a quite standard place world writable.
-DOCKER_WDIR:=$(DOCKER_WORKSPACE)/$(APPNAME)-$(VERSION)
-DOCKER_ARGS+=-v $(PRJROOT):$(DOCKER_WDIR)
-
-.PHONY: docker.%
-docker.%:
-	@$(ABS_PRINT_info) "Running build with target $* from docker image $(DOCKER_IMAGE)"
-	@# the () are needed to avoid the quit of container at the end of execution of some commands.
-	@$(DOCKER_CMD) run $(DOCKER_ARGS) $(DOCKER_IMAGE) bash -c "($(DOCKER_CREATEUSERENV) && su - $(USER) -c 'cd $(DOCKER_WDIR) && make $(patsubst docker.%,%,$@) $(MAKEARGS)')"
-
-dockershell:
-	@$(ABS_PRINT_info) "Starting shell from docker image $(DOCKER_IMAGE)"
-	@$(DOCKER_CMD) run $(DOCKER_ARGS) -it $(DOCKER_IMAGE) bash -c "($(DOCKER_CREATEUSERENV) && su - $(USER))"
-
-.PHONY: $(DOCKER_IMAGE)
-$(DOCKER_IMAGE):
-	@:
-
-endif # if DOCKER_IMAGE
-else
-.PHONY: docker.%
-docker.%:
-	@$(ABS_PRINT_warning) "docker target ignored, should be used first to run build from docker image."
-	@$(ABS_PRINT_warning) "   make docker[.<target>] <image>"
-
-endif # docker as first target.
-
-.PHONY: docker
-docker: docker.all
 
 # update bootstrap makefile if needed.
 ifneq ($(PRESERVEMAKEFILE),true)
@@ -530,21 +467,5 @@ cleanabs:
 
 absclean: cleanabs
 
-MODULES_WITH_INCLUDES=$(foreach mod,$(MODULES),$(if $(wildcard $(mod)/include),$(mod)))
-.PHONY: $(VSCODE_CPP_CONFIG)
-$(VSCODE_CPP_CONFIG): app.cfg
-	@$(ABS_PRINT_info) "Generation of $@"
-	@mkdir -p $(@D)
-	@printf '{\n' > $@.tmp
-	@printf '"configurations": [\n' >> $@.tmp
-	@printf '    {\n' >> $@.tmp
-	@printf '        "name": "Linux",\n' >> $@.tmp
-	@printf '        "includePath": [\n' >> $@.tmp
-	@$(foreach mod,$(MODULES_WITH_INCLUDES),printf '            "$${workspaceFolder}/$(mod)/include/",\n' >> $@.tmp;)
-	@printf '            "$${workspaceFolder}/build/extlib/$(ARCH)/**/include/",\n' >> $@.tmp
-	@printf '            "$${workspaceFolder}/build/extlib/noarch/**/include/",\n' >> $@.tmp
-	@printf '            "$(ABSROOT)/core/include/"\n' >> $@.tmp
-	@printf '        ]\n' >> $@.tmp
-	@printf '    }\n' >> $@.tmp
-	@printf ']}' >> $@.tmp
-	@mv $@.tmp $@
+include $(ABSROOT)/core/app-docker.mk
+include $(ABSROOT)/core/app-vscode.mk
