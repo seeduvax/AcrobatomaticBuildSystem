@@ -3,6 +3,7 @@
 ## See ABS documentation (res #170983b) for more details
 ##   http://github.com/seeduvax/AcrobatomaticBuildSystem
 ##   http://www.eduvax.net/gitweb
+## 
 ## --------------------------------------------------------------------
 ## Module level build services
 ## --------------------------------------------------------------------
@@ -21,7 +22,7 @@ CC=
 CPPC=
 LD=
 SPACECHAR= 
-## Path to receive external source files
+# Path to receive external source files
 EXT_SRC_DIR=$(BUILDROOT)/extsrc/
 
 
@@ -31,7 +32,6 @@ EXT_SRC_DIR=$(BUILDROOT)/extsrc/
 # dist package.
 # - linklib : independant extlib's CFLAGS/LDFLAGS settings, see RD_TEA332-776
 BUILDSCRIPTS_CAPS:=linklib
-
 
 
 # initialize variable that must not be forwared in recursive make call
@@ -44,7 +44,7 @@ LUA_MDL_ENABLE:=
 LUA_MDL_TYPES_FILE:=
 LUA_MDL_MODEL_HEADERS:=
 
-## Level of dependency management
+# Level of dependency management
 # Possible values: DISABLED, FIRST, NEXT
 DEPS_MNGMT_LEVEL?=FIRST
 
@@ -81,9 +81,10 @@ define executeFiltering
 endef
 endif
 
-# ---------------------------------------------------------------------
-# Automatic derivation of application & module parameters
-# ---------------------------------------------------------------------
+## 
+## ---------------------------------------------------------------------
+## Automatic derivation of application & module parameters
+## ---------------------------------------------------------------------
 # object files go in a subdirectory of build dir dedicated to the module
 OBJDIR?=$(PRJOBJDIR)/$(MODNAME)
 # log containing all commands executed to generate objects
@@ -93,7 +94,7 @@ BUILDLOG=$(PRJOBJDIR)/build.log
 ABS_INCLUDE_MODS+=
 ABS_INCLUDE_TESTMODS+=
 
-##
+## 
 ## Common make targets:
 ##
 ##  - all (default): builds all
@@ -108,26 +109,26 @@ clean:: clean-module
 .PHONY: etc
 etc::
 
-##  - run [RUNARGS="<arg> [<arg>]*": run application
+##  - run [RUNARGS="<arg> [<arg>]*"]: run application
 .PHONY: run
 run::
 
-##  - debug [RUNARGS="<arg> [<arg>]*": run application in gdb debugger
+##  - debug [RUNARGS="<arg> [<arg>]*"]: run application in gdb debugger
 .PHONY: debug
 debug::
 
-##  - test [RUNARGS="<arg> [<arg>]*":  build and run tests
+##  - test [RUNARGS="<arg> [<arg>]*"]:  build and run tests
 .PHONY: test
 test:: testbuild
 
 .PHONY: coverage
 coverage::
 
-##  - valgrindtest [RUNARGS="<arg> [<arg>]*":  build and run tests with valgrind
+##  - valgrindtest [RUNARGS="<arg> [<arg>]*"]:  build and run tests with valgrind
 .PHONY: valgrindtest
 valgrindtest:: testbuild
 
-##  - testbuild [RUNARGS="<arg> [<arg>]*":  build tests
+##  - testbuild [RUNARGS="<arg> [<arg>]*"]:  build tests
 .PHONY: testbuild
 testbuild:: all
 
@@ -216,10 +217,10 @@ Makefile: ../Makefile
 	@cp $^ $@
 endif
 
-##
-## ---------------------------------------------------------------------
-##  dependencies beetween modules management
-## ---------------------------------------------------------------------
+### 
+### ---------------------------------------------------------------------
+###  Dependencies beetween modules management
+### ---------------------------------------------------------------------
 ifeq ($(filter clean% new% showvar checkdep,$(MAKECMDGOALS)),)
 
 include $(PRJOBJDIR)/$(MODNAME)/moddeps.mk

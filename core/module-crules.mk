@@ -8,6 +8,7 @@
 # a removed and no more used header will not make the compilation fail.
 # Check http://mad-scientist.net/make/autodep.html#norule for more
 # details.
+## 
 ## ---------------------------------------------------------------------
 ## C/C++ build options
 ## ---------------------------------------------------------------------

@@ -143,9 +143,10 @@ RUNPATH:=$(TRDIR)/bin$(subst $(_space_),,$(patsubst %,:$(EXTLIBDIR)/%/bin,$(USEL
 
 LDRUNP?=$$ORIGIN/../lib
 
-# ---------------------------------------------------------------------
-# Compilation flags by compilation modes
-# ---------------------------------------------------------------------
+## 
+## ---------------------------------------------------------------------
+## Compilation flags by compilation modes
+## ---------------------------------------------------------------------
 ## DEBUGCFLAGS: additional compiler option to set on debug mode only (default: empty)
 IDENTCFLAGS:=-D__APPNAME__='$(APPNAME)' -D__MODNAME__='$(MODNAME)'
 ifeq ($(MODE),debug)
