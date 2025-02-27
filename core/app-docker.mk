@@ -5,7 +5,7 @@
 ##  Enable easy cross build on same hardware architecture for an alternate
 ##  OS distribution without setting up a huge VM.
 ## Targets:
-##   - docker[.<target>] <image>
+##  - docker[.<target>] <image>
 ##     call make from current place binded in the provided docker image.
 DOCKER_CMD?=docker
 

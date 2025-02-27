@@ -5,7 +5,7 @@
 
 VSCODE_CPP_CONFIG=$(PRJROOT)/.vscode/c_cpp_properties.json
 
-## - vscodeconfig: Generate the c_cpp_properties.json for vscode to correctly add include paths.
+##  - vscodeconfig: Generate the c_cpp_properties.json for vscode to correctly add include paths.
 vscodeconfig: $(VSCODE_CPP_CONFIG)
 
 MODULES_WITH_INCLUDES=$(foreach mod,$(MODULES),$(if $(wildcard $(mod)/include),$(mod)))
