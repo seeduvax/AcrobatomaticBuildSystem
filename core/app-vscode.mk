@@ -19,10 +19,11 @@ $(VSCODE_CPP_CONFIG): app.cfg
 	@printf '        "name": "Linux",\n' >> $@.tmp
 	@printf '        "includePath": [\n' >> $@.tmp
 	@$(foreach mod,$(MODULES_WITH_INCLUDES),printf '            "$${workspaceFolder}/$(mod)/include/",\n' >> $@.tmp;)
-	@printf '            "$${workspaceFolder}/build/extlib/$(ARCH)/**/include/",\n' >> $@.tmp
-	@printf '            "$${workspaceFolder}/build/extlib/noarch/**/include/",\n' >> $@.tmp
+	@printf '            "$${workspaceFolder}/build/extlib/$(ARCH)/**",\n' >> $@.tmp
+	@printf '            "$${workspaceFolder}/build/extlib/noarch/**",\n' >> $@.tmp
 	@printf '            "$(ABSROOT)/core/include/"\n' >> $@.tmp
-	@printf '        ]\n' >> $@.tmp
+	@printf '        ],\n' >> $@.tmp
+	@printf '        "compileCommands": $${workspaceFolder}/compile_commands.json"\n' >> $@.tmp
 	@printf '    }\n' >> $@.tmp
 	@printf ']}' >> $@.tmp
 	@mv $@.tmp $@
