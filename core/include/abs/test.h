@@ -1,20 +1,30 @@
 #ifndef __ABS_TEST_H__
 #define __ABS_TEST_H__
 #include <iostream>
+#include <string>
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/plugin/TestPlugIn.h>
 
-#define ABS_TEST_SUITE_BEGIN(testSuiteName, ...) class Test##testSuiteName: public CppUnit::TestFixture , ##__VA_ARGS__ {
+// defines variable to avoid undefined macro warnings.
+// theses defines are created by testdef2cppunitdecl.h and dynamically included
+#ifndef __ABS_TEST_SUITE_CPPUNIT_DECL
+#define __ABS_TEST_SUITE_CPPUNIT_DECL
+#endif
 
-#define ABS_TEST_SUITE_END CPPUNIT_TEST_SUITE(__ABS_TEST_SUITE_CLASS_NAME); \
+#define ABS_TEST_SUITE_BEGIN(testSuiteName, ...) class Test##testSuiteName; \
+    using DefaultTestSuiteClass=Test##testSuiteName; \
+    class Test##testSuiteName: public CppUnit::TestFixture , ##__VA_ARGS__ {\
+        const char* __testSuiteNameStr = #testSuiteName;
+
+#define ABS_TEST_SUITE_END CPPUNIT_TEST_SUITE(DefaultTestSuiteClass); \
 __ABS_TEST_SUITE_CPPUNIT_DECL \
 CPPUNIT_TEST_SUITE_END(); \
 }; \
-CPPUNIT_TEST_SUITE_REGISTRATION(__ABS_TEST_SUITE_CLASS_NAME);
+CPPUNIT_TEST_SUITE_REGISTRATION(DefaultTestSuiteClass);
 
 #define ABS_TEST_CASE_BEGIN(testCaseName) \
    void test##testCaseName () { \
-        const char* _abs_test_case_name = __ABS_TEST_SUITE_NAME_STR "_" #testCaseName; \
+        std::string _abs_test_case_name = std::string(__testSuiteNameStr) + std::string("_" #testCaseName); \
         std::cout << std::endl << "ABS_TEST_CASE_START(" \
             << _abs_test_case_name << ")" << std::endl;
 
