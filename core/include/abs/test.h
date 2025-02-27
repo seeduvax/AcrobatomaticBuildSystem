@@ -12,7 +12,7 @@
 #endif
 
 #define ABS_TEST_SUITE_BEGIN(testSuiteName, ...) class Test##testSuiteName; \
-    using DefaultTestSuiteClass=Test##testSuiteName; \
+    typedef Test##testSuiteName DefaultTestSuiteClass; \
     class Test##testSuiteName: public CppUnit::TestFixture , ##__VA_ARGS__ {\
         const char* __testSuiteNameStr = #testSuiteName;
 
