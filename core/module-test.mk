@@ -27,8 +27,8 @@ else
 TIMEOUTCMD:=timeout $(TIMEOUT)
 endif
 
-CFLAGS+=-I$(EXTLIBDIR)/$(CPPUNIT)/include
-LDFLAGS+=-L$(EXTLIBDIR)/$(CPPUNIT)/$(SODIR)
+CFLAGS+=-I$(NDEXTLIBDIR)/$(CPPUNIT)/include
+LDFLAGS+=-L$(NDEXTLIBDIR)/$(CPPUNIT)/$(SODIR)
 
 # valgrind
 VALGRIND=valgrind
@@ -158,7 +158,7 @@ $(TTARGETFILE): $(TCPPOBJS) $(TTARGETFILEDEP)
 # Extra dependencies
 # ---------------------------------------------------------------------
 # Generating test object need cppunit libs and tools to be availables
-$(TCPPOBJS): $(patsubst %,$(EXTLIBDIR)/%/import.mk,$(CPPUNIT)) 
+$(TCPPOBJS): $(patsubst %,$(NDEXTLIBDIR)/%/import.mk,$(CPPUNIT)) 
 
 ifneq ($(TSRCFILES),)
 #dependencies management
@@ -195,12 +195,12 @@ endef
 ifneq ($(ISWINDOWS),true)
 define exec-test
 @$(RUNTIME_PROLOG)
-@( [ -d test ] && PATH="$(RUNPATH)" LD_LIBRARY_PATH="$(TLDLIBP)" TRDIR="$(TRDIR)" TTARGETDIR="$(TTARGETDIR)" LD_PRELOAD="$(TLDPRELOADFORMATTED)" $(RUNTIME_ENV) $1 $(ARCH_EXECUTOR) $(patsubst %,$(EXTLIBDIR)/%/bin/$(TESTRUNNER),$(CPPUNIT)) -x $(TEST_REPORT_PATH) $(TTARGETFILE) $(RUNARGS) $(patsubst %,+f %,$(T)) $(TARGS) 2>&1 | tee $(TTARGETDIR)/$(APPNAME)_$(MODNAME).stdout ) || :
+@( [ -d test ] && PATH="$(RUNPATH)" LD_LIBRARY_PATH="$(TLDLIBP)" TRDIR="$(TRDIR)" TTARGETDIR="$(TTARGETDIR)" LD_PRELOAD="$(TLDPRELOADFORMATTED)" $(RUNTIME_ENV) $1 $(ARCH_EXECUTOR) $(patsubst %,$(NDEXTLIBDIR)/%/bin/$(TESTRUNNER),$(CPPUNIT)) -x $(TEST_REPORT_PATH) $(TTARGETFILE) $(RUNARGS) $(patsubst %,+f %,$(T)) $(TARGS) 2>&1 | tee $(TTARGETDIR)/$(APPNAME)_$(MODNAME).stdout ) || :
 @$(RUNTIME_EPILOG)
 endef
 else
 define exec-test
-@( [ -d test ] && PATH="$(RUNPATH):$(TLDLIBP)" LD_LIBRARY_PATH="$(TLDLIBP)" TRDIR="$(TRDIR)" TTARGETDIR="$(TTARGETDIR)" LD_PRELOAD="$(TLDPRELOADFORMATTED)" $(RUNTIME_ENV) $1 $(ARCH_EXECUTOR) $(patsubst %,$(EXTLIBDIR)/%/bin/$(TESTRUNNER),$(CPPUNIT)) -x $(TEST_REPORT_PATH) $(TCYGTARGET) $(RUNARGS) $(patsubst %,+f %,$(T)) $(TARGS) 2>&1 | tee $(TTARGETDIR)/$(APPNAME)_$(MODNAME).stdout ) || true
+@( [ -d test ] && PATH="$(RUNPATH):$(TLDLIBP)" LD_LIBRARY_PATH="$(TLDLIBP)" TRDIR="$(TRDIR)" TTARGETDIR="$(TTARGETDIR)" LD_PRELOAD="$(TLDPRELOADFORMATTED)" $(RUNTIME_ENV) $1 $(ARCH_EXECUTOR) $(patsubst %,$(NDEXTLIBDIR)/%/bin/$(TESTRUNNER),$(CPPUNIT)) -x $(TEST_REPORT_PATH) $(TCYGTARGET) $(RUNARGS) $(patsubst %,+f %,$(T)) $(TARGS) 2>&1 | tee $(TTARGETDIR)/$(APPNAME)_$(MODNAME).stdout ) || true
 endef
 endif
 
@@ -250,7 +250,7 @@ gdbcmdtest: testbuild
 	@echo 'set environment TRDIR=$(TRDIR)' >> $(GDBCMDTEST)
 	@echo 'set environment TTARGETDIR=$(TTARGETDIR)' >> $(GDBCMDTEST)
 	@echo 'set args $(RUNARGS) $(patsubst %,+f %,$(T)) $(TARGS) $(TTARGETFILE)' >> $(GDBCMDTEST)
-	@echo 'file $(patsubst %,$(EXTLIBDIR)/%/bin/$(TESTRUNNER),$(CPPUNIT))' >> $(GDBCMDTEST)
+	@echo 'file $(patsubst %,$(NDEXTLIBDIR)/%/bin/$(TESTRUNNER),$(CPPUNIT))' >> $(GDBCMDTEST)
 	@printf "define runtests\nrun\nend\n" >> $(GDBCMDTEST)
 
 
@@ -263,7 +263,7 @@ GDBSERVER_PORT?=9091
 ##  - remotedebugtest [RUNARGS="<arg> [<arg>]*": run test from gdbserver debugger] [GDBSERVER_PORT=9091 : default gdbserver port]
 .PHONY: remotedebugtest
 remotedebugtest: testbuild
-	@PATH="$(RUNPATH)" LD_LIBRARY_PATH="$(TLDLIBP)" TRDIR="$(TRDIR)" TTARGETDIR="$(TTARGETDIR)" gdbserver :$(GDBSERVER_PORT) $(patsubst %,$(EXTLIBDIR)/%/bin/$(TESTRUNNER),$(CPPUNIT)) $(TTARGETFILE) $(RUNARGS) $(patsubst %,+f %,$(T)) $(TARGS)
+	@PATH="$(RUNPATH)" LD_LIBRARY_PATH="$(TLDLIBP)" TRDIR="$(TRDIR)" TTARGETDIR="$(TTARGETDIR)" gdbserver :$(GDBSERVER_PORT) $(patsubst %,$(NDEXTLIBDIR)/%/bin/$(TESTRUNNER),$(CPPUNIT)) $(TTARGETFILE) $(RUNARGS) $(patsubst %,+f %,$(T)) $(TARGS)
 
 ##  - debugtest: alias for debugcheck
 .PHONY: debugtest
@@ -326,7 +326,7 @@ edebugtest:
 	@echo "**** Eclipse debugger setup for tests : ****"
 	@echo
 	@printf "Application:\t\t"
-	@echo "$(patsubst $(PRJROOT)/%,%,$(patsubst %,$(EXTLIBDIR)/%/bin/$(TESTRUNNER),$(CPPUNIT)))"
+	@echo "$(patsubst $(PRJROOT)/%,%,$(patsubst %,$(NDEXTLIBDIR)/%/bin/$(TESTRUNNER),$(CPPUNIT)))"
 	@printf "Arguments:\t\t"
 	@printf "$(patsubst $(PRJROOT)/%,%,$(TTARGETFILE))"
 	@echo "$(RUNARGS)  $(patsubst %,+f %,$(T))"
