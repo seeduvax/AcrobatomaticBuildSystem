@@ -3,9 +3,27 @@
 ## See ABS documentation (res #170983b) for more details
 ##   http://github.com/seeduvax/AcrobatomaticBuildSystem
 ##   http://www.eduvax.net/gitweb
+## 
 ## --------------------------------------------------------------------
 ## Module level build services
 ## --------------------------------------------------------------------
+## 
+## ---------------------------------------------------------------------
+## Automatic derivation of application & module parameters
+## ---------------------------------------------------------------------
+## 
+## Module common variables:
+## 
+## - USEMOD: list of dependences with another modules of this project.
+## - LINKLIB: list of externals dependencies to link with this module.
+##         To link another module of an ABS project, use $(APPNAME)_$(MODULE)
+##         For C/C++ module, the lib must include the library binary.
+##         This is the name of binary file. If name differ from library archive name,
+##         use INCLUDE_MODS
+## - INCLUDE_MODS: list of externals dependencies needed for this module.
+##         This module will have a dependency to theses include_mods
+##         To include another module of an ABS project, use $(APPNAME)_$(MODULE)
+##
 
 # by default module dir is directly under project root dir
 ifeq ($(MODROOT),)
@@ -21,9 +39,8 @@ CC=
 CPPC=
 LD=
 SPACECHAR= 
-## Path to receive external source files
+# Path to receive external source files
 EXT_SRC_DIR=$(BUILDROOT)/extsrc/
-
 
 # Buildcript capabilities
 # introduced in buildscrip 0.4, may be used to have some fallback
@@ -31,8 +48,6 @@ EXT_SRC_DIR=$(BUILDROOT)/extsrc/
 # dist package.
 # - linklib : independant extlib's CFLAGS/LDFLAGS settings, see RD_TEA332-776
 BUILDSCRIPTS_CAPS:=linklib
-
-
 
 # initialize variable that must not be forwared in recursive make call
 COBJS:=
@@ -44,7 +59,7 @@ LUA_MDL_ENABLE:=
 LUA_MDL_TYPES_FILE:=
 LUA_MDL_MODEL_HEADERS:=
 
-## Level of dependency management
+# Level of dependency management
 # Possible values: DISABLED, FIRST, NEXT
 DEPS_MNGMT_LEVEL?=FIRST
 
@@ -81,9 +96,6 @@ define executeFiltering
 endef
 endif
 
-# ---------------------------------------------------------------------
-# Automatic derivation of application & module parameters
-# ---------------------------------------------------------------------
 # object files go in a subdirectory of build dir dedicated to the module
 OBJDIR?=$(PRJOBJDIR)/$(MODNAME)
 # log containing all commands executed to generate objects
@@ -93,7 +105,7 @@ BUILDLOG=$(PRJOBJDIR)/build.log
 ABS_INCLUDE_MODS+=
 ABS_INCLUDE_TESTMODS+=
 
-##
+## 
 ## Common make targets:
 ##
 ##  - all (default): builds all
@@ -108,26 +120,26 @@ clean:: clean-module
 .PHONY: etc
 etc::
 
-##  - run [RUNARGS="<arg> [<arg>]*": run application
+##  - run [RUNARGS="<arg> [<arg>]*"]: run application
 .PHONY: run
 run::
 
-##  - debug [RUNARGS="<arg> [<arg>]*": run application in gdb debugger
+##  - debug [RUNARGS="<arg> [<arg>]*"]: run application in gdb debugger
 .PHONY: debug
 debug::
 
-##  - test [RUNARGS="<arg> [<arg>]*":  build and run tests
+##  - test [RUNARGS="<arg> [<arg>]*"]:  build and run tests
 .PHONY: test
 test:: testbuild
 
 .PHONY: coverage
 coverage::
 
-##  - valgrindtest [RUNARGS="<arg> [<arg>]*":  build and run tests with valgrind
+##  - valgrindtest [RUNARGS="<arg> [<arg>]*"]:  build and run tests with valgrind
 .PHONY: valgrindtest
 valgrindtest:: testbuild
 
-##  - testbuild [RUNARGS="<arg> [<arg>]*":  build tests
+##  - testbuild [RUNARGS="<arg> [<arg>]*"]:  build tests
 .PHONY: testbuild
 testbuild:: all
 
@@ -205,21 +217,18 @@ clean-module:
 	@$(ABS_PRINT_info) "Cleaning module..."
 	@rm -rf $(TARGETFILE) $(OBJDIR) $(CONFIGFILES)
 
-# help rules
-help:
-	@grep "^## " $(MAKEFILE_LIST) | sed -e 's/^.*## //' ; echo ; echo
 
 # update bootstrap makefile if needed.
 ifneq ($(PRESERVEMAKEFILE),true)
 Makefile: ../Makefile
 	@$(ABS_PRINT_info) "Updating bootstrap makefile."
-	@cp $^ $@
+	@cp $< $@
 endif
 
-##
-## ---------------------------------------------------------------------
-##  dependencies beetween modules management
-## ---------------------------------------------------------------------
+### 
+### ---------------------------------------------------------------------
+###  Dependencies beetween modules management
+### ---------------------------------------------------------------------
 ifeq ($(filter clean% new% showvar checkdep,$(MAKECMDGOALS)),)
 
 include $(PRJOBJDIR)/$(MODNAME)/moddeps.mk
@@ -238,5 +247,5 @@ endif
 
 $(PRJOBJDIR)/%/.done:
 	@$(ABS_PRINT_info) "$(MODNAME): Build of dependency: $*"
-	@+make $(MMARGS) MODE=$(MODE) -C $(PRJROOT)/$* && date > $@.tmp
-	@mv $@.tmp $@
+	@+make $(MMARGS) MODE=$(MODE) -C $(PRJROOT)/$*
+	@date > $@

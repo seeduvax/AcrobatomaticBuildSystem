@@ -1,5 +1,6 @@
+## 
 ## --------------------------------------------------------------------
-## Configuration management services
+## GIT Configuration management services
 ## --------------------------------------------------------------------
 
 ABS_SCM_TYPE:=git
@@ -77,7 +78,7 @@ ifneq ($(wildcard $(PRJROOT)/.git/hooks),)
 
 $(PRJROOT)/.git/hooks/%: $(ABSROOT)/core/git-dloop-hook.sh
 	@mkdir -p $@.d
-	@cp $^ $@
+	@cp $< $@
 	@chmod +x $@
 
 ABS_GIT_HOOKS:=$(patsubst %.sample,%,$(wildcard $(PRJROOT)/.git/hooks/*.sample)) $(PRJROOT)/.git/hooks/post-commit

@@ -3,11 +3,11 @@
 PUBLISHED_HEADERS=$(patsubst %,$(TRDIR)/include/$(APPNAME)/$(MODNAME)/%,$(PUB_H))
 # headers publication rule
 $(TRDIR)/include/$(APPNAME)/$(MODNAME)/%.h: src/%.h
-	@$(ABS_PRINT_info) "Publishing $^ ..."
+	@$(ABS_PRINT_info) "Publishing $< ..."
 	@mkdir -p $(@D)
-	@cp $^ $@
+	@cp $< $@
 
 $(TRDIR)/include/$(APPNAME)/$(MODNAME)/%.h: h/%.h
-	@$(ABS_PRINT_info) "Publishing $^ ..."
+	@$(ABS_PRINT_info) "Publishing $< ..."
 	@mkdir -p $(@D)
-	@cp $^ $@
+	@cp $< $@

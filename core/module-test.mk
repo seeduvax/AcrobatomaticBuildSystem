@@ -5,12 +5,17 @@
 ## 
 ## Test services variables
 ## 
-## - CPPUNIT: cppunit version. Default is set accorging your gcc version
+##  - CPPUNIT: cppunit version. Default is set accorging your gcc version
 ##    - 1.14.0 for gcc >= 6.0
 ##    - 1.12.1 for gcc < 6.0
+##	- TUSEMOD: The other mods of the project to link for the tests.
+##  - TLINKLIB: List of libraries to link for tests.
+##  - TCFLAGS: CFLAGS used for tests compilation
+##  - TLDFLAGS: LDFLAGS used for tests linkage
+##  - TDISABLE_SRC: List of files in test directory to not compile
 ## 
 ## ------------------------------------------------------------------------
-## 
+
 CC_VERSION_GE6:=$(shell [ `echo "$(CC_VERSION)" | cut -f1 -d.` -ge 6 ] && echo true || echo false)
 ifeq ($(CC_VERSION_GE6),true)
 CPPUNIT?=cppunit-1.14.0
@@ -27,8 +32,10 @@ else
 TIMEOUTCMD:=timeout $(TIMEOUT)
 endif
 
-CFLAGS+=-I$(EXTLIBDIR)/$(CPPUNIT)/include
-LDFLAGS+=-L$(EXTLIBDIR)/$(CPPUNIT)/$(SODIR)
+CPPUNIT_DIR=$(NDEXTLIBDIR)/$(CPPUNIT)
+CFLAGS+=-I$(CPPUNIT_DIR)/include
+LDFLAGS+=-L$(CPPUNIT_DIR)/$(SODIR)
+TLINKLIB+=cppunit
 
 # valgrind
 VALGRIND=valgrind
@@ -53,7 +60,7 @@ TCPPOBJS=$(patsubst test/%.cpp,$(OBJDIR)/test/%.o,$(filter %.cpp,$(TSRCFILES))) 
 TCFLAGS+=$(patsubst %,-I../%/include,$(TESTUSEMOD))
 
 # linker options specific to test
-TLDFLAGS+=-L$(TRDIR)/$(SODIR)  $(patsubst %,-l$(APPNAME)_%,$(TESTUSEMOD)) -lcppunit $(patsubst %,-l%,$(TLINKLIB))
+TLDFLAGS+=-L$(TRDIR)/$(SODIR) $(patsubst %,-l$(APPNAME)_%,$(TESTUSEMOD)) $(patsubst %,-l%,$(TLINKLIB))
 TLDFLAGS+=$(patsubst %,-L$(TRDIR)/$(SODIR),$(TESTUSEMOD))
 
 INCLUDE_TESTMODS_EXT=$(filter-out $(PROJECT_MODS),$(sort $(TLINKLIB)))
@@ -158,7 +165,7 @@ $(TTARGETFILE): $(TCPPOBJS) $(TTARGETFILEDEP)
 # Extra dependencies
 # ---------------------------------------------------------------------
 # Generating test object need cppunit libs and tools to be availables
-$(TCPPOBJS): $(patsubst %,$(EXTLIBDIR)/%/import.mk,$(CPPUNIT)) 
+$(TCPPOBJS): $(CPPUNIT_DIR)/import.mk
 
 ifneq ($(TSRCFILES),)
 #dependencies management
@@ -195,12 +202,12 @@ endef
 ifneq ($(ISWINDOWS),true)
 define exec-test
 @$(RUNTIME_PROLOG)
-@( [ -d test ] && PATH="$(RUNPATH)" LD_LIBRARY_PATH="$(TLDLIBP)" TRDIR="$(TRDIR)" TTARGETDIR="$(TTARGETDIR)" LD_PRELOAD="$(TLDPRELOADFORMATTED)" $(RUNTIME_ENV) $1 $(ARCH_EXECUTOR) $(patsubst %,$(EXTLIBDIR)/%/bin/$(TESTRUNNER),$(CPPUNIT)) -x $(TEST_REPORT_PATH) $(TTARGETFILE) $(RUNARGS) $(patsubst %,+f %,$(T)) $(TARGS) 2>&1 | tee $(TTARGETDIR)/$(APPNAME)_$(MODNAME).stdout ) || :
+@( [ -d test ] && PATH="$(RUNPATH)" LD_LIBRARY_PATH="$(TLDLIBP)" TRDIR="$(TRDIR)" TTARGETDIR="$(TTARGETDIR)" LD_PRELOAD="$(TLDPRELOADFORMATTED)" $(RUNTIME_ENV) $1 $(ARCH_EXECUTOR) $(CPPUNIT_DIR)/bin/$(TESTRUNNER) -x $(TEST_REPORT_PATH) $(TTARGETFILE) $(RUNARGS) $(patsubst %,+f %,$(T)) $(TARGS) 2>&1 | tee $(TTARGETDIR)/$(APPNAME)_$(MODNAME).stdout ) || :
 @$(RUNTIME_EPILOG)
 endef
 else
 define exec-test
-@( [ -d test ] && PATH="$(RUNPATH):$(TLDLIBP)" LD_LIBRARY_PATH="$(TLDLIBP)" TRDIR="$(TRDIR)" TTARGETDIR="$(TTARGETDIR)" LD_PRELOAD="$(TLDPRELOADFORMATTED)" $(RUNTIME_ENV) $1 $(ARCH_EXECUTOR) $(patsubst %,$(EXTLIBDIR)/%/bin/$(TESTRUNNER),$(CPPUNIT)) -x $(TEST_REPORT_PATH) $(TCYGTARGET) $(RUNARGS) $(patsubst %,+f %,$(T)) $(TARGS) 2>&1 | tee $(TTARGETDIR)/$(APPNAME)_$(MODNAME).stdout ) || true
+@( [ -d test ] && PATH="$(RUNPATH):$(TLDLIBP)" LD_LIBRARY_PATH="$(TLDLIBP)" TRDIR="$(TRDIR)" TTARGETDIR="$(TTARGETDIR)" LD_PRELOAD="$(TLDPRELOADFORMATTED)" $(RUNTIME_ENV) $1 $(ARCH_EXECUTOR) $(CPPUNIT_DIR)/bin/$(TESTRUNNER) -x $(TEST_REPORT_PATH) $(TCYGTARGET) $(RUNARGS) $(patsubst %,+f %,$(T)) $(TARGS) 2>&1 | tee $(TTARGETDIR)/$(APPNAME)_$(MODNAME).stdout ) || true
 endef
 endif
 
@@ -250,20 +257,20 @@ gdbcmdtest: testbuild
 	@echo 'set environment TRDIR=$(TRDIR)' >> $(GDBCMDTEST)
 	@echo 'set environment TTARGETDIR=$(TTARGETDIR)' >> $(GDBCMDTEST)
 	@echo 'set args $(RUNARGS) $(patsubst %,+f %,$(T)) $(TARGS) $(TTARGETFILE)' >> $(GDBCMDTEST)
-	@echo 'file $(patsubst %,$(EXTLIBDIR)/%/bin/$(TESTRUNNER),$(CPPUNIT))' >> $(GDBCMDTEST)
+	@echo 'file $(CPPUNIT_DIR)/bin/$(TESTRUNNER)' >> $(GDBCMDTEST)
 	@printf "define runtests\nrun\nend\n" >> $(GDBCMDTEST)
 
 
 .PHONY: debugcheck
 debugcheck: testbuild gdbcmdtest
-	@printf "\e[1;4mUse runtests command to launch tests from gdb\n\e[37;37;0m"
+	@$(ABS_PRINT) "use" "Use runtests command to launch tests from gdb"
 	@PATH="$(RUNPATH)" gdb  -x $(GDBCMDTEST)
 
 GDBSERVER_PORT?=9091
 ##  - remotedebugtest [RUNARGS="<arg> [<arg>]*": run test from gdbserver debugger] [GDBSERVER_PORT=9091 : default gdbserver port]
 .PHONY: remotedebugtest
 remotedebugtest: testbuild
-	@PATH="$(RUNPATH)" LD_LIBRARY_PATH="$(TLDLIBP)" TRDIR="$(TRDIR)" TTARGETDIR="$(TTARGETDIR)" gdbserver :$(GDBSERVER_PORT) $(patsubst %,$(EXTLIBDIR)/%/bin/$(TESTRUNNER),$(CPPUNIT)) $(TTARGETFILE) $(RUNARGS) $(patsubst %,+f %,$(T)) $(TARGS)
+	@PATH="$(RUNPATH)" LD_LIBRARY_PATH="$(TLDLIBP)" TRDIR="$(TRDIR)" TTARGETDIR="$(TTARGETDIR)" gdbserver :$(GDBSERVER_PORT) $(CPPUNIT_DIR)/bin/$(TESTRUNNER) $(TTARGETFILE) $(RUNARGS) $(patsubst %,+f %,$(T)) $(TARGS)
 
 ##  - debugtest: alias for debugcheck
 .PHONY: debugtest
@@ -326,7 +333,7 @@ edebugtest:
 	@echo "**** Eclipse debugger setup for tests : ****"
 	@echo
 	@printf "Application:\t\t"
-	@echo "$(patsubst $(PRJROOT)/%,%,$(patsubst %,$(EXTLIBDIR)/%/bin/$(TESTRUNNER),$(CPPUNIT)))"
+	@echo "$(patsubst $(PRJROOT)/%,%,$(CPPUNIT_DIR)/bin/$(TESTRUNNER))"
 	@printf "Arguments:\t\t"
 	@printf "$(patsubst $(PRJROOT)/%,%,$(TTARGETFILE))"
 	@echo "$(RUNARGS)  $(patsubst %,+f %,$(T))"
@@ -348,7 +355,7 @@ TESTNAME=$(word 2,$(MAKECMDGOALS))$(T)
 
 .PHONY: newtest
 newtest:
-	@$(ABS_PRINT_info) "generating test class test/Test$(TESTNAME).cpp to test $(TESTNAME) class."
+	@$(ABS_PRINT_info) "Generating test class test/Test$(TESTNAME).cpp to test $(TESTNAME) class."
 	@mkdir -p test
 	@test -f test/Main.cpp || printf "#include <cppunit/plugin/TestPlugIn.h>\n#undef main\n\
 CPPUNIT_PLUGIN_IMPLEMENT();\n" > test/Main.cpp
@@ -370,7 +377,7 @@ using namespace $(TNAMESPACE);\n\
 // ----------------------------------------------------------\n\
 // test suite implementation\n\
 ABS_TEST_SUITE_BEGIN( $(TESTNAME) )\n\
-// uncomment and cmplete next line for test suite description\n\
+// uncomment and complete next line for test suite description\n\
 // ABS_TEST_DESCR(test description)\n\
 \n\
 private:\n\

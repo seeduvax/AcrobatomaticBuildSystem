@@ -16,7 +16,7 @@ mkdir -p $testDirectory/repository/NotALinux
 echo "Copy resources to $testDirectory"
 
 ln -s $PRJROOT $testDirectory/absws/abs-99.99.99
-cp -R test/resources/proj* $testDirectory
+cp -R test/resources/proj* test/resources/libtest test/resources/testlib2 $testDirectory
 
 unset TTARGETDIR
 unset TRDIR
@@ -27,6 +27,23 @@ doExit() {
     rm $testDirectory/absws/abs-99.99.99
     exit $1
 }
+
+cd $testDirectory/libtest
+make 
+if [ $? -ne 0 ]; then
+    echo "Error while executing make on libtest"
+    doExit 11
+fi
+cp $testDirectory/libtest/build/*.tar.gz $testDirectory/repository/NotALinux/
+
+cd $testDirectory/testlib2
+make 
+if [ $? -ne 0 ]; then
+    echo "Error while executing make on testlib2"
+    doExit 12
+fi
+cp $testDirectory/testlib2/build/*.tar.gz $testDirectory/repository/NotALinux/
+
 
 cd $testDirectory/projA
 ARCH=NotALinux make distinstall && ARCH=NotALinux make pubdist

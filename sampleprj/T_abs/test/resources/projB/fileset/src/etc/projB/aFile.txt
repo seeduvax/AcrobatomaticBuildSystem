@@ -1,1 +1,2 @@
-One file
+One file {VERSION}
+{TOTO}

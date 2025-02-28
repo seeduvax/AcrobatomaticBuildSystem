@@ -1,0 +1,28 @@
+## 
+## --------------------------------------------------------------------
+## VSCode utilities.
+## --------------------------------------------------------------------
+
+VSCODE_CPP_CONFIG=$(PRJROOT)/.vscode/c_cpp_properties.json
+
+##  - vscodeconfig: Generate the c_cpp_properties.json for vscode to correctly add include paths.
+vscodeconfig: $(VSCODE_CPP_CONFIG)
+
+MODULES_WITH_INCLUDES=$(foreach mod,$(MODULES),$(if $(wildcard $(mod)/include),$(mod)))
+.PHONY: $(VSCODE_CPP_CONFIG)
+$(VSCODE_CPP_CONFIG): app.cfg
+	@$(ABS_PRINT_info) "Generation of $@"
+	@mkdir -p $(@D)
+	@printf '{\n' > $@.tmp
+	@printf '"configurations": [\n' >> $@.tmp
+	@printf '    {\n' >> $@.tmp
+	@printf '        "name": "Linux",\n' >> $@.tmp
+	@printf '        "includePath": [\n' >> $@.tmp
+	@$(foreach mod,$(MODULES_WITH_INCLUDES),printf '            "$${workspaceFolder}/$(mod)/include/",\n' >> $@.tmp;)
+	@$(foreach path,$(patsubst $(BUILDROOT)/%,%,$(wildcard $(EXTLIBDIR)/*/include) $(wildcard $(NA_EXTLIBDIR)/*/include) $(wildcard $(NDEXTLIBDIR)/*/include) $(wildcard $(NDNA_EXTLIBDIR)/*/include)),printf '            "$${workspaceFolder}/build/$(path)",\n' >> $@.tmp;)
+	@printf '            "$(ABSROOT)/core/include/"\n' >> $@.tmp
+	@printf '        ],\n' >> $@.tmp
+	@printf '        "compileCommands": "$${workspaceFolder}/compile_commands.json"\n' >> $@.tmp
+	@printf '    }\n' >> $@.tmp
+	@printf ']}' >> $@.tmp
+	@mv $@.tmp $@

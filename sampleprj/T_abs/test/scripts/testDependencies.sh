@@ -16,7 +16,7 @@ mkdir -p $testDirectory/repository/NotALinux
 echo "Copy resources to $testDirectory"
 
 ln -s $PRJROOT $testDirectory/absws/abs-99.99.99
-cp -R test/resources/proj* $testDirectory
+cp -R test/resources/proj* test/resources/libtest test/resources/testlib2 $testDirectory
 
 unset TTARGETDIR
 unset TRDIR
@@ -27,6 +27,23 @@ doExit() {
     rm $testDirectory/absws/abs-99.99.99
     exit $1
 }
+
+cd $testDirectory/libtest
+make 
+if [ $? -ne 0 ]; then
+    echo "Error while executing make on libtest"
+    doExit 11
+fi
+cp $testDirectory/libtest/build/*.tar.gz $testDirectory/repository/NotALinux/
+
+cd $testDirectory/testlib2
+make 
+if [ $? -ne 0 ]; then
+    echo "Error while executing make on testlib2"
+    doExit 12
+fi
+cp $testDirectory/testlib2/build/*.tar.gz $testDirectory/repository/NotALinux/
+
 
 cd $testDirectory/projA
 ARCH=NotALinux make pubdist ABS_LOG_LEVEL=debug
@@ -63,6 +80,7 @@ if [ $? -ne 0 ]; then
 fi
 
 tail -n +2 $testDirectory/projC/dist/flatten/projC-2.4.3d/import.mk > $testDirectory/projC/dist/flatten/projC-2.4.3d/import2.mk
+tail -n +2 $testDirectory/projB/dist/flatten/projB-2.4.2d/import.mk > $testDirectory/projB/dist/flatten/projB-2.4.2d/import2.mk
 
 function testFile {
     diff -q $1 $2
@@ -72,6 +90,7 @@ function testFile {
     fi
 }
 testFile $testDirectory/projC/dist/flatten/projC-2.4.3d/import2.mk $MODROOT/test/resources/expected/import2.mk
+testFile $testDirectory/projB/dist/flatten/projB-2.4.2d/import2.mk $MODROOT/test/resources/expected/projB_import2.mk
 
 binInstall="$testDirectory/projC/dist/projC-2.4.3d.NotALinux-install.bin"
 if [ ! -f $binInstall ]; then
@@ -98,5 +117,6 @@ if [ ! -f $testFile ]; then
     echo "Error: File '$testFile' not published"
     doExit 10
 fi
+testFile $testDirectory/projC/dist/installed/etc/projB/aFile.txt $MODROOT/test/resources/expected/aFileB.txt
 
 doExit 0

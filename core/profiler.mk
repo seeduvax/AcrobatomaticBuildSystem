@@ -3,8 +3,8 @@
 ## C/C++ profiler services
 ## ------------------------------------------------------------------------
 ##
-## - PROFILER_TOOL: profiler tool to be used. Currently only few properly
-##   packaged profiler are supported:
+##  - PROFILER_TOOL: profiler tool to be used. Currently only few properly
+##    packaged profiler are supported:
 ##     - tracy-0.8.1 (default)
 ##     - tracy-0.7.8
 ##     - easy_profiler-2.1.0
@@ -16,8 +16,8 @@ endif
 else
 ## Profiler services  variable
 ##
-## - PROFILER: profiler service activation switch. Set to true to activate
-##   profiler support. Default is false
+##  - PROFILER: profiler service activation switch. Set to true to activate
+##    profiler support. Default is false
 ifeq ($(MAKECMDGOALS),profiler)
 PROFILER=true
 endif
