@@ -232,14 +232,25 @@ endif
 ## --------------------------------------------------------------------
 ## ABS management utilities.
 ## --------------------------------------------------------------------
-##   - cleanabs: clean abs workdir (will remove all files cached by abs and abs
-##     itself). Does not make any change inside your project tree.
+##  - cleanabs: clean abs workdir (will remove all files cached by abs and abs
+##    itself). Does not make any change inside your project tree.
 cleanabs:
 	@$(ABS_PRINT_info) "Setting write permissions to $(ABSWS)..."
-	@chmod -R u+w $(ABSWS) 2> /dev/null
-	@$(ABS_PRINT_info) "Cleaning ABS files and cache $(ABSWS)..."
-	@rm -rf $(ABSWS)/extlib $(ABSWS)/cache $(ABSROOT)
+	@chmod -R u+w $(ABSWS)/extlib $(ABSWS)/cache $(ABSROOT) 2> /dev/null
+	@$(ABS_PRINT_info) "Cleaning ABS cache $(ABSWS)..."
+	@rm -rf $(ABSWS)/extlib $(ABSWS)/cache 
+	@$(ABS_PRINT_info) "Removing ABS files $(ABSROOT)..."
+	@rm -rf $(ABSROOT)
 	@$(ABS_PRINT_info) "ABS cleaning completed."
+
+##  - purgeabs: purge (remove all) abs directory (will remove all files cached by abs and
+##    all version of abs). Does not make any change inside your project tree.
+purgeabs:
+	@$(ABS_PRINT_info) "Setting write permissions to $(ABSWS)..."
+	@chmod -R u+w $(ABSWS) 2> /dev/null
+	@$(ABS_PRINT_info) "Removing ABS files and cache $(ABSWS)..."
+	@rm -rf $(ABSWS)
+	@$(ABS_PRINT_info) "ABS purge completed."
 
 absclean: cleanabs
 

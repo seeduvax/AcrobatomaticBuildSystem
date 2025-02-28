@@ -287,11 +287,9 @@ endef
 # list of import makefile from external libraries declared in module
 # configuration only if not requesting clean or cleanabs target. In this case,
 # we don't care importing the dependencies.
-ifneq ($(MAKECMDGOALS),clean)
-ifneq ($(MAKECMDGOALS),cleanabs)
+ifeq ($(filter cleandist clean cleanabs purgeabs,$(MAKECMDGOALS)),)
 EXTLIBMAKES=$(patsubst %,$(EXTLIBDIR)/%/import.mk,$(TRANSUSELIB)) $(patsubst %,$(NDEXTLIBDIR)/%/import.mk,$(NDUSELIB)) $(patsubst %,$(NDNA_EXTLIBDIR)/%/import.mk,$(NDNA_USELIB)) $(patsubst %,$(NA_EXTLIBDIR)/%/import.mk,$(NA_USELIB))
 include $(EXTLIBMAKES)
-endif
 endif
 
 # external libraries are expected before starting compilation.

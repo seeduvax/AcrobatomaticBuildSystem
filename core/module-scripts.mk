@@ -6,7 +6,7 @@
 ## --------------------------------------------------------------------
 ## 
 ## Variables:
-##   - SRC_SCRIPTS: list of source files to be handled as scripts.
+##  - SRC_SCRIPTS: list of source files to be handled as scripts.
 ##      Defaulty computed by searching from src dir all files starting with 
 ##      the shebang ("#!"). Those files are copied to the target bin directory.
 

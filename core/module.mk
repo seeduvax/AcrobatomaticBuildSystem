@@ -18,6 +18,8 @@
 ## - LINKLIB: list of externals dependencies to link with this module.
 ##         To link another module of an ABS project, use $(APPNAME)_$(MODULE)
 ##         For C/C++ module, the lib must include the library binary.
+##         This is the name of binary file. If name differ from library archive name,
+##         use INCLUDE_MODS
 ## - INCLUDE_MODS: list of externals dependencies needed for this module.
 ##         This module will have a dependency to theses include_mods
 ##         To include another module of an ABS project, use $(APPNAME)_$(MODULE)
@@ -40,14 +42,12 @@ SPACECHAR=
 # Path to receive external source files
 EXT_SRC_DIR=$(BUILDROOT)/extsrc/
 
-
 # Buildcript capabilities
 # introduced in buildscrip 0.4, may be used to have some fallback
 # behavior to support several buildscript versions from imported precompiled
 # dist package.
 # - linklib : independant extlib's CFLAGS/LDFLAGS settings, see RD_TEA332-776
 BUILDSCRIPTS_CAPS:=linklib
-
 
 # initialize variable that must not be forwared in recursive make call
 COBJS:=
@@ -247,5 +247,5 @@ endif
 
 $(PRJOBJDIR)/%/.done:
 	@$(ABS_PRINT_info) "$(MODNAME): Build of dependency: $*"
-	@+make $(MMARGS) MODE=$(MODE) -C $(PRJROOT)/$* && date > $@.tmp
-	@mv $@.tmp $@
+	@+make $(MMARGS) MODE=$(MODE) -C $(PRJROOT)/$*
+	@date > $@

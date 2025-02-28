@@ -26,9 +26,9 @@ ifneq ($(wildcard module.cfg),)
 PRJROOT:=$(dir $(CURDIR))
 endif
 ifeq ($(HOME),)
-ABSWS:=$(PRJROOT)/../abs
+ABSWS?=$(PRJROOT)/../abs
 else
-ABSWS:=$(HOME)/.abs
+ABSWS?=$(HOME)/.abs
 endif
 
 include $(PRJROOT)/app.cfg
@@ -81,7 +81,7 @@ endif
 
 $(ABSROOT)/%/main.mk: $(ABS_CACHE)/noarch/abs.%-$(VABS).tar.gz
 	@mkdir -p $(ABSROOT)
-	@tar xzf $^ -C $(ABSROOT) --strip-components=1
+	@tar xzf $< -C $(ABSROOT) --strip-components=1
 	@touch $@
 
 $(PRJROOT)/local.cfg:

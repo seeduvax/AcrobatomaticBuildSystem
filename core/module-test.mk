@@ -9,6 +9,7 @@
 ##    - 1.14.0 for gcc >= 6.0
 ##    - 1.12.1 for gcc < 6.0
 ##	- TUSEMOD: The other mods of the project to link for the tests.
+##  - TLINKLIB: List of libraries to link for tests.
 ##  - TCFLAGS: CFLAGS used for tests compilation
 ##  - TLDFLAGS: LDFLAGS used for tests linkage
 ##  - TDISABLE_SRC: List of files in test directory to not compile
