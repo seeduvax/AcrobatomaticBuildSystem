@@ -10,7 +10,6 @@
 ##    - 1.12.1 for gcc < 6.0
 ## 
 ## ------------------------------------------------------------------------
-## 
 CC_VERSION_GE6:=$(shell [ `echo "$(CC_VERSION)" | cut -f1 -d.` -ge 6 ] && echo true || echo false)
 ifeq ($(CC_VERSION_GE6),true)
 CPPUNIT?=cppunit-1.14.0

@@ -5,7 +5,7 @@
 ## --------------------------------------------------------------------
 ## Application level build services
 ## --------------------------------------------------------------------
-## 
+
 ABS_FROMAPP:=true
 export ABS_FROMAPP
 
@@ -185,9 +185,6 @@ $(NEWMODNAME):
 
 endif
 
-help:
-	@grep "^## " $(MAKEFILE_LIST) | sed -e 's/^.*## //'
-
 ##  - echoDID: displays package identifier
 echoDID:
 	@echo $(APPNAME)-$(VERSION).$(ARCH)
@@ -232,6 +229,7 @@ endif
 ## 
 ## --------------------------------------------------------------------
 ## ABS management utilities.
+## --------------------------------------------------------------------
 ##   - cleanabs: clean abs workdir (will remove all files cached by abs and abs
 ##     itself). Does not make any change inside your project tree.
 cleanabs:

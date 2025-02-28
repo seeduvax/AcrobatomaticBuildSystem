@@ -206,9 +206,6 @@ clean-module:
 	@$(ABS_PRINT_info) "Cleaning module..."
 	@rm -rf $(TARGETFILE) $(OBJDIR) $(CONFIGFILES)
 
-# help rules
-help:
-	@grep "^## " $(MAKEFILE_LIST) | sed -e 's/^.*## //' ; echo ; echo
 
 # update bootstrap makefile if needed.
 ifneq ($(PRESERVEMAKEFILE),true)

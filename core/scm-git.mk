@@ -1,5 +1,6 @@
+## 
 ## --------------------------------------------------------------------
-## Configuration management services
+## GIT Configuration management services
 ## --------------------------------------------------------------------
 
 ABS_SCM_TYPE:=git
