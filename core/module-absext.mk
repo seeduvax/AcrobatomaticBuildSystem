@@ -8,8 +8,8 @@ $(TRDIR)/.abs/index_$(MODNAME).mk:
 	@$(if $(strip $(ABS_EXT_MAP)), printf 'MODULE_TYPES_MAP+=$(patsubst %,$$(_absext_index_$(APPNAME)_$(MODNAME))/%,$(ABS_EXT_MAP))\n' >> $@)
 
 $(TRDIR)/.abs/%: src/%
-	@$(ABS_PRINT_info) "Publishing $^..."
+	@$(ABS_PRINT_info) "Publishing $<..."
 	@mkdir -p $(@D)
-	@cp $^ $@
+	@cp $< $@
 
 all-impl::$(TARGETFILES)

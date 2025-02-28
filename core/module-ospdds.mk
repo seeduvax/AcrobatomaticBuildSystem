@@ -31,7 +31,7 @@ $(OBJDIR)/idl/%Dcps_impl.cpp \
 $(OBJDIR)/idl/%SplDcps.cpp \
 : src/%.idl
 	mkdir -p $(OBJDIR)/idl
-	$(IDLC) -d $(OBJDIR)/idl $(CFGLAGS) -Isrc -I$(OBJDIR)/idl $^
+	$(IDLC) -d $(OBJDIR)/idl $(CFGLAGS) -Isrc -I$(OBJDIR)/idl $<
 
 ifeq ($(DDS),)
 else

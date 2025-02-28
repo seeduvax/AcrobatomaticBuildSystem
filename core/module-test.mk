@@ -5,11 +5,16 @@
 ## 
 ## Test services variables
 ## 
-## - CPPUNIT: cppunit version. Default is set according your gcc version
+##  - CPPUNIT: cppunit version. Default is set accorging your gcc version
 ##    - 1.14.0 for gcc >= 6.0
 ##    - 1.12.1 for gcc < 6.0
+##	- TUSEMOD: The other mods of the project to link for the tests.
+##  - TCFLAGS: CFLAGS used for tests compilation
+##  - TLDFLAGS: LDFLAGS used for tests linkage
+##  - TDISABLE_SRC: List of files in test directory to not compile
 ## 
 ## ------------------------------------------------------------------------
+
 CC_VERSION_GE6:=$(shell [ `echo "$(CC_VERSION)" | cut -f1 -d.` -ge 6 ] && echo true || echo false)
 ifeq ($(CC_VERSION_GE6),true)
 CPPUNIT?=cppunit-1.14.0

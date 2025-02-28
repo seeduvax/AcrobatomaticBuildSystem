@@ -21,12 +21,12 @@ all-impl:: $(OBJ_SCRIPTS) etc
 # use pseudo target in $(OBJDIR)/.sh to avoid any rules collision risk without
 # having to play with particular file name extension for scripts.
 $(OBJDIR)/.sh/%: src/%
-	@$(ABS_PRINT_info) "Publishing script $^..."
+	@$(ABS_PRINT_info) "Publishing script $<..."
 	@$(ABS_PRINT_warning) "Deprecated ABS feature, consider to create a fileset module to store your application's scripts."
 	@mkdir -p $(@D)
 	@touch $@
 	@mkdir -p $(TRDIR)/bin
-	@cp $^ $(TRDIR)/bin
+	@cp $< $(TRDIR)/bin
 	@chmod +x $(TRDIR)/bin/$(@F)
 
 ## 

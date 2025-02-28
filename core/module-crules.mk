@@ -12,24 +12,30 @@
 ## ---------------------------------------------------------------------
 ## C/C++ build options
 ## ---------------------------------------------------------------------
-## STATIC_LIB=true|false, when true, generate static libraries, and link
+##  - STATIC_LIB=true|false, when true, generate static libraries, and link
 ##    statically. Default value is false.
-## DYNAMIC_LIB=true|false, when true, generate dynamic libraries, and link
+##  - DYNAMIC_LIB=true|false, when true, generate dynamic libraries, and link
 ##    dynamically. Default value is true.
 ##    When both STATIC_LIB and DYNAMIC_LIB are true, builds both statict and
 ##    dynamic libraries but link executables dynamically only.
-## NO_VINFO=true|false, when true, do not generate and link the source file 
+##  - NO_VINFO=true|false, when true, do not generate and link the source file 
 ##    for the target binary embedded identifiers string. Default is false. 
 ##    activate this option in case of small memory footprint or reproductible
 ##    builds requirements (because the string might be long and include build
 ##    context info such as build host and build date).
-## ACTIVATE_SANITIZER: activate the compiler sanitizer
+##  - ACTIVATE_SANITIZER: activate the compiler sanitizer
 ##    - true: address sanitizer (leak memory detector)
 ##    - thread: thread sanitizer (data race detector). Incompatible with address sanitizer
 ##    To disable the leak detection on sources compiled with address sanitizer, use the environment variable asan_options=detect_leaks=0
 ##    /!\ Must not be used to compile production binaries.
-## ARCH_EXECUTOR: the executable used to execute cross-compiled binaries
+##  - ARCH_EXECUTOR: the executable used to execute cross-compiled binaries
 ##    Ex: on a aarch64, can be qemu-aarch64-static
+##  - CFLAGS: CFLAGS for C/C++ compilations.
+##  - CXXFLAGS: CXXFLAGS for C++ compilations.
+##  - LDFLAGS: LDFLAGS for C/C++ linkage
+##  - DEFINES: The defines to add to CFLAGS variables.
+##      Each define will be -D$(define) in CFLAGS
+##  - DISABLE_SRC: List of files in src directory to not compile
 
 include $(ABSROOT)/core/module-cheaders.mk
 

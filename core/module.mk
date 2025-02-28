@@ -7,6 +7,21 @@
 ## --------------------------------------------------------------------
 ## Module level build services
 ## --------------------------------------------------------------------
+## 
+## ---------------------------------------------------------------------
+## Automatic derivation of application & module parameters
+## ---------------------------------------------------------------------
+## 
+## Module common variables:
+## 
+## - USEMOD: list of dependences with another modules of this project.
+## - LINKLIB: list of externals dependencies to link with this module.
+##         To link another module of an ABS project, use $(APPNAME)_$(MODULE)
+##         For C/C++ module, the lib must include the library binary.
+## - INCLUDE_MODS: list of externals dependencies needed for this module.
+##         This module will have a dependency to theses include_mods
+##         To include another module of an ABS project, use $(APPNAME)_$(MODULE)
+##
 
 # by default module dir is directly under project root dir
 ifeq ($(MODROOT),)
@@ -81,10 +96,6 @@ define executeFiltering
 endef
 endif
 
-## 
-## ---------------------------------------------------------------------
-## Automatic derivation of application & module parameters
-## ---------------------------------------------------------------------
 # object files go in a subdirectory of build dir dedicated to the module
 OBJDIR?=$(PRJOBJDIR)/$(MODNAME)
 # log containing all commands executed to generate objects
@@ -211,7 +222,7 @@ clean-module:
 ifneq ($(PRESERVEMAKEFILE),true)
 Makefile: ../Makefile
 	@$(ABS_PRINT_info) "Updating bootstrap makefile."
-	@cp $^ $@
+	@cp $< $@
 endif
 
 ### 

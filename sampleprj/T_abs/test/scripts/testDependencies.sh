@@ -117,5 +117,6 @@ if [ ! -f $testFile ]; then
     echo "Error: File '$testFile' not published"
     doExit 10
 fi
+testFile $testDirectory/projC/dist/installed/etc/projB/aFile.txt $MODROOT/test/resources/expected/aFileB.txt
 
 doExit 0

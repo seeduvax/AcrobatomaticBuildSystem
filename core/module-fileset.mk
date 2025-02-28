@@ -1,19 +1,20 @@
+## 
 ## -----------------------------------------------------------------------
 ## Fileset module specific features
 ## -----------------------------------------------------------------------
 TARGETFILES=$(patsubst src/%,$(TRDIR)/%,$(SRCFILES))
 
 $(TRDIR)/bin/%: src/bin/%
-	@$(ABS_PRINT_info) "Publishing $^..."
+	@$(ABS_PRINT_info) "Publishing $<..."
 	@mkdir -p $(@D)
-	@cp $(COPYOPTIONS) $^ $@
+	@cp $(COPYOPTIONS) $< $@
 	@$(call executeFiltering, $<, $@)
 	@chmod a+x $@
 
 $(TRDIR)/%: src/% 
-	@$(ABS_PRINT_info) "Publishing $^..."
+	@$(ABS_PRINT_info) "Publishing $<..."
 	@mkdir -p $(@D)
-	@cp $(COPYOPTIONS) $^ $@
+	@cp $(COPYOPTIONS) $< $@
 	@$(call executeFiltering, $<, $@)
 
 all-impl::$(TARGETFILES) etc

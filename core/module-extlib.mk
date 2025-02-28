@@ -91,10 +91,10 @@ $(ABS_CACHE)/%:
 
 define unpackArchive
 	@$(ABS_PRINT_info) "Unpacking library : $(patsubst $(1)/%/import.mk,%,$@)"
-	@$(ABS_PRINT_debug) "$^"
+	@$(ABS_PRINT_debug) "$<"
 	@if [ -d $(@D)  ]; then chmod -R u+w $(@D) && rm -rf $(@D); fi
 	@mkdir -p $(@D)
-	@tar -xmzf $^ -C $(1)
+	@tar -xmzf $< -C $(1)
 	@if [ $(EXTLIBDIR_READONLY) -eq 1 ]; then chmod -R a-w $(@D); else true; fi
 	@touch $@
 endef
@@ -167,11 +167,11 @@ $(NDNA_EXTLIBDIR)/%/import.mk: $(ABSWS_NDNA_EXTLIBDIR)/%/import.mk
 # same for java libraries
 $(NA_EXTLIBDIR)/%.jar: $(ABS_CACHE)/noarch/%.jar
 	@mkdir -p $(@D)
-	@$(LNFILE) -sf $^ $@
+	@$(LNFILE) -sf $< $@
 
 $(NDNA_EXTLIBDIR)/%.jar: $(ABS_CACHE)/noarch/%.jar
 	mkdir -p $(@D)
-	@$(LNFILE) $^ $@
+	@$(LNFILE) $< $@
 
 # --------------------------------------------------------------------
 # general purpose noarch file sets
@@ -180,11 +180,11 @@ $(NDNA_EXTLIBDIR)/%.jar: $(ABS_CACHE)/noarch/%.jar
 # models code generation).
 $(ABSWS_NA_EXTLIBDIR)/%/.dir: $(ABS_CACHE)/noarch/%.tar.gz
 	@$(ABS_PRINT_info) "Unpacking data file set : $*"
-	@tar -xzf $^ -C $(ABSWS_NA_EXTLIBDIR) && touch $@
+	@tar -xzf $< -C $(ABSWS_NA_EXTLIBDIR) && touch $@
 
 $(ABSWS_NDNA_EXTLIBDIR)/%/.dir: $(ABS_CACHE)/noarch/%.tar.gz
 	@$(ABS_PRINT_info) "Unpacking data file set : $*"
-	@tar -xzf $^ -C $(ABSWS_NDNA_EXTLIBDIR) && touch $@
+	@tar -xzf $< -C $(ABSWS_NDNA_EXTLIBDIR) && touch $@
 
 $(NA_EXTLIBDIR)/%/.dir: $(ABSWS_NA_EXTLIBDIR)/%/.dir
 	$(call extlib_linkLibrary)
@@ -280,7 +280,7 @@ ABS_INCLUDE_MODS+=$1
 $(NA_EXTLIBDIR)/%.jar: $(EXTLIBDIR)/$(1)-$(2)/lib/%.jar
 	@$$(ABS_PRINT_info) "Importing jar lib $$(@F)..."
 	@mkdir -p $$(@D)
-	@$(LNFILE) $$^ $$@
+	@$(LNFILE) $$< $$@
 
 endef
 
@@ -355,9 +355,9 @@ $(BUILDROOT)/$(APPNAME)_deps.dot: $(PRJROOT)/app.cfg
 	@dot -Tpng $@ > $@.png
 
 checkdep: $(BUILDROOT)/$(APPNAME)_deps.dot
-	@$(ABS_PRINT_info) "Launching image viewer to display the generated dependency graph $^.png."
+	@$(ABS_PRINT_info) "Launching image viewer to display the generated dependency graph $<.png."
 	@$(ABS_PRINT_info) "Close image viewer to continue or hit Ctrl-C to stop here."
-	@xdot $^ 2>/dev/null || eog $^.png 2>/dev/null || xdg-open $^.png 2>/dev/null || $(ABS_PRINT_error) "No image viewer found (expected one of: xdot, eog, xdg-open)"
+	@xdot $< 2>/dev/null || eog $<.png 2>/dev/null || xdg-open $<.png 2>/dev/null || $(ABS_PRINT_error) "No image viewer found (expected one of: xdot, eog, xdg-open)"
 else
 checkdep:
 	@$(ABS_PRINT_info) "No dependencies set in USELIB project parameter."

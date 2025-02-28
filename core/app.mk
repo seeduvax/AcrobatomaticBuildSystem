@@ -34,6 +34,8 @@ PREFIX=/opt/$(APPNAME)-$(VERSION)
 ##  - DIST_EXCLUDE: pattern for files to be excluded on packaging.
 ##      (default: share/*/tex)
 DIST_EXCLUDE+=share/doc/$(APPNAME)/tex obj extlib extlib.nodist
+##  - INSTALLTAR_EXCLUDE: pattern for files to be excluded on install binary.
+##      (default: share/doc/*)
 INSTALLTAR_EXCLUDE+=.abs import.mk
 ##  - LIGHT_INSTALLER: when set to 1, add share/*/doxygen and include to the 
 ##      list of file to exclude on packaging.
