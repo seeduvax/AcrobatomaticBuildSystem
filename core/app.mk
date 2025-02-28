@@ -24,17 +24,6 @@ MAXJOBS:=$(shell getconf _NPROCESSORS_ONLN)
 ##  - MMARGS: extra make arguments to forward to modules sub-make.
 MMARGS?=-j$(MAXJOBS)
 
-ifeq ($(ABS_SCM_TYPE),null)
-VERSION:=$(VERSION)e
-endif
-ifeq ($(WORKSPACE_IS_TAG),0)
-VERSION:=$(VERSION)d
-else
-MODE=release
-endif
-ifneq ($(VFLAVOR),)
-VERSION:=$(VERSION)_$(subst $(_space_),_,$(sort $(VFLAVOR)))
-endif
 ##  - PREFIX: installation prefix (default is /opt/<appname>-<version>)
 PREFIX=/opt/$(APPNAME)-$(VERSION)
 
@@ -138,6 +127,7 @@ cleanbuild:
 	@-test ! -d build || chmod -R u+w build 2> /dev/null
 	@$(ABS_PRINT_info) "Removing build"
 	@rm -rf build
+	@rm $(CLANGD_DB)
 
 #   - cleandist: remove the dist directory
 cleandist:

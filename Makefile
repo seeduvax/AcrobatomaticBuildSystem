@@ -14,9 +14,6 @@ ABSROOT=$(CURDIR)
 	@:
 
 include core/common.mk
-ifeq ($(WORKSPACE_IS_TAG),0)
-VERSION:=$(VERSION)d
-endif
 
 dist/abs.core-$(VERSION).tar.gz:
 	@mkdir -p $(@D)/abs-$(VERSION)
