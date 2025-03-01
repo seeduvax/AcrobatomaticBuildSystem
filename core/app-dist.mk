@@ -3,6 +3,10 @@
 ## Distribution production targets
 ## --------------------------------------------------------------------------
 ##
+##  - PUBLISH_TO_APP_LEVEL:
+##       true: publish to $(DISTREPO)/$(APPNAME) directory
+##       false: publish to $(DISTREPO)
+PUBLISH_TO_APP_LEVEL?=false
 
 _extra_import_defs_=$(subst !,\n,$(extra_import_defs))
 _extra_import_defs_:=$(subst $(_space_)!,\n,$(extra_import_defs))
@@ -160,18 +164,28 @@ $(KDISTINSTALL_BINARY): $(DIST_FLATTEN_DIR)/import.mk
 	rm "$@.tmp2"
 	@mv "$@.tmp" "$@"
 
+ifeq ($(PUBLISH_TO_APP_LEVEL),true)
+PROJ_DIST_REPO=$(DISTREPO)/$(ARCH)/$(APPNAME)
+else
+PROJ_DIST_REPO=$(DISTREPO)/$(ARCH)
+endif
+
 pubdist: dist
 	@$(ABS_PRINT_info)  "Publishing dist archive $(DIST_ARCHIVE) $(USER) on $(DISTREPO)"
-ifneq ($(filter file://%,$(DISTREPO)),)
-	cp $(DIST_ARCHIVE) $(patsubst file://%,%,$(DISTREPO))/$(ARCH)/$(APPNAME)-$(VERSION).$(ARCH).tar.gz
+ifneq ($(filter file://%,$(PROJ_DIST_REPO)),)
+	@outputFile="$(patsubst file://%,%,$(PROJ_DIST_REPO))/$(APPNAME)-$(VERSION).$(ARCH).tar.gz" && \
+		mkdir -p `dirname $$outputFile` && cp $(DIST_ARCHIVE) $$outputFile
 else
-	@scp $(SCPFLAGS) $(DIST_ARCHIVE) $(DISTREPO)/$(ARCH)/$(APPNAME)-$(VERSION).$(ARCH).tar.gz
+	@ssh $(SSHFLAGS) $(word 1,$(subst :, ,$(PROJ_DIST_REPO))) -C "mkdir -p $(word 2,$(subst :, ,$(PROJ_DIST_REPO)))"
+	@scp $(SCPFLAGS) $(DIST_ARCHIVE) $(PROJ_DIST_REPO)/$(APPNAME)-$(VERSION).$(ARCH).tar.gz
 endif
 
 pubinstall: distinstall
-	@$(ABS_PRINT_info)  "Publishing dist archive $(DISTINSTALL_BINARY) $(USER) on $(DISTREPO)"
-ifneq ($(filter file://%,$(DISTREPO)),)
-	@cp $(DISTINSTALL_BINARY) $(patsubst file://%,%,$(DISTREPO))/$(ARCH)/$(APPNAME)-$(VERSION).$(ARCH)-install.bin
+	@$(ABS_PRINT_info)  "Publishing install binary $(DISTINSTALL_BINARY) $(USER) on $(DISTREPO)"
+ifneq ($(filter file://%,$(PROJ_DIST_REPO)),)
+	@outputFile="$(patsubst file://%,%,$(PROJ_DIST_REPO))/$(APPNAME)-$(VERSION).$(ARCH)-install.bin" && \
+		mkdir -p `dirname $$outputFile` && cp $(DISTINSTALL_BINARY) $$outputFile
 else
-	@scp $(SCPFLAGS) $(DISTINSTALL_BINARY) $(DISTREPO)/$(ARCH)/$(APPNAME)-$(VERSION).$(ARCH)-install.bin
+	@ssh $(SSHFLAGS) $(word 1,$(subst :, ,$(PROJ_DIST_REPO))) -C "mkdir -p $(word 2,$(subst :, ,$(PROJ_DIST_REPO)))"
+	@scp $(SCPFLAGS) $(DISTINSTALL_BINARY) $(PROJ_DIST_REPO)/$(APPNAME)-$(VERSION).$(ARCH)-install.bin
 endif

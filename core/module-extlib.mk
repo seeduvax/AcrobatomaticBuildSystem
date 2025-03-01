@@ -81,13 +81,40 @@ $(eval ABS_REPO_PATTERN:=$(ABS_REPO))
 $(eval ABS_REPO_NA_PATTERN:=$(subst $$(ARCH),noarch,$(ABS_REPO)))
 endif
 
+# macro to get repos for a library
+# Args:
+#   - 1: pattern abs repo
+#	- 2: name of the library archive (ex: libtest-0.0.1.NotALinux.tar.gz)
+define getReposToUse
+$(patsubst %,$(1),$(2)) $(patsubst %,$(1),$(word 1,$(subst -, ,$(2)))/$(2))
+endef
+
+# macro to get the list of repositories where to find dependencies
+# Looking for $(ABS_REPO)/noarch/ and $(ABS_REPO)/noarch/<dependency name>/
+# Args:
+#   - 1: List of patterns abs repo
+#	- 2: name of the library archive (ex: libtest-0.0.1.NotALinux.tar.gz)
+define getReposToUseForNoArch
+$(foreach pat,$(1),$(call getReposToUse,$(pat),$(2)))
+endef
+# macro to get the list of repositories where to find dependencies
+# Looking for $(ABS_REPO)/$(ARCH)/ and $(ABS_REPO)/$(ARCH)/<dependency name>/
+#             $(ABS_REPO)/noarch/ and $(ABS_REPO)/noarch/<dependency name>/
+# Args:
+#   - 1: List of patterns abs repo
+#	- 2: name of the library archive (ex: libtest-0.0.1.NotALinux.tar.gz)
+define getReposToUseForArch
+$(foreach pat,$(1),$(call getReposToUse,$(pat),$(2))\
+	$(subst $(ARCH),noarch,$(call getReposToUse,$(pat),$(2))))
+endef
+
 $(ABS_CACHE)/noarch/%:
 	@mkdir -p $(@D)
-	$(call downloadFromURLs,$*,$(foreach pat,$(ABS_REPO_NA_PATTERN),$(patsubst %,$(pat),$(@F))),$@)
+	$(call downloadFromURLs,$*,$(call getReposToUseForNoArch,$(ABS_REPO_NA_PATTERN),$(@F)),$@)
 
 $(ABS_CACHE)/%:
 	@mkdir -p $(@D)
-	$(call downloadFromURLs,$*,$(foreach pat,$(ABS_REPO_PATTERN),$(patsubst %,$(pat),$(@F))),$@)
+	$(call downloadFromURLs,$*,$(call getReposToUseForArch,$(ABS_REPO_PATTERN),$(@F)),$@)
 
 define unpackArchive
 	@$(ABS_PRINT_info) "Unpacking library : $(patsubst $(1)/%/import.mk,%,$@)"
