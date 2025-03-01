@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<cr id="6a405ed59efe577e20a334097794bb8aafe8ae5affee8f8c3c96eb9124600307" state="working">
+<cr id="6a405ed59efe577e20a334097794bb8aafe8ae5affee8f8c3c96eb9124600307" state="resolved">
 <title>Add support for additionnal level for archive publication</title>
 <reporter>fred</reporter>
 <creation>2025-03-01 19:50:27+01:00</creation>

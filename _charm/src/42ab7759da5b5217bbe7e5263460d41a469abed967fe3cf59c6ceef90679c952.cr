@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<cr id="42ab7759da5b5217bbe7e5263460d41a469abed967fe3cf59c6ceef90679c952" state="working">
+<cr id="42ab7759da5b5217bbe7e5263460d41a469abed967fe3cf59c6ceef90679c952" state="resolved">
 <title>Fix warning in tests generated file in vscode</title>
 <reporter>fred</reporter>
 <creation>2025-02-27 09:54:25+01:00</creation>
