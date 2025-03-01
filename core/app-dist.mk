@@ -2,10 +2,18 @@
 ## --------------------------------------------------------------------------
 ## Distribution production targets
 ## --------------------------------------------------------------------------
-##
+## Variables:
 ##  - PUBLISH_TO_APP_LEVEL:
 ##       true: publish to $(DISTREPO)/$(APPNAME) directory
 ##       false: publish to $(DISTREPO)
+## 
+## Targets
+##  - cleandist: remove the dist directory
+##  - install [PREFIX=<install path>]: installs the application
+##  - distinstall: builds installation package.
+##  - kdistinstall: builds linux kernel modules installation package
+##  - dist: creates binary package
+
 PUBLISH_TO_APP_LEVEL?=false
 
 _extra_import_defs_=$(subst !,\n,$(extra_import_defs))
@@ -14,7 +22,6 @@ _extra_import_defs_:=$(subst !,\n,$(_extra_import_defs_))
 _extra_import_defs_:=$(subst $(_carriage_return_),\n,$(_extra_import_defs_))
 $(eval _extra_import_defs_:=$(_extra_import_defs_))
 
-##  - cleandist: remove the dist directory
 cleandist:
 	@$(ABS_PRINT_info) "Cleaning dist ..."
 	@$(ABS_PRINT_info) "Changing permissions of dist"
@@ -115,7 +122,6 @@ $(INSTALL_TMP_DIR)/import.mk: $(DIST_FLATTEN_DIR)/import.mk
 	done
 	@cp $< $@
 
-##  - install [PREFIX=<install path>]: installs the application
 .PHONY: install
 install: $(DISTINSTALL_BINARY)
 	@./$(DISTINSTALL_BINARY) install $(PREFIX)
@@ -131,9 +137,6 @@ $(DISTINSTALL_BINARY): $(INSTALL_TMP_DIR)/import.mk
 	@rm $@.tmp2
 	@mv $@.tmp $@
 
-##  - distinstall: builds installation package.
-##  - kdistinstall: builds linux kernel modules installation package
-##  - dist: creates binary package
 ifeq ($(ACTIVATE_SANITIZER),true)
 dist:
 	@$(ABS_PRINT_warning) "Cannot execute dist target if ACTIVATE_SANITIZER=true"
