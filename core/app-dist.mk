@@ -160,14 +160,22 @@ $(KDISTINSTALL_BINARY): $(DIST_FLATTEN_DIR)/import.mk
 	rm "$@.tmp2"
 	@mv "$@.tmp" "$@"
 
+##  - pubdist: publish dist package
 pubdist: dist
 	@$(ABS_PRINT_info)  "Publishing dist archive $(DIST_ARCHIVE) $(USER) on $(DISTREPO)"
 ifneq ($(filter file://%,$(DISTREPO)),)
-	cp $(DIST_ARCHIVE) $(patsubst file://%,%,$(DISTREPO))/$(ARCH)/$(APPNAME)-$(VERSION).$(ARCH).tar.gz
+	@cp $(DIST_ARCHIVE) $(patsubst file://%,%,$(DISTREPO))/$(ARCH)/$(APPNAME)-$(VERSION).$(ARCH).tar.gz
 else
 	@scp $(SCPFLAGS) $(DIST_ARCHIVE) $(DISTREPO)/$(ARCH)/$(APPNAME)-$(VERSION).$(ARCH).tar.gz
 endif
 
+##  - cachedist: record dist package into local abs pacakges cache.
+cachedist: dist
+	@$(ABS_PRINT_info) "Storing dist archive $(DIST_ARCHIVE) into local ABS cache"
+	@mkdir -p $(ABS_CACHE)/$(ARCH)
+	@mv $(DIST_ARCHIVE) $(ABS_CACHE)/$(ARCH)/
+
+##  - pubinstall: publish install package
 pubinstall: distinstall
 	@$(ABS_PRINT_info)  "Publishing dist archive $(DISTINSTALL_BINARY) $(USER) on $(DISTREPO)"
 ifneq ($(filter file://%,$(DISTREPO)),)
