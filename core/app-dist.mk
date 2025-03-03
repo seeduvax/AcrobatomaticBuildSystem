@@ -2,7 +2,19 @@
 ## --------------------------------------------------------------------------
 ## Distribution production targets
 ## --------------------------------------------------------------------------
-##
+## Variables:
+##  - PUBLISH_TO_APP_LEVEL:
+##       true: publish to $(DISTREPO)/$(APPNAME) directory
+##       false: publish to $(DISTREPO)
+## 
+## Targets
+##  - cleandist: remove the dist directory
+##  - install [PREFIX=<install path>]: installs the application
+##  - distinstall: builds installation package.
+##  - kdistinstall: builds linux kernel modules installation package
+##  - dist: creates binary package
+
+PUBLISH_TO_APP_LEVEL?=false
 
 _extra_import_defs_=$(subst !,\n,$(extra_import_defs))
 _extra_import_defs_:=$(subst $(_space_)!,\n,$(extra_import_defs))
@@ -10,7 +22,6 @@ _extra_import_defs_:=$(subst !,\n,$(_extra_import_defs_))
 _extra_import_defs_:=$(subst $(_carriage_return_),\n,$(_extra_import_defs_))
 $(eval _extra_import_defs_:=$(_extra_import_defs_))
 
-##  - cleandist: remove the dist directory
 cleandist:
 	@$(ABS_PRINT_info) "Cleaning dist ..."
 	@$(ABS_PRINT_info) "Changing permissions of dist"
@@ -111,7 +122,6 @@ $(INSTALL_TMP_DIR)/import.mk: $(DIST_FLATTEN_DIR)/import.mk
 	done
 	@cp $< $@
 
-##  - install [PREFIX=<install path>]: installs the application
 .PHONY: install
 install: $(DISTINSTALL_BINARY)
 	@./$(DISTINSTALL_BINARY) install $(PREFIX)
@@ -127,9 +137,6 @@ $(DISTINSTALL_BINARY): $(INSTALL_TMP_DIR)/import.mk
 	@rm $@.tmp2
 	@mv $@.tmp $@
 
-##  - distinstall: builds installation package.
-##  - kdistinstall: builds linux kernel modules installation package
-##  - dist: creates binary package
 ifeq ($(ACTIVATE_SANITIZER),true)
 dist:
 	@$(ABS_PRINT_warning) "Cannot execute dist target if ACTIVATE_SANITIZER=true"
@@ -160,13 +167,28 @@ $(KDISTINSTALL_BINARY): $(DIST_FLATTEN_DIR)/import.mk
 	rm "$@.tmp2"
 	@mv "$@.tmp" "$@"
 
+<<<<<<< HEAD
 ##  - pubdist: publish dist package
 pubdist: dist
 	@$(ABS_PRINT_info)  "Publishing dist archive $(DIST_ARCHIVE) $(USER) on $(DISTREPO)"
 ifneq ($(filter file://%,$(DISTREPO)),)
 	@cp $(DIST_ARCHIVE) $(patsubst file://%,%,$(DISTREPO))/$(ARCH)/$(APPNAME)-$(VERSION).$(ARCH).tar.gz
+=======
+ifeq ($(PUBLISH_TO_APP_LEVEL),true)
+PROJ_DIST_REPO=$(DISTREPO)/$(ARCH)/$(APPNAME)
 else
-	@scp $(SCPFLAGS) $(DIST_ARCHIVE) $(DISTREPO)/$(ARCH)/$(APPNAME)-$(VERSION).$(ARCH).tar.gz
+PROJ_DIST_REPO=$(DISTREPO)/$(ARCH)
+endif
+
+pubdist: dist
+	@$(ABS_PRINT_info)  "Publishing dist archive $(DIST_ARCHIVE) $(USER) on $(DISTREPO)"
+ifneq ($(filter file://%,$(PROJ_DIST_REPO)),)
+	@outputFile="$(patsubst file://%,%,$(PROJ_DIST_REPO))/$(APPNAME)-$(VERSION).$(ARCH).tar.gz" && \
+		mkdir -p `dirname $$outputFile` && cp $(DIST_ARCHIVE) $$outputFile
+>>>>>>> feb7d9eb85ebbe36171db23c9f637216cf00c44c
+else
+	@ssh $(SSHFLAGS) $(word 1,$(subst :, ,$(PROJ_DIST_REPO))) -C "mkdir -p $(word 2,$(subst :, ,$(PROJ_DIST_REPO)))"
+	@scp $(SCPFLAGS) $(DIST_ARCHIVE) $(PROJ_DIST_REPO)/$(APPNAME)-$(VERSION).$(ARCH).tar.gz
 endif
 
 ##  - cachedist: record dist package into local abs pacakges cache.
@@ -177,9 +199,11 @@ cachedist: dist
 
 ##  - pubinstall: publish install package
 pubinstall: distinstall
-	@$(ABS_PRINT_info)  "Publishing dist archive $(DISTINSTALL_BINARY) $(USER) on $(DISTREPO)"
-ifneq ($(filter file://%,$(DISTREPO)),)
-	@cp $(DISTINSTALL_BINARY) $(patsubst file://%,%,$(DISTREPO))/$(ARCH)/$(APPNAME)-$(VERSION).$(ARCH)-install.bin
+	@$(ABS_PRINT_info)  "Publishing install binary $(DISTINSTALL_BINARY) $(USER) on $(DISTREPO)"
+ifneq ($(filter file://%,$(PROJ_DIST_REPO)),)
+	@outputFile="$(patsubst file://%,%,$(PROJ_DIST_REPO))/$(APPNAME)-$(VERSION).$(ARCH)-install.bin" && \
+		mkdir -p `dirname $$outputFile` && cp $(DISTINSTALL_BINARY) $$outputFile
 else
-	@scp $(SCPFLAGS) $(DISTINSTALL_BINARY) $(DISTREPO)/$(ARCH)/$(APPNAME)-$(VERSION).$(ARCH)-install.bin
+	@ssh $(SSHFLAGS) $(word 1,$(subst :, ,$(PROJ_DIST_REPO))) -C "mkdir -p $(word 2,$(subst :, ,$(PROJ_DIST_REPO)))"
+	@scp $(SCPFLAGS) $(DISTINSTALL_BINARY) $(PROJ_DIST_REPO)/$(APPNAME)-$(VERSION).$(ARCH)-install.bin
 endif

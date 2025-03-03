@@ -4,13 +4,20 @@
 ## --------------------------------------------------------------------
 ##  Enable easy cross build on same hardware architecture for an alternate
 ##  OS distribution without setting up a huge VM.
+## Variables:
+##  - DOCKER_WORKSPACE: workspace root dir inside the container ot use for the
+##    build. Caution it shall be writeable for the uid/gid calling make, since
+##    it is set from current user to ensure proper access to project source tree
+##    that is bind into the container as 
+##    $(DOCKER_WORKSPACE)/$(APPNAME)-$(VERSION).
+##    Default is set to /tmp that is a quite standard place world writable.
+## 
 ## Targets:
 ##  - docker[.<target>] <image>
 ##     call make from current place binded in the provided docker image.
 DOCKER_CMD?=docker
 
 ifneq ($(filter docker%,$(word 1,$(MAKECMDGOALS))),)
-## Variables:
 DOCKER_IMAGE:=$(word 2,$(MAKECMDGOALS))
 ifeq ($(DOCKER_IMAGE),)
 docker.%:
@@ -25,12 +32,6 @@ DOCKER_WORKSPACE:=/home/$(USER)
 DOCKER_CREATEUSERENV:=echo $(USER):x:$(shell id -u):$(shell id -g)::$(DOCKER_WORKSPACE):/bin/bash >> /etc/passwd && chown $(USER) $(DOCKER_WORKSPACE) && echo $(USER):*:18464:0:99999:7::: >> /etc/shadow
 # let the dockerized build open ssh session as the user from the host.
 DOCKER_ARGS+=-v $(HOME)/.ssh:$(DOCKER_WORKSPACE)/.ssh
-##  - DOCKER_WORKSPACE: workspace root dir inside the container ot use for the
-##    build. Caution it shall be writeable for the uid/gid calling make, since
-##    it is set from current user to ensure proper access to project source tree
-##    that is bind into the container as 
-##    $(DOCKER_WORKSPACE)/$(APPNAME)-$(VERSION).
-##    Default is set to /tmp that is a quite standard place world writable.
 DOCKER_WDIR:=$(DOCKER_WORKSPACE)/$(APPNAME)-$(VERSION)
 DOCKER_ARGS+=-v $(PRJROOT):$(DOCKER_WDIR)
 

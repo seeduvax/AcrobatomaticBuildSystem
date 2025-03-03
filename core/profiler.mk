@@ -2,7 +2,7 @@
 ## --------------------------------------------------------------------
 ## C/C++ profiler services
 ## ------------------------------------------------------------------------
-##
+## Variables
 ##  - PROFILER_TOOL: profiler tool to be used. Currently only few properly
 ##    packaged profiler are supported:
 ##     - tracy-0.8.1 (default)
@@ -14,8 +14,6 @@ ifeq ($(PROFILER),true)
 VFLAVOR+= $(PROFILER_TOOL)
 endif
 else
-## Profiler services  variable
-##
 ##  - PROFILER: profiler service activation switch. Set to true to activate
 ##    profiler support. Default is false
 ifeq ($(MAKECMDGOALS),profiler)

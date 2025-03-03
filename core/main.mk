@@ -6,7 +6,9 @@ __ABS_VERSION__:=__ABS_MODULE_VERSION_MARKER__
 PRJROOT:=$(abspath $(PRJROOT))
 
 ifeq ($(MAKE_RESTARTS),)
+ifeq ($(MAKELEVEL),0)
 $(info # Acrobatomatic Build System Core V $(__ABS_VERSION__))
+endif
 endif
 
 ifeq ($(MAKE_RESTARTS),20)
