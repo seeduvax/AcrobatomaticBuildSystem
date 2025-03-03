@@ -13,6 +13,7 @@ rm -rf $testDirectory
 mkdir -p $testDirectory
 mkdir -p $testDirectory/absws
 mkdir -p $testDirectory/repository/NotALinux
+mkdir -p $testDirectory/repository/noarch
 echo "Copy resources to $testDirectory"
 
 ln -s $PRJROOT $testDirectory/absws/abs-99.99.99
@@ -34,7 +35,7 @@ if [ $? -ne 0 ]; then
     echo "Error while executing make on libtest"
     doExit 11
 fi
-cp $testDirectory/libtest/build/*.tar.gz $testDirectory/repository/NotALinux/
+cp $testDirectory/libtest/build/*.tar.gz $testDirectory/repository/noarch/
 
 cd $testDirectory/testlib2
 make 
