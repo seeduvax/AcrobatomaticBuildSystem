@@ -20,7 +20,7 @@ $(PRJOBJDIR)/$(MODNAME)/moddeps.mk:
 '_module_$(APPNAME)_$(MODNAME)_dir=$$(TRDIR)\n'\
 '_module_$(APPNAME)_$(MODNAME)_depends_raw=$$(sort $(LINKLIB) $(INCLUDE_MODS) $(patsubst %,$(APPNAME)_%,$(USEMOD)) $(foreach dep,$(LINKLIB) $(INCLUDE_MODS) $(patsubst %,$(APPNAME)_%,$(USEMOD)),$$(_module_$(dep)_depends)))\n'\
 '_module_$(APPNAME)_$(MODNAME)_depends=$$(foreach dep,$$(_module_$(APPNAME)_$(MODNAME)_depends_raw),$$(if $$(_app_lib$$(dep)_dir),lib$$(dep),$$(dep)))\n\n'\
-'$$(PRJOBJDIR)/$(MODNAME)/.depready: $(patsubst %,$$(PRJOBJDIR)/%/.done,$(USEMOD) $(TESTUSEMOD))\n\n'\
+'$$(PRJOBJDIR)/$(MODNAME)/.depready: $$(patsubst %%,$$(PRJOBJDIR)/%%/.done,$(sort $(USEMOD) $(TESTUSEMOD)))\n\n'\
 '$$(PRJOBJDIR)/$(MODNAME)/.done: $$(call find,$$(PRJROOT)/$(MODNAME),*)\n\n' >> $@.tmp
 	@printf '$$(PRJOBJDIR)/$(MODNAME)/.done: $$(patsubst %%,$$(PRJOBJDIR)/%%/.done,$(sort $(USEMOD) $(TESTUSEMOD)))\n' >> $@.tmp
 	@printf "\nendif\n" >> $@.tmp

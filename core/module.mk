@@ -233,6 +233,10 @@ ifeq ($(filter clean% new% showvar checkdep,$(MAKECMDGOALS)),)
 
 include $(PRJOBJDIR)/$(MODNAME)/moddeps.mk
 
+# all moddeps.mk must be generated before including module moddeps.mk
+# Otherwise compilation of dependencies will start before to have all targets.
+$(PRJOBJDIR)/$(MODNAME)/moddeps.mk: $(patsubst %,$(PRJOBJDIR)/%/moddeps.mk,$(filter-out $(MODNAME),$(ALL_PROJ_MODULES)))
+
 $(PRJOBJDIR)/%/.depready:
 	@mkdir -p $(@D)
 	@echo "# "`date` > $@
