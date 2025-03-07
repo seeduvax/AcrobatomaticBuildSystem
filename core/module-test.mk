@@ -15,13 +15,13 @@
 ##  - TDISABLE_SRC: List of files in test directory to not compile
 ## 
 ## ------------------------------------------------------------------------
-CPPUNIT?=cppunit-1.14.0
 ifeq ($(filter %-win32,$(CC_VERSION)),)
 CC_VERSION_GE6:=$(shell [ `echo "$(CC_VERSION)" | cut -f1 -d.` -ge 6 ] && echo true || echo false)
 ifeq ($(CC_VERSION_GE6),false)
 CPPUNIT?=cppunit-1.12.1
 endif
 endif
+CPPUNIT?=cppunit-1.14.0
 
 TESTRUNNER=ctrunner$(BINEXT)
 TXTXSL=xunit2txt.xsl
