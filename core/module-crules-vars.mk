@@ -1,6 +1,3 @@
-# to execute cross-compiled binaries (see  module-crules.mk for more informations)
-ARCH_EXECUTOR?=
-
 # default C flags
 CFLAGS+=-I$(ABSROOT)/core/include
 ifneq ($(ISWINDOWS),true)
@@ -11,16 +8,16 @@ endif
 
 # default C/C++ commands and flags
 ifeq ($(CC),)
-CC=gcc
+CC=$(CROSS_PREFIX)gcc
 endif
 ifeq ($(CPPC),)
-CPPC=g++
+CPPC=$(CROSS_PREFIX)g++
 endif
 ifeq ($(AR),)
-AR=ar
+AR=$(CROSS_PREFIX)ar
 endif
 ifeq ($(LD),)
-LD=g++
+LD=$(CROSS_PREFIX)g++
 endif
 
 AREXT?=a
@@ -287,7 +284,7 @@ endif
 define ld-command-exe
 $(ld-command-lib)
 endef
-else
+else #ifeq ($(ISWINDOWS),true)
 define ld-command-lib
 @$(ABS_PRINT_info) "Linking $@ ..."
 @mkdir -p $(TARGETDIR) $(CYGTARGETDIR)
@@ -299,7 +296,7 @@ define ld-command-exe
 @$(ABS_PRINT_info) "Linking $@ ..."
 @mkdir -p $(TARGETDIR) $(CYGTARGETDIR)
 @echo `$(TRACE_DATE_CMD)`"> $(LD) -shared -o $(CYGTARGETDIR)/$(CYGTARGET) -Wl,--out-implib=$@ -Wl,--export-all-symbols -Wl,--enable-auto-import -Wl,--whole-archive $(OBJS) -Wl,--no-whole-archive $(LDFLAGS)" >> $(BUILDLOG)
-$(LD) -o $@ \
+@$(LD) -o $@ \
 	-Wl,--enable-auto-import $(OBJS) $(LDFLAGS)
 endef
-endif
+endif # ifneq ($(ISWINDOWS),true)

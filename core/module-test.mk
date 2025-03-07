@@ -15,15 +15,15 @@
 ##  - TDISABLE_SRC: List of files in test directory to not compile
 ## 
 ## ------------------------------------------------------------------------
-
-CC_VERSION_GE6:=$(shell [ `echo "$(CC_VERSION)" | cut -f1 -d.` -ge 6 ] && echo true || echo false)
-ifeq ($(CC_VERSION_GE6),true)
 CPPUNIT?=cppunit-1.14.0
-else
+ifeq ($(filter %-win32,$(CC_VERSION)),)
+CC_VERSION_GE6:=$(shell [ `echo "$(CC_VERSION)" | cut -f1 -d.` -ge 6 ] && echo true || echo false)
+ifeq ($(CC_VERSION_GE6),false)
 CPPUNIT?=cppunit-1.12.1
 endif
+endif
 
-TESTRUNNER=ctrunner
+TESTRUNNER=ctrunner$(BINEXT)
 TXTXSL=xunit2txt.xsl
 TIMEOUT?=300
 ifeq ($(COLORS_TCAP),yes)
@@ -206,8 +206,10 @@ define exec-test
 @$(RUNTIME_EPILOG)
 endef
 else
+# Path to dll for Wine execution.
+WINEFULLPATH=$(TRDIR)/bin;$(subst :,;,$(TLDLIBP))
 define exec-test
-@( [ -d test ] && PATH="$(RUNPATH):$(TLDLIBP)" LD_LIBRARY_PATH="$(TLDLIBP)" TRDIR="$(TRDIR)" TTARGETDIR="$(TTARGETDIR)" LD_PRELOAD="$(TLDPRELOADFORMATTED)" $(RUNTIME_ENV) $1 $(ARCH_EXECUTOR) $(CPPUNIT_DIR)/bin/$(TESTRUNNER) -x $(TEST_REPORT_PATH) $(TCYGTARGET) $(RUNARGS) $(patsubst %,+f %,$(T)) $(TARGS) 2>&1 | tee $(TTARGETDIR)/$(APPNAME)_$(MODNAME).stdout ) || true
+( [ -d test ] && PATH="$(RUNPATH):$(TLDLIBP)" LD_LIBRARY_PATH="$(TLDLIBP)" WINEPATH="$(WINEFULLPATH);$$WINEPATH" TRDIR="$(TRDIR)" TTARGETDIR="$(TTARGETDIR)" LD_PRELOAD="$(TLDPRELOADFORMATTED)" $(RUNTIME_ENV) $1 $(ARCH_EXECUTOR) $(CPPUNIT_DIR)/bin/$(TESTRUNNER) -x $(TEST_REPORT_PATH) $(TCYGTARGET) $(RUNARGS) $(patsubst %,+f %,$(T)) $(TARGS) 2>&1 | tee $(TTARGETDIR)/$(APPNAME)_$(MODNAME).stdout ) || true
 endef
 endif
 
