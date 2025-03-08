@@ -74,10 +74,12 @@ TESTSRCFILES:=$(wildcard $(PRJROOT)/*/test/Test*.cpp)
 ifneq ($(TESTSRCFILES),)
 $(OBJDIR)/testdefindex.heml: $(TESTSRCFILES)
 	@$(ABS_PRINT_info) "Generating automated test cases index..."
-	@echo "{testdef" > $@
-	@for testmoduledir in $(PRJROOT)* ; do \
+	echo "{testdef" > $@
+	for testmoduledir in $(PRJROOT)/* ; do \
+	  echo $$testmoduledir ; \
 	  test -d "$$testmoduledir/test" && echo " {testmodule %name="`basename "$$testmoduledir"` >> $@ || : ; \
 	  for testcasefile in "$$testmoduledir/test/Test"*.cpp ; do \
+		echo $$testcasefile ; \
 		testDocfile=$(OBJDIR)/`basename "$$testmoduledir"`_`basename $$testcasefile` ;\
 		testDocfile=`echo $$testDocfile | sed s/.cpp/.heml/ `;\
 		test -r "$$testcasefile" && grep -v "#\s*include" "$$testcasefile" | cpp -E | fgrep "ABS_TEST_" | sed -E 's/\{ *$$//g' | cpp -D__TESTFILE__="$$testcasefile" -include $(ABSROOT)/core/include/abs/testdef2heml.h | sed -e "/^# /d;s:$(PRJROOT)::g;s/{/\n{/g" > $$testDocfile || : ; \
@@ -85,7 +87,7 @@ $(OBJDIR)/testdefindex.heml: $(TESTSRCFILES)
 	  done ; \
 	  test -d "$$testmoduledir/test" && echo " }" >> $@ || : ; \
 	done
-	@echo "}" >> $@
+	echo "}" >> $@
 else
 $(OBJDIR)/testdefindex.heml:
 	@touch $@
