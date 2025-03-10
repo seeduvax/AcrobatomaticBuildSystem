@@ -122,14 +122,13 @@ endif
 
 # LDFLAGS permit to get the created .so that are not MODTYPE library.
 # this variable must be evaluated at the use time because at declaration time, the dependencies are not generated yet.
-INCLUDE_PROJ_MODS=$(filter-out $(MODNAME),$(foreach mod,$(sort $(ABS_INCLUDE_MODS)),$(if $(wildcard $(PRJROOT)/$(mod)),$(mod),)))
-
+INCLUDE_PROJ_MODS=$(filter-out $(MODNAME),$(patsubst $(APPNAME)_%,%,$(filter $(PROJECT_MODS),$(sort $(ABS_INCLUDE_MODS)))))
 LDFLAGS+=-L$(TRDIR)/$(SODIR) $(foreach mod,$(INCLUDE_PROJ_MODS),$(if $(wildcard $(TRDIR)/$(SODIR)/lib$(APPNAME)_$(mod).$(SOEXT)),-l$(APPNAME)_$(mod),)$(if $(wildcard $(TRDIR)/$(SODIR)/lib$(mod).$(SOEXT)),-l$(mod),))
 
 LDFLAGS+=-L$(TRDIR)/$(SODIR) $(foreach mod,$(INCLUDE_PROJ_MODS),$(if $(wildcard $(TRDIR)/$(SODIR)/lib$(APPNAME)_$(mod).$(AREXT)),-l$(APPNAME)_$(mod),)$(if $(wildcard $(TRDIR)/$(SODIR)/lib$(mod).$(AREXT)),-l$(mod),))
 
 # add paths to used modules' headers & libs.
-CFLAGS+=-I$(TRDIR)/include $(foreach mod,$(INCLUDE_PRJ_MODS),$(if $(wildcard $(PRJROOT)/$(mod)/include),-I$(PRJROOT)/$(mod)/include,))
+CFLAGS+=-I$(TRDIR)/include $(foreach mod,$(INCLUDE_PROJ_MODS),$(if $(wildcard $(PRJROOT)/$(mod)/include),-I$(PRJROOT)/$(mod)/include,))
 CFLAGS+=$(foreach mod,$(INCLUDE_MODS),$(if $(_app_$(mod)_dir),-I$(_app_$(mod)_dir)/include,))
 CFLAGS+=$(foreach mod,$(INCLUDE_MODS),$(if $(_module_$(mod)_dir),-I$(_module_$(mod)_dir)/include,))
 CFLAGS+=$(foreach mod,$(INCLUDE_MODS),$(if $(wildcard $(PRJROOT)/$(mod)/include),-I$(PRJROOT)/$(mod)/include,))

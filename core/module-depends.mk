@@ -15,7 +15,7 @@ $(PRJOBJDIR)/$(MODNAME)/moddeps.mk:
 	@echo "# "`date` > $@.tmp
 	@printf 'ifeq ($$(_module_$(APPNAME)_$(MODNAME)_dir),)\n'\
 'include $$(patsubst %%,$$(PRJOBJDIR)/%%/moddeps.mk,$(USEMOD))\n\n'\
-'ABS_INCLUDE_MODS+=$(MODNAME)\n'\
+'ABS_INCLUDE_MODS+=$$(patsubst %%,$(APPNAME)_%%,$(USEMOD) $(TESTUSEMOD))\n'\
 '_module_$(MODNAME)_dir=$$(PRJROOT)/$(MODNAME)\n'\
 '_module_$(APPNAME)_$(MODNAME)_dir=$$(TRDIR)\n'\
 '_module_$(APPNAME)_$(MODNAME)_depends_raw=$$(sort $(LINKLIB) $(INCLUDE_MODS) $(patsubst %,$(APPNAME)_%,$(USEMOD)) $(foreach dep,$(LINKLIB) $(INCLUDE_MODS) $(patsubst %,$(APPNAME)_%,$(USEMOD)),$$(_module_$(dep)_depends)))\n'\

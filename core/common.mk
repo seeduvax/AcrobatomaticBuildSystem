@@ -247,6 +247,8 @@ $(PRJOBJDIR)/%/moddeps.mk: $(PRJROOT)/%/module.cfg
 ifeq ($(filter clean% docker%,$(MAKECMDGOALS)),)
 
 ALL_PROJ_MODULES=$(patsubst $(PRJROOT)/%/module.cfg,%,$(wildcard $(PRJROOT)/*/module.cfg))
+# PROJECT_MODS permit to filter project modules in INCLUDE_MODS or ABS_INCLUDE_MODS variable for example.
+PROJECT_MODS=$(patsubst %,$(APPNAME)_%,$(ALL_PROJ_MODULES))
 
 ifeq ($(ABS_FROMAPP),true)
 # not so common, but can't be done before including common.mk from app.mk

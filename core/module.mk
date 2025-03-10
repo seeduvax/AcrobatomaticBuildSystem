@@ -241,10 +241,10 @@ $(PRJOBJDIR)/%/.depready:
 	@mkdir -p $(@D)
 	@echo "# "`date` > $@
 
-ifeq ($(filter $(NOBUILD),$(ABS_INCLUDE_MODS)),)
+ifeq ($(filter $(APPNAME)_$(NOBUILD),$(ABS_INCLUDE_MODS)),)
 include $(PRJOBJDIR)/$(MODNAME)/.depready
 else
-$(error $(MODNAME): can't build because of deactivated dependency: $(filter $(NOBUILD),$(ABS_INCLUDE_MODS)))
+$(error $(MODNAME): can't build because of deactivated dependency: $(filter $(APPNAME)_$(NOBUILD),$(ABS_INCLUDE_MODS)))
 endif
 
 endif
