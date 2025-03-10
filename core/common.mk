@@ -136,7 +136,6 @@ endef
 endif
 BUILDNUM=null
 
-
 # ---------------------------------------------------------------------
 # application and modules parameteres
 # ---------------------------------------------------------------------
@@ -145,7 +144,6 @@ BUILDROOT?=$(PRJROOT)/build
 HOSTNAME?=$(shell hostname)
 
 ABS_SCM_TYPE:=null
-
 
 
 # explicitely checking and forcing variable makefile generation now since 
@@ -165,12 +163,9 @@ endif
 
 include $(BUILDROOT)/.abs/$(HOSTNAME)-vars.mk
 
-
-
-ifeq ($(ARCH),)
 ##  - ARCH: Architecture (ex: Debian_8_x86_64)
-ARCH:=$(SYSNAME)_$(HWNAME)
-endif
+ARCH?=$(SYSNAME)_$(HWNAME)
+
 ifeq ($(ISWINDOWS),true)
 PATH_SEP:=;
 else

@@ -1,3 +1,14 @@
+# Creation of default variables for cross compilation
+ifeq ($(CROSS_ARCH),mingw)
+CROSS_PREFIX?=x86_64-w64-mingw32-
+ARCH_EXECUTOR?=wine
+else
+ifneq ($(CROSS_ARCH),)
+CROSS_PREFIX?=$(CROSS_ARCH)-linux-gnu-
+ARCH_EXECUTOR?=qemu-$(CROSS_ARCH)-static
+endif
+endif
+
 # default C flags
 CFLAGS+=-I$(ABSROOT)/core/include
 ifneq ($(ISWINDOWS),true)
@@ -21,15 +32,19 @@ LD=$(CROSS_PREFIX)g++
 endif
 
 AREXT?=a
+SODIR?=lib
 ifeq ($(ISWINDOWS),true)
 SOEXT?=dll.a
 SOPFX?=lib
-SODIR?=lib
+BINEXT=.exe
+else
+ifeq ($(CROSS_ARCH),mingw)
+SOEXT?=dll
+SOPFX?=
 BINEXT=.exe
 else
 SOEXT?=so
 SOPFX?=lib
-SODIR?=lib
 BINEXT=
 endif
 

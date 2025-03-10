@@ -128,10 +128,11 @@ install: $(DISTINSTALL_BINARY)
 
 $(DISTINSTALL_BINARY): $(INSTALL_TMP_DIR)/import.mk
 	@tar -C $(<D)/../ -czf - $(DISTTARFLAGS) $(INSTALLTARFLAGS) $(APPNAME)-$(VERSION) > $@.tmp2
-	@sed -e 's/__appname__/$(APPNAME)/g' $(ABSROOT)/core/install-template.sh |\
-	sed -e 's/__version__/$(VERSION)/g' | \
-	sed -e 's/__checksum__/'`md5sum $@.tmp2 | cut -f 1 -d ' '`'/g' | \
-	sed -e 's~__post_install_patch_files__~$(POST_INSTALL_PATCH_FILES)~g' > "$@.tmp"
+	@sed -e 's/__appname__/$(APPNAME)/g' \
+		-e 's/__version__/$(VERSION)/g' \
+		-e 's/__checksum__/'`md5sum $@.tmp2 | cut -f 1 -d ' '`'/g' \
+		-e 's~__post_install_patch_files__~$(POST_INSTALL_PATCH_FILES)~g' \
+		$(ABSROOT)/core/install-template.sh > "$@.tmp"
 	@cat "$@.tmp2" >> "$@.tmp"
 	@chmod +x "$@.tmp"
 	@rm $@.tmp2
@@ -161,7 +162,10 @@ endif
 
 $(KDISTINSTALL_BINARY): $(DIST_FLATTEN_DIR)/import.mk
 	tar -C $(DIST_FLATTEN_DIR) $(DISTTARFLAGS) -cvzf "$@.tmp2" etc/ lib/
-	sed -e 's/__app__/$(APPNAME)/g' $(ABSROOT)/core/kinstall-template.sh | sed -e 's/__version__/$(VERSION)/g' | sed -e 's/__kversion__/$(KVERSION)/g' > "$@.tmp"
+	sed -e 's/__app__/$(APPNAME)/g' \
+		-e 's/__version__/$(VERSION)/g' \
+		-e 's/__kversion__/$(KVERSION)/g' \
+		$(ABSROOT)/core/kinstall-template.sh > "$@.tmp"
 	cat "$@.tmp2" >> "$@.tmp"
 	chmod +x "$@.tmp"
 	rm "$@.tmp2"

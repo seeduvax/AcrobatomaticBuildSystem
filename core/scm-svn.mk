@@ -53,7 +53,7 @@ $(BUILDROOT)/scm/checksum.txt:
 	@$(ABS_PRINT_info) "Generating checksum index for $(APPNAME)-$(VERSION)"
 	@rm -rf __tmp_$(APPNAME)
 	@svn $(SVNFLAGS) checkout $(SVNURLTO) __tmp_$(APPNAME)
-	@find __tmp_$(APPNAME) -type f | fgrep -v '.svn/' | xargs sha256sum | sed -e 's!__tmp_$(APPNAME)/!!g' | sed -e 's/  / % /g' > $@
+	@find __tmp_$(APPNAME) -type f | fgrep -v '.svn/' | xargs sha256sum | sed -e 's!__tmp_$(APPNAME)/!!g' -e 's/  / % /g' > $@
 	@rm -rf __tmp_$(APPNAME)
 
 scm-release:: $(patsubst %,$(BUILDROOT)/scm/%, file-list.xml diff.xml log.xml checksum.txt)

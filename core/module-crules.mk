@@ -28,6 +28,7 @@
 ##    - thread: thread sanitizer (data race detector). Incompatible with address sanitizer
 ##    To disable the leak detection on sources compiled with address sanitizer, use the environment variable asan_options=detect_leaks=0
 ##    /!\ Must not be used to compile production binaries.
+##  - CROSS_ARCH: Architecture for cross compilation. (ex: aarch64, mingw, ...)
 ##  - ARCH_EXECUTOR: the executable used to execute cross-compiled binaries
 ##    Ex: on a aarch64, can be qemu-aarch64-static
 ##  - CROSS_PREFIX: Prefix for cross-compilation compilers
@@ -183,7 +184,7 @@ $(RES_HEADER):
 extern \"C\" {\n\
 # endif\n" > $@
 	@for src in $(RESSRC) ; do \
-	varprefix=`echo $$src | sed -e 's/[\./\-]/_/g' | sed -e 's/^src_/$(APPNAME)_$(MODNAME)_/g'` ; \
+	varprefix=`echo $$src | sed -e 's/[\./\-]/_/g' -e 's/^src_/$(APPNAME)_$(MODNAME)_/g'` ; \
 	echo 'extern unsigned char '$$varprefix'[];' >> $@ ; \
 	echo 'extern unsigned int '$$varprefix'_len;' >> $@ ; \
 	done
@@ -197,7 +198,7 @@ $(OBJDIR)/%.c: src/% $(RES_HEADER)
 	@$(ABS_PRINT_info) "Generating inline constant buffer from $<..."
 	@mkdir -p $(@D)
 	@echo "#include \"$(APPNAME)/$(MODNAME)/res.h\"" > $@
-	@xxd -i $< | sed -e "s/src_/$(APPNAME)_$(MODNAME)_/g"  >> $@
+	@xxd -i $< | sed -e "s/src_/$(APPNAME)_$(MODNAME)_/g" >> $@
 
 
 # relative path (used by edebug and edebugtest targets for more readability)
