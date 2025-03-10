@@ -195,6 +195,12 @@ endif
 -include $(ABSWS)/local.cfg
 -include $(PRJROOT)/local.cfg
 
+# process BUILDCHAIN after re-include because NDUSELIB can be resetted
+ifneq ($(BUILDCHAIN),)
+NDUSELIB+=$(BUILDCHAIN)
+VFLAVOR+= $(BUILDCHAIN)
+endif
+
 # identify dev version from tagged version, only when version is not overloaded.
 ifeq ($(ABS_SCM_TYPE),null)
 VERSION:=$(VERSION)e
@@ -208,11 +214,6 @@ ifneq ($(VFLAVOR),)
 VERSION:=$(VERSION)_$(subst $(_space_),_,$(sort $(VFLAVOR)))
 endif
 
-# process BUILDCHAIN after re-include because NDUSELIB can be resetted
-ifneq ($(BUILDCHAIN),)
-NDUSELIB+=$(BUILDCHAIN)
-VFLAVOR+= $(BUILDCHAIN)
-endif
 
 PRJOBJDIR=$(TRDIR)/obj
 MODULE_MK_DIR=$(PRJOBJDIR)/_dependencies
