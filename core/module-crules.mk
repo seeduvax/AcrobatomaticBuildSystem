@@ -233,12 +233,15 @@ debug:: all
 	$(ABS_PRINT_error) "won't debug a library !"
 
 else
+
+# Path to dll for Wine execution.
+WINEFULLPATH=$(TRDIR)/bin;$(subst :,;,$(LDLIBP))
 # run application
 # TODO cygwin compat
 run:: all
 	@$(ABS_PRINT_info) "Starting $(TARGETFILE) $(RUNARGS)"
 	@$(RUNTIME_PROLOG)
-	@PATH=$(RUNPATH) LD_LIBRARY_PATH=$(LDLIBP) $(RUNTIME_ENV) $(ARCH_EXECUTOR) $(TARGETFILE) $(RUNARGS) \
+	@PATH=$(RUNPATH) LD_LIBRARY_PATH=$(LDLIBP) WINEPATH="$(WINEFULLPATH);$$WINEPATH" $(RUNTIME_ENV) $(ARCH_EXECUTOR) $(TARGETFILE) $(RUNARGS) \
       || $(ABS_PRINT_error) "Run failed: $(TARGETFILE) $(RUNARGS)"
 	@$(RUNTIME_EPILOG)
 
