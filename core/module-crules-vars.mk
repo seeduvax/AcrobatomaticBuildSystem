@@ -47,6 +47,7 @@ SOEXT?=so
 SOPFX?=lib
 BINEXT=
 endif
+endif
 
 CC_VERSION:=$(shell $(CC) -dumpversion)
 
