@@ -114,13 +114,6 @@ _comma_=,
 ##       Exemple:
 ##       ABS_REPO=file://usr/local/dist/$$(ARCH)/% https://example.org/abs/%?arch=$$(ARCH)
 
-##  - XARCH: defined alternate architecture for cross compilation. See
-##     available files in $(ABSROOT)/core/xarch to get supported
-##     architecture names (remove .mk suffix to get arch name)
-ifneq ($(XARCH),)
-include $(ABSROOT)/core/xarch/$(XARCH).mk
-endif
-
 ##  - USER: name of the user running the build
 USER?=$(shell whoami)
 USER:=$(subst \,/,$(USER))
