@@ -47,20 +47,23 @@ ABS_DEPDOWNLOAD_RULE_OVERLOADED:=1
 # $2: URL list
 # $3: Destination file path
 define downloadFromURLs
-@for repo in $2 ; do \
-	$(ABS_PRINT_info) "Fetching $1 from $$repo" ; \
+@$(ABS_PRINT_info) "Fetching $1..."; \
+	unavailableRepos= ; for repo in $2 ; do \
+	$(ABS_PRINT_debug) "Fetching $1 from $$repo" ; \
 	case $$repo in \
 		file://*) srcfile=`echo "$$repo" | cut -f 2 -d ':'`;\
 			test -f $$srcfile && ln -sf $$srcfile $3 ; \
-			test -r $3 && exit 0 || \
-			$(ABS_PRINT_warning) "$1 not available from $$repo";; \
+			test -r $3 && $(ABS_PRINT_info) "$1 got from $$repo" && exit 0 || \
+			unavailableRepos="$$unavailableRepos $$repo";; \
 		scp:*) srcfile=`echo "$$repo" | cut -f 2,3 -d ':'`;\
-			scp $(SCPFLAGS) $$srcfile $3.tmp && mv $3.tmp $3 && exit 0;;\
-		*) wget -q $(WGETFLAGS) $$repo -O $3.tmp && mv $3.tmp $3 && touch $3 && exit 0 || \
-			rm -rf $3 ; \
-			 $(ABS_PRINT_warning) "$1 not available from $$repo";; \
+			scp $(SCPFLAGS) $$srcfile $3.tmp && mv $3.tmp $3 && $(ABS_PRINT_info) "$1 got from $$repo" && exit 0;;\
+		*) wget -q $(WGETFLAGS) $$repo -O $3.tmp && mv $3.tmp $3 && touch $3 && $(ABS_PRINT_info) "$1 got from $$repo" && exit 0 || \
+			rm -rf $3 ;\
+			unavailableRepos="$$unavailableRepos $$repo";; \
 	esac \
-done ; $(ABS_PRINT_error) "Can't fetch $1." ; rm -rf $3 ; exit 1
+done ; \
+for repo in $$unavailableRepos; do $(ABS_PRINT_warning) "$1 not available from $$repo"; done; \
+$(ABS_PRINT_error) "Can't fetch $1." ; rm -rf $3 ; exit 1
 endef
 
 # Download an archive from repositories
@@ -321,7 +324,6 @@ endif
 
 # external libraries are expected before starting compilation.
 $(OBJS): $(EXTLIBMAKES)
-
 
 # --------------------------------
 # Print warning or fail according strict checking mode when
