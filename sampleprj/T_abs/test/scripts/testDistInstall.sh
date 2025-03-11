@@ -30,21 +30,18 @@ doExit() {
 }
 
 cd $testDirectory/libtest
-make 
+ARCH=NotALinux make pubdist ABS_LOG_LEVEL=debug
 if [ $? -ne 0 ]; then
     echo "Error while executing make on libtest"
     doExit 11
 fi
-cp $testDirectory/libtest/build/*.tar.gz $testDirectory/repository/noarch/
 
 cd $testDirectory/testlib2
-make 
+ARCH=NotALinux make pubdist ABS_LOG_LEVEL=debug
 if [ $? -ne 0 ]; then
     echo "Error while executing make on testlib2"
     doExit 12
 fi
-cp $testDirectory/testlib2/build/*.tar.gz $testDirectory/repository/NotALinux/
-
 
 cd $testDirectory/projA
 ARCH=NotALinux make distinstall && ARCH=NotALinux make pubdist
