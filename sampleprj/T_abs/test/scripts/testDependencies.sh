@@ -92,6 +92,8 @@ function testFileExists {
 
 testFileExists $testDirectory/repository/NotALinux/projA-1.4.2d.NotALinux.tar.gz
 testFileExists $testDirectory/repository/NotALinux/projB/projB-2.4.2d.NotALinux.tar.gz
+testFileExists $testDirectory/projC/dist/flatten/projC-2.4.3d/lib/libprojC_cpplib.a
+testFileExists $testDirectory/projC/dist/flatten/projC-2.4.3d/lib/libprojC_cpplib.so
 
 function testFile {
     diff -q $1 $2

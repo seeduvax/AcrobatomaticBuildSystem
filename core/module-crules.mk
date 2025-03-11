@@ -16,7 +16,7 @@
 ##    statically. Default value is false.
 ##  - DYNAMIC_LIB=true|false, when true, generate dynamic libraries, and link
 ##    dynamically. Default value is true.
-##    When both STATIC_LIB and DYNAMIC_LIB are true, builds both statict and
+##    When both STATIC_LIB and DYNAMIC_LIB are true, builds both static and
 ##    dynamic libraries but link executables dynamically only.
 ##  - NO_VINFO=true|false, when true, do not generate and link the source file 
 ##    for the target binary embedded identifiers string. Default is false. 
@@ -54,7 +54,10 @@ GENOBJS+=$(patsubst %.cpp,%.o,$(filter %.cpp,$(GENSRC)))
 GENOBJS+=$(patsubst %.adb,%.o,$(filter %.adb,$(GENSRC)))
 
 # All objs: C et CCP files + generated
-OBJS+=$(COBJS) $(CPPOBJS) $(GENOBJS) $(OBJDIR)/vinfo.o
+OBJS+=$(COBJS) $(CPPOBJS) $(GENOBJS)
+ifneq ($(NO_VINFO),true)
+OBJS+=$(OBJDIR)/vinfo.o
+endif
 # remove duplicates to avoid multiple definitions errors.
 OBJS:=$(sort $(OBJS))
 OBJS_NO_VINFO:=$(filter-out $(OBJDIR)/vinfo.o,$(OBJS))
@@ -64,12 +67,20 @@ RES_HEADER=$(TRDIR)/include/$(APPNAME)/$(MODNAME)/res.h
 # includes dependencies
 -include $(patsubst %.o,%.o.d,$(OBJS))
 
-
 # ---------------------------------------------------------------------
 # Default target : build target file
 # ---------------------------------------------------------------------
-C_RULES_ALL_TARGETS+=$(TARGETFILE) $(TARGETARCHIVE) $(PUBLISHED_HEADERS)
-
+C_RULES_ALL_TARGETS+=$(PUBLISHED_HEADERS)
+ifeq ($(MODTYPE),exe)
+C_RULES_ALL_TARGETS+=$(TARGETFILE_EXE)
+else
+ifneq ($(DYNAMIC_LIB),false)
+C_RULES_ALL_TARGETS+=$(TARGETFILE_LIB)
+endif
+ifeq ($(STATIC_LIB),true)
+C_RULES_ALL_TARGETS+=$(TARGETARCHIVE)
+endif
+endif
 # ---------------------------------------------------------------------
 # Main transformation rules
 # ---------------------------------------------------------------------
@@ -102,39 +113,14 @@ $(OBJDIR)/%.o: src/%.cpp
 	$(cxx-command)
 
 # link target from objects
-ifeq ($(MODTYPE),library)
-ifneq ($(TARGETFILE),)
-ifneq ($(NO_VINFO),)
-ifeq ($(strip $(OBJS_NO_VINFO)),)
-$(TARGETFILE): $(OBJS_NO_VINFO)
-	@echo nothing to do
-else 
-$(TARGETFILE): $(OBJS_NO_VINFO)
+$(TARGETFILE_EXE): $(OBJS)
+	$(ld-command-exe)
+
+$(TARGETFILE_LIB): $(OBJS)
 	$(ld-command-lib)
-endif
-else
-$(TARGETFILE): $(OBJS)
-	$(ld-command-lib)
-endif
-endif
-ifneq ($(TARGETARCHIVE),)
-ifeq ($(strip $(OBJS_NO_VINFO)),)
-$(TARGETARCHIVE): $(OBJS_NO_VINFO)
-	@echo nothing to do
-else
+
 $(TARGETARCHIVE): $(OBJS_NO_VINFO)
 	$(ar-command-lib)
-endif
-endif
-else
-ifneq ($(NO_VINFO),)
-$(TARGETFILE): $(OBJS_NO_VINFO)
-	$(ld-command-exe)
-else
-$(TARGETFILE): $(OBJS)
-	$(ld-command-exe)
-endif
-endif
 
 # vinfo file generated from make macro value.
 # vinfo must be regenerated each time a source file change, since it
@@ -218,7 +204,6 @@ $(OBJS): $(patsubst %,$(TRDIR)/include/$(APPNAME)/%,$(USELKMOD))
 $(COBJS) $(CPPOBJS): $(GENSRC)
 
 
-
 # ---------------------------------------------------------------------
 # Run & debug rules
 # ---------------------------------------------------------------------
@@ -239,27 +224,27 @@ WINEFULLPATH=$(TRDIR)/bin;$(subst :,;,$(LDLIBP))
 # run application
 # TODO cygwin compat
 run:: all
-	@$(ABS_PRINT_info) "Starting $(TARGETFILE) $(RUNARGS)"
+	@$(ABS_PRINT_info) "Starting $(TARGETFILE_EXE) $(RUNARGS)"
 	@$(RUNTIME_PROLOG)
-	@PATH=$(RUNPATH) LD_LIBRARY_PATH=$(LDLIBP) WINEPATH="$(WINEFULLPATH);$$WINEPATH" $(RUNTIME_ENV) $(ARCH_EXECUTOR) $(TARGETFILE) $(RUNARGS) \
-      || $(ABS_PRINT_error) "Run failed: $(TARGETFILE) $(RUNARGS)"
+	@PATH=$(RUNPATH) LD_LIBRARY_PATH=$(LDLIBP) WINEPATH="$(WINEFULLPATH);$$WINEPATH" $(RUNTIME_ENV) $(ARCH_EXECUTOR) $(TARGETFILE_EXE) $(RUNARGS) \
+      || $(ABS_PRINT_error) "Run failed: $(TARGETFILE_EXE) $(RUNARGS)"
 	@$(RUNTIME_EPILOG)
 
 GDBCMD:=$(BUILDROOT)/gdb-$(MODNAME)
 
 .PHONY: debugcmd
-gdbcmd: $(TARGETFILE)
+gdbcmd: $(TARGETFILE_EXE)
 	@$(ABS_PRINT_info) "Generating gdb test script $(GDBCMD)"
 	@mkdir -p $(BUILDROOT)
 	@echo 'set environment LD_LIBRARY_PATH=$(TLDLIBP)' > $(GDBCMD)
 	@echo 'set args $(RUNARGS)' >> $(GDBCMD)
-	@echo 'file $(TARGETFILE)' >> $(GDBCMD)
+	@echo 'file $(TARGETFILE_EXE)' >> $(GDBCMD)
 	@printf "define runapp\nrun\nend\n" >> $(GDBCMD)
 
 
 # run application with gdb
 # TODO cygwin compat
-debug:: $(TARGETFILE) gdbcmd
+debug:: $(TARGETFILE_EXE) gdbcmd
 	@PATH=$(RUNPATH) $(RUNTIME_ENV) gdb -x $(GDBCMD)
 
 # print eclipse setup
@@ -268,7 +253,7 @@ edebug:
 	@echo "**** Eclipse debugger setup : ****"
 	@echo
 	@printf "Application:\t\t"
-	@echo "$(patsubst $(PRJROOT)/%,%,$(TARGETFILE))"
+	@echo "$(patsubst $(PRJROOT)/%,%,$(TARGETFILE_EXE))"
 	@printf "Arguments:\t\t"
 	@echo $(RUNARGS)
 	@echo

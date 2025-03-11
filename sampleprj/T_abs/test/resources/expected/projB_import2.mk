@@ -5,9 +5,11 @@ $(eval $(call extlib_import_template,projB,2.4.2d,libtest-1.0.0 projA-1.4.2d tes
 
 _module_projB_cpplib_depends:=projA_cpplib projA_fileset projB_fileset libtest 
 _module_projB_cpplib2_depends:=projA_cpplib testlib2 
+_module_projB_cpplib3_depends:= 
 _module_projB_fileset_depends:=projA_fileset
 _module_projB_cpplib_dir:=$(_app_projB_dir)
 _module_projB_cpplib2_dir:=$(_app_projB_dir)
+_module_projB_cpplib3_dir:=$(_app_projB_dir)
 _module_projB_fileset_dir:=$(_app_projB_dir)
 _module_projB__extra_dir:=$(_app_projB_dir)
 

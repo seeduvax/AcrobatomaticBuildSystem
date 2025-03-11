@@ -61,23 +61,23 @@ LDFLAGS+=-lgcov
 endif
 
 # default library mode is DYNAMIC_LIB, STATIC_LIB is disabled
-ifeq ($(DYNAMIC_LIB),)
-DYNAMIC_LIB=true
+DYNAMIC_LIB?=true
+STATIC_LIB?=false
+
+ifeq ($(APPNAME),$(MODNAME))
+TARGET_PARTNAME=$(APPNAME)
+else
+TARGET_PARTNAME=$(APPNAME)_$(MODNAME)
 endif
-ifeq ($(STATIC_LIB),)
-STATIC_LIB=false
-endif
+TARGET_LIB=$(SOPFX)$(TARGET_PARTNAME).$(SOEXT)
+TARGET_EXE=$(TARGET_PARTNAME)$(BINEXT)
 
 # Target definition
 ifeq ($(MODTYPE),library) 
 # target is a library
 # build a shared library
 # name of shared library file
-ifeq ($(APPNAME),$(MODNAME))
-	TARGET=$(SOPFX)$(APPNAME).$(SOEXT)
-else
-	TARGET=$(SOPFX)$(APPNAME)_$(MODNAME).$(SOEXT)
-endif
+	TARGET=$(TARGET_LIB)
 # shared lib goes into lib subdir of build dir.
 	TARGETDIR=$(TRDIR)/$(SODIR)
 # cygwin specifics
@@ -89,42 +89,26 @@ else
 	CYGTARGET=$(APPNAME)_$(MODNAME).dll
 endif
 else
-	LDFLAGS+= -shared
+	LDFLAGS+=-shared
 endif
 else
 # target is an executable
 # executable file name
-ifeq ($(APPNAME),$(MODNAME))
-	TARGET=$(APPNAME)$(BINEXT)
-else
-	TARGET=$(APPNAME)_$(MODNAME)$(BINEXT)
-endif
+	TARGET=$(TARGET_EXE)
 # executable file goes in bin subdir of build dir.
 	TARGETDIR=$(TRDIR)/bin
 endif
 
 # target full path
-ifeq ($(DYNAMIC_LIB),true)
 TARGETFILE=$(TARGETDIR)/$(TARGET)
-else
-TARGETFILE=
-endif
-
-ifeq ($(MODTYPE),exe)
-TARGETFILE=$(TARGETDIR)/$(TARGET)
-endif
-
-ifeq ($(STATIC_LIB),true)
-TARGETARCHIVE=$(TARGETDIR)/$(patsubst %.$(SOEXT),%.$(AREXT),$(TARGET))
-else
-TARGETARCHIVE=
-endif
+TARGETFILE_LIB=$(TARGETDIR)/$(TARGET_LIB)
+TARGETFILE_EXE=$(TARGETDIR)/$(TARGET_EXE)
+TARGETARCHIVE=$(TARGETDIR)/$(patsubst %.$(SOEXT),%.$(AREXT),$(TARGET_LIB))
 
 # LDFLAGS permit to get the created .so that are not MODTYPE library.
 # this variable must be evaluated at the use time because at declaration time, the dependencies are not generated yet.
 INCLUDE_PROJ_MODS=$(filter-out $(MODNAME),$(patsubst $(APPNAME)_%,%,$(filter $(PROJECT_MODS),$(sort $(ABS_INCLUDE_MODS)))))
 LDFLAGS+=-L$(TRDIR)/$(SODIR) $(foreach mod,$(INCLUDE_PROJ_MODS),$(if $(wildcard $(TRDIR)/$(SODIR)/lib$(APPNAME)_$(mod).$(SOEXT)),-l$(APPNAME)_$(mod),)$(if $(wildcard $(TRDIR)/$(SODIR)/lib$(mod).$(SOEXT)),-l$(mod),))
-
 LDFLAGS+=-L$(TRDIR)/$(SODIR) $(foreach mod,$(INCLUDE_PROJ_MODS),$(if $(wildcard $(TRDIR)/$(SODIR)/lib$(APPNAME)_$(mod).$(AREXT)),-l$(APPNAME)_$(mod),)$(if $(wildcard $(TRDIR)/$(SODIR)/lib$(mod).$(AREXT)),-l$(mod),))
 
 # add paths to used modules' headers & libs.
@@ -281,21 +265,12 @@ define ar-command-lib
 @echo `$(TRACE_DATE_CMD)`"> LD_RUN_PATH='"'$(LDRUNP)'"' $(AR) rcs $@ $(OBJS_NO_VINFO)" >> $(BUILDLOG)
 @LD_RUN_PATH='$(LDRUNP)' $(AR) rcs $@ $(OBJS_NO_VINFO)
 endef
-ifneq ($(NO_VINFO),)
-define ld-command-lib
-@$(ABS_PRINT_info) "Linking $@ ..."
-@mkdir -p $(TARGETDIR)
-@echo `$(TRACE_DATE_CMD)`"> LD_RUN_PATH='"'$(LDRUNP)'"' LD_LIBRARY_PATH=$(LDLIBP) $(LD) -o $@ $(OBJS) $(LDFLAGS)" >> $(BUILDLOG)
-@LD_RUN_PATH='$(LDRUNP)' LD_LIBRARY_PATH=$(LDLIBP) $(LD) -o $@ $(OBJS_NO_VINFO) $(LDFLAGS)
-endef
-else
 define ld-command-lib
 @$(ABS_PRINT_info) "Linking $@ ..."
 @mkdir -p $(TARGETDIR)
 @echo `$(TRACE_DATE_CMD)`"> LD_RUN_PATH='"'$(LDRUNP)'"' LD_LIBRARY_PATH=$(LDLIBP) $(LD) -o $@ $(OBJS) $(LDFLAGS)" >> $(BUILDLOG)
 @LD_RUN_PATH='$(LDRUNP)' LD_LIBRARY_PATH=$(LDLIBP) $(LD) -o $@ $(OBJS) $(LDFLAGS)
 endef
-endif
 define ld-command-exe
 $(ld-command-lib)
 endef

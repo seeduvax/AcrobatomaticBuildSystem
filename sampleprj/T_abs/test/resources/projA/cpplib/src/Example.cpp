@@ -1,6 +1,7 @@
 #include "projA/cpplib/Example.hpp"
-#include <stdio.h>
-#include <string.h>
+#include <cstdio>
+#include <cstring>
+#include <cstdint>
 #include "projA/cpplib/res.h"
 #include "abs/profiler.h"
 
@@ -16,7 +17,7 @@ void Example::helloWorld() {
     char str[1024];
 	printf("Hello world from " MACRO_STRVALUE(__APPNAME__) "::" MACRO_STRVALUE(__MODNAME__) "!\n" );
     printf("len=%d\n",projA_cpplib_res_text_dat_len);
-    printf("bufptr=%x\n",projA_cpplib_res_text_dat);
+    printf("bufptr=%lx\n",uint64_t(projA_cpplib_res_text_dat));
     strncpy(str,(const char *)projA_cpplib_res_text_dat,projA_cpplib_res_text_dat_len);
     str[projA_cpplib_res_text_dat_len]='\0';
 	printf("[%s]\n",projA_cpplib_res_text_dat);
