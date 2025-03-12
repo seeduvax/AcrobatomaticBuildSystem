@@ -1,6 +1,7 @@
 #!/bin/sh
 
 PRJROOT=`git rev-parse --show-toplevel`
+USER=`git config user.name || echo $USER`
 
 if [ -r $PRJROOT/.git/hooks/.charm_crid ]
 then
