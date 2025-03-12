@@ -214,10 +214,7 @@ ifneq ($(VFLAVOR),)
 VERSION:=$(VERSION)_$(subst $(_space_),_,$(sort $(VFLAVOR)))
 endif
 
-
 PRJOBJDIR=$(TRDIR)/obj
-MODULE_MK_DIR=$(PRJOBJDIR)/_dependencies
-MODULE_MK_TEST_DIR=$(MODULE_MK_DIR)/test
 
 # external libraries local repository
 INCTESTS:=$(filter test %test check %check testbuild help coverage Test%,$(MAKECMDGOALS))

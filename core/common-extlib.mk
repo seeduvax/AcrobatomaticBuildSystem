@@ -118,13 +118,15 @@ $(ABS_CACHE)/%:
 	@mkdir -p $(@D)
 	$(call downloadFromURLs,$*,$(call getReposToUseForArch,$(ABS_REPO_PATTERN),$(@F)),$@)
 
+# extract import.mk at the end to be sure the extraction is complete.
 define unpackArchive
 	@$(ABS_PRINT_info) "Unpacking library : $*"
 	@$(ABS_PRINT_debug) "$<"
-	@if [ -d $(@D)  ]; then chmod -R u+w $(@D) && rm -rf $(@D); fi
+	@if [ -d $(@D) ]; then chmod -R u+w $(@D) && rm -rf $(@D); fi
 	@mkdir -p $(@D)
-	@tar -xmzf $< -C $(1)
-	@if [ $(EXTLIBDIR_READONLY) -eq 1 ]; then chmod -R a-w $(@D); else true; fi
+	@tar --exclude=$*/import.mk -xmzf $< -C $(1)
+	@tar -xmzf $< -C $(1) $*/import.mk
+	@if [ $(EXTLIBDIR_READONLY) -eq 1 ]; then chmod -R a-w $(@D); fi
 	@touch $@
 endef
 
@@ -327,18 +329,18 @@ $(ALLINCLUDES_MK): $(PRJROOT)/app.cfg
 	@$(ABS_PRINT_info) "Getting all dependencies"
 	@+make --no-print-directory getdeps
 	@$(ABS_PRINT_debug) "Creation of $@"
-	@echo "include \$$(EXTLIBMAKES)" > $@
+	@echo 'include $$(EXTLIBMAKES)' > $@.tmp
+	@echo '$$(OBJS): $$(EXTLIBMAKES)' >> $@.tmp
+	@mv $@.tmp $@
 
 include $(ALLINCLUDES_MK)
 else
 include $(EXTLIBMAKES)
+# external libraries are expected before starting compilation.
+$(OBJS): $(EXTLIBMAKES)
 endif
-# $(info loading: $(EXTLIBMAKES))
-# $(info Endof loading: $(EXTLIBMAKES))
 endif
 
-# external libraries are expected before starting compilation.
-$(OBJS): $(ALLINCLUDES_MK)
 
 
 # --------------------------------
