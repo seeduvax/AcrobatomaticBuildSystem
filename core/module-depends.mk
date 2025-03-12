@@ -29,3 +29,4 @@ $(PRJOBJDIR)/$(MODNAME)/moddeps.mk:
 	@mv $@.tmp $@
 
 all: $(PRJOBJDIR)/$(MODNAME)/moddeps.mk
+	@:
