@@ -2,12 +2,11 @@
 ## ------------------------------------------------------------------------
 ## Dependencies management
 ## ------------------------------------------------------------------------
+ALLINCLUDES_MK=$(PRJOBJDIR)/allInclude.mk
 
 ifeq ($(filter clean% docker% tag,$(MAKECMDGOALS)),)
 # do not process ext libs if target is clean or docker..
 # the extlibs will be retrieved inside the container
-
-ALLINCLUDES_MK=$(PRJOBJDIR)/allInclude.mk
 
 ABSWS_EXTLIBDIR=$(ABSWS)/extlib/$(ARCH)
 ABSWS_NA_EXTLIBDIR=$(ABSWS)/extlib/noarch

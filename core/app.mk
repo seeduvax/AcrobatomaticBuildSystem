@@ -239,6 +239,7 @@ cleanabs:
 	@$(ABS_PRINT_info) "Setting write permissions to $(ABSWS)..."
 	@test ! -d $(ABSWS)/extlib || chmod -R u+w $(ABSWS)/extlib
 	@test ! -d $(ABSWS)/cache || chmod -R u+w $(ABSWS)/cache
+	@test ! -f $(ALLINCLUDES_MK) || rm $(ALLINCLUDES_MK)
 	@chmod -R u+w $(ABSROOT) 2> /dev/null
 	@$(ABS_PRINT_info) "Cleaning ABS cache $(ABSWS)..."
 	@rm -rf $(ABSWS)/extlib $(ABSWS)/cache 
@@ -251,6 +252,7 @@ cleanabs:
 purgeabs:
 	@$(ABS_PRINT_info) "Setting write permissions to $(ABSWS)..."
 	@chmod -R u+w $(ABSWS) 2> /dev/null
+	@test ! -f $(ALLINCLUDES_MK) || rm $(ALLINCLUDES_MK)
 	@$(ABS_PRINT_info) "Removing ABS files and cache $(ABSWS)..."
 	@rm -rf $(ABSWS)
 	@$(ABS_PRINT_info) "ABS purge completed."

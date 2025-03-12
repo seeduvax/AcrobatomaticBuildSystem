@@ -246,7 +246,7 @@ endif
 
 endif
 
-$(PRJOBJDIR)/%/.done:
+$(PRJOBJDIR)/%/.done: $(ALLINCLUDES_MK)
 	@$(ABS_PRINT_info) "==============="
 	@$(ABS_PRINT_info) "$(MODNAME): Build of dependency: $*"
 	@+make $(MMARGS) MODE=$(MODE) -C $(PRJROOT)/$*
