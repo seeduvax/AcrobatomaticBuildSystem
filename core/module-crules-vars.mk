@@ -18,18 +18,11 @@ CFLAGS+=-Iinclude -I$(TRDIR)/include -Wa,-mbig-obj
 endif
 
 # default C/C++ commands and flags
-ifeq ($(CC),)
 CC=$(CROSS_PREFIX)gcc
-endif
-ifeq ($(CPPC),)
 CPPC=$(CROSS_PREFIX)g++
-endif
-ifeq ($(AR),)
 AR=$(CROSS_PREFIX)ar
-endif
-ifeq ($(LD),)
 LD=$(CROSS_PREFIX)g++
-endif
+OBJCOPY=$(CROSS_PREFIX)objcopy
 
 AREXT?=a
 SODIR?=lib

@@ -136,8 +136,8 @@ endif
 $(OBJDIR)/bintest/%.o: $(OBJDIR)/%.o
 	@$(ABS_PRINT_info) "Checking $(@F) symbols for Test Mode..."
 	@mkdir -p $(@D)
-	@echo `$(TRACE_DATE_CMD)`"> objcopy --redefine-sym main=__Exec_Main_Stubbed_for_unit_tests__ $< $@" >> $(BUILDLOG)
-	@objcopy --redefine-sym main=__Exec_Main_Stubbed_for_unit_tests__ $< $@
+	@echo `$(TRACE_DATE_CMD)`"> $(OBJCOPY) --redefine-sym main=__Exec_Main_Stubbed_for_unit_tests__ $< $@" >> $(BUILDLOG)
+	@$(OBJCOPY) --redefine-sym main=__Exec_Main_Stubbed_for_unit_tests__ $< $@
 
 ifneq ($(filter exe library,$(MODTYPE)),)
 TTARGETFILEDEP:=$(TARGETFILE)

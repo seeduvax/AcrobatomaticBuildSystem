@@ -143,7 +143,7 @@ $(PRJOBJDIR)/%/.depready::
 
 $(PRJOBJDIR)/%/.done: $(PRJOBJDIR)/%/.depready $(PRJOBJDIR)/%/moddeps.mk
 	@$(ABS_PRINT_info) "==============="
-	@$(ABS_PRINT_info) "Building module $(patsubst $(PRJOBJDIR)/%/.done,%,$@)..."
+	@$(ABS_PRINT_info) "Building module $*..."
 	@MODNAME=`cat $*/module.cfg | grep -E "^MODNAME" | sed -E 's/.*=(.*)/\1/g'` && test "$$MODNAME" = "$*" || $(ABS_PRINT_warning) "The name of the module $$MODNAME doesn't match the name of the module directory $*. This can have side effects."
 	@mkdir -p $(@D)
 	@mkdir -p $(TRDIR)/.abs/content
@@ -152,7 +152,7 @@ $(PRJOBJDIR)/%/.done: $(PRJOBJDIR)/%/.depready $(PRJOBJDIR)/%/moddeps.mk
 	@find $(TRDIR) -type f -cnewer $(TRDIR)/obj/$*/files.ts | grep -v $(TRDIR)/obj | sed 's~$(TRDIR)/~~g' | grep -E -v "^$(subst *,.*,$(subst $(_space_),|,$(DIST_EXCLUDE)))" > $(TRDIR)/.abs/content/$(APPNAME)_$*.filelist || true
 	@$(if $(filter $*,$(EXPMOD)),test ! -d $*/include || find $*/include -type f | sed 's~^$*/~~g' >> $(TRDIR)/.abs/content/$(APPNAME)_$*.filelist)
 	@rm -f $(TRDIR)/obj/$*/files.ts
-	@$(ABS_PRINT_info) "Module $(patsubst $(PRJOBJDIR)/%/.done,%,$@) built."
+	@$(ABS_PRINT_info) "Module $* built."
 
 # depends on mod.% to compile dependencies of module.
 testmod.%: $(PRJOBJDIR)/%/.done

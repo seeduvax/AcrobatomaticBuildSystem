@@ -35,9 +35,6 @@ endif
 MODNAME?=$(notdir $(MODROOT))
 
 # remove some default macros
-CC=
-CPPC=
-LD=
 SPACECHAR= 
 # Path to receive external source files
 EXT_SRC_DIR=$(BUILDROOT)/extsrc/
