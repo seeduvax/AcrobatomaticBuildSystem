@@ -10,16 +10,20 @@ LKMNAME:=$(patsubst %_lkm,%,$(MODNAME))
 
 include $(ABSROOT)/core/module-cheaders.mk
 
+include $(ABSROOT)/core/module-crules-patches.mk
+
 EXTRA_SIMVERS:=$(patsubst %,$(TRDIR)/obj/%/Module.symvers,$(USELKMOD))
 CFGFILES:=$(patsubst %,$(TRDIR)/%,$(shell find etc -type f -a \( -name $(LKMNAME).conf -o -name $(LKMNAME) \)))
 SERVICEFILES:=$(patsubst %,$(TRDIR)/%,$(shell find etc -name $(LKMNAME).service))
 INITSFILES:=$(patsubst %,$(TRDIR)/%,$(shell find etc -type f -name $(LKMNAME)))
 
-$(TRDIR)/etc/$(APPNAME)/%: src/etc/$(APPNAME)/%
+LKMSRCDIR=src
+
+$(TRDIR)/etc/$(APPNAME)/%: $(LKMSRCDIR)/etc/$(APPNAME)/%
 	@mkdir -p $(@D)
 	cp $< $@
 	
-$(TRDIR)/etc/init.d/%: src/etc/init.d/%
+$(TRDIR)/etc/init.d/%: $(LKMSRCDIR)/etc/init.d/%
 	@mkdir -p $(@D)
 	cp $< $@
 	@chmod +x $@
@@ -56,24 +60,42 @@ define forward-command
 @mkdir -p $(@D)
 @sed -e 's%MODULE_DESCRIPTION[ ]*[(]%MODULE_DESCRIPTION("$$Attr: app.name=$(APPNAME) $$ $$Attr: app.version=$(VERSION) $$ $$Attr: app.revision=$(REVISION) $$ $$Attr: build.mode=$(MODE) $$ $$Attr: build.opts=$(DEFINES) $$ $$Attr: build.date='`date +%Y-%m-%d.%H:%M:%S`' $$ $$Attr: build.host='`hostname`' $$ $$Attr: build.user=$(USER) $$ $$Attr: build.id=$(BUILDNUM) $$ \\n\\t\\t\" %g' $< > $@
 endef
+ALL_SRC_LKM_SRC=$(shell find src \( -name "*.c" -o -name "*.obj" \) $(patsubst %, -a -not -name %,$(DISABLE_SRC)))
+ALL_LKM_SRC=$(patsubst src/%,$(OBJDIR)/%,$(shell find src \( -name "*.c" -o -name "*.obj" \) $(patsubst %, -a -not -name %,$(DISABLE_SRC))))
+ALL_LKM_SRC+=$(patsubst $(ARCHSRC_SRC_DIRECTORY)/%,$(OBJDIR)/%,$(filter-out $(DISABLE_SRC),$(filter %.c %.obj,$(ARCHSRC_SRCFILES))))
+LKMSRC=$(subst /$(LKMNAME).c,/$(LKMNAME)_main__.c,$(ALL_LKM_SRC))
 
-$(OBJDIR)/$(LKMNAME)_main__.c: src/$(LKMNAME).c
+$(ALL_LKM_SRC): $(ALL_PATCHED)
+
+CFLAGS+=-I$(OBJDIR)
+EXTRA_CFLAGS+=-I$(OBJDIR)
+
+$(OBJDIR)/%.c: $(LKMSRCDIR)/%.c
 	$(forward-command)
 
-$(OBJDIR)/%.c: src/%.c
+$(OBJDIR)/%.c: $(ARCHSRC_SRC_DIRECTORY)/%.c
 	$(forward-command)
 
-$(OBJDIR)/%.obj: src/%.obj
+$(OBJDIR)/%.obj: $(LKMSRCDIR)/%.obj
+	$(forward-command)
+	
+$(OBJDIR)/%.obj: $(ARCHSRC_SRC_DIRECTORY)/%.obj
 	$(forward-command)
 
-$(OBJDIR)/%.h: src/%.h
+$(OBJDIR)/%.h: $(LKMSRCDIR)/%.h
 	@mkdir -p $(@D)
 	cp $< $@
 
-LKMSRC=$(subst /$(LKMNAME).c,/$(LKMNAME)_main__.c,$(patsubst src/%,$(OBJDIR)/%,$(shell find src \( -name "*.c" -o -name "*.obj" \) $(patsubst %, -a -not -name %,$(DISABLE_SRC)))))
+$(OBJDIR)/%.h: $(ARCHSRC_SRC_DIRECTORY)/%.h
+	@mkdir -p $(@D)
+	cp $< $@
+	
+$(OBJDIR)/$(LKMNAME)_main__.c: $(OBJDIR)/$(LKMNAME).c
+	$(forward-command)
+
 LKMOBJ=$(patsubst $(OBJDIR)/%.obj,%.obj,$(patsubst $(OBJDIR)/%.c,%.o,$(LKMSRC)))
 LKMH=$(patsubst src/%,$(OBJDIR)/%,$(shell find src -name "*.h"))
-
+LKMH+=$(patsubst $(ARCHSRC_SRC_DIRECTORY)/%,$(OBJDIR)/%,$(filter %.h,$(ARCHSRC_SRCFILES)))
 
 $(TRDIR)/include/$(APPNAME)/%: $(PRJROOT)/%/Makefile
 	make -C $(^D)

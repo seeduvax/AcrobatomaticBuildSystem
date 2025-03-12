@@ -37,7 +37,7 @@ MODNAME?=$(notdir $(MODROOT))
 # remove some default macros
 SPACECHAR= 
 # Path to receive external source files
-EXT_SRC_DIR=$(BUILDROOT)/extsrc/
+EXT_SRC_DIR=$(BUILDROOT)/extsrc/$(MODNAME)
 
 # Buildcript capabilities
 # introduced in buildscrip 0.4, may be used to have some fallback
@@ -168,6 +168,9 @@ $(EXT_SRC_DIR)/svn/%/.mk:
 include $(foreach entry,$(SVN_CHECKOUTS),$(patsubst %,$(EXT_SRC_DIR)/svn/%/.mk,$(word 1,$(subst =, ,$(entry)))))
 
 endif
+
+include $(ABSROOT)/core/module-archive.mk
+
 # -------------------------------------------------
 # module type adaptation
 # -------------------------------------------------
@@ -213,6 +216,7 @@ include $(ABSROOT)/core/module-util.mk
 clean-module:
 	@$(ABS_PRINT_info) "Cleaning module..."
 	@rm -rf $(TARGETFILE) $(OBJDIR) $(CONFIGFILES)
+	@test ! -d $(EXT_SRC_DIR) || rm -rf $(EXT_SRC_DIR)
 
 
 # update bootstrap makefile if needed.
