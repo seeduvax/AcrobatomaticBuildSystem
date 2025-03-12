@@ -230,7 +230,7 @@ endif
 include $(ABSROOT)/core/profiler.mk
 # include extern libraries management rules
 ifneq ($(INCLUDE_EXTLIB),false)
-include $(ABSROOT)/core/module-extlib.mk
+include $(ABSROOT)/core/common-extlib.mk
 endif
 
 # BROWSER was introduced for charm but is not really needed yet...
@@ -241,11 +241,11 @@ endif
 
 # dependencies between modules
 
-$(PRJOBJDIR)/%/moddeps.mk: $(PRJROOT)/%/module.cfg
+$(PRJOBJDIR)/%/moddeps.mk: $(PRJROOT)/%/module.cfg $(ALLINCLUDES_MK)
 	@+make -C $(PRJROOT)/$* --no-print-directory PRJROOT="$(PRJROOT)" TRDIR="$(TRDIR)" PRJOBJDIR="$(PRJOBJDIR)" -f $(ABSROOT)/core/module-depends.mk
 
 
-ifeq ($(filter clean% docker%,$(MAKECMDGOALS)),)
+ifeq ($(filter clean% docker% getdeps,$(MAKECMDGOALS)),)
 
 ALL_PROJ_MODULES=$(patsubst $(PRJROOT)/%/module.cfg,%,$(wildcard $(PRJROOT)/*/module.cfg))
 # PROJECT_MODS permit to filter project modules in INCLUDE_MODS or ABS_INCLUDE_MODS variable for example.

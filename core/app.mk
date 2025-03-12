@@ -141,7 +141,7 @@ $(PRJOBJDIR)/%/.depready::
 	@mkdir -p $(TRDIR)/.abs/content
 	@echo "# "`date` > $@
 
-$(PRJOBJDIR)/%/.done: $(PRJOBJDIR)/%/.depready $(PRJOBJDIR)/%/moddeps.mk
+$(PRJOBJDIR)/%/.done: $(PRJOBJDIR)/%/.depready
 	@$(ABS_PRINT_info) "==============="
 	@$(ABS_PRINT_info) "Building module $*..."
 	@MODNAME=`cat $*/module.cfg | grep -E "^MODNAME" | sed -E 's/.*=(.*)/\1/g'` && test "$$MODNAME" = "$*" || $(ABS_PRINT_warning) "The name of the module $$MODNAME doesn't match the name of the module directory $*. This can have side effects."

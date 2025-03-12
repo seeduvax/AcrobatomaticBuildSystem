@@ -7,6 +7,8 @@ ifeq ($(filter clean% docker% tag,$(MAKECMDGOALS)),)
 # do not process ext libs if target is clean or docker..
 # the extlibs will be retrieved inside the container
 
+ALLINCLUDES_MK=$(PRJOBJDIR)/allInclude.mk
+
 ABSWS_EXTLIBDIR=$(ABSWS)/extlib/$(ARCH)
 ABSWS_NA_EXTLIBDIR=$(ABSWS)/extlib/noarch
 ABSWS_NDEXTLIBDIR=$(ABSWS_EXTLIBDIR).nodist
@@ -118,7 +120,7 @@ $(ABS_CACHE)/%:
 	$(call downloadFromURLs,$*,$(call getReposToUseForArch,$(ABS_REPO_PATTERN),$(@F)),$@)
 
 define unpackArchive
-	@$(ABS_PRINT_info) "Unpacking library : $(patsubst $(1)/%/import.mk,%,$@)"
+	@$(ABS_PRINT_info) "Unpacking library : $*"
 	@$(ABS_PRINT_debug) "$<"
 	@if [ -d $(@D)  ]; then chmod -R u+w $(@D) && rm -rf $(@D); fi
 	@mkdir -p $(@D)
@@ -316,12 +318,29 @@ endef
 # configuration only if not requesting clean or cleanabs target. In this case,
 # we don't care importing the dependencies.
 ifeq ($(filter cleandist clean cleanabs purgeabs,$(MAKECMDGOALS)),)
+
 EXTLIBMAKES=$(patsubst %,$(EXTLIBDIR)/%/import.mk,$(TRANSUSELIB)) $(patsubst %,$(NDEXTLIBDIR)/%/import.mk,$(NDUSELIB)) $(patsubst %,$(NDNA_EXTLIBDIR)/%/import.mk,$(NDNA_USELIB)) $(patsubst %,$(NA_EXTLIBDIR)/%/import.mk,$(NA_USELIB))
+
+ifeq ($(filter getdeps,$(MAKECMDGOALS)),)
+# use allinclude.mk to be able to get all dependencies first.
+$(ALLINCLUDES_MK): $(PRJROOT)/app.cfg
+	@mkdir -p $(@D)
+	@$(ABS_PRINT_info) "Getting all dependencies"
+	@+make --no-print-directory getdeps
+	@$(ABS_PRINT_debug) "Creation of $@"
+	@echo "include \$$(EXTLIBMAKES)" > $@
+
+include $(ALLINCLUDES_MK)
+else
 include $(EXTLIBMAKES)
+endif
+# $(info loading: $(EXTLIBMAKES))
+# $(info Endof loading: $(EXTLIBMAKES))
 endif
 
 # external libraries are expected before starting compilation.
-$(OBJS): $(EXTLIBMAKES)
+$(OBJS): $(ALLINCLUDES_MK)
+
 
 # --------------------------------
 # Print warning or fail according strict checking mode when

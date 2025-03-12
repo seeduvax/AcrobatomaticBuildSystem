@@ -226,7 +226,7 @@ endif
 ### ---------------------------------------------------------------------
 ###  Dependencies beetween modules management
 ### ---------------------------------------------------------------------
-ifeq ($(filter clean% new% showvar checkdep,$(MAKECMDGOALS)),)
+ifeq ($(filter clean% new% showvar checkdep getdep%,$(MAKECMDGOALS)),)
 
 include $(PRJOBJDIR)/$(MODNAME)/moddeps.mk
 
@@ -247,6 +247,7 @@ endif
 endif
 
 $(PRJOBJDIR)/%/.done:
+	@$(ABS_PRINT_info) "==============="
 	@$(ABS_PRINT_info) "$(MODNAME): Build of dependency: $*"
 	@+make $(MMARGS) MODE=$(MODE) -C $(PRJROOT)/$*
 	@date > $@
