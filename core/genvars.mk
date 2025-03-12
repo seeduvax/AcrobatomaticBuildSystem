@@ -10,6 +10,12 @@ $(BUILDROOT)/.abs/vars.mk:
 $(BUILDROOT)/.abs/$(HOSTNAME)-vars.mk:
 	mkdir -p $(@D)
 	@echo "# generated file, do not edit" > $@
+	@printf 'ifeq ($$(CROSS_ARCH),mingw)\n'\
+	'    SYSNAME?=Windows\n'\
+	'else\n'\
+	'ifneq ($$(CROSS_ARCH),)\n'\
+	'    HWNAME?=$$(CROSS_ARCH)\n'\
+	'endif\nendif\n' >> $@
 	@LSBRCMD=`which lsb_release 2>/dev/null` ;\
 	release="" ;\
 	distId="" ;\
