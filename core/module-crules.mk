@@ -64,7 +64,7 @@ endif
 OBJS:=$(sort $(OBJS))
 OBJS_NO_VINFO:=$(filter-out $(OBJDIR)/vinfo.o,$(OBJS))
 
-RES_HEADER=$(TR_INCLUDE_DIR)/res.h
+RES_HEADER=$(TR_MOD_INCLUDE_DIR)/res.h
 
 # includes dependencies
 -include $(patsubst %.o,%.o.d,$(OBJS))

@@ -108,10 +108,10 @@ LDFLAGS+=-L$(TRDIR)/$(SODIR) $(foreach mod,$(INCLUDE_PROJ_MODS),$(if $(wildcard 
 LDFLAGS+=-L$(TRDIR)/$(SODIR) $(foreach mod,$(INCLUDE_PROJ_MODS),$(if $(wildcard $(TRDIR)/$(SODIR)/$(SOPFX)$(APPNAME)_$(mod).$(AREXT)),-l$(APPNAME)_$(mod),)$(if $(wildcard $(TRDIR)/$(SODIR)/$(SOPFX)$(mod).$(AREXT)),-l$(mod),))
 
 # add paths to used modules' headers & libs.
-CFLAGS+=-I$(TRDIR)/include $(foreach mod,$(INCLUDE_PROJ_MODS),$(if $(wildcard $(PRJROOT)/$(mod)/include),-I$(PRJROOT)/$(mod)/include,))
+CFLAGS+=-I$(TRDIR)/include
+CFLAGS+=$(foreach mod,$(INCLUDE_PROJ_MODS),$(if $(wildcard $(PRJROOT)/$(mod)/include),-I$(PRJROOT)/$(mod)/include,))
 CFLAGS+=$(foreach mod,$(INCLUDE_MODS),$(if $(_app_$(mod)_dir),-I$(_app_$(mod)_dir)/include,))
 CFLAGS+=$(foreach mod,$(INCLUDE_MODS),$(if $(_module_$(mod)_dir),-I$(_module_$(mod)_dir)/include,))
-CFLAGS+=$(foreach mod,$(INCLUDE_MODS),$(if $(wildcard $(PRJROOT)/$(mod)/include),-I$(PRJROOT)/$(mod)/include,))
 LDFLAGS+=$(patsubst %,-l%,$(LINKLIB))
 
 INCLUDE_MODS_EXT=$(filter-out $(PROJECT_MODS),$(sort $(ABS_INCLUDE_MODS))) $(LINKLIB)

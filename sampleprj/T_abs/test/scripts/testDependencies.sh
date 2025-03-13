@@ -29,6 +29,21 @@ doExit() {
     exit $1
 }
 
+function testFileExists {
+    if [ ! -f $1 ]; then
+        echo "Error: File $1 doesn't exists"
+        doExit 13
+    fi
+}
+
+function testFile {
+    diff -q $1 $2
+    if [ $? -ne 0 ]; then
+        echo "Error: $1 not equal to $2"
+        doExit 6
+    fi
+}
+
 cd $testDirectory/libtest
 ARCH=NotALinux make pubdist ABS_LOG_LEVEL=debug
 if [ $? -ne 0 ]; then
@@ -56,6 +71,12 @@ if [ $? -ne 0 ]; then
     echo "Error while executing make pubdist on projB"
     doExit 2
 fi
+# test extraction of sources from archives.
+testFileExists $testDirectory/projB/build/extsrc/cpplib3/source.cpp
+testFileExists $testDirectory/projB/build/extsrc/cpplib3/source.cpp
+# test extraction of includes from archives
+testFileExists $testDirectory/projB/dist/flatten/projB-2.4.2d/include/projB/cpplib3/inc.h
+testFileExists $testDirectory/projB/dist/flatten/projB-2.4.2d/include/projB/cpplib3/inc2.h
 
 cd $testDirectory/projD
 ARCH=NotALinux make pubdist ABS_LOG_LEVEL=debug
@@ -80,25 +101,11 @@ fi
 tail -n +2 $testDirectory/projC/dist/flatten/projC-2.4.3d/import.mk > $testDirectory/projC/dist/flatten/projC-2.4.3d/import2.mk
 tail -n +2 $testDirectory/projB/dist/flatten/projB-2.4.2d/import.mk > $testDirectory/projB/dist/flatten/projB-2.4.2d/import2.mk
 
-function testFileExists {
-    if [ ! -f $1 ]; then
-        echo "Error: File $1 doesn't exists"
-        doExit 13
-    fi
-}
-
 testFileExists $testDirectory/repository/NotALinux/projA-1.4.2d.NotALinux.tar.gz
 testFileExists $testDirectory/repository/NotALinux/projB/projB-2.4.2d.NotALinux.tar.gz
 testFileExists $testDirectory/projC/dist/flatten/projC-2.4.3d/lib/libprojC_cpplib.a
 testFileExists $testDirectory/projC/dist/flatten/projC-2.4.3d/lib/libprojC_cpplib.so
 
-function testFile {
-    diff -q $1 $2
-    if [ $? -ne 0 ]; then
-        echo "Error: $1 not equal to $2"
-        doExit 6
-    fi
-}
 testFile $testDirectory/projC/dist/flatten/projC-2.4.3d/import2.mk $MODROOT/test/resources/expected/import2.mk
 testFile $testDirectory/projB/dist/flatten/projB-2.4.2d/import2.mk $MODROOT/test/resources/expected/projB_import2.mk
 

@@ -14,7 +14,7 @@ ALL_PATCHED=$(patsubst patches/%.patch,$(OBJDIR)/%.patched,$(ALL_PATCHES))
 $(OBJS): $(ALL_PATCHED)
 
 # patches for source archive files
-$(OBJDIR)/%.patched: patches/%.patch $(TR_INCLUDE_DIR)/%
+$(OBJDIR)/%.patched: patches/%.patch $(TR_MOD_INCLUDE_DIR)/%
 	@$(ABS_PRINT_info) "Patching $*"
 	@mkdir -p $(@D)
 	@patch -p0 -d $(TRDIR) < $<

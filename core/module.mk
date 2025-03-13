@@ -39,7 +39,8 @@ SPACECHAR=
 # Path to receive external source files
 EXT_SRC_DIR=$(BUILDROOT)/extsrc
 EXT_MODSRC_DIR=$(EXT_SRC_DIR)/$(MODNAME)
-TR_INCLUDE_DIR=$(TRDIR)/include/$(APPNAME)/$(MODNAME)
+TR_APP_INCLUDE_DIR=$(TRDIR)/include/$(APPNAME)
+TR_MOD_INCLUDE_DIR=$(TR_APP_INCLUDE_DIR)/$(MODNAME)
 
 # Buildcript capabilities
 # introduced in buildscrip 0.4, may be used to have some fallback
