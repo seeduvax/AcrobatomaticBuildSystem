@@ -210,6 +210,9 @@ VERSION:=$(VERSION)d
 else
 MODE=release
 endif
+ifneq ($(filter kdistinstall,$(MAKECMDGOALS)),)
+MODE=release
+endif
 ifneq ($(VFLAVOR),)
 VERSION:=$(VERSION)_$(subst $(_space_),_,$(sort $(VFLAVOR)))
 endif
@@ -266,7 +269,6 @@ ifneq ($(filter kdistinstall,$(MAKECMDGOALS)),)
 KMODULES:=$(filter %_lkm,$(MODULES_DEPS))
 MODULES_DEPS:=$(KMODULES)
 MODULES_TARGET:=$(patsubst %,mod.%,$(KMODULES))
-MODE:=release
 endif
 endif # ifeq ($(ABS_FROMAPP),true)
 
