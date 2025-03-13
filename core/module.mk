@@ -224,8 +224,6 @@ include $(ABSROOT)/core/module-util.mk
 clean-module:
 	@$(ABS_PRINT_info) "Cleaning module..."
 	@rm -rf $(TARGETFILE) $(OBJDIR) $(CONFIGFILES)
-	@test ! -d $(EXT_MODSRC_DIR) || rm -rf $(EXT_MODSRC_DIR)
-
 
 # update bootstrap makefile if needed.
 ifneq ($(PRESERVEMAKEFILE),true)
