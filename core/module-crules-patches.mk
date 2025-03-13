@@ -7,6 +7,7 @@
 # The patches are applied from top level of src and include.
 # The patches can only be applied on files from EXT_MODSRC_DIR
 
+ifneq ($(DISABLE_PATCHES),true)
 ifneq ($(wildcard patches),)
 ALL_PATCHES=$(shell find patches/ -type f)
 ALL_PATCHED=$(patsubst patches/%.patch,$(OBJDIR)/%.patched,$(ALL_PATCHES))
@@ -15,15 +16,16 @@ $(OBJS): $(ALL_PATCHED)
 
 # patches for source archive files
 $(OBJDIR)/%.patched: patches/%.patch $(TR_MOD_INCLUDE_DIR)/%
-	@$(ABS_PRINT_info) "Patching $*"
+	@$(ABS_PRINT_info) "Patching $* in $(TR_MOD_INCLUDE_DIR)"
 	@mkdir -p $(@D)
-	@patch -p0 -d $(TRDIR) < $<
+	@patch -p0 -d $(TR_MOD_INCLUDE_DIR) < $<
 	@touch $@
 
 $(OBJDIR)/%.patched: patches/%.patch $(EXT_MODSRC_DIR)/%
-	@$(ABS_PRINT_info) "Patching $*"
+	@$(ABS_PRINT_info) "Patching $* in $(EXT_MODSRC_DIR)"
 	@mkdir -p $(@D)
 	@patch -p0 -d $(EXT_MODSRC_DIR) < $<
 	@touch $@
 
+endif
 endif

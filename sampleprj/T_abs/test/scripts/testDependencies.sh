@@ -72,11 +72,11 @@ if [ $? -ne 0 ]; then
     doExit 2
 fi
 # test extraction of sources from archives.
-testFileExists $testDirectory/projB/build/extsrc/cpplib3/source.cpp
-testFileExists $testDirectory/projB/build/extsrc/cpplib3/source.cpp
+testFileExists $testDirectory/projB/build/extsrc/cpplib3/subdir2/source.cpp
+testFileExists $testDirectory/projB/build/extsrc/cpplib3/subdir2/source.cpp
 # test extraction of includes from archives
-testFileExists $testDirectory/projB/dist/flatten/projB-2.4.2d/include/projB/cpplib3/inc.h
-testFileExists $testDirectory/projB/dist/flatten/projB-2.4.2d/include/projB/cpplib3/inc2.h
+testFileExists $testDirectory/projB/dist/flatten/projB-2.4.2d/include/projB/cpplib3/subdir/inc.h
+testFileExists $testDirectory/projB/dist/flatten/projB-2.4.2d/include/projB/cpplib3/subdir/inc2.h
 
 cd $testDirectory/projD
 ARCH=NotALinux make pubdist ABS_LOG_LEVEL=debug

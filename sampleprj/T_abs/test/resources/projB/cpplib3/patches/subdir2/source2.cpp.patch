@@ -1,0 +1,13 @@
+--- subdir2/source2.cpp	2025-03-13 09:33:38.892308112 +0100
++++ subdir2/source2.cpp	2025-03-13 09:33:54.544307754 +0100
+@@ -1,7 +1,9 @@
+ #include "subdir/inc2.h"
+ 
+ // need to be patched.
+-otoafafa()
++void otoafafa(){
++    
++}
+ 
+ int testSource2() {
+     return 2;
