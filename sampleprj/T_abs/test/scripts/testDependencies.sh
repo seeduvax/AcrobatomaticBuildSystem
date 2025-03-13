@@ -76,9 +76,11 @@ projBObjDir=$projBOutDir/obj
 # test extraction of sources from archives.
 testFileExists $projBObjDir/cpplib3/extsrc/subdir2/source.cpp
 testFileExists $projBObjDir/cpplib3/extsrc/subdir2/source2.cpp
+testFileExists $projBObjDir/cpplib3/extsrc/source3.cpp
 # test extraction of includes from archives
 testFileExists $projBOutDir/include/projB/cpplib3/subdir/inc.h
 testFileExists $projBOutDir/include/projB/cpplib3/subdir/inc2.h
+testFileExists $projBOutDir/include/projB/cpplib3/inc3.hpp
 
 cd $testDirectory/projD
 ARCH=NotALinux make pubdist ABS_LOG_LEVEL=debug
