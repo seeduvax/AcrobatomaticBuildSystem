@@ -83,7 +83,7 @@ define test-synthesis
 endef
 define test-summary
 	@$(ABS_PRINT_info) "#### #### Tests summary #### ####"
-	@for report in `ls build/unit_test_results/*.xml`; do $(ABS_PRINT_info) "Test result: "`basename $$report` ; xsltproc --stringparam mode short $(ABSROOT)/core/xunit2txt.xsl $$report;  done
+	@for report in `ls build/unit_test_results/*.xml`; do $(ABS_PRINT_info) "Test result: `basename $$report`"; $(ABS_PRINT_info) "    `xsltproc --stringparam mode short $(ABSROOT)/core/xunit2txt.xsl $$report`";  done
 endef
 
 testsummary:
