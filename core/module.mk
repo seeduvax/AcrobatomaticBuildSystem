@@ -37,7 +37,9 @@ MODNAME?=$(notdir $(MODROOT))
 # remove some default macros
 SPACECHAR= 
 # Path to receive external source files
-EXT_SRC_DIR=$(BUILDROOT)/extsrc/$(MODNAME)
+EXT_SRC_DIR=$(BUILDROOT)/extsrc
+EXT_MODSRC_DIR=$(EXT_SRC_DIR)/$(MODNAME)
+TR_INCLUDE_DIR=$(TRDIR)/include/$(APPNAME)/$(MODNAME)
 
 # Buildcript capabilities
 # introduced in buildscrip 0.4, may be used to have some fallback
@@ -216,7 +218,7 @@ include $(ABSROOT)/core/module-util.mk
 clean-module:
 	@$(ABS_PRINT_info) "Cleaning module..."
 	@rm -rf $(TARGETFILE) $(OBJDIR) $(CONFIGFILES)
-	@test ! -d $(EXT_SRC_DIR) || rm -rf $(EXT_SRC_DIR)
+	@test ! -d $(EXT_MODSRC_DIR) || rm -rf $(EXT_MODSRC_DIR)
 
 
 # update bootstrap makefile if needed.

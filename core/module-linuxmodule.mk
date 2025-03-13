@@ -62,7 +62,7 @@ define forward-command
 endef
 ALL_SRC_LKM_SRC=$(shell find src \( -name "*.c" -o -name "*.obj" \) $(patsubst %, -a -not -name %,$(DISABLE_SRC)))
 ALL_LKM_SRC=$(patsubst src/%,$(OBJDIR)/%,$(shell find src \( -name "*.c" -o -name "*.obj" \) $(patsubst %, -a -not -name %,$(DISABLE_SRC))))
-ALL_LKM_SRC+=$(patsubst $(ARCHSRC_SRC_DIRECTORY)/%,$(OBJDIR)/%,$(filter-out $(DISABLE_SRC),$(filter %.c %.obj,$(ARCHSRC_SRCFILES))))
+ALL_LKM_SRC+=$(patsubst $(EXT_MODSRC_DIR)/%,$(OBJDIR)/%,$(filter-out $(DISABLE_SRC),$(filter %.c %.obj,$(ARCHSRC_SRCFILES))))
 LKMSRC=$(subst /$(LKMNAME).c,/$(LKMNAME)_main__.c,$(ALL_LKM_SRC))
 
 $(ALL_LKM_SRC): $(ALL_PATCHED)
@@ -73,20 +73,20 @@ EXTRA_CFLAGS+=-I$(OBJDIR)
 $(OBJDIR)/%.c: $(LKMSRCDIR)/%.c
 	$(forward-command)
 
-$(OBJDIR)/%.c: $(ARCHSRC_SRC_DIRECTORY)/%.c
+$(OBJDIR)/%.c: $(EXT_MODSRC_DIR)/%.c
 	$(forward-command)
 
 $(OBJDIR)/%.obj: $(LKMSRCDIR)/%.obj
 	$(forward-command)
 	
-$(OBJDIR)/%.obj: $(ARCHSRC_SRC_DIRECTORY)/%.obj
+$(OBJDIR)/%.obj: $(EXT_MODSRC_DIR)/%.obj
 	$(forward-command)
 
 $(OBJDIR)/%.h: $(LKMSRCDIR)/%.h
 	@mkdir -p $(@D)
 	cp $< $@
 
-$(OBJDIR)/%.h: $(ARCHSRC_SRC_DIRECTORY)/%.h
+$(OBJDIR)/%.h: $(EXT_MODSRC_DIR)/%.h
 	@mkdir -p $(@D)
 	cp $< $@
 	
@@ -95,7 +95,7 @@ $(OBJDIR)/$(LKMNAME)_main__.c: $(OBJDIR)/$(LKMNAME).c
 
 LKMOBJ=$(patsubst $(OBJDIR)/%.obj,%.obj,$(patsubst $(OBJDIR)/%.c,%.o,$(LKMSRC)))
 LKMH=$(patsubst src/%,$(OBJDIR)/%,$(shell find src -name "*.h"))
-LKMH+=$(patsubst $(ARCHSRC_SRC_DIRECTORY)/%,$(OBJDIR)/%,$(filter %.h,$(ARCHSRC_SRCFILES)))
+LKMH+=$(patsubst $(EXT_MODSRC_DIR)/%,$(OBJDIR)/%,$(filter %.h,$(ARCHSRC_SRCFILES)))
 
 $(TRDIR)/include/$(APPNAME)/%: $(PRJROOT)/%/Makefile
 	make -C $(^D)

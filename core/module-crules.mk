@@ -44,11 +44,11 @@ include $(ABSROOT)/core/module-cheaders.mk
 
 # object files : one for each c and cpp file.
 COBJS+=$(patsubst src/%.c,$(OBJDIR)/%.o,$(filter-out $(patsubst %,src/%,$(DISABLE_SRC)),$(filter %.c,$(SRCFILES))))
-COBJS+=$(patsubst $(ARCHSRC_SRC_DIRECTORY)/%.c,$(OBJDIR)/%.o,$(filter-out $(patsubst %,$(ARCHSRC_SRC_DIRECTORY)/%,$(DISABLE_SRC)),$(filter %.c,$(ARCHSRC_SRCFILES))))
+COBJS+=$(patsubst $(EXT_MODSRC_DIR)/%.c,$(OBJDIR)/%.o,$(filter-out $(patsubst %,$(EXT_MODSRC_DIR)/%,$(DISABLE_SRC)),$(filter %.c,$(ARCHSRC_SRCFILES))))
 #COBJS+=$(patsubst src/%.c,$(OBJDIR)/%.o,$(filter-out $(patsubst %,$(EXT_SRC_DIR)/%,$(DISABLE_SRC)),$(filter %.c,$(EXTSRCFILES))))
 CPPOBJS+=$(patsubst src/%.cpp,$(OBJDIR)/%.o,$(filter-out $(patsubst %,src/%,$(DISABLE_SRC)),$(filter %.cpp,$(SRCFILES))))
 CPPOBJS+=$(patsubst $(EXT_SRC_DIR)/%.cpp,$(OBJDIR)/%.o,$(filter-out $(patsubst %,$(EXT_SRC_DIR)/%,$(DISABLE_SRC)),$(filter %.cpp,$(EXTSRCFILES))))
-CPPOBJS+=$(patsubst $(ARCHSRC_SRC_DIRECTORY)/%.cpp,$(OBJDIR)/%.o,$(filter-out $(patsubst %,$(ARCHSRC_SRC_DIRECTORY)/%,$(DISABLE_SRC)),$(filter %.cpp,$(ARCHSRC_SRCFILES))))
+CPPOBJS+=$(patsubst $(EXT_MODSRC_DIR)/%.cpp,$(OBJDIR)/%.o,$(filter-out $(patsubst %,$(EXT_MODSRC_DIR)/%,$(DISABLE_SRC)),$(filter %.cpp,$(ARCHSRC_SRCFILES))))
 RESSRC:=$(filter src/embedded_lua/%.lua src/res/%,$(SRCFILES))
 GENSRC+=$(patsubst src/%,$(OBJDIR)/%.c,$(RESSRC))
 GENOBJS+=$(patsubst %.c,%.o,$(filter %.c,$(GENSRC)))
@@ -64,7 +64,7 @@ endif
 OBJS:=$(sort $(OBJS))
 OBJS_NO_VINFO:=$(filter-out $(OBJDIR)/vinfo.o,$(OBJS))
 
-RES_HEADER=$(TRDIR)/include/$(APPNAME)/$(MODNAME)/res.h
+RES_HEADER=$(TR_INCLUDE_DIR)/res.h
 
 # includes dependencies
 -include $(patsubst %.o,%.o.d,$(OBJS))
@@ -101,7 +101,7 @@ $(OBJDIR)/%.o: $(EXT_SRC_DIR)/%.c
 	$(cc-command)
 	
 # external C file compilation
-$(OBJDIR)/%.o: $(ARCHSRC_SRC_DIRECTORY)/%.c
+$(OBJDIR)/%.o: $(EXT_MODSRC_DIR)/%.c
 	$(cc-command)
 
 # from idl generated cpp files compilation
@@ -121,7 +121,7 @@ $(OBJDIR)/%.o: $(EXT_SRC_DIR)/%.cpp
 	$(cxx-command)
 
 # external cpp files compilation
-$(OBJDIR)/%.o: $(ARCHSRC_SRC_DIRECTORY)/%.cpp
+$(OBJDIR)/%.o: $(EXT_MODSRC_DIR)/%.cpp
 	$(cxx-command)
 
 # link target from objects
