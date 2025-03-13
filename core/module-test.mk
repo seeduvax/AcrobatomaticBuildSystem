@@ -57,7 +57,7 @@ TCPPOBJS=$(patsubst test/%.cpp,$(OBJDIR)/test/%.o,$(filter %.cpp,$(TSRCFILES))) 
 		$(patsubst test/%.c,$(OBJDIR)/test/%.o,$(filter %.c,$(TSRCFILES)))
 
 # compiler options specific to test
-TCFLAGS+=$(patsubst %,-I../%/include,$(TESTUSEMOD))
+TCFLAGS+=$(patsubst %,-I$(PRJROOT)/%/include,$(TESTUSEMOD))
 
 # linker options specific to test
 TLDFLAGS+=-L$(TRDIR)/$(SODIR) $(patsubst %,-l$(APPNAME)_%,$(TESTUSEMOD)) $(patsubst %,-l%,$(TLINKLIB))
@@ -104,7 +104,7 @@ endif
 
 # add extra libs required only for testing
 # add cppunit import makefile
-# include $(patsubst %,$(EXTLIBDIR)/%/import.mk,$(CPPUNIT))
+include $(patsubst %,$(NDEXTLIBDIR)/%/import.mk,$(CPPUNIT))
 
 TLDLIBP=$(LDLIBP):$(subst $(_space_),:,$(patsubst -L%,%,$(filter -L%,$(TLDFLAGS))))
 

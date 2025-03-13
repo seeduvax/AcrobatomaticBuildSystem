@@ -177,7 +177,7 @@ include $(foreach entry,$(SVN_CHECKOUTS),$(patsubst %,$(EXT_SRC_DIR)/svn/%/.mk,$
 
 endif
 
-include $(ABSROOT)/core/module-archive.mk
+include $(ABSROOT)/core/module-srcarchive.mk
 
 # -------------------------------------------------
 # module type adaptation
