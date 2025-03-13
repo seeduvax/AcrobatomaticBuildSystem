@@ -103,8 +103,6 @@ else
 endif
 
 # add extra libs required only for testing
-# add cppunit import makefile
-include $(patsubst %,$(NDEXTLIBDIR)/%/import.mk,$(CPPUNIT))
 
 TLDLIBP=$(LDLIBP):$(subst $(_space_),:,$(patsubst -L%,%,$(filter -L%,$(TLDFLAGS))))
 
@@ -173,6 +171,9 @@ $(TSRCFILES):
 endif
 
 ifneq ($(wildcard test/Main.cpp),)
+
+# add cppunit import makefile
+include $(patsubst %,$(NDEXTLIBDIR)/%/import.mk,$(CPPUNIT))
 
 # Variable to handle the filter of some test files defined in FILTER_TEST_FILES.
 # The files in FILTER_TEST_FILES must start with 'test/'.
