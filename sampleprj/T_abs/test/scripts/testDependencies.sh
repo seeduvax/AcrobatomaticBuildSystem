@@ -71,12 +71,14 @@ if [ $? -ne 0 ]; then
     echo "Error while executing make pubdist on projB"
     doExit 2
 fi
+projBOutDir=$testDirectory/projB/dist/flatten/projB-2.4.2d
+projBObjDir=$projBOutDir/obj
 # test extraction of sources from archives.
-testFileExists $testDirectory/projB/build/extsrc/cpplib3/subdir2/source.cpp
-testFileExists $testDirectory/projB/build/extsrc/cpplib3/subdir2/source.cpp
+testFileExists $projBObjDir/cpplib3/extsrc/subdir2/source.cpp
+testFileExists $projBObjDir/cpplib3/extsrc/subdir2/source2.cpp
 # test extraction of includes from archives
-testFileExists $testDirectory/projB/dist/flatten/projB-2.4.2d/include/projB/cpplib3/subdir/inc.h
-testFileExists $testDirectory/projB/dist/flatten/projB-2.4.2d/include/projB/cpplib3/subdir/inc2.h
+testFileExists $projBOutDir/include/projB/cpplib3/subdir/inc.h
+testFileExists $projBOutDir/include/projB/cpplib3/subdir/inc2.h
 
 cd $testDirectory/projD
 ARCH=NotALinux make pubdist ABS_LOG_LEVEL=debug
@@ -97,6 +99,14 @@ if [ $? -ne 0 ]; then
     echo "Error while executing make pubinstall on projC"
     doExit 5
 fi
+projCOutDir=$testDirectory/projC/dist/flatten/projC-2.4.3d
+projCObjDir=$projCOutDir/obj
+# test extraction of sources from archives.
+testFileExists $projCObjDir/cpplib/extsrc/archive1/subdir2/source.cpp
+testFileExists $projCObjDir/cpplib/extsrc/archive2/subdir2/source2.cpp
+# test extraction of includes from archives
+testFileExists $projCOutDir/include/projC/cpplib/archive1/subdir/inc.h
+testFileExists $projCOutDir/include/projC/cpplib/archive2/subdir/inc2.h
 
 tail -n +2 $testDirectory/projC/dist/flatten/projC-2.4.3d/import.mk > $testDirectory/projC/dist/flatten/projC-2.4.3d/import2.mk
 tail -n +2 $testDirectory/projB/dist/flatten/projB-2.4.2d/import.mk > $testDirectory/projB/dist/flatten/projB-2.4.2d/import2.mk
