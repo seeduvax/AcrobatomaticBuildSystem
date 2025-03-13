@@ -149,6 +149,7 @@ $(ABSWS_NDNA_EXTLIBDIR)/%/import.mk: $(ABS_CACHE)/noarch/%.tar.gz
 
 define extlib_linkLibrary
 	@mkdir -p `dirname $(@D)`
+	@mkdir -p $(TRDIR)
 	@test -d $(@D) && rm $(@D) || true
 	@$(LNDIR) $(<D) $(@D)
 	@function createSymLinks() { \
@@ -174,7 +175,7 @@ define extlib_linkLibrary
 		done ;\
 	} ;\
 	if [[ ! "$(TRDIR)" == *"/dist/flatten/"* ]]; then \
-		$(ABS_PRINT_debug) "Creating symlinks for $$(basename $(@D)) dependency ..." ;\
+		$(ABS_PRINT_debug) "Creating symlinks for $$(basename $(@D)) dependency to $(TRDIR) ..." ;\
 		for extd in etc share; do createSymLinks $(<D) $$extd $(TRDIR); done ;\
 	fi
 endef
@@ -347,7 +348,7 @@ endif
 # Print warning or fail according strict checking mode when
 # USELIB check has detected inconsistencies
 # --------------------------------
-ifneq ($(MAKECMDGOALS),checkdep)
+ifneq ($(MAKECMDGOALS),checkdep%)
 ifeq ($(DEPENDENCIES_ERROR),true)
 ifneq ($(ABS_STRICT_DEP_CHECK),)
 $(call abs_error,================================================================)
@@ -390,6 +391,8 @@ endif
 ## Targets:
 ##  - checkdep: show currently defined dependencies (full graph including
 ##    dependencies of dependencies).
+##  - checkdeptest: show currently defined dependencies including test (full graph including
+##    dependencies of dependencies).
 ifneq ($(USELIB),)
 $(BUILDROOT)/$(APPNAME)_deps.dot: $(PRJROOT)/app.cfg
 	@$(ABS_PRINT_info) "Generating project dependency graph."
@@ -398,20 +401,42 @@ $(BUILDROOT)/$(APPNAME)_deps.dot: $(PRJROOT)/app.cfg
 	@printf ' $(foreach dep,$(ADDEDDEPLIST),$(dep);\n)' | sort -u | sed -e 's/d";$$/d"\[color="orange"\];/g'>> $@
 	@echo "}" >> $@
 	@dot -Tpng $@ > $@.png
+	
+$(BUILDROOT)/$(APPNAME)_testdeps.dot: $(PRJROOT)/app.cfg
+	@$(ABS_PRINT_info) "Generating project dependency graph."
+	@printf 'digraph deps {\ngraph [rankdir="LR",ranksep=1];\nnode [width=2, shape=box, style="rounded"];\n' > $@
+	@printf ' $(foreach dep,$(USELIB) $(TUSELIB),"$(APPNAME)-$(VERSION)"->"$(dep)";\n)' | sed -e 's/d";$$/d"\[color="orange"\];/g'>> $@
+	@printf ' $(foreach dep,$(ADDEDDEPLIST),$(dep);\n)' | sort -u | sed -e 's/d";$$/d"\[color="orange"\];/g'>> $@
+	@echo "}" >> $@
+	@dot -Tpng $@ > $@.png
 
 checkdep: $(BUILDROOT)/$(APPNAME)_deps.dot
 	@$(ABS_PRINT_info) "Launching image viewer to display the generated dependency graph $<.png."
 	@$(ABS_PRINT_info) "Close image viewer to continue or hit Ctrl-C to stop here."
 	@xdot $< 2>/dev/null || eog $<.png 2>/dev/null || xdg-open $<.png 2>/dev/null || $(ABS_PRINT_error) "No image viewer found (expected one of: xdot, eog, xdg-open)"
+	
+
+checkdeptest: $(BUILDROOT)/$(APPNAME)_testdeps.dot
+	@$(ABS_PRINT_info) "Launching image viewer to display the generated dependency graph $<.png."
+	@$(ABS_PRINT_info) "Close image viewer to continue or hit Ctrl-C to stop here."
+	@xdot $< 2>/dev/null || eog $<.png 2>/dev/null || xdg-open $<.png 2>/dev/null || $(ABS_PRINT_error) "No image viewer found (expected one of: xdot, eog, xdg-open)"
+
 else
 checkdep:
+	@$(ABS_PRINT_info) "No dependencies set in USELIB project parameter."
+
+checkdeptest:
 	@$(ABS_PRINT_info) "No dependencies set in USELIB project parameter."
 endif
 endif
 
-##  - getdep: download dependencies
 getdep: $(EXTLIBMAKES)
 	@:
 
+##  - getdeps: download dependencies
 getdeps: $(EXTLIBMAKES)
+	@:
+
+##  - getdepstest: download dependencies (test dependencies too)
+getdepstest: getdeps
 	@:

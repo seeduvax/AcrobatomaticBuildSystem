@@ -35,7 +35,7 @@ endif
 MODNAME?=$(notdir $(MODROOT))
 
 # remove some default macros
-# the variable CC, LD, AR are already set by make
+# the variable CC, CXX, LD, AR, ... are builtin variables already set by make
 CC=
 CPPC=
 LD=
@@ -236,7 +236,7 @@ endif
 ### ---------------------------------------------------------------------
 ###  Dependencies beetween modules management
 ### ---------------------------------------------------------------------
-ifeq ($(filter clean% new% showvar checkdep getdep%,$(MAKECMDGOALS)),)
+ifeq ($(filter clean% new% showvar,$(MAKECMDGOALS)),)
 
 include $(PRJOBJDIR)/$(MODNAME)/moddeps.mk
 
@@ -248,9 +248,9 @@ $(PRJOBJDIR)/%/.depready:
 	@mkdir -p $(@D)
 	@echo "# "`date` > $@
 
-ifeq ($(filter $(APPNAME)_$(NOBUILD),$(ABS_INCLUDE_MODS)),)
-include $(PRJOBJDIR)/$(MODNAME)/.depready
-else
+$(OBJS): $(PRJOBJDIR)/$(MODNAME)/.depready
+
+ifneq ($(filter $(APPNAME)_$(NOBUILD),$(ABS_INCLUDE_MODS)),)
 $(error $(MODNAME): can't build because of deactivated dependency: $(filter $(APPNAME)_$(NOBUILD),$(ABS_INCLUDE_MODS)))
 endif
 

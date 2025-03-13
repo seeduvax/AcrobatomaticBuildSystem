@@ -245,7 +245,7 @@ $(PRJOBJDIR)/%/moddeps.mk: $(PRJROOT)/%/module.cfg
 	@+make -C $(PRJROOT)/$* --no-print-directory PRJROOT="$(PRJROOT)" TRDIR="$(TRDIR)" PRJOBJDIR="$(PRJOBJDIR)" -f $(ABSROOT)/core/module-depends.mk
 
 
-ifeq ($(filter clean% docker% getdeps,$(MAKECMDGOALS)),)
+ifeq ($(filter clean% docker% getdeps%,$(MAKECMDGOALS)),)
 
 ALL_PROJ_MODULES=$(patsubst $(PRJROOT)/%/module.cfg,%,$(wildcard $(PRJROOT)/*/module.cfg))
 # PROJECT_MODS permit to filter project modules in INCLUDE_MODS or ABS_INCLUDE_MODS variable for example.

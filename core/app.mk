@@ -123,10 +123,6 @@ All:
 # User can have not the right to modify permission, but have the right to remove elements. => not failed on chmod error.
 clean: cleandist cleanbuild
 
-##  - loadDependencies: load all the dependencies of the project.
-loadDependencies: app.cfg
-	@$(ABS_PRINT_info) "Dependencies loaded"
-
 #   - cleanbuild: remove the build directory
 cleanbuild:
 	@$(ABS_PRINT_info) "Cleaning build ..."

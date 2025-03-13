@@ -74,8 +74,8 @@ TESTSRCFILES:=$(wildcard $(PRJROOT)/*/test/Test*.cpp)
 ifneq ($(TESTSRCFILES),)
 $(OBJDIR)/testdefindex.heml: $(TESTSRCFILES)
 	@$(ABS_PRINT_info) "Generating automated test cases index..."
-	echo "{testdef" > $@
-	for testmoduledir in $(PRJROOT)/* ; do \
+	@echo "{testdef" > $@
+	@for testmoduledir in $(PRJROOT)/* ; do \
 	  echo $$testmoduledir ; \
 	  test -d "$$testmoduledir/test" && echo " {testmodule %name="`basename "$$testmoduledir"` >> $@ || : ; \
 	  for testcasefile in "$$testmoduledir/test/Test"*.cpp ; do \
@@ -87,7 +87,7 @@ $(OBJDIR)/testdefindex.heml: $(TESTSRCFILES)
 	  done ; \
 	  test -d "$$testmoduledir/test" && echo " }" >> $@ || : ; \
 	done
-	echo "}" >> $@
+	@echo "}" >> $@
 else
 $(OBJDIR)/testdefindex.heml:
 	@touch $@
