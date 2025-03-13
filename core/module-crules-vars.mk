@@ -18,11 +18,22 @@ CFLAGS+=-Iinclude -I$(TRDIR)/include -Wa,-mbig-obj
 endif
 
 # default C/C++ commands and flags
+# test if not empty because can be set by imported BUILDCHAIN.
+ifeq ($(CC),)
 CC=$(CROSS_PREFIX)gcc
+endif
+ifeq ($(CPPC),)
 CPPC=$(CROSS_PREFIX)g++
+endif
+ifeq ($(AR),)
 AR=$(CROSS_PREFIX)ar
+endif
+ifeq ($(LD),)
 LD=$(CROSS_PREFIX)g++
+endif
+ifeq ($(OBJCOPY),)
 OBJCOPY=$(CROSS_PREFIX)objcopy
+endif
 
 AREXT?=a
 SODIR?=lib
