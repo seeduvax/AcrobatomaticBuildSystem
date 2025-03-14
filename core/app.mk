@@ -7,7 +7,6 @@
 ## --------------------------------------------------------------------
 
 ABS_FROMAPP:=true
-export ABS_FROMAPP
 
 ## 
 ## Make variables:
