@@ -1,10 +1,11 @@
 # Creation of default variables for cross compilation
+# CROSS_COMPILE is a wide spread variable name used for cross compilation.
 ifeq ($(CROSS_ARCH),mingw)
-CROSS_PREFIX?=x86_64-w64-mingw32-
+CROSS_COMPILE?=x86_64-w64-mingw32-
 ARCH_EXECUTOR?=wine
 else
 ifneq ($(CROSS_ARCH),)
-CROSS_PREFIX?=$(CROSS_ARCH)-linux-gnu-
+CROSS_COMPILE?=$(CROSS_ARCH)-linux-gnu-
 ARCH_EXECUTOR?=qemu-$(CROSS_ARCH)-static
 endif
 endif
@@ -20,19 +21,19 @@ endif
 # default C/C++ commands and flags
 # test if not empty because can be set by imported BUILDCHAIN.
 ifeq ($(CC),)
-CC=$(CROSS_PREFIX)gcc
+CC=$(CROSS_COMPILE)gcc
 endif
 ifeq ($(CPPC),)
-CPPC=$(CROSS_PREFIX)g++
+CPPC=$(CROSS_COMPILE)g++
 endif
 ifeq ($(AR),)
-AR=$(CROSS_PREFIX)ar
+AR=$(CROSS_COMPILE)ar
 endif
 ifeq ($(LD),)
-LD=$(CROSS_PREFIX)g++
+LD=$(CROSS_COMPILE)g++
 endif
 ifeq ($(OBJCOPY),)
-OBJCOPY=$(CROSS_PREFIX)objcopy
+OBJCOPY=$(CROSS_COMPILE)objcopy
 endif
 
 AREXT?=a

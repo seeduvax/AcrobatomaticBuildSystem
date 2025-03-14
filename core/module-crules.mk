@@ -31,7 +31,7 @@
 ##  - CROSS_ARCH: Architecture for cross compilation. (ex: aarch64, mingw, ...)
 ##  - ARCH_EXECUTOR: the executable used to execute cross-compiled binaries
 ##    Ex: on a aarch64, can be qemu-aarch64-static
-##  - CROSS_PREFIX: Prefix for cross-compilation compilers
+##  - CROSS_COMPILE: Prefix for cross-compilation compilers
 ##    Ex: on a aarch64, can be aarch-linux-gnu-
 ##  - CFLAGS: CFLAGS for C/C++ compilations.
 ##  - CXXFLAGS: CXXFLAGS for C++ compilations.
