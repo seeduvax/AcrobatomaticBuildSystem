@@ -66,7 +66,7 @@ if [ $? -ne 0 ]; then
 fi
 
 cd $testDirectory/projB
-ARCH=NotALinux make ABS_LOG_LEVEL=debug
+ARCH=NotALinux make ABS_LOG_LEVEL=debug  MODE=debug
 if [ $? -ne 0 ]; then
     echo "Error while executing make on projB"
     doExit 2
@@ -85,7 +85,7 @@ testFileExists $projBOutDir/include/projB/cpplib3/inc3.hpp
 # test patches generation
 echo "#### Launch generation patches"
 projBOUtPatchesDir=$testDirectory/projBPatches
-ARCH=NotALinux make generatePatches -C cpplib3 ARCHSRC_GENE_PATCHES_OUT=$projBOUtPatchesDir
+ARCH=NotALinux make generatePatches -C cpplib3 ARCHSRC_GENE_PATCHES_OUT=$projBOUtPatchesDir MODE=debug
 if [ $? -ne 0 ]; then
     echo "Error while executing make generatePatches on projB"
     doExit 3
