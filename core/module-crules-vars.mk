@@ -115,7 +115,7 @@ TARGETARCHIVE=$(TARGETDIR)/$(patsubst %.$(SOEXT),%.$(AREXT),$(TARGET_LIB))
 
 # LDFLAGS permit to get the created .so that are not MODTYPE library.
 # this variable must be evaluated at the use time because at declaration time, the dependencies are not generated yet.
-INCLUDE_PROJ_MODS=$(filter-out $(MODNAME),$(patsubst $(APPNAME)_%,%,$(filter $(PROJECT_MODS),$(sort $(ABS_INCLUDE_MODS)))))
+INCLUDE_PROJ_MODS=$(filter-out $(MODNAME),$(patsubst $(APPNAME)_%,%,$(filter $(PROJECT_INC_MODS),$(sort $(ABS_INCLUDE_MODS)))))
 LDFLAGS+=-L$(TRDIR)/$(SODIR) $(foreach mod,$(INCLUDE_PROJ_MODS),$(if $(wildcard $(TRDIR)/$(SODIR)/$(SOPFX)$(APPNAME)_$(mod).$(SOEXT)),-l$(APPNAME)_$(mod),)$(if $(wildcard $(TRDIR)/$(SODIR)/$(SOPFX)$(mod).$(SOEXT)),-l$(mod),))
 LDFLAGS+=-L$(TRDIR)/$(SODIR) $(foreach mod,$(INCLUDE_PROJ_MODS),$(if $(wildcard $(TRDIR)/$(SODIR)/$(SOPFX)$(APPNAME)_$(mod).$(AREXT)),-l$(APPNAME)_$(mod),)$(if $(wildcard $(TRDIR)/$(SODIR)/$(SOPFX)$(mod).$(AREXT)),-l$(mod),))
 
@@ -126,7 +126,7 @@ CFLAGS+=$(foreach mod,$(INCLUDE_MODS),$(if $(_app_$(mod)_dir),-I$(_app_$(mod)_di
 CFLAGS+=$(foreach mod,$(INCLUDE_MODS),$(if $(_module_$(mod)_dir),-I$(_module_$(mod)_dir)/include,))
 LDFLAGS+=$(patsubst %,-l%,$(LINKLIB))
 
-INCLUDE_MODS_EXT=$(filter-out $(PROJECT_MODS),$(sort $(ABS_INCLUDE_MODS))) $(LINKLIB)
+INCLUDE_MODS_EXT=$(filter-out $(PROJECT_INC_MODS),$(sort $(ABS_INCLUDE_MODS))) $(LINKLIB)
 INCLUDE_MODS_EXT_LOOKING_PATHS=$(sort $(foreach modExt,$(INCLUDE_MODS_EXT),$(_module_$(modExt)_dir) $(_app_$(modExt)_dir)))
 INCLUDE_MODS_EXT_CPATHS=$(foreach path,$(INCLUDE_MODS_EXT_LOOKING_PATHS),$(wildcard $(path)/include))
 CFLAGS+=$(foreach extPath,$(INCLUDE_MODS_EXT_CPATHS),-I$(extPath))
@@ -142,7 +142,7 @@ LDFLAGS+=$(foreach extPath,$(EXT_LIBS_WITHOUT_JSON_LDPATHS),-L$(extPath))
 endif
 
 # library dir list (to be forwarded to LD_LIBRARY_PATH env var before running the app)
-LDLIBP=$(subst $(_space_),:,$(patsubst -%,,$(patsubst -L%,%,$(filter -L%,$(LDFLAGS)))))
+LDLIBP=$(subst $(_space_),:,$(patsubst -L%,%,$(filter -L%,$(LDFLAGS))))
 RUNPATH:=$(TRDIR)/bin$(subst $(_space_),,$(patsubst %,:$(EXTLIBDIR)/%/bin,$(USELIB))):$(PATH)
 
 LDRUNP?=$$ORIGIN/../lib
@@ -277,6 +277,7 @@ define ld-command-lib
 @$(ABS_PRINT_info) "Linking $@ ..."
 @mkdir -p $(TARGETDIR)
 @echo `$(TRACE_DATE_CMD)`"> LD_RUN_PATH='"'$(LDRUNP)'"' LD_LIBRARY_PATH=$(LDLIBP) $(LD) -o $@ $(OBJS) $(LDFLAGS)" >> $(BUILDLOG)
+@echo `$(TRACE_DATE_CMD)`"> $(MODNAME) linked to $(sort $(patsubst -l%,%,$(filter -l%,$(LDFLAGS))))" >> $(BUILDLOG)
 @LD_RUN_PATH='$(LDRUNP)' LD_LIBRARY_PATH=$(LDLIBP) $(LD) -o $@ $(OBJS) $(LDFLAGS)
 endef
 define ld-command-exe
@@ -294,6 +295,7 @@ define ld-command-exe
 @$(ABS_PRINT_info) "Linking $@ ..."
 @mkdir -p $(TARGETDIR) $(CYGTARGETDIR)
 @echo `$(TRACE_DATE_CMD)`"> $(LD) -shared -o $(CYGTARGETDIR)/$(CYGTARGET) -Wl,--out-implib=$@ -Wl,--export-all-symbols -Wl,--enable-auto-import -Wl,--whole-archive $(OBJS) -Wl,--no-whole-archive $(LDFLAGS)" >> $(BUILDLOG)
+@echo `$(TRACE_DATE_CMD)`"> $(MODNAME) linked to $(sort $(patsubst -l%,%,$(filter -l%,$(LDFLAGS))))" >> $(BUILDLOG)
 @$(LD) -o $@ \
 	-Wl,--enable-auto-import $(OBJS) $(LDFLAGS)
 endef

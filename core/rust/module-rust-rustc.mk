@@ -40,7 +40,7 @@ RUSTLIBDIR=$(TRDIR)/lib
 
 RUSTLIBS=$(foreach MOD,$(USEMOD),--extern $(MOD)=$(RUSTLIBDIR)/librust_$(APPNAME)_$(MOD).so)
 
-INCLUDE_MODS_EXT=$(filter-out $(PROJECT_MODS),$(sort $(ABS_INCLUDE_MODS))) $(LINKLIB)
+INCLUDE_MODS_EXT=$(filter-out $(PROJECT_INC_MODS),$(sort $(ABS_INCLUDE_MODS))) $(LINKLIB)
 INCLUDE_MODS_EXT_LOOKING_PATHS=$(sort $(foreach modExt,$(INCLUDE_MODS_EXT),$(_module_$(modExt)_dir) $(_app_$(modExt)_dir)))
 INCLUDE_MODS_EXT_LDPATHS+=$(foreach path,$(INCLUDE_MODS_EXT_LOOKING_PATHS),$(filter-out %/library.json,$(wildcard $(path)/lib*)))
 LDFLAGS+=$(foreach extPath,$(INCLUDE_MODS_EXT_LDPATHS),-L$(extPath))

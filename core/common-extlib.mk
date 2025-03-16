@@ -421,13 +421,13 @@ checkdeptest: $(BUILDROOT)/$(APPNAME)_testdeps.dot
 	@$(ABS_PRINT_info) "Close image viewer to continue or hit Ctrl-C to stop here."
 	@xdot $< 2>/dev/null || eog $<.png 2>/dev/null || xdg-open $<.png 2>/dev/null || $(ABS_PRINT_error) "No image viewer found (expected one of: xdot, eog, xdg-open)"
 
-else
+else #ifneq ($(USELIB),)
 checkdep:
 	@$(ABS_PRINT_info) "No dependencies set in USELIB project parameter."
 
 checkdeptest:
 	@$(ABS_PRINT_info) "No dependencies set in USELIB project parameter."
-endif
+endif #ifneq ($(USELIB),)
 endif
 
 getdep: $(EXTLIBMAKES)

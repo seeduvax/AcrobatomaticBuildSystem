@@ -60,13 +60,6 @@ CPPOBJS:=
 OBJS:=
 GENSRC:=
 GENOBJS:=
-LUA_MDL_ENABLE:=
-LUA_MDL_TYPES_FILE:=
-LUA_MDL_MODEL_HEADERS:=
-
-# Level of dependency management
-# Possible values: DISABLED, FIRST, NEXT
-DEPS_MNGMT_LEVEL?=FIRST
 
 include $(ABSROOT)/core/common.mk
 
@@ -105,10 +98,6 @@ endif
 OBJDIR?=$(PRJOBJDIR)/$(MODNAME)
 # log containing all commands executed to generate objects
 BUILDLOG=$(PRJOBJDIR)/build.log
-
-# these variables will be modified later by reading module.mk files.
-ABS_INCLUDE_MODS+=
-ABS_INCLUDE_TESTMODS+=
 
 ## 
 ## Common make targets:

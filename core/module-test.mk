@@ -63,7 +63,7 @@ TCFLAGS+=$(patsubst %,-I$(PRJROOT)/%/include,$(TESTUSEMOD))
 TLDFLAGS+=-L$(TRDIR)/$(SODIR) $(patsubst %,-l$(APPNAME)_%,$(TESTUSEMOD)) $(patsubst %,-l%,$(TLINKLIB))
 TLDFLAGS+=$(patsubst %,-L$(TRDIR)/$(SODIR),$(TESTUSEMOD))
 
-INCLUDE_TESTMODS_EXT=$(filter-out $(PROJECT_MODS),$(sort $(TLINKLIB)))
+INCLUDE_TESTMODS_EXT=$(filter-out $(PROJECT_INC_MODS),$(sort $(TLINKLIB)))
 
 INCLUDE_TESTMODS_EXT_LOOKING_PATHS=$(sort $(foreach modExt,$(INCLUDE_TESTMODS_EXT),$(_module_$(modExt)_dir) $(_app_$(modExt)_dir)))
 INCLUDE_TESTMODS_EXT_CPATHS=$(foreach path,$(INCLUDE_TESTMODS_EXT_LOOKING_PATHS),$(wildcard $(path)/include))
@@ -144,11 +144,13 @@ endif
 ifneq ($(ISWINDOWS),true)
 define ld-test
 @$(ABS_PRINT_info) "Linking $@ ..."
+@echo `$(TRACE_DATE_CMD)`"> t_$(MODNAME) linked to $(sort $(patsubst -l%,%,$(filter -l%,$(TLDFLAGS))))" >> $(BUILDLOG)
 @$(LD) -o $@ $(TCPPOBJS) $(TLDFLAGS) $(LDFLAGS)
 endef
 else
 define ld-test
 @$(ABS_PRINT_info) "Linking $(TCYGTARGET) ..."
+@echo `$(TRACE_DATE_CMD)`"> t_$(MODNAME) linked to $(sort $(patsubst -l%,%,$(filter -l%,$(TLDFLAGS))))" >> $(BUILDLOG)
 @$(LD) -shared -o $(TCYGTARGET) -Wl,--out-implib=$@\
 	-Wl,--export-all-symbols -Wl,--enable-auto-import -Wl,--whole-archive $(TCPPOBJS) -Wl,--no-whole-archive $(TLDFLAGS) $(LDFLAGS)
 endef

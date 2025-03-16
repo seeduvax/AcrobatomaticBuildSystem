@@ -12,7 +12,7 @@ include $(ABSROOT)/core/module-cheaders.mk
 
 include $(ABSROOT)/core/module-crules-patches.mk
 
-EXTRA_SIMVERS:=$(patsubst %,$(TRDIR)/obj/%/Module.symvers,$(USELKMOD))
+EXTRA_SIMVERS:=$(patsubst %,$(PRJOBJDIR)/%/Module.symvers,$(USELKMOD))
 CFGFILES:=$(patsubst %,$(TRDIR)/%,$(shell find etc -type f -a \( -name $(LKMNAME).conf -o -name $(LKMNAME) \)))
 SERVICEFILES:=$(patsubst %,$(TRDIR)/%,$(shell find etc -name $(LKMNAME).service))
 INITSFILES:=$(patsubst %,$(TRDIR)/%,$(shell find etc -type f -name $(LKMNAME)))
