@@ -5,14 +5,33 @@
 ## --------------------------------------------------------------------
 ## Application level build services
 ## --------------------------------------------------------------------
-
-ABS_FROMAPP:=true
-
 ## 
 ## Make variables:
 ## 
-
 include $(ABSROOT)/core/common.mk
+
+ifeq ($(MODULES),)
+# search for module only if not explicitely defined from app.cfg.
+MODULES:=$(ALL_PROJ_MODULES)
+MODULES_DEPS:=$(filter-out $(NOBUILD),$(MODULES))
+else
+MODULES_DEPS:=$(MODULES)
+endif # ifeq ($(MODULES),)
+
+ifneq ($(filter kdistinstall,$(MAKECMDGOALS)),)
+KMODULES:=$(filter %_lkm,$(MODULES_DEPS))
+MODULES_DEPS:=$(KMODULES)
+endif
+
+MODULES_TO_BUILD:=$(patsubst %,$(PRJOBJDIR)/%/moddeps.mk,$(MODULES_DEPS))
+
+# TODO why not checkdep% ?
+ifeq ($(filter clean% docker% getdeps% checkdep%,$(MAKECMDGOALS)),)
+ifneq ($(MODULES_TO_BUILD),)
+include $(MODULES_TO_BUILD)
+endif
+endif # ifeq ($(filter clean% docker%,$(MAKECMDGOALS)),)
+
 
 MODULES_TARGET:=$(patsubst %,$(PRJOBJDIR)/%/.done,$(MODULES_DEPS)) $(patsubst %,warnnobuild.%,$(NOBUILD))
 MODULES_TEST:=$(filter-out $(patsubst %,testmod.%,$(NOBUILD) $(NOTEST)),$(patsubst %,testmod.%,$(MODULES))) $(patsubst %,warnnotest.%,$(NOTEST) $(NOBUILD))
@@ -131,8 +150,12 @@ cleanbuild:
 	@rm -rf build
 	@! test -f $(CLANGD_DB) || rm $(CLANGD_DB)
 
+define checkModName
+MODNAME=`grep -E "^MODNAME" $1/module.cfg | sed -E 's/.*=(.*)/\1/g'` && test "$$MODNAME" = "$1" || test -z "$$MODNAME" || $(ABS_PRINT_warning) "The name of the module $$MODNAME doesn't match the name of the module directory $1. This can have side effects."
+endef
+
 $(PRJOBJDIR)/%/.depready::
-	@MODNAME=`cat $*/module.cfg | grep -E "^MODNAME" | sed -E 's/.*=(.*)/\1/g'` && test "$$MODNAME" = "$*" || $(ABS_PRINT_warning) "The name of the module $$MODNAME doesn't match the name of the module directory $*. This can have side effects."
+	@$(call checkModName,$*)
 	@mkdir -p $(@D)
 	@mkdir -p $(TRDIR)/.abs/content
 	@echo "# "`date` > $@
@@ -140,7 +163,7 @@ $(PRJOBJDIR)/%/.depready::
 $(PRJOBJDIR)/%/.done: $(PRJOBJDIR)/%/.depready
 	@$(ABS_PRINT_info) "==============="
 	@$(ABS_PRINT_info) "Building module $*..."
-	@MODNAME=`cat $*/module.cfg | grep -E "^MODNAME" | sed -E 's/.*=(.*)/\1/g'` && test "$$MODNAME" = "$*" || $(ABS_PRINT_warning) "The name of the module $$MODNAME doesn't match the name of the module directory $*. This can have side effects."
+	@$(call checkModName,$*)
 	@mkdir -p $(@D)
 	@mkdir -p $(TRDIR)/.abs/content
 	@touch $(TRDIR)/obj/$*/files.ts

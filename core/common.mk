@@ -15,7 +15,6 @@ ABSROOT?=$(ABSWS)/abs-$(VABS)
 # to avoid ancient sh behaviour on debian
 SHELL=/bin/bash
 
-
 # ------------------------------------------------------
 # macro for pretty message print, use color if available
 COLORS_TCAP:=$(shell ncolors=`tput colors 2>/dev/null` ; ( [ "$$ncolors" != "" ] && [ "$$ncolors" -ge 0 ] ) && echo yes || echo no)
@@ -198,7 +197,7 @@ endif
 # process BUILDCHAIN after re-include because NDUSELIB can be resetted
 ifneq ($(BUILDCHAIN),)
 NDUSELIB+=$(BUILDCHAIN)
-VFLAVOR+= $(BUILDCHAIN)
+VFLAVOR+=$(BUILDCHAIN)
 endif
 
 # identify dev version from tagged version, only when version is not overloaded.
@@ -213,9 +212,6 @@ endif
 ifneq ($(filter kdistinstall,$(MAKECMDGOALS)),)
 MODE=release
 endif
-ifneq ($(VFLAVOR),)
-VERSION:=$(VERSION)_$(subst $(_space_),_,$(sort $(VFLAVOR)))
-endif
 
 PRJOBJDIR=$(TRDIR)/obj
 
@@ -227,7 +223,13 @@ ifneq ($(INCTESTS),)
 NDUSELIB+=$(TUSELIB)
 endif
 
+# profiler.mk contains VFLAVOR
 include $(ABSROOT)/core/profiler.mk
+
+ifneq ($(VFLAVOR),)
+VERSION:=$(VERSION)_$(subst $(_space_),_,$(sort $(VFLAVOR)))
+endif
+
 # include extern libraries management rules
 ifneq ($(INCLUDE_EXTLIB),false)
 include $(ABSROOT)/core/common-extlib.mk
@@ -244,39 +246,10 @@ endif
 $(PRJOBJDIR)/%/moddeps.mk: $(PRJROOT)/%/module.cfg
 	@+make -C $(PRJROOT)/$* --no-print-directory PRJROOT="$(PRJROOT)" TRDIR="$(TRDIR)" PRJOBJDIR="$(PRJOBJDIR)" -f $(ABSROOT)/core/module-depends.mk
 
-
-ifeq ($(filter clean% docker% getdeps%,$(MAKECMDGOALS)),)
-
 ALL_PROJ_MODULES=$(patsubst $(PRJROOT)/%/module.cfg,%,$(wildcard $(PRJROOT)/*/module.cfg))
-# PROJECT_MODS permit to filter project modules in INCLUDE_MODS or ABS_INCLUDE_MODS variable for example.
-PROJECT_MODS=$(patsubst %,$(APPNAME)_%,$(ALL_PROJ_MODULES))
+# PROJECT_INC_MODS permit to filter project modules in INCLUDE_MODS or ABS_INCLUDE_MODS variable for example.
+PROJECT_INC_MODS=$(patsubst %,$(APPNAME)_%,$(ALL_PROJ_MODULES))
 
-ifeq ($(ABS_FROMAPP),true)
-# not so common, but can't be done before including common.mk from app.mk
-# to let users configure module list from their app.cfg
-# Can't be done after common.mk include since MODULES_TO_BUILD definition
-# below needs to have MODULDES_DEPS defined before.
-ifeq ($(MODULES),)
-# search for module only if not explicitely defined from app.cfg.
-MODULES:=$(ALL_PROJ_MODULES)
-MODULES_DEPS:=$(filter-out $(NOBUILD),$(MODULES))
-else
-MODULES_DEPS:=$(MODULES)
-MODULES_TARGET:=$(patsubst %,$(PRJOBJDIR)/%/.done,$(MODULES))
-endif # ifeq ($(MODULES),)
-
-ifneq ($(filter kdistinstall,$(MAKECMDGOALS)),)
-KMODULES:=$(filter %_lkm,$(MODULES_DEPS))
-MODULES_DEPS:=$(KMODULES)
-MODULES_TARGET:=$(patsubst %,mod.%,$(KMODULES))
-endif
-endif # ifeq ($(ABS_FROMAPP),true)
-
-MODULES_TO_BUILD:=$(patsubst %,$(PRJOBJDIR)/%/moddeps.mk,$(USEMOD) $(MODULES_DEPS) $(TESTUSEMOD))
-ifneq ($(MODULES_TO_BUILD),)
-include $(MODULES_TO_BUILD)
-endif
-endif # ifeq ($(filter clean% docker%,$(MAKECMDGOALS)),)
 
 ## 
 ## --------------------------------------------------------------------

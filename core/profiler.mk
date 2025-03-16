@@ -9,11 +9,13 @@
 ##     - tracy-0.7.8
 ##     - easy_profiler-2.1.0
 PROFILER_TOOL?=tracy-0.9.1
-ifeq ($(wildcard app.cfg),app.cfg)
+
 ifeq ($(PROFILER),true)
-VFLAVOR+= $(PROFILER_TOOL)
+VFLAVOR+=$(PROFILER_TOOL)
 endif
-else
+
+ifeq ($(ABS_FROMMODULE),true)
+# from module
 ##  - PROFILER: profiler service activation switch. Set to true to activate
 ##    profiler support. Default is false
 ifeq ($(MAKECMDGOALS),profiler)

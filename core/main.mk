@@ -20,8 +20,10 @@ endif
 all:
 
 ifneq ($(wildcard app.cfg),)
+ABS_FROMAPP:=true
 include $(ABSROOT)/core/app.mk
 else
+ABS_FROMMODULE:=true
 include $(ABSROOT)/core/module.mk
 endif
 
