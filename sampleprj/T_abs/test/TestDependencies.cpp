@@ -40,6 +40,10 @@ public:
         CPPUNIT_ASSERT_EQUAL(0, ::system("./test/scripts/testPatches.sh"));
     ABS_TEST_CASE_END
 
+    ABS_TEST_CASE_BEGIN(Tests)
+        CPPUNIT_ASSERT_EQUAL(0, ::system("./test/scripts/testTests.sh"));
+    ABS_TEST_CASE_END
+
 /* Test case template, uncomment and complete according this pattern for each test case
     ABS_TEST_CASE_BEGIN(NameOfTestCase)
         ABS_TEST_DESCR(Test case description)
