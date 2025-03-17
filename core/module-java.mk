@@ -45,15 +45,15 @@ JGENSRCDIR:=$(OBJDIR)/gjava
 # Java default settings
 JARLIBS:=$(patsubst %,$(NA_EXTLIBDIR)/%.jar,$(USEJAR))
 JCLASSES:=$(patsubst src/%.java,$(JARIMGDIR)/%.class,$(filter %.java, $(SRCFILES)))
-CLASSPATH:=$(subst $(_space_),:,$(JARLIBS)) $(patsubst $(TARGETDIR)/$(DOMAIN).$(APPNAME).$(APPNAME).%,$(TARGETDIR)/$(DOMAIN).$(APPNAME).%,$(patsubst %,$(TARGETDIR)/$(DOMAIN).$(APPNAME).%-$(VERSION).jar,$(USEJMOD))))
+CLASSPATH:=$(subst $(_space_),:,$(JARLIBS)):$(patsubst $(TARGETDIR)/$(DOMAIN).$(APPNAME).$(APPNAME).%,$(TARGETDIR)/$(DOMAIN).$(APPNAME).%,$(patsubst %,$(TARGETDIR)/$(DOMAIN).$(APPNAME).%-$(VERSION).jar,$(USEJMOD)))
 ifeq ($(ISWINDOWS),true)
 CLASSPATH:=$(shell cygpath -mp $(CLASSPATH))
 endif
 ifeq ($(ISWINDOWS),true)
-JFLAGS+=-cp "${CLASSPATH}" -d `cygpath -m $(JARIMGDIR)`
+JFLAGS+=-cp "$(CLASSPATH)" -d `cygpath -m $(JARIMGDIR)`
 JCFLAGS:=$(JFLAGS) -sourcepath "src;$(shell cygpath -m $(JARIMGDIR));$(shell cygpath -m $(JGENSRCDIR))"
 else
-JFLAGS+=-cp ".null:${CLASSPATH}" -d $(JARIMGDIR)
+JFLAGS+=-cp ".null:$(CLASSPATH)" -d $(JARIMGDIR)
 JCFLAGS:=$(JFLAGS) -sourcepath "src:$(JARIMGDIR):$(JGENSRCDIR)"
 endif
 RESFILES=$(patsubst src/%,$(JARIMGDIR)/%,$(filter-out %.java src/test/%,$(SRCFILES)))
