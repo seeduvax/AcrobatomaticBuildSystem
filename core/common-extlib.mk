@@ -327,7 +327,7 @@ DEV_USELIB+=$1
 endif
 $(call includeExtLib,$1,$2,$3,$4)
 else
-ifeq ($(call isLibInList,$1,$$(ALLUSELIB)),)
+ifeq ($$(call isLibInList,$1,$$(ALLUSELIB)),)
 $$(call abs_warning,$1 not imported from $2. Already imported another version: $$(call getLibWithLibName,$$(call getLibNameFromVersioned,$1),$$(ALLUSELIB))
 DEPENDENCIES_ERROR=true
 $$(eval ADDEDDEPLIST:=$$(ADDEDDEPLIST)[color="red"] "$1"[color="red"])
@@ -345,28 +345,28 @@ endef
 # $3 lib's dependencies.
 # Regex to get the name of module from lib can accept pattern like (projA-1.2.3_clang-13, projA-1.2.3, proj12A-2.63, ...)
 define extlib_import_template
-ifneq ($$(call isLibInList,$(1)-$(2),$$(TRANSUSELIB)),)
-$(foreach lib,$3,$(call condIncludeExtLib,$(lib),$(1)-$(2),$(EXTLIBDIR),TRANSUSELIB))
-_app_$(1)_dir:=$(EXTLIBDIR)/$(1)-$(2)
-_app_$(1)_depends+=$(foreach lib,$3,$(call getLibNameFromVersioned,$(lib)))
+ifneq ($$(call isLibInList,$1-$2,$$(TRANSUSELIB)),)
+$(foreach lib,$3,$(call condIncludeExtLib,$(lib),$1-$2,$(EXTLIBDIR),TRANSUSELIB))
+_app_$1_dir:=$(EXTLIBDIR)/$1-$2
+_app_$1_depends+=$(foreach lib,$3,$(call getLibNameFromVersioned,$(lib)))
 ALL_LIBS_LOADED+=$1
 else
-ifneq ($$(call isLibInList,$(1)-$(2),$$(NA_USELIB)),)
-$(foreach lib,$3,$(call condIncludeExtLib,$(lib),$(1)-$(2),$(NA_EXTLIBDIR),NA_USELIB))
-_app_$(1)_dir:=$(NA_EXTLIBDIR)/$(1)-$(2)
-_app_$(1)_depends+=$(foreach lib,$3,$(call getLibNameFromVersioned,$(lib)))
+ifneq ($$(call isLibInList,$1-$2,$$(NA_USELIB)),)
+$(foreach lib,$3,$(call condIncludeExtLib,$(lib),$1-$2,$(NA_EXTLIBDIR),NA_USELIB))
+_app_$1_dir:=$(NA_EXTLIBDIR)/$1-$2
+_app_$1_depends+=$(foreach lib,$3,$(call getLibNameFromVersioned,$(lib)))
 ALL_LIBS_LOADED+=$1
 else
-ifneq ($$(call isLibInList,$(1)-$(2),$$(NDUSELIB)),)
-$(foreach lib,$3,$(call condIncludeExtLib,$(lib),$(1)-$(2),$(NDEXTLIBDIR),NDUSELIB))
-_app_$(1)_dir:=$(NDEXTLIBDIR)/$(1)-$(2)
-_app_$(1)_depends+=$(foreach lib,$3,$(call getLibNameFromVersioned,$(lib)))
+ifneq ($$(call isLibInList,$1-$2,$$(NDUSELIB)),)
+$(foreach lib,$3,$(call condIncludeExtLib,$(lib),$1-$2,$(NDEXTLIBDIR),NDUSELIB))
+_app_$1_dir:=$(NDEXTLIBDIR)/$1-$2
+_app_$1_depends+=$(foreach lib,$3,$(call getLibNameFromVersioned,$(lib)))
 ALL_LIBS_LOADED+=$1
 else
-ifneq ($$(call isLibInList,$(1)-$(2),$$(NDNA_USELIB)),)
-$(foreach lib,$3,$(call condIncludeExtLib,$(lib),$(1)-$(2),$(NDNA_EXTLIBDIR),NDNA_USELIB))
-_app_$(1)_dir:=$(NDNA_EXTLIBDIR)/$(1)-$(2)
-_app_$(1)_depends+=$(foreach lib,$3,$(call getLibNameFromVersioned,$(lib)))
+ifneq ($$(call isLibInList,$1-$2,$$(NDNA_USELIB)),)
+$(foreach lib,$3,$(call condIncludeExtLib,$(lib),$1-$2,$(NDNA_EXTLIBDIR),NDNA_USELIB))
+_app_$1_dir:=$(NDNA_EXTLIBDIR)/$1-$2
+_app_$1_depends+=$(foreach lib,$3,$(call getLibNameFromVersioned,$(lib)))
 ALL_LIBS_LOADED+=$1
 endif
 endif
@@ -375,7 +375,7 @@ endif
 
 ABS_INCLUDE_MODS+=$1
 
-$(NA_EXTLIBDIR)/%.jar: $(EXTLIBDIR)/$(1)-$(2)/lib/%.jar
+$(NA_EXTLIBDIR)/%.jar: $(EXTLIBDIR)/$1-$2/lib/%.jar
 	@$$(ABS_PRINT_info) "Importing jar lib $$(@F)..."
 	@mkdir -p $$(@D)
 	@$(LNFILE) $$< $$@
