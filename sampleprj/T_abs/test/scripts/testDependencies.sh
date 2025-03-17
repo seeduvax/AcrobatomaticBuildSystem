@@ -4,7 +4,7 @@ source $(dirname $0)/initTest.sh testDependencies
 
 cd $testDirectory
 executeMake pubdist libtest
-executeMake pubdist testlib2
+executeMake pubdist testlib-dashed
 
 executeMake pubdist projA
 testLinked projA cppexe projA_cpplib

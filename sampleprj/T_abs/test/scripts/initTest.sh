@@ -19,7 +19,7 @@ mkdir -p $testDirectory/repository/noarch
 echo "Copy resources to $testDirectory"
 
 ln -s $PRJROOT $testDirectory/absws/abs-99.99.99
-cp -R test/resources/proj* test/resources/libtest test/resources/testlib2 test/resources/cppunit test/resources/tracy $testDirectory
+cp -R test/resources/proj* test/resources/libtest test/resources/testlib-dashed test/resources/cppunit test/resources/tracy $testDirectory
 
 unset TTARGETDIR
 unset TRDIR

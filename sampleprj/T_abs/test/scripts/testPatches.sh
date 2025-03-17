@@ -4,7 +4,7 @@ source $(dirname $0)/initTest.sh testPatches
 
 cd $testDirectory
 executeMake pubdist libtest
-executeMake pubdist testlib2
+executeMake pubdist testlib-dashed
 
 executeMake pubdist projA
 executeMake all projB

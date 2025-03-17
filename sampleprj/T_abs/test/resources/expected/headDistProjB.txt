@@ -1,0 +1,20 @@
+#!/bin/sh
+
+APPNAME=projB
+VERSION=2.4.2d_tracy-0.9.1
+CHECKSUM=
+CHECKSUMCMD=md5sum
+PREFIX=/opt/$APPNAME-$VERSION
+
+
+THIS=$0
+SKIP=`awk '/^__END_SCRIPT_TAG__$/ { print NR + 1; exit 0; }' "$THIS"`
+
+UNTAR_ARGS=""
+TARGET=
+
+help() {
+cat << EOF
+$1 <cmd> [args] <target>
+
+  Available commands as <cmd> [args]:

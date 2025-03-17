@@ -8,6 +8,71 @@ ifeq ($(filter clean% docker% tag,$(MAKECMDGOALS)),)
 # do not process ext libs if target is clean or docker..
 # the extlibs will be retrieved inside the container
 
+# MAP to get version of lib with | separator.
+# This permit to correctly identify version even if lib have a '-' in its name
+# ex: cppunit-1.14.0 => cppunit|1.14.0
+define getMapListLibVersioned
+$(foreach uselib,$1,$(subst |,-,$(uselib))|$(uselib))
+endef
+
+# macro to get lib name with version using | caractere.
+# 1: lib name with '-'
+# 2: list of lib 
+define getLibWithBar
+$(patsubst $1|%,%,$(if $(filter $1|%,$(call getMapListLibVersioned,$2)),$(filter $1|%,$(call getMapListLibVersioned,$2)),$1))
+endef
+
+# macro to get the lib name from <libname>-<version> or <libname>|<version>
+# 1: the name of lib with version.
+define getLibNameFromVersioned
+$(if $(findstring |,$1),$(word 1,$(subst |, ,$1)),$(word 1,$(subst -, ,$1)))
+endef
+
+# macro to get the lib name from lib with version.
+# This macro use libs in list to get the real name of lib
+#  if the list contains the lib with '|'
+# 1: the name of lib with version
+# 2: the list of libs
+define findLibNameFromVersioned
+$(call getLibNameFromVersioned,$(call getLibWithBar,$1,$2))
+endef
+
+# macro to get lib from the name of the archive
+# 1: archive name (ex: cppunit-1.14.0.$(ARCH).tar.gz)
+# return the name of lib (ex: cppunit-1.14.0)
+define getLibFromArchiveName
+$(strip $(patsubst %.$(ARCH).tar.gz,%,$(filter %.$(ARCH).tar.gz,$1))\
+$(patsubst %.noarch.tar.gz,%,$(filter %.noarch.tar.gz,$1)))
+endef
+
+# macro to get lib name from the name of the archive
+# 1: archive name (ex: cppunit-1.14.0.$(ARCH).tar.gz)
+# 2: list of libs
+define getLibNameFromArchiveName
+$(call findLibNameFromVersioned,$(call getLibFromArchiveName,$1),$2)
+endef
+
+# mecro to get the list from a list using its name.
+# 1: name of the lib
+# 2: list of libs
+define getLibWithLibName
+$(filter $1|% $1-%,$2)
+endef
+
+# macro to test if a lib has already been loaded.
+# 1: lib name with version
+# 2: list of libs
+define isLibInList
+$(filter $(subst |,-,$1),$(subst |,-,$2))
+endef
+
+# macro to test if a lib has already been loaded (only by name).
+# 1: lib name with version
+# 2: list of libs
+define isLibInListByName
+$(filter $(call getLibNameFromVersioned,$1)-%,$(subst |,-,$2))
+endef
+
 ABSWS_EXTLIBDIR=$(ABSWS)/extlib/$(ARCH)
 ABSWS_NA_EXTLIBDIR=$(ABSWS)/extlib/noarch
 ABSWS_NDEXTLIBDIR=$(ABSWS_EXTLIBDIR).nodist
@@ -88,7 +153,8 @@ endif
 #   - 1: pattern abs repo
 #	- 2: name of the library archive (ex: libtest-0.0.1.NotALinux.tar.gz)
 define getReposToUse
-$(patsubst %,$(1),$(2)) $(patsubst %,$(1),$(word 1,$(subst -, ,$(2)))/$(2))
+$(patsubst %,$1,$2) \
+$(patsubst %,$1,$(call getLibNameFromArchiveName,$2,$(ALLUSELIB))/$2)
 endef
 
 # macro to get the list of repositories where to find dependencies
@@ -237,9 +303,9 @@ ALLUSELIB:=$(TRANSUSELIB) $(NDUSELIB)
 # $4 variable to use to store libs
 define includeExtLib
 # the import.mk must not be imported if already imported in EXTLIB
-ifeq ($$(filter $1,$$($4) $$(TRANSUSELIB)),)
+ifeq ($$(call isLibInList,$1,$$($4) $$(TRANSUSELIB)),)
 $$(eval $4+=$1)
-include $$(patsubst %,$3/%/import.mk,$1)
+include $$(patsubst %,$3/%/import.mk,$$(subst |,-,$1))
 else
 $$(call abs_debug,$1 already imported. Ignoring new dependency from $2 to $1)
 endif
@@ -253,7 +319,7 @@ endef
 # $4 variable to use to store libs
 define condIncludeExtLib
 $$(eval ADDEDDEPLIST:=$$(ADDEDDEPLIST) "$2"->"$1")
-ifeq ($$(filter $(word 1,$(subst -, ,$1))-%,$$(ALLUSELIB)),)
+ifeq ($$(call isLibInListByName,$1,$$(ALLUSELIB)),)
 # the lib has not been imported yet
 ALLUSELIB+=$1
 ifneq ($(filter-out $(DEV_USELIB_IGNORE),$(filter %d,$1)),)
@@ -261,8 +327,8 @@ DEV_USELIB+=$1
 endif
 $(call includeExtLib,$1,$2,$3,$4)
 else
-ifneq ($(word 2,$(subst -, ,$1)),$$(word 2,$$(subst -, ,$$(filter $(word 1,$(subst -, ,$1))-%,$$(ALLUSELIB)))))
-$$(call abs_warning,$1 not imported from $2. Already imported another version: $$(filter $(word 1,$(subst -, ,$1))-%,$$(ALLUSELIB)))
+ifeq ($(call isLibInList,$1,$$(ALLUSELIB)),)
+$$(call abs_warning,$1 not imported from $2. Already imported another version: $$(call getLibWithLibName,$$(call getLibNameFromVersioned,$1),$$(ALLUSELIB))
 DEPENDENCIES_ERROR=true
 $$(eval ADDEDDEPLIST:=$$(ADDEDDEPLIST)[color="red"] "$1"[color="red"])
 else
@@ -279,28 +345,28 @@ endef
 # $3 lib's dependencies.
 # Regex to get the name of module from lib can accept pattern like (projA-1.2.3_clang-13, projA-1.2.3, proj12A-2.63, ...)
 define extlib_import_template
-ifneq ($$(filter $(1)-$(2),$$(TRANSUSELIB)),)
+ifneq ($$(call isLibInList,$(1)-$(2),$$(TRANSUSELIB)),)
 $(foreach lib,$3,$(call condIncludeExtLib,$(lib),$(1)-$(2),$(EXTLIBDIR),TRANSUSELIB))
 _app_$(1)_dir:=$(EXTLIBDIR)/$(1)-$(2)
-_app_$(1)_depends+=$(foreach lib,$3,$(shell echo $(lib) | sed -E 's/([^-]+)-.+/\1/g'))
+_app_$(1)_depends+=$(foreach lib,$3,$(call getLibNameFromVersioned,$(lib)))
 ALL_LIBS_LOADED+=$1
 else
-ifneq ($$(filter $(1)-$(2),$$(NA_USELIB)),)
+ifneq ($$(call isLibInList,$(1)-$(2),$$(NA_USELIB)),)
 $(foreach lib,$3,$(call condIncludeExtLib,$(lib),$(1)-$(2),$(NA_EXTLIBDIR),NA_USELIB))
 _app_$(1)_dir:=$(NA_EXTLIBDIR)/$(1)-$(2)
-_app_$(1)_depends+=$(foreach lib,$3,$(shell echo $(lib) | sed -E 's/([^-]+)-.+/\1/g'))
+_app_$(1)_depends+=$(foreach lib,$3,$(call getLibNameFromVersioned,$(lib)))
 ALL_LIBS_LOADED+=$1
 else
-ifneq ($$(filter $(1)-$(2),$$(NDUSELIB)),)
+ifneq ($$(call isLibInList,$(1)-$(2),$$(NDUSELIB)),)
 $(foreach lib,$3,$(call condIncludeExtLib,$(lib),$(1)-$(2),$(NDEXTLIBDIR),NDUSELIB))
 _app_$(1)_dir:=$(NDEXTLIBDIR)/$(1)-$(2)
-_app_$(1)_depends+=$(foreach lib,$3,$(shell echo $(lib) | sed -E 's/([^-]+)-.+/\1/g'))
+_app_$(1)_depends+=$(foreach lib,$3,$(call getLibNameFromVersioned,$(lib)))
 ALL_LIBS_LOADED+=$1
 else
-ifneq ($$(filter $(1)-$(2),$$(NDNA_USELIB)),)
+ifneq ($$(call isLibInList,$(1)-$(2),$$(NDNA_USELIB)),)
 $(foreach lib,$3,$(call condIncludeExtLib,$(lib),$(1)-$(2),$(NDNA_EXTLIBDIR),NDNA_USELIB))
 _app_$(1)_dir:=$(NDNA_EXTLIBDIR)/$(1)-$(2)
-_app_$(1)_depends+=$(foreach lib,$3,$(shell echo $(lib) | sed -E 's/([^-]+)-.+/\1/g'))
+_app_$(1)_depends+=$(foreach lib,$3,$(call getLibNameFromVersioned,$(lib)))
 ALL_LIBS_LOADED+=$1
 endif
 endif
@@ -321,7 +387,10 @@ endef
 # we don't care importing the dependencies.
 ifeq ($(filter cleandist clean cleanabs purgeabs,$(MAKECMDGOALS)),)
 
-EXTLIBMAKES=$(patsubst %,$(EXTLIBDIR)/%/import.mk,$(TRANSUSELIB)) $(patsubst %,$(NDEXTLIBDIR)/%/import.mk,$(NDUSELIB)) $(patsubst %,$(NDNA_EXTLIBDIR)/%/import.mk,$(NDNA_USELIB)) $(patsubst %,$(NA_EXTLIBDIR)/%/import.mk,$(NA_USELIB))
+EXTLIBMAKES=$(patsubst %,$(EXTLIBDIR)/%/import.mk,$(subst |,-,$(TRANSUSELIB))) \
+	$(patsubst %,$(NDEXTLIBDIR)/%/import.mk,$(subst |,-,$(NDUSELIB))) \
+	$(patsubst %,$(NDNA_EXTLIBDIR)/%/import.mk,$(subst |,-,$(NDNA_USELIB))) \
+	$(patsubst %,$(NA_EXTLIBDIR)/%/import.mk,$(subst |,-,$(NA_USELIB)))
 
 ifeq ($(filter getdeps,$(MAKECMDGOALS)),)
 # use allinclude.mk to be able to get all dependencies first.

@@ -1,0 +1,2 @@
+# test a file with space to check that it is ignored.
+# otherwise make cannot work properly
