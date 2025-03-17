@@ -266,6 +266,16 @@ $(cxx-command-base)
 endef
 endif
 
+CRULES_VAR_LINKED_LIBS=$(sort $(filter -l%,$(LDFLAGS)))
+CRULES_VAR_LINKED_DIRS=$(sort $(filter -L%,$(LDFLAGS)))
+# --rpath-link permit to the linker to find shared libraries (needed for cross compiler linker for exe generation).
+CRULES_VAR_RPATH_LINKS=$(patsubst -L%,-Wl$(_comma_)--rpath-link=%,$(CRULES_VAR_LINKED_DIRS))
+CRULES_VAR_LDFLAGS=
+ifneq ($(MODTYPE),library) 
+CRULES_VAR_LDFLAGS+=$(CRULES_VAR_RPATH_LINKS)
+endif
+CRULES_VAR_LDFLAGS+=$(filter-out -l% -L%,$(LDFLAGS)) $(CRULES_VAR_LINKED_DIRS) $(CRULES_VAR_LINKED_LIBS)
+
 # on none Windows, add creation of static archive
 # for static lib, remove vinfo.o and rename lib.so -> lib.a
 ifneq ($(ISWINDOWS),true)
@@ -278,9 +288,9 @@ endef
 define ld-command-lib
 @$(ABS_PRINT_info) "Linking $@ ..."
 @mkdir -p $(TARGETDIR)
-@echo `$(TRACE_DATE_CMD)`"> LD_RUN_PATH='"'$(LDRUNP)'"' LD_LIBRARY_PATH=$(LDLIBP) $(LD) -o $@ $(OBJS) $(LDFLAGS)" >> $(BUILDLOG)
-@echo `$(TRACE_DATE_CMD)`"> $(MODNAME) linked to $(sort $(patsubst -l%,%,$(filter -l%,$(LDFLAGS))))" >> $(BUILDLOG)
-@LD_RUN_PATH='$(LDRUNP)' LD_LIBRARY_PATH=$(LDLIBP) $(LD) -o $@ $(OBJS) $(LDFLAGS)
+@echo `$(TRACE_DATE_CMD)`"> LD_RUN_PATH='"'$(LDRUNP)'"' LD_LIBRARY_PATH=$(LDLIBP) $(LD) -o $@ $(OBJS) $(CRULES_VAR_LDFLAGS)" >> $(BUILDLOG)
+@echo `$(TRACE_DATE_CMD)`"> $(MODNAME) linked to $(sort $(patsubst -l%,%,$(CRULES_VAR_LINKED_LIBS)))" >> $(BUILDLOG)
+@LD_RUN_PATH='$(LDRUNP)' LD_LIBRARY_PATH=$(LDLIBP) $(LD) -o $@ $(OBJS) $(CRULES_VAR_LDFLAGS)
 endef
 define ld-command-exe
 $(ld-command-lib)
@@ -297,7 +307,7 @@ define ld-command-exe
 @$(ABS_PRINT_info) "Linking $@ ..."
 @mkdir -p $(TARGETDIR) $(CYGTARGETDIR)
 @echo `$(TRACE_DATE_CMD)`"> $(LD) -shared -o $(CYGTARGETDIR)/$(CYGTARGET) -Wl,--out-implib=$@ -Wl,--export-all-symbols -Wl,--enable-auto-import -Wl,--whole-archive $(OBJS) -Wl,--no-whole-archive $(LDFLAGS)" >> $(BUILDLOG)
-@echo `$(TRACE_DATE_CMD)`"> $(MODNAME) linked to $(sort $(patsubst -l%,%,$(filter -l%,$(LDFLAGS))))" >> $(BUILDLOG)
+@echo `$(TRACE_DATE_CMD)`"> $(MODNAME) linked to $(sort $(patsubst -l%,%,$(CRULES_VAR_LINKED_LIBS)))" >> $(BUILDLOG)
 @$(LD) -o $@ \
 	-Wl,--enable-auto-import $(OBJS) $(LDFLAGS)
 endef

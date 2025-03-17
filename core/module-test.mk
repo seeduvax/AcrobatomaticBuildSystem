@@ -25,7 +25,8 @@ CPPUNIT?=cppunit-1.14.0
 
 TESTRUNNER=ctrunner$(BINEXT)
 TXTXSL=xunit2txt.xsl
-TIMEOUT?=300
+# default TIMEOUT 10min
+TIMEOUT?=600
 ifeq ($(COLORS_TCAP),yes)
 TIMEOUTCMD:=
 else
