@@ -155,12 +155,14 @@ LDRUNP?=$$ORIGIN/../lib
 IDENTCFLAGS:=-D__APPNAME__='$(APPNAME)' -D__MODNAME__='$(MODNAME)'
 ifeq ($(MODE),debug)
 # debugging symbols, no optimisation, optionnal flags for debug mode
-CFLAGS+=-g -D_$(APPNAME)_$(MODNAME)_debug -D_abs_trace_debug $(IDENTCFLAGS) $(DEBUGCFLAGS)
+# defines must not contains - => so replace by _
+CFLAGS+=-g -D_$(subst -,_,$(APPNAME))_$(subst -,_,$(MODNAME))_debug -D_abs_trace_debug $(IDENTCFLAGS) $(DEBUGCFLAGS)
 else
 # some optimisation, no debbugging symbol, optionnal flags for release mode
 ## RELEASECFLAGS: additional compiler option to set on release mode only (default: -O3)
 RELEASECFLAGS?=-O3
-CFLAGS+=-D_$(APPNAME)_$(MODNAME)_release $(IDENTCFLAGS) $(RELEASECFLAGS)
+# defines must not contains - => so replace by _
+CFLAGS+=-D_$(subst -,_,$(APPNAME))_$(subst -,_,$(MODNAME))_release $(IDENTCFLAGS) $(RELEASECFLAGS)
 endif
 
 # sanitizer

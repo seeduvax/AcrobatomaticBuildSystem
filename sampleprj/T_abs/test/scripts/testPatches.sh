@@ -9,7 +9,7 @@ executeMake pubdist testlib-dashed
 executeMake pubdist projA
 executeMake all projB
 
-projBOutDir=$testDirectory/projB/build/NotALinux/debug
+projBOutDir=$testDirectory/projB/build/NotALinux/$MODE
 projBObjDir=$projBOutDir/obj
 # test extraction of sources from archives.
 testFileExists $projBObjDir/cpplib3/extsrc/subdir2/source.cpp
@@ -24,7 +24,7 @@ testFileExists $projBOutDir/include/projB/cpplib3/inc3.hpp
 echo "#### Launch generation patches"
 projBOUtPatchesDir=$testDirectory/projBPatches
 cd projB
-ARCH=NotALinux make generatePatches -C cpplib3 ARCHSRC_GENE_PATCHES_OUT=$projBOUtPatchesDir MODE=debug
+ARCH=NotALinux make generatePatches -C cpplib3 ARCHSRC_GENE_PATCHES_OUT=$projBOUtPatchesDir
 if [ $? -ne 0 ]; then
     echo "Error while executing make generatePatches on projB"
     doExit 3
