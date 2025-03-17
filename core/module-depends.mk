@@ -19,7 +19,6 @@ $(PRJOBJDIR)/$(MODNAME)/moddeps.mk:
 	@printf 'ifeq ($$(_module_$(APPNAME)_$(MODNAME)_dir),)\n'\
 'include $$(patsubst %%,$$(PRJOBJDIR)/%%/moddeps.mk,$(USEMOD))\n\n'\
 'ABS_INCLUDE_MODS+=$$(patsubst %%,$(APPNAME)_%%,$(USEMOD))\n'\
-'_module_$(MODNAME)_dir=$$(PRJROOT)/$(MODNAME)\n'\
 '_module_$(APPNAME)_$(MODNAME)_dir=$$(TRDIR)\n'\
 '_module_$(APPNAME)_$(MODNAME)_depends_raw=$$(sort $(LINKLIB) $(INCLUDE_MODS) $(patsubst %,$(APPNAME)_%,$(USEMOD)) $(foreach dep,$(LINKLIB) $(INCLUDE_MODS) $(patsubst %,$(APPNAME)_%,$(USEMOD)),$$(_module_$(dep)_depends)))\n'\
 '_module_$(APPNAME)_$(MODNAME)_depends=$$(foreach dep,$$(_module_$(APPNAME)_$(MODNAME)_depends_raw),$$(if $$(_app_lib$$(dep)_dir),lib$$(dep),$$(dep)))\n\n'\
