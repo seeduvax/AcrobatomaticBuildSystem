@@ -63,7 +63,8 @@ GENOBJS:=
 
 include $(ABSROOT)/core/common.mk
 
-SRCFILES:=$(call find,src,*)
+# ultimate wildcard to eliminate files with space
+SRCFILES:=$(wildcard $(call find,src,*))
 EXTSRCFILES:=
 
 TTARGETDIR?=$(TRDIR)/test
