@@ -4,6 +4,9 @@
 ## ------------------------------------------------------------------------
 ALLINCLUDES_MK=$(PRJOBJDIR)/allInclude.mk
 
+# replace the | by - in libs specifications.
+USELIB_FOR_PATH=$(subst |,-,$(USELIB))
+
 ifeq ($(filter clean% docker% tag,$(MAKECMDGOALS)),)
 # do not process ext libs if target is clean or docker..
 # the extlibs will be retrieved inside the container
@@ -12,7 +15,7 @@ ifeq ($(filter clean% docker% tag,$(MAKECMDGOALS)),)
 # This permit to correctly identify version even if lib have a '-' in its name
 # ex: cppunit-1.14.0 => cppunit|1.14.0
 define getMapListLibVersioned
-$(foreach uselib,$1,$(subst |,-,$(uselib))|$(uselib))
+$(foreach lib,$1,$(subst |,-,$(lib))|$(lib))
 endef
 
 # macro to get lib name with version using | caractere.

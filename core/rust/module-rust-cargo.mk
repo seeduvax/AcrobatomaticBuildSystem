@@ -13,7 +13,7 @@ CARGO_TOML_TEMPLATE=$(MODROOT)/Cargo_template.toml
 
 RUST_TARGET_DIR=$(OBJDIR)/target
 RUST_CARGO_EXECUTED=$(OBJDIR)/cargo.executed
-RUST_EXTLIB_WITH_RSFILES=$(patsubst $(EXTLIBDIR)/%/src/lib.rs,%,$(foreach lib,$(USELIB),$(wildcard $(EXTLIBDIR)/$(lib)/src/*/src/lib.rs)))
+RUST_EXTLIB_WITH_RSFILES=$(patsubst $(EXTLIBDIR)/%/src/lib.rs,%,$(foreach lib,$(USELIB_FOR_PATH),$(wildcard $(EXTLIBDIR)/$(lib)/src/*/src/lib.rs)))
 
 RUST_DEPENDS_TEXT=$(subst $(SPACE) ,\n,$(foreach mod,$(USEMOD),$(mod)={path=\"../$(mod)\"}) $(foreach extlib,$(RUST_EXTLIB_WITH_RSFILES),$(lastword $(subst /, ,$(extlib)))={path=\"$(EXTLIBDIR)/$(extlib)\"}))
 RUST_DEPENDS_OUT_TEXT=$(subst $(SPACE) ,\n,$(foreach mod,$(USEMOD),$(mod)={path=\"../$(mod)\"}) $(foreach extlib,$(RUST_EXTLIB_WITH_RSFILES),$(lastword $(subst /, ,$(extlib)))={path=\"../../../$(extlib)\"}))

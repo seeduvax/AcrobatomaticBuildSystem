@@ -197,7 +197,8 @@ endif
 # process BUILDCHAIN after re-include because NDUSELIB can be resetted
 ifneq ($(BUILDCHAIN),)
 NDUSELIB+=$(BUILDCHAIN)
-VFLAVOR+=$(BUILDCHAIN)
+# replace | by - to support <lib>|<version>
+VFLAVOR+=$(subst |,-,$(BUILDCHAIN))
 endif
 
 # identify dev version from tagged version, only when version is not overloaded.

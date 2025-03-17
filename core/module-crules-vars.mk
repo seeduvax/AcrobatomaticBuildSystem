@@ -143,7 +143,7 @@ endif
 
 # library dir list (to be forwarded to LD_LIBRARY_PATH env var before running the app)
 LDLIBP=$(subst $(_space_),:,$(patsubst -L%,%,$(filter -L%,$(LDFLAGS))))
-RUNPATH:=$(TRDIR)/bin$(subst $(_space_),,$(patsubst %,:$(EXTLIBDIR)/%/bin,$(USELIB))):$(PATH)
+RUNPATH:=$(TRDIR)/bin$(subst $(_space_),,$(patsubst %,:$(EXTLIBDIR)/%/bin,$(USELIB_FOR_PATH))):$(PATH)
 
 LDRUNP?=$$ORIGIN/../lib
 
