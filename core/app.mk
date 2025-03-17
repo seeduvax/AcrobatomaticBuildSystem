@@ -243,8 +243,8 @@ null:
 # update bootstrap makefile if needed.
 ifneq ($(PRESERVEMAKEFILE),true)
 Makefile: $(ABSROOT)/core/bootstrap.mk
-	@$(ABS_PRINT_info) "Updating bootstrap makefile."
-	@cp $< $@
+	@diff -q $< $@ >/dev/null || $(ABS_PRINT_info) "Updating bootstrap makefile."
+	@diff -q $< $@ >/dev/null || cp $< $@
 endif
 
 

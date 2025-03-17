@@ -81,7 +81,7 @@ endif
 
 $(ABSROOT)/%/main.mk: $(ABS_CACHE)/noarch/abs.%-$(VABS).tar.gz
 	@mkdir -p $(ABSROOT)
-	@tar xzf $< -C $(ABSROOT) --strip-components=1
+	@tar -xmzf $< -C $(ABSROOT) --strip-components=1
 	@touch $@
 
 $(PRJROOT)/local.cfg:
