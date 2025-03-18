@@ -1,7 +1,10 @@
 _app_projC_dir:=$(dir $(lastword $(MAKEFILE_LIST)))
 
+_app_projC_version:=2.4.3d
+_app_projC_uselib:=projB-2.4.2d projD-2.4.4d
+
 -include $(wildcard $(_app_projC_dir)/.abs/index_*.mk)
-$(eval $(call extlib_import_template,projC,2.4.3d,projB-2.4.2d projD-2.4.4d))
+$(eval $(call extlib_import_template,projC,$(_app_projC_version),$(_app_projC_uselib)))
 
 _module_projC_cpplib_depends:=libtest projA_cpplib projA_fileset projB_cpplib projB_fileset projD_cpplib projD_fileset
 _module_projC_cpplib_dir:=$(_app_projC_dir)

@@ -50,8 +50,10 @@ $(DIST_FLATTEN_DIR)/import.mk: $(DIST_FLATTEN_DIR)/obj/compiled
 	@test -f export.mk && m4 -D__app__=$(APPNAME) -D__version__=$(VERSION) export.mk -D__uselib__="$(sort $(USELIB))" > $@.tmp || true
 	@echo "# generated: ABS-$(__ABS_VERSION__) $(USER)@"`hostname`" "`$(TRACE_DATE_CMD)` >> $@.tmp
 	@test -f export.mk || printf '_app_$(APPNAME)_dir:=$$(dir $$(lastword $$(MAKEFILE_LIST)))\n\n' >> $@.tmp
+	@test -f export.mk || printf '_app_$(APPNAME)_version:=$(VERSION)\n' >> $@.tmp
+	@test -f export.mk || printf '_app_$(APPNAME)_uselib:=$(sort $(USELIB))\n\n' >> $@.tmp
 	@test -f export.mk || echo '-include $$(wildcard $$(_app_$(APPNAME)_dir)/.abs/index_*.mk)' >> $@.tmp
-	@test -f export.mk || printf '$$(eval $$(call extlib_import_template,$(APPNAME),$(VERSION),$(sort $(USELIB))))\n' >> $@.tmp
+	@test -f export.mk || printf '$$(eval $$(call extlib_import_template,$(APPNAME),$$(_app_$(APPNAME)_version),$$(_app_$(APPNAME)_uselib)))\n' >> $@.tmp
 	@test -f export.mk || printf '$(foreach mod,$(sort $(DIST_MODS)),\n_module_$(APPNAME)_$(mod)_depends:=$(_module_$(APPNAME)_$(mod)_depends))\n' >> $@.tmp
 	@test -f export.mk || printf '$(subst $(_space_),\n,$(foreach mod,$(sort $(DIST_MODS)) _extra,_module_$(APPNAME)_$(mod)_dir:=$$(_app_$(APPNAME)_dir)))\n\n' >> $@.tmp
 	@test -f export.mk || printf '$(_extra_import_defs_)\n' >> $@.tmp
