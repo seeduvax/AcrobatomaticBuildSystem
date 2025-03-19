@@ -26,9 +26,9 @@ ifneq ($(wildcard module.cfg),)
 PRJROOT:=$(dir $(CURDIR))
 endif
 ifeq ($(HOME),)
-ABSWS:=$(PRJROOT)/../abs
+ABSWS?=$(PRJROOT)/../abs
 else
-ABSWS:=$(HOME)/.abs
+ABSWS?=$(HOME)/.abs
 endif
 
 include $(PRJROOT)/app.cfg
@@ -61,7 +61,8 @@ ifeq ($(findstring file://,$(ABS_REPO_NA_PATTERN_1ST)),file://)
 	@ln -sf $(patsubst file://%,%,$(patsubst %,$(ABS_REPO_NA_PATTERN_1ST),$(@F))) $@
 else
 	@echo "Fetching $(@F) from $(ABS_REPO_NA_PATTERN_1ST)"
-	@wget -q $(WGETFLAGS) $(patsubst %,$(ABS_REPO_NA_PATTERN_1ST),$(@F)) -O $@
+	@wget -q $(WGETFLAGS) $(patsubst %,$(ABS_REPO_NA_PATTERN_1ST),$(@F)) -O $@.tmp
+	@mv $@.tmp $@
 endif
 
 $(ABS_CACHE)/%:
@@ -72,14 +73,15 @@ ifeq ($(findstring file://,$(ABS_REPO_PATTERN_1ST)),file://)
 	@ln -sf $(patsubst file://%,%,$(patsubst %,$(ABS_REPO_PATTERN_1ST),$(@F))) $@
 else
 	@echo "Fetching $(@F) from $(ABS_REPO_PATTERN_1ST)"
-	@wget -q $(WGETFLAGS) $(patsubst %,$(ABS_REPO_PATTERN_1ST),$(@F)) -O $@
+	@wget -q $(WGETFLAGS) $(patsubst %,$(ABS_REPO_PATTERN_1ST),$(@F)) -O $@.tmp
+	@mv $@.tmp $@
 endif
 
 endif
 
 $(ABSROOT)/%/main.mk: $(ABS_CACHE)/noarch/abs.%-$(VABS).tar.gz
 	@mkdir -p $(ABSROOT)
-	@tar xzf $^ -C $(ABSROOT) --strip-components=1
+	@tar -xmzf $< -C $(ABSROOT) --strip-components=1
 	@touch $@
 
 $(PRJROOT)/local.cfg:

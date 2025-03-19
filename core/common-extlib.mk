@@ -366,7 +366,7 @@ $(eval ABS_INCLUDE_MODS+=$1)
 endef
 
 define extlib_import_template
-include $$(sort $$(call extlib_import,$1,$2,$3))
+include $$(strip $$(call extlib_import,$1,$2,$3))
 
 $$(NA_EXTLIBDIR)/%.jar: $$(EXTLIBDIR)/$1-$2/lib/%.jar
 	@$$(ABS_PRINT_info) "Importing jar lib $$(@F)..."
