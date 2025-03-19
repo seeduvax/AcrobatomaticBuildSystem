@@ -97,8 +97,6 @@ endif
 
 # object files go in a subdirectory of build dir dedicated to the module
 OBJDIR?=$(PRJOBJDIR)/$(MODNAME)
-# log containing all commands executed to generate objects
-BUILDLOG=$(PRJOBJDIR)/build.log
 
 ## 
 ## Common make targets:

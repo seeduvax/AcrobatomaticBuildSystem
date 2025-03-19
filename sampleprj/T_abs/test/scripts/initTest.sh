@@ -47,12 +47,16 @@ function testFile {
 }
 
 function executeMake {
+    module=$2
+    goal=$1
     echo ""
-    echo "### Execution $2 on $1"
+    echo "### Execution $module on $goal"
     echo ""
-    ARCH=NotALinux make -C $2 $1 ABS_LOG_LEVEL=debug
+    shift;shift;
+    # reset makelevel to 0
+    MAKELEVEL=0 ARCH=NotALinux make -C $module $goal ABS_LOG_LEVEL=debug $*
     if [ $? -ne 0 ]; then
-        echo "Error while executing make $1 on $2"
+        echo "Error while executing make $goal on $module"
         doExit 11
     fi
 }
@@ -64,14 +68,13 @@ function testLinked {
     project=$1
     module=$2
     shift;shift;
-    expected="$module linked to $*"
+    expected=" $module linked to $*"
     buildlog=`find $testDirectory/$project/dist/flatten/*/obj/build.log`
     testFileExists $buildlog
-    linked="`grep \" $module linked \" $buildlog | sed -E 's/.*> //g'`"
-    test "$expected" = "$linked"
+    grep -E -q "$expected\$" $buildlog
     if [ $? -ne 0 ]; then
         echo "Logs analyzed: $buildlog"
-        echo "Error on link. \"$expected\" != \"$linked\""
+        echo "Error, cannot find $expected"
         doExit 12
     fi
 }
@@ -83,18 +86,34 @@ function testLinkedInBuild {
     project=$1
     module=$2
     shift;shift;
-    expected="$module linked to $*"
+    expected=" $module linked to $*"
     buildlog=`find $testDirectory/$project/build/NotALinux/*/obj/build.log`
     testFileExists $buildlog
-    linked="`grep \" $module linked \" $buildlog | sed -E 's/.*> //g'`"
-    test "$expected" = "$linked"
+    grep -E -q "$expected\$" $buildlog
     if [ $? -ne 0 ]; then
         echo "Logs analyzed: $buildlog"
-        echo "Error on link. \"$expected\" != \"$linked\""
+        echo "Error, cannot find $expected"
         doExit 12
     fi
 }
 
+# 1: project
+# 2: version non imported
+# 3: version imported
+function testNotImported {
+    project=$1
+    notImported=$2
+    imported=$3
+    expected="$notImported not imported because different version: $imported"
+    buildlog=`find $testDirectory/$project/dist/flatten/*/obj/build.log`
+    testFileExists $buildlog
+    grep -q "$expected" $buildlog
+    if [ $? -ne 0 ]; then
+        echo "Logs analyzed: $buildlog"
+        echo "Error, cannot find $expected"
+        doExit 13
+    fi
+}
 
 cd $testDirectory
 executeMake pubdist cppunit

@@ -233,9 +233,8 @@ endef
 define cc-command-base
 @$(ABS_PRINT_info) "Compiling $< ..."
 @mkdir -p $(@D)
-@echo `$(TRACE_DATE_CMD)`"> $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -c $< -o $@" >> $(BUILDLOG)
 $(gen-json-cc)
-@$(CC) $(CFLAGS) $(EXTRA_CFLAGS) -c $< -o $@ 
+@$(call executeAndLogCmd,$(CC) $(CFLAGS) $(EXTRA_CFLAGS) -c $< -o $@)
 endef
 ifeq ($(ISWINDOWS),true)
 define cc-command
@@ -251,9 +250,8 @@ endif
 define cxx-command-base
 @$(ABS_PRINT_info) "Compiling $< ..."
 @mkdir -p $(@D)
-@echo `$(TRACE_DATE_CMD)`"> $(CPPC) $(CXXFLAGS) $(CFLAGS) $(EXTRA_CXXFLAGS) -c $< -o $@" >> $(BUILDLOG)
 $(gen-json-cppc)
-@$(CPPC) $(CXXFLAGS) $(CFLAGS) $(EXTRA_CXXFLAGS) -c $< -o $@
+@$(call executeAndLogCmd,$(CPPC) $(CXXFLAGS) $(CFLAGS) $(EXTRA_CXXFLAGS) -c $< -o $@)
 endef
 ifeq ($(ISWINDOWS),true)
 define cxx-command
@@ -276,21 +274,30 @@ CRULES_VAR_LDFLAGS+=$(CRULES_VAR_RPATH_LINKS)
 endif
 CRULES_VAR_LDFLAGS+=$(filter-out -l% -L%,$(LDFLAGS)) $(CRULES_VAR_LINKED_DIRS) $(CRULES_VAR_LINKED_LIBS)
 
+# generate the additionnals LDFLAGS to link lib on Windows.
+# 1: destination import lib
+# 2: generated objects
+define getWindowsLibLDFlags
+-Wl,--out-implib=$@ \
+-Wl,--export-all-symbols \
+-Wl,--enable-auto-import \
+-Wl,--whole-archive $(OBJS) \
+-Wl,--no-whole-archive
+endef
+
 # on none Windows, add creation of static archive
 # for static lib, remove vinfo.o and rename lib.so -> lib.a
 ifneq ($(ISWINDOWS),true)
 define ar-command-lib
 @$(ABS_PRINT_info) "Archiving $@ ..."
 @mkdir -p $(TARGETDIR)
-@echo `$(TRACE_DATE_CMD)`"> LD_RUN_PATH='"'$(LDRUNP)'"' $(AR) rcs $@ $(OBJS_NO_VINFO)" >> $(BUILDLOG)
-@LD_RUN_PATH='$(LDRUNP)' $(AR) rcs $@ $(OBJS_NO_VINFO)
+@$(call executeAndLogCmd,LD_RUN_PATH='$(LDRUNP)' $(AR) rcs $@ $(OBJS_NO_VINFO))
 endef
 define ld-command-lib
 @$(ABS_PRINT_info) "Linking $@ ..."
 @mkdir -p $(TARGETDIR)
-@echo `$(TRACE_DATE_CMD)`"> LD_RUN_PATH='"'$(LDRUNP)'"' LD_LIBRARY_PATH=$(LDLIBP) $(LD) -o $@ $(OBJS) $(CRULES_VAR_LDFLAGS)" >> $(BUILDLOG)
-@echo `$(TRACE_DATE_CMD)`"> $(MODNAME) linked to $(sort $(patsubst -l%,%,$(CRULES_VAR_LINKED_LIBS)))" >> $(BUILDLOG)
-@LD_RUN_PATH='$(LDRUNP)' LD_LIBRARY_PATH=$(LDLIBP) $(LD) -o $@ $(OBJS) $(CRULES_VAR_LDFLAGS)
+@$(call writeToBuildLogs,$(MODNAME) linked to $(sort $(patsubst -l%,%,$(CRULES_VAR_LINKED_LIBS))))
+@$(call executeAndLogCmd,LD_RUN_PATH='$(LDRUNP)' LD_LIBRARY_PATH=$(LDLIBP) $(LD) -o $@ $(OBJS) $(CRULES_VAR_LDFLAGS))
 endef
 define ld-command-exe
 $(ld-command-lib)
@@ -299,16 +306,12 @@ else #ifeq ($(ISWINDOWS),true)
 define ld-command-lib
 @$(ABS_PRINT_info) "Linking $@ ..."
 @mkdir -p $(TARGETDIR) $(CYGTARGETDIR)
-@echo `$(TRACE_DATE_CMD)`"> $(LD) -shared -o $(CYGTARGETDIR)/$(CYGTARGET) -Wl,--out-implib=$@ -Wl,--export-all-symbols -Wl,--enable-auto-import -Wl,--whole-archive $(OBJS) -Wl,--no-whole-archive $(LDFLAGS)" >> $(BUILDLOG)
-@$(LD) -shared -o $(CYGTARGETDIR)/$(CYGTARGET) -Wl,--out-implib=$@\
-	-Wl,--export-all-symbols -Wl,--enable-auto-import -Wl,--whole-archive $(OBJS) -Wl,--no-whole-archive $(LDFLAGS)
+@$(call executeAndLogCmd,$(LD) -shared -o $(CYGTARGETDIR)/$(CYGTARGET) $(call getWindowsLibLDFlags,$@,$(OBJS)) $(LDFLAGS))
 endef
 define ld-command-exe
 @$(ABS_PRINT_info) "Linking $@ ..."
 @mkdir -p $(TARGETDIR) $(CYGTARGETDIR)
-@echo `$(TRACE_DATE_CMD)`"> $(LD) -shared -o $(CYGTARGETDIR)/$(CYGTARGET) -Wl,--out-implib=$@ -Wl,--export-all-symbols -Wl,--enable-auto-import -Wl,--whole-archive $(OBJS) -Wl,--no-whole-archive $(LDFLAGS)" >> $(BUILDLOG)
-@echo `$(TRACE_DATE_CMD)`"> $(MODNAME) linked to $(sort $(patsubst -l%,%,$(CRULES_VAR_LINKED_LIBS)))" >> $(BUILDLOG)
-@$(LD) -o $@ \
-	-Wl,--enable-auto-import $(OBJS) $(LDFLAGS)
+@$(call writeToBuildLogs,$(MODNAME) linked to $(sort $(patsubst -l%,%,$(CRULES_VAR_LINKED_LIBS))))
+@$(call executeAndLogCmd,$(LD) -o $@ -Wl$(_comma_)--enable-auto-import $(OBJS) $(LDFLAGS))
 endef
 endif # ifneq ($(ISWINDOWS),true)

@@ -114,7 +114,7 @@ TLDLIBP=$(LDLIBP):$(subst $(_space_),:,$(patsubst -L%,%,$(filter -L%,$(TLDFLAGS)
 $(OBJDIR)/test/%.o: test/%.cpp
 	@$(ABS_PRINT_info) "Compiling test $< ..."
 	@mkdir -p $(@D)
-	@echo `$(TRACE_DATE_CMD)`"> $(CPPC) $(CXXFLAGS) $(CFLAGS) $(TCFLAGS) -c $< -o $@" >> $(BUILDLOG)
+	@$(call writeToBuildLogs,$(CPPC) $(CXXFLAGS) $(CFLAGS) $(TCFLAGS) -c $< -o $@)
 	@grep -v "#\s*include" $< | cpp -E | grep -E "ABS_TEST_.*_BEGIN|ABS_TEST_SUITE_END" | sed -E 's/\{ *$$//g' | cpp -include $(ABSROOT)/core/include/abs/testdef2cppunitdecl.h | sed -e '/^#/d;s/!$$//g;s/ !!!/\n!!!/g;s/!!!/#/g' > $(patsubst %.o,%.h,$@)
 	$(gen-json-test-cppc)
 	@$(CPPC) $(CXXFLAGS) $(CFLAGS) $(TCFLAGS) -include $(patsubst %.o,%.h,$@) -MMD -MF $@.d -c $< -o $@
@@ -125,9 +125,8 @@ endif
 $(OBJDIR)/test/%.o: test/%.c
 	@$(ABS_PRINT_info) "Compiling test $< ..."
 	@mkdir -p $(@D)
-	@echo `$(TRACE_DATE_CMD)`"> $(CC) $(CFLAGS) $(TCFLAGS) -c $< -o $@" >> $(BUILDLOG)
 	$(gen-json-test-cc)
-	@$(CC) $(CFLAGS) $(TCFLAGS) -MMD -MF $@.d -c $< -o $@
+	@$(call executeAndLogCmd,$(CC) $(CFLAGS) $(TCFLAGS) -MMD -MF $@.d -c $< -o $@)
 ifeq ($(ISWINDOWS),true)
 	$(win-patch-dep)
 endif
@@ -135,8 +134,7 @@ endif
 $(OBJDIR)/bintest/%.o: $(OBJDIR)/%.o
 	@$(ABS_PRINT_info) "Checking $(@F) symbols for Test Mode..."
 	@mkdir -p $(@D)
-	@echo `$(TRACE_DATE_CMD)`"> $(OBJCOPY) --redefine-sym main=__Exec_Main_Stubbed_for_unit_tests__ $< $@" >> $(BUILDLOG)
-	@$(OBJCOPY) --redefine-sym main=__Exec_Main_Stubbed_for_unit_tests__ $< $@
+	@$(call executeAndLogCmd,$(OBJCOPY) --redefine-sym main=__Exec_Main_Stubbed_for_unit_tests__ $< $@)
 
 ifneq ($(filter exe library,$(MODTYPE)),)
 TTARGETFILEDEP:=$(TARGETFILE)
@@ -145,15 +143,14 @@ endif
 ifneq ($(ISWINDOWS),true)
 define ld-test
 @$(ABS_PRINT_info) "Linking $@ ..."
-@echo `$(TRACE_DATE_CMD)`"> t_$(MODNAME) linked to $(sort $(patsubst -l%,%,$(filter -l%,$(TLDFLAGS))))" >> $(BUILDLOG)
-@$(LD) -o $@ $(TCPPOBJS) $(TLDFLAGS) $(LDFLAGS)
+@$(call writeToBuildLogs,t_$(MODNAME) linked to $(sort $(patsubst -l%,%,$(filter -l%,$(TLDFLAGS)))))
+@$(call executeAndLogCmd,$(LD) -o $@ $(TCPPOBJS) $(TLDFLAGS) $(LDFLAGS))
 endef
 else
 define ld-test
 @$(ABS_PRINT_info) "Linking $(TCYGTARGET) ..."
-@echo `$(TRACE_DATE_CMD)`"> t_$(MODNAME) linked to $(sort $(patsubst -l%,%,$(filter -l%,$(TLDFLAGS))))" >> $(BUILDLOG)
-@$(LD) -shared -o $(TCYGTARGET) -Wl,--out-implib=$@\
-	-Wl,--export-all-symbols -Wl,--enable-auto-import -Wl,--whole-archive $(TCPPOBJS) -Wl,--no-whole-archive $(TLDFLAGS) $(LDFLAGS)
+@$(call writeToBuildLogs,t_$(MODNAME) linked to $(sort $(patsubst -l%,%,$(filter -l%,$(TLDFLAGS)))))
+@$(call executeAndLogCmd,$(LD) -shared -o $(TCYGTARGET) $(call getWindowsLibLDFlags,$@,$(TCPPOBJS)) $(TLDFLAGS) $(LDFLAGS))
 endef
 endif
 

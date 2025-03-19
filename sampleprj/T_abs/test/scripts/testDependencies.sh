@@ -4,6 +4,7 @@ source $(dirname $0)/initTest.sh testDependencies
 
 cd $testDirectory
 executeMake pubdist libtest
+executeMake pubdist libtest VERSION=2.0.0
 executeMake pubdist testlib-dashed
 
 executeMake pubdist projA
@@ -27,6 +28,8 @@ testFileExists $projBOutDir/include/projB/cpplib3/inc3.hpp
 executeMake pubdist projD
 executeMake testbuild projC
 executeMake pubinstall projC
+
+testNotImported projC libtest-1.0.0 libtest-2.0.0
 
 projCOutDir=$testDirectory/projC/dist/flatten/projC-2.4.3d
 projCObjDir=$projCOutDir/obj

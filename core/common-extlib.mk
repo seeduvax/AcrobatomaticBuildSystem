@@ -297,8 +297,8 @@ ifneq ($(BUILDCHAIN),)
 USELIB+=runtime-$(BUILDCHAIN)
 endif
 TRANSUSELIB:=$(USELIB)
-DEV_USELIB:=$(filter-out $(DEV_USELIB_IGNORE),$(filter %d,$(USELIB)))
 ALLUSELIB:=$(TRANSUSELIB) $(NDUSELIB)
+DEV_USELIB=$(filter-out $(DEV_USELIB_IGNORE),$(filter %d,$(ALLUSELIB)))
 # macro to include lib
 # $1 lib dependancy name (name-version)
 # $3 lib parent name
@@ -325,13 +325,11 @@ $$(eval ADDEDDEPLIST:=$$(ADDEDDEPLIST) "$2"->"$1")
 ifeq ($$(call isLibInListByName,$1,$$(ALLUSELIB)),)
 # the lib has not been imported yet
 ALLUSELIB+=$1
-ifneq ($(filter-out $(DEV_USELIB_IGNORE),$(filter %d,$1)),)
-DEV_USELIB+=$1
-endif
 $(call includeExtLib,$1,$2,$3,$4)
 else
 ifeq ($$(call isLibInList,$1,$$(ALLUSELIB)),)
 $$(call abs_warning,$1 not imported from $2. Already imported another version: $$(call getLibWithLibName,$$(call getLibNameFromVersioned,$1),$$(ALLUSELIB)))
+NOTHING:=$$(shell $$(call writeToBuildLogs,$1 not imported because different version: $$(call getLibWithLibName,$$(call getLibNameFromVersioned,$1),$$(ALLUSELIB))))
 DEPENDENCIES_ERROR=true
 $$(eval ADDEDDEPLIST:=$$(ADDEDDEPLIST)[color="red"] "$1"[color="red"])
 else
@@ -424,7 +422,7 @@ ifneq ($(MAKECMDGOALS),checkdep%)
 ifeq ($(DEPENDENCIES_ERROR),true)
 ifneq ($(ABS_STRICT_DEP_CHECK),)
 $(call abs_error,================================================================)
-$(call abs_error,                     ERROR"))
+$(call abs_error,                     ERROR)
 $(call abs_error,Same lib used with different version. Check USELIB definitions.)
 $(call abs_error,USELIB is: $(USELIB))
 $(call abs_error,Launch 'make checkdep' to see dependency graph.)
@@ -457,6 +455,7 @@ $(call abs_warning,$(sort $(DEV_USELIB)))
 $(call abs_warning,Launch 'make checkdep' to see the full dependency graph.)
 $(call abs_warning,================================================================)
 endif
+NOTHING:=$(shell $(call writeToBuildLogs,Non tagged dependency: $(sort $(DEV_USELIB))))
 endif
 endif
 

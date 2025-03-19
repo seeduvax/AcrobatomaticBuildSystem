@@ -137,7 +137,6 @@ HOSTNAME?=$(shell hostname)
 
 ABS_SCM_TYPE:=null
 
-
 # explicitely checking and forcing variable makefile generation now since 
 # include + rule may lead to delayed include, making this one to late regarding
 # other includes to be done.
@@ -216,6 +215,24 @@ endif
 
 PRJOBJDIR=$(TRDIR)/obj
 
+# log containing all commands executed to generate objects
+BUILDLOG=$(PRJOBJDIR)/build.log
+
+define writeToBuildLogs
+mkdir -p $(PRJOBJDIR) && echo "`$(TRACE_DATE_CMD)`> $(if $(MODNAME),$(MODNAME): )$(subst ",\",$1)" >> $(BUILDLOG)
+endef
+define executeAndLogCmd
+$(call writeToBuildLogs,$1); $1
+endef
+
+ifeq ($(MAKE_RESTARTS),)
+ifeq ($(MAKELEVEL),0)
+NOTHING:=$(shell test ! -f $(BUILDLOG) || rm -f $(BUILDLOG)))
+endif
+NOTHING:=$(shell $(call writeToBuildLogs,make goals: $(MAKECMDGOALS)))
+endif
+
+
 # external libraries local repository
 INCTESTS:=$(filter test %test check %check testbuild help coverage Test%,$(MAKECMDGOALS))
 
@@ -250,7 +267,6 @@ $(PRJOBJDIR)/%/moddeps.mk: $(PRJROOT)/%/module.cfg
 ALL_PROJ_MODULES=$(patsubst $(PRJROOT)/%/module.cfg,%,$(wildcard $(PRJROOT)/*/module.cfg))
 # PROJECT_INC_MODS permit to filter project modules in INCLUDE_MODS or ABS_INCLUDE_MODS variable for example.
 PROJECT_INC_MODS=$(patsubst %,$(APPNAME)_%,$(ALL_PROJ_MODULES))
-
 
 ## 
 ## --------------------------------------------------------------------

@@ -7,7 +7,7 @@ OBJS+=$(FORTRANOBJS)
 define fortranc-command
 @$(ABS_PRINT_info) "Compiling $< ..."
 @mkdir -p $(@D)
-@echo `$(TRACE_DATE_CMD)`"> $(FORTRANC) $(FORTRANFLAGS) -c $< -D $(@D)" >> $(BUILDLOG)
+@$(call writeToBuildLogs,$(FORTRANC) $(FORTRANFLAGS) -c $< -D $(@D))
 @$(FORTRANC) $(CFLAGS) -c $< -o $@ || ( $(ABS_PRINT_error) "Failed: FORTRANFLAGS=$(FORTRANFLAGS)" ; exit 1 )
 endef
 

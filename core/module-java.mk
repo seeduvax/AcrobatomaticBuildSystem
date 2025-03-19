@@ -70,7 +70,7 @@ all-impl:: $(TARGETFILE)
 $(JARIMGDIR)/%.class: src/%.java
 	@$(ABS_PRINT_info) "Compiling $< ..."
 	@mkdir -p $(JARIMGDIR)
-	@echo `$(TRACE_DATE_CMD)`'> $(JC) $(JCFLAGS) $<' >> $(BUILDLOG)
+	@$(call writeToBuildLogs,$(JC) $(JCFLAGS) $<)
 	@$(JC) $(JCFLAGS) $(if $(ISWINDOWS),`cygpath -m $<`,$<) || ( echo 'Failed: JFLAGS=$(JCFLAGS)' ; exit 1 )
 
 # Resource file copy
@@ -103,18 +103,18 @@ $(TARGETFILE): $(OBJDIR)/$(MODNAME).Manifest $(RESFILES)
 	@$(ABS_PRINT_info) "Building archive $@ ..."
 	@mkdir -p $(TARGETDIR)
 ifeq ($(ISWINDOWS),true)
-	@echo `$(TRACE_DATE_CMD)`'> $(JAR) cf $@ -C $(JARIMGDIR) .' >> $(BUILDLOG)
+	@$(call writeToBuildLogs,$(JAR) cf $@ -C $(JARIMGDIR) .)
 	@$(JAR) cf `cygpath -m $@` -C `cygpath -m $(JARIMGDIR)` .
 else
 ifeq ($(JAR),dx)
-	@echo `$(TRACE_DATE_CMD)`'> $(JAR) --dex --output $@ $(JARIMGDIR)' >> $(BUILDLOG)
+	@$(call writeToBuildLogs,$(JAR) --dex --output $@ $(JARIMGDIR))
 	@$(JAR) --dex --output $@ $(JARIMGDIR)
 else
-	@echo `$(TRACE_DATE_CMD)`'> $(JAR) cf $@ -C $(JARIMGDIR) .' >> $(BUILDLOG)
+	@$(call writeToBuildLogs,$(JAR) cf $@ -C $(JARIMGDIR) .)
 	@$(JAR) cf $@ -C $(JARIMGDIR) .
 endif
 endif
-	@echo `$(TRACE_DATE_CMD)`'$(JAR) umf $(OBJDIR)/$(MODNAME).Manifest $@' >> $(BUILDLOG)
+	@$(call writeToBuildLogs,$(JAR) umf $(OBJDIR)/$(MODNAME).Manifest $@)
 ifeq ($(ISWINDOWS),true)
 	@$(JAR) umf `cygpath -m $(OBJDIR)/$(MODNAME).Manifest` `cygpath -m $@`
 else
