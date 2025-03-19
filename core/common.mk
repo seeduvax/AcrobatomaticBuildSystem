@@ -248,6 +248,16 @@ ifneq ($(VFLAVOR),)
 VERSION:=$(VERSION)_$(subst $(_space_),_,$(sort $(VFLAVOR)))
 endif
 
+ALL_PROJ_MODULES=$(patsubst $(PRJROOT)/%/module.cfg,%,$(wildcard $(PRJROOT)/*/module.cfg))
+ALL_PROJ_MODDEPS_MK=$(patsubst %,$(PRJOBJDIR)/%/moddeps.mk,$(ALL_PROJ_MODULES))
+# PROJECT_INC_MODS permit to filter project modules in INCLUDE_MODS or ABS_INCLUDE_MODS variable for example.
+PROJECT_INC_MODS=$(patsubst %,$(APPNAME)_%,$(ALL_PROJ_MODULES))
+
+# dependencies between modules
+
+$(PRJOBJDIR)/%/moddeps.mk: $(PRJROOT)/%/module.cfg
+	@+make -C $(PRJROOT)/$* --no-print-directory PRJROOT="$(PRJROOT)" TRDIR="$(TRDIR)" PRJOBJDIR="$(PRJOBJDIR)" ARCH="$(ARCH)" -f $(ABSROOT)/core/module-depends.mk
+
 # include extern libraries management rules
 ifneq ($(INCLUDE_EXTLIB),false)
 include $(ABSROOT)/core/common-extlib.mk
@@ -259,14 +269,6 @@ ifneq ($(wildcard $(PRJROOT)/_charm),)
 include $(ABSROOT)/charm/main.mk
 endif
 
-# dependencies between modules
-
-$(PRJOBJDIR)/%/moddeps.mk: $(PRJROOT)/%/module.cfg
-	@+make -C $(PRJROOT)/$* --no-print-directory PRJROOT="$(PRJROOT)" TRDIR="$(TRDIR)" PRJOBJDIR="$(PRJOBJDIR)" -f $(ABSROOT)/core/module-depends.mk
-
-ALL_PROJ_MODULES=$(patsubst $(PRJROOT)/%/module.cfg,%,$(wildcard $(PRJROOT)/*/module.cfg))
-# PROJECT_INC_MODS permit to filter project modules in INCLUDE_MODS or ABS_INCLUDE_MODS variable for example.
-PROJECT_INC_MODS=$(patsubst %,$(APPNAME)_%,$(ALL_PROJ_MODULES))
 
 ## 
 ## --------------------------------------------------------------------

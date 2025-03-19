@@ -43,9 +43,6 @@ AR=
 SPACECHAR= 
 # Path to receive external source files
 EXT_SRC_DIR=$(BUILDROOT)/extsrc
-EXT_MODSRC_DIR=$(OBJDIR)/extsrc
-TR_APP_INCLUDE_DIR=$(TRDIR)/include/$(APPNAME)
-TR_MOD_INCLUDE_DIR=$(TR_APP_INCLUDE_DIR)/$(MODNAME)
 
 # Buildcript capabilities
 # introduced in buildscrip 0.4, may be used to have some fallback
@@ -62,6 +59,9 @@ GENSRC:=
 GENOBJS:=
 
 include $(ABSROOT)/core/common.mk
+
+TR_APP_INCLUDE_DIR=$(TRDIR)/include/$(APPNAME)
+TR_MOD_INCLUDE_DIR=$(TR_APP_INCLUDE_DIR)/$(MODNAME)
 
 # ultimate wildcard to eliminate files with space
 SRCFILES:=$(wildcard $(call find,src,*))
@@ -97,6 +97,7 @@ endif
 
 # object files go in a subdirectory of build dir dedicated to the module
 OBJDIR?=$(PRJOBJDIR)/$(MODNAME)
+EXT_MODSRC_DIR=$(OBJDIR)/extsrc
 
 ## 
 ## Common make targets:
@@ -235,9 +236,12 @@ $(PRJOBJDIR)/$(MODNAME)/moddeps.mk: $(patsubst %,$(PRJOBJDIR)/%/moddeps.mk,$(fil
 # do not create .depready file to avoid recompilation of all objects when a dependency changed.
 .PHONY: $(PRJOBJDIR)/%/.depready
 $(PRJOBJDIR)/%/.depready:
-	@:
+	@test -f $@ || touch $@
 
 $(OBJS): $(PRJOBJDIR)/$(MODNAME)/.depready
+
+# recompile all if a dependency changed.
+$(OBJS): $(EXTLIBMAKE_FULL_IMPORTED)
 
 ifneq ($(filter $(APPNAME)_$(NOBUILD),$(ABS_INCLUDE_MODS)),)
 $(error $(MODNAME): can't build because of deactivated dependency: $(filter $(APPNAME)_$(NOBUILD),$(ABS_INCLUDE_MODS)))
@@ -245,7 +249,7 @@ endif
 
 endif
 
-$(PRJOBJDIR)/%/.done: $(ALLINCLUDES_MK)
+$(PRJOBJDIR)/%/.done: $(ALL_INCLUDED_FILE)
 	@$(ABS_PRINT_info) "==============="
 	@$(ABS_PRINT_info) "$(MODNAME): Build of dependency: $*"
 	@+make $(MMARGS) MODE=$(MODE) -C $(PRJROOT)/$*

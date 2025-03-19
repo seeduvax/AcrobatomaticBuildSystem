@@ -25,8 +25,7 @@ endif
 
 MODULES_TO_BUILD:=$(patsubst %,$(PRJOBJDIR)/%/moddeps.mk,$(MODULES_DEPS))
 
-# TODO why not checkdep% ?
-ifeq ($(filter clean% docker% getdeps% checkdep%,$(MAKECMDGOALS)),)
+ifeq ($(filter clean% docker%,$(MAKECMDGOALS)),)
 ifneq ($(MODULES_TO_BUILD),)
 include $(MODULES_TO_BUILD)
 endif
@@ -154,7 +153,7 @@ define checkModName
 MODNAME=`grep -E "^MODNAME" $1/module.cfg | sed -E 's/.*=(.*)/\1/g'` && test "$$MODNAME" = "$1" || test -z "$$MODNAME" || $(ABS_PRINT_warning) "The name of the module $$MODNAME doesn't match the name of the module directory $1. This can have side effects."
 endef
 
-$(PRJOBJDIR)/%/.done:
+$(PRJOBJDIR)/%/.done: $(EXTLIBMAKE_FULL_IMPORTED)
 	@$(ABS_PRINT_info) "==============="
 	@$(ABS_PRINT_info) "Building module $*..."
 	@$(call checkModName,$*)
@@ -252,7 +251,7 @@ cleanabs:
 	@$(ABS_PRINT_info) "Setting write permissions to $(ABSWS)..."
 	@test ! -d $(ABSWS)/extlib || chmod -R u+w $(ABSWS)/extlib
 	@test ! -d $(ABSWS)/cache || chmod -R u+w $(ABSWS)/cache
-	@test ! -f $(ALLINCLUDES_MK) || rm $(ALLINCLUDES_MK)
+	@test ! -f $(ALL_INCLUDED_FILE) || rm $(ALL_INCLUDED_FILE)
 	@chmod -R u+w $(ABSROOT) 2> /dev/null
 	@$(ABS_PRINT_info) "Cleaning ABS cache $(ABSWS)..."
 	@rm -rf $(ABSWS)/extlib $(ABSWS)/cache 
@@ -265,7 +264,7 @@ cleanabs:
 purgeabs:
 	@$(ABS_PRINT_info) "Setting write permissions to $(ABSWS)..."
 	@chmod -R u+w $(ABSWS) 2> /dev/null
-	@test ! -f $(ALLINCLUDES_MK) || rm $(ALLINCLUDES_MK)
+	@test ! -f $(ALL_INCLUDED_FILE) || rm $(ALL_INCLUDED_FILE)
 	@$(ABS_PRINT_info) "Removing ABS files and cache $(ABSWS)..."
 	@rm -rf $(ABSWS)
 	@$(ABS_PRINT_info) "ABS purge completed."
