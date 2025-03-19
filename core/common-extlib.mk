@@ -299,20 +299,33 @@ endif
 TRANSUSELIB:=$(USELIB)
 ALLUSELIB:=$(TRANSUSELIB) $(NDUSELIB)
 DEV_USELIB=$(filter-out $(DEV_USELIB_IGNORE),$(filter %d,$(ALLUSELIB)))
+
+# macro to include lib
+# $1 lib dependency name (name-version)
+# $2 extlib directory path
+# $3 variable to use to store libs
+define extlib_import_include
+$(eval $3+=$1)
+$(patsubst %,$2/%/import.mk,$(subst |,-,$1))
+endef
+
 # macro to include lib
 # $1 lib dependancy name (name-version)
-# $3 lib parent name
+# $2 lib parent name
 # $3 extlib directory path
 # $4 variable to use to store libs
-define includeExtLib
-# the import.mk must not be imported if already imported in EXTLIB
-ifeq ($$(call isLibInList,$1,$$($4) $$(TRANSUSELIB)),)
-$$(eval $4+=$1)
-include $$(patsubst %,$3/%/import.mk,$$(subst |,-,$1))
-else
-$$(call abs_debug,$1 already imported. Ignoring new dependency from $2 to $1)
-endif
+define extlib_import4
+$(eval ALLUSELIB+=$1)
+$(if $(call isLibInList,$1,$($4) $(TRANSUSELIB)),\
+$(call abs_debug,$1 already imported. Ignoring new dependency from $2 to $1),\
+$(call extlib_import_include,$1,$3,$4))
+endef
 
+define extlib_import_warn_imported
+$(call abs_warning,$1 not imported from $2. Already imported another version: $(call getLibWithLibName,$(call getLibNameFromVersioned,$1),$(ALLUSELIB)))
+$(eval NOTHING:=$(shell $(call writeToBuildLogs,$1 not imported because different version: $(call getLibWithLibName,$(call getLibNameFromVersioned,$1),$(ALLUSELIB)))))
+$(eval DEPENDENCIES_ERROR=true)
+$(eval ADDEDDEPLIST:=$(ADDEDDEPLIST)[color="red"] "$1"[color="red"])
 endef
 
 # macro to include lib
@@ -320,69 +333,50 @@ endef
 # $2 lib parent name
 # $3 extlib directory path
 # $4 variable to use to store libs
-define condIncludeExtLib
-$$(eval ADDEDDEPLIST:=$$(ADDEDDEPLIST) "$2"->"$1")
-ifeq ($$(call isLibInListByName,$1,$$(ALLUSELIB)),)
-# the lib has not been imported yet
-ALLUSELIB+=$1
-$(call includeExtLib,$1,$2,$3,$4)
-else
-ifeq ($$(call isLibInList,$1,$$(ALLUSELIB)),)
-$$(call abs_warning,$1 not imported from $2. Already imported another version: $$(call getLibWithLibName,$$(call getLibNameFromVersioned,$1),$$(ALLUSELIB)))
-NOTHING:=$$(shell $$(call writeToBuildLogs,$1 not imported because different version: $$(call getLibWithLibName,$$(call getLibNameFromVersioned,$1),$$(ALLUSELIB))))
-DEPENDENCIES_ERROR=true
-$$(eval ADDEDDEPLIST:=$$(ADDEDDEPLIST)[color="red"] "$1"[color="red"])
-else
-# same version
-$(call includeExtLib,$1,$2,$3,$4)
-endif
-endif
-
+define extlib_import3
+$(eval ADDEDDEPLIST:=$(ADDEDDEPLIST) "$2"->"$1")
+$(if $(call isLibInListByName,$1,$(ALLUSELIB)),\
+$(if $(call isLibInList,$1,$(ALLUSELIB)),\
+$(call extlib_import4,$1,$2,$3,$4),\
+$(call extlib_import_warn_imported,$1,$2)),\
+$(call extlib_import4,$1,$2,$3,$4))
 endef
 
-# macro to be expansed at external lib inclusion.
-# $1 lib name
+# macro to include lib
+# $1 lib dependency name
 # $2 lib version
-# $3 lib's dependencies.
-# Regex to get the name of module from lib can accept pattern like (projA-1.2.3_clang-13, projA-1.2.3, proj12A-2.63, ...)
+# $3 libs to include
+# $4 extlib directory path
+# $5 variable to use to store libs
+define extlib_import2
+$(foreach lib,$3,$(call extlib_import3,$(lib),$1-$2,$4,$5))
+$(eval _app_$1_dir:=$4/$1-$2)
+$(eval _app_$1_depends+=$(foreach lib,$3,$(call getLibNameFromVersioned,$(lib))))
+$(eval ALL_LIBS_LOADED+=$1)
+endef
+
+# macro to include lib
+# The return of the macro is the list of external libs to include (the import.mk paths).
+# $1 lib dependency name
+# $2 lib version
+# $3 libs to include
+# $4 variable to use to store libs
+define extlib_import
+$(if $(call isLibInList,$1-$2,$(TRANSUSELIB)),$(call extlib_import2,$1,$2,$3,$(EXTLIBDIR),TRANSUSELIB))
+$(if $(call isLibInList,$1-$2,$(NA_USELIB)),$(call extlib_import2,$1,$2,$3,$(NA_EXTLIBDIR),NA_USELIB))
+$(if $(call isLibInList,$1-$2,$(NDUSELIB)),$(call extlib_import2,$1,$2,$3,$(NDEXTLIBDIR),NDUSELIB))
+$(if $(call isLibInList,$1-$2,$(NDNA_USELIB)),$(call extlib_import2,$1,$2,$3,$(NDNA_EXTLIBDIR),NDNA_USELIB))
+$(eval ABS_INCLUDE_MODS+=$1)
+endef
+
 define extlib_import_template
-ifneq ($$(call isLibInList,$1-$2,$$(TRANSUSELIB)),)
-$(foreach lib,$3,$(call condIncludeExtLib,$(lib),$1-$2,$(EXTLIBDIR),TRANSUSELIB))
-_app_$1_dir:=$(EXTLIBDIR)/$1-$2
-_app_$1_depends+=$(foreach lib,$3,$(call getLibNameFromVersioned,$(lib)))
-ALL_LIBS_LOADED+=$1
-else
-ifneq ($$(call isLibInList,$1-$2,$$(NA_USELIB)),)
-$(foreach lib,$3,$(call condIncludeExtLib,$(lib),$1-$2,$(NA_EXTLIBDIR),NA_USELIB))
-_app_$1_dir:=$(NA_EXTLIBDIR)/$1-$2
-_app_$1_depends+=$(foreach lib,$3,$(call getLibNameFromVersioned,$(lib)))
-ALL_LIBS_LOADED+=$1
-else
-ifneq ($$(call isLibInList,$1-$2,$$(NDUSELIB)),)
-$(foreach lib,$3,$(call condIncludeExtLib,$(lib),$1-$2,$(NDEXTLIBDIR),NDUSELIB))
-_app_$1_dir:=$(NDEXTLIBDIR)/$1-$2
-_app_$1_depends+=$(foreach lib,$3,$(call getLibNameFromVersioned,$(lib)))
-ALL_LIBS_LOADED+=$1
-else
-ifneq ($$(call isLibInList,$1-$2,$$(NDNA_USELIB)),)
-$(foreach lib,$3,$(call condIncludeExtLib,$(lib),$1-$2,$(NDNA_EXTLIBDIR),NDNA_USELIB))
-_app_$1_dir:=$(NDNA_EXTLIBDIR)/$1-$2
-_app_$1_depends+=$(foreach lib,$3,$(call getLibNameFromVersioned,$(lib)))
-ALL_LIBS_LOADED+=$1
-endif
-endif
-endif
-endif
+include $$(sort $$(call extlib_import,$1,$2,$3))
 
-ABS_INCLUDE_MODS+=$1
-
-$(NA_EXTLIBDIR)/%.jar: $(EXTLIBDIR)/$1-$2/lib/%.jar
+$$(NA_EXTLIBDIR)/%.jar: $$(EXTLIBDIR)/$1-$2/lib/%.jar
 	@$$(ABS_PRINT_info) "Importing jar lib $$(@F)..."
 	@mkdir -p $$(@D)
-	@$(LNFILE) $$< $$@
-
+	@$$(LNFILE) $$< $$@
 endef
-
 # list of import makefile from external libraries declared in module
 # configuration only if not requesting clean or cleanabs target. In this case,
 # we don't care importing the dependencies.
