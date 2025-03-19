@@ -236,10 +236,8 @@ endif
 # external libraries local repository
 INCTESTS:=$(filter test %test check %check testbuild help coverage Test%,$(MAKECMDGOALS))
 
-ifneq ($(INCTESTS),)
 # The TUSELIB are libraries not needed for the main build but needed for the tests.
 NDUSELIB+=$(TUSELIB)
-endif
 
 # profiler.mk contains VFLAVOR
 include $(ABSROOT)/core/profiler.mk
@@ -257,6 +255,32 @@ PROJECT_INC_MODS=$(patsubst %,$(APPNAME)_%,$(ALL_PROJ_MODULES))
 
 $(PRJOBJDIR)/%/moddeps.mk: $(PRJROOT)/%/module.cfg
 	@+make -C $(PRJROOT)/$* --no-print-directory PRJROOT="$(PRJROOT)" TRDIR="$(TRDIR)" PRJOBJDIR="$(PRJOBJDIR)" ARCH="$(ARCH)" -f $(ABSROOT)/core/module-depends.mk
+
+ifeq ($(ABS_FROMAPP),true)
+# if from app, includes moddeps.mk here to have full USELIB variable before doing extlib inclusion.
+ifeq ($(MODULES),)
+# search for module only if not explicitely defined from app.cfg.
+MODULES:=$(ALL_PROJ_MODULES)
+MODULES_DEPS:=$(filter-out $(NOBUILD),$(MODULES))
+else
+MODULES_DEPS:=$(MODULES)
+endif # ifeq ($(MODULES),)
+
+ifneq ($(filter kdistinstall,$(MAKECMDGOALS)),)
+KMODULES:=$(filter %_lkm,$(MODULES_DEPS))
+MODULES_DEPS:=$(KMODULES)
+endif
+
+MODULES_TO_BUILD:=$(patsubst %,$(PRJOBJDIR)/%/moddeps.mk,$(MODULES_DEPS))
+
+ifeq ($(filter clean% docker%,$(MAKECMDGOALS)),)
+ifneq ($(MODULES_TO_BUILD),)
+include $(MODULES_TO_BUILD)
+endif
+endif # ifeq ($(filter clean% docker%,$(MAKECMDGOALS)),)
+
+endif
+
 
 # include extern libraries management rules
 ifneq ($(INCLUDE_EXTLIB),false)

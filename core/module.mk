@@ -105,6 +105,7 @@ EXT_MODSRC_DIR=$(OBJDIR)/extsrc
 ##  - all (default): builds all
 .PHONY: all
 all: all-impl
+	@date > $(OBJDIR)/.done
 
 ##  - clean: removed all files created by the module build process
 .PHONY: clean
@@ -249,7 +250,7 @@ endif
 
 endif
 
-$(PRJOBJDIR)/%/.done: $(ALL_INCLUDED_FILE)
+$(PRJOBJDIR)/%/.done: $(EXTLIBMAKE_FULL_IMPORTED)
 	@$(ABS_PRINT_info) "==============="
 	@$(ABS_PRINT_info) "$(MODNAME): Build of dependency: $*"
 	@+make $(MMARGS) MODE=$(MODE) -C $(PRJROOT)/$*

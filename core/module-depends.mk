@@ -2,8 +2,9 @@ all:
 
 include ../app.cfg
 DEFAULT_USELIB:=$(USELIB)
-DEFAULT_NDUSELIB:=$(NDUSELIB)
+DEFAULT_NDUSELIB:=$(NDUSELIB) $(TUSELIB)
 include module.cfg
+NDUSELIB+=$(TUSELIB)
 
 MODNAME?=$(notdir $(abspath .))
 

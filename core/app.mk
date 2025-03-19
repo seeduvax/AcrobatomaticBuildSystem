@@ -10,27 +10,6 @@
 ## 
 include $(ABSROOT)/core/common.mk
 
-ifeq ($(MODULES),)
-# search for module only if not explicitely defined from app.cfg.
-MODULES:=$(ALL_PROJ_MODULES)
-MODULES_DEPS:=$(filter-out $(NOBUILD),$(MODULES))
-else
-MODULES_DEPS:=$(MODULES)
-endif # ifeq ($(MODULES),)
-
-ifneq ($(filter kdistinstall,$(MAKECMDGOALS)),)
-KMODULES:=$(filter %_lkm,$(MODULES_DEPS))
-MODULES_DEPS:=$(KMODULES)
-endif
-
-MODULES_TO_BUILD:=$(patsubst %,$(PRJOBJDIR)/%/moddeps.mk,$(MODULES_DEPS))
-
-ifeq ($(filter clean% docker%,$(MAKECMDGOALS)),)
-ifneq ($(MODULES_TO_BUILD),)
-include $(MODULES_TO_BUILD)
-endif
-endif # ifeq ($(filter clean% docker%,$(MAKECMDGOALS)),)
-
 
 MODULES_TARGET:=$(patsubst %,$(PRJOBJDIR)/%/.done,$(MODULES_DEPS)) $(patsubst %,warnnobuild.%,$(NOBUILD))
 MODULES_TEST:=$(filter-out $(patsubst %,testmod.%,$(NOBUILD) $(NOTEST)),$(patsubst %,testmod.%,$(MODULES))) $(patsubst %,warnnotest.%,$(NOTEST) $(NOBUILD))

@@ -163,12 +163,7 @@ $(TTARGETFILE): $(TCPPOBJS) $(TTARGETFILEDEP)
 # Extra dependencies
 # ---------------------------------------------------------------------
 # Generating test object need cppunit libs and tools to be availables
-$(TCPPOBJS): $(CPPUNIT_DIR)/import.mk
-
-ifneq ($(TSRCFILES),)
-#dependencies management
-$(TSRCFILES):
-endif
+$(TCPPOBJS): $(EXTLIBMAKE_FULL_IMPORTED) $(CPPUNIT_DIR)/import.mk
 
 ifneq ($(wildcard test/Main.cpp),)
 
