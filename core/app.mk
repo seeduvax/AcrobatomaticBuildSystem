@@ -154,13 +154,7 @@ define checkModName
 MODNAME=`grep -E "^MODNAME" $1/module.cfg | sed -E 's/.*=(.*)/\1/g'` && test "$$MODNAME" = "$1" || test -z "$$MODNAME" || $(ABS_PRINT_warning) "The name of the module $$MODNAME doesn't match the name of the module directory $1. This can have side effects."
 endef
 
-$(PRJOBJDIR)/%/.depready::
-	@$(call checkModName,$*)
-	@mkdir -p $(@D)
-	@mkdir -p $(TRDIR)/.abs/content
-	@echo "# "`date` > $@
-
-$(PRJOBJDIR)/%/.done: $(PRJOBJDIR)/%/.depready
+$(PRJOBJDIR)/%/.done:
 	@$(ABS_PRINT_info) "==============="
 	@$(ABS_PRINT_info) "Building module $*..."
 	@$(call checkModName,$*)

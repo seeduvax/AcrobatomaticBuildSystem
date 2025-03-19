@@ -232,9 +232,10 @@ include $(PRJOBJDIR)/$(MODNAME)/moddeps.mk
 # Otherwise compilation of dependencies will start before to have all targets.
 $(PRJOBJDIR)/$(MODNAME)/moddeps.mk: $(patsubst %,$(PRJOBJDIR)/%/moddeps.mk,$(filter-out $(MODNAME),$(ALL_PROJ_MODULES)))
 
+# do not create .depready file to avoid recompilation of all objects when a dependency changed.
+.PHONY: $(PRJOBJDIR)/%/.depready
 $(PRJOBJDIR)/%/.depready:
-	@mkdir -p $(@D)
-	@echo "# "`date` > $@
+	@:
 
 $(OBJS): $(PRJOBJDIR)/$(MODNAME)/.depready
 
