@@ -172,7 +172,7 @@ newmod:
 	@mkdir $(NEWMODNAME)/src
 	@echo "# Generated make bootstrap, do not edit. Edit module.cfg to configure module build." > $(NEWMODNAME)/Makefile
 	@echo "include ../Makefile" >> $(NEWMODNAME)/Makefile
-	@printf "MODNAME=$(NEWMODNAME)\nMODTYPE=library\nUSEMOD=\nLINKLIB=\nCFLAGS+=\nLDFLAGS+=\n" > $(NEWMODNAME)/module.cfg
+	@printf "MODTYPE=library\nUSEMOD=\nLINKLIB=\nCFLAGS+=\nLDFLAGS+=\n" > $(NEWMODNAME)/module.cfg
 
 $(NEWMODNAME):
 	@:
