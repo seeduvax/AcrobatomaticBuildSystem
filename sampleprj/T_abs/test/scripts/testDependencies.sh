@@ -10,6 +10,9 @@ executeMake pubdist testlib-dashed
 executeMake pubdist projA
 testLinked projA cppexe projA_cpplib
 
+tail -n +2 $testDirectory/projA/dist/flatten/projA-1.4.2d/import.mk > $testDirectory/projA/dist/flatten/projA-1.4.2d/import2.mk
+testFile $testDirectory/projA/dist/flatten/projA-1.4.2d/import2.mk $MODROOT/test/resources/expected/projA_import2.mk
+
 executeMake pubdist projB
 testLinked projB cpplib projA_cpplib test
 

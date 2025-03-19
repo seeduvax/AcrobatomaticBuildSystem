@@ -242,7 +242,7 @@ $(PRJOBJDIR)/%/.depready:
 $(OBJS): $(PRJOBJDIR)/$(MODNAME)/.depready
 
 # recompile all if a dependency changed.
-$(OBJS): $(EXTLIBMAKE_FULL_IMPORTED)
+$(OBJS): $(ALL_EXT_LIBS_INCLUDED_FILE)
 
 ifneq ($(filter $(APPNAME)_$(NOBUILD),$(ABS_INCLUDE_MODS)),)
 $(error $(MODNAME): can't build because of deactivated dependency: $(filter $(APPNAME)_$(NOBUILD),$(ABS_INCLUDE_MODS)))
@@ -250,7 +250,7 @@ endif
 
 endif
 
-$(PRJOBJDIR)/%/.done: $(EXTLIBMAKE_FULL_IMPORTED)
+$(PRJOBJDIR)/%/.done: $(ALL_EXT_LIBS_INCLUDED_FILE)
 	@$(ABS_PRINT_info) "==============="
 	@$(ABS_PRINT_info) "$(MODNAME): Build of dependency: $*"
 	@+make $(MMARGS) MODE=$(MODE) -C $(PRJROOT)/$*
