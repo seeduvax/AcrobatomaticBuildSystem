@@ -13,6 +13,7 @@ MODNAME?=$(notdir $(abspath .))
 # The externals libs EXTLIBMAKES must be done before launching compilation of dependences.
 # ABS_INCLUDE_MODS must not include test libs or test mods
 # ultimate wildcard to eliminate files with space
+# add dependence between testmod, to test the modules in the order of dependences. (only use in app level)
 $(PRJOBJDIR)/$(MODNAME)/moddeps.mk:
 	@$(ABS_PRINT_info) "Generating $(MODNAME) module dependency file."
 	@mkdir -p $(@D)
@@ -27,9 +28,10 @@ $(PRJOBJDIR)/$(MODNAME)/moddeps.mk:
 'USELIB+=$(filter-out $(DEFAULT_USELIB),$(USELIB))\n'\
 'NDUSELIB+=$(filter-out $(DEFAULT_NDUSELIB),$(NDUSELIB))\n\n'\
 '$$(PRJOBJDIR)/$(MODNAME)/.depready: $$(_module_$(APPNAME)_$(MODNAME)_done_depends)\n\n'\
-'$$(PRJOBJDIR)/$(MODNAME)/.done: $$(wildcard $$(call find,$$(PRJROOT)/$(MODNAME),*))\n\n' >> $@.tmp
-	@printf '$$(PRJOBJDIR)/$(MODNAME)/.done: $$(_module_$(APPNAME)_$(MODNAME)_done_depends)\n' >> $@.tmp
-	@printf "\nendif\n" >> $@.tmp
+'$$(PRJOBJDIR)/$(MODNAME)/.done: $$(wildcard $$(call find,$$(PRJROOT)/$(MODNAME),*))\n\n'\
+'$$(PRJOBJDIR)/$(MODNAME)/.done: $$(_module_$(APPNAME)_$(MODNAME)_done_depends)\n\n'\
+'testmod.$(MODNAME): $$(patsubst %%,testmod.%%,$(sort $(USEMOD) $(TESTUSEMOD)))\n\n'\
+'endif\n' >> $@.tmp
 	@mv $@.tmp $@
 
 all: $(PRJOBJDIR)/$(MODNAME)/moddeps.mk
