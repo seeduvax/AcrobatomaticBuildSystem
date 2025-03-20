@@ -387,18 +387,14 @@ EXTLIBMAKES=$(patsubst %,$(EXTLIBDIR)/%/import.mk,$(subst |,-,$(USELIB))) \
 
 DEFAULT_EXTLIBMAKES:=$(EXTLIBMAKES)
 
-# import.mk depends on all moddeps.mk to because moddeps.mk can have addionnals USELIB
+# import.mk depends on all moddeps.mk to because moddeps.mk can have additionnals USELIB
 $(DEFAULT_EXTLIBMAKES): $(ALL_PROJ_MODDEPS_MK)
-
-include $(DEFAULT_EXTLIBMAKES)
 
 # The TUSELIB are libraries not needed for the main build but needed for the tests.
 ifneq ($(INCTESTS),)
 # add TUSELIB after to not objs depends on it
 NDUSELIB+=$(TUSELIB)
-include $(EXTLIBMAKES)
 endif
-
 
 # --------------------------------
 # Print warning or fail according strict checking mode when

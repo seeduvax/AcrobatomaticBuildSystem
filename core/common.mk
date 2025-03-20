@@ -257,6 +257,11 @@ PROJECT_INC_MODS=$(patsubst %,$(APPNAME)_%,$(ALL_PROJ_MODULES))
 $(PRJOBJDIR)/%/moddeps.mk: $(PRJROOT)/%/module.cfg
 	@+make -C $(PRJROOT)/$* --no-print-directory PRJROOT="$(PRJROOT)" TRDIR="$(TRDIR)" PRJOBJDIR="$(PRJOBJDIR)" ARCH="$(ARCH)" -f $(ABSROOT)/core/module-depends.mk
 
+# include extern libraries management rules
+ifneq ($(INCLUDE_EXTLIB),false)
+include $(ABSROOT)/core/common-extlib.mk
+endif
+
 ## 
 ## --------------------------------------------------------------------
 ## Common targets

@@ -32,11 +32,8 @@ include $(MODULES_TO_BUILD)
 endif
 endif # ifeq ($(filter clean% docker%,$(MAKECMDGOALS)),)
 
-
-# include extern libraries management rules
-ifneq ($(INCLUDE_EXTLIB),false)
-include $(ABSROOT)/core/common-extlib.mk
-endif
+# include EXTLIBMAKES after moddeps.mk to have all USELIB
+include $(EXTLIBMAKES)
 
 MODULES_TARGET:=$(patsubst %,$(PRJOBJDIR)/%/.done,$(MODULES_DEPS)) $(patsubst %,warnnobuild.%,$(NOBUILD))
 MODULES_TEST:=$(filter-out $(patsubst %,testmod.%,$(NOBUILD) $(NOTEST)),$(patsubst %,testmod.%,$(MODULES))) $(patsubst %,warnnotest.%,$(NOTEST) $(NOBUILD))

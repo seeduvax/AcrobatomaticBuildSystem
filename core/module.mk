@@ -67,10 +67,9 @@ $(PRJOBJDIR)/$(MODNAME)/moddeps.mk: $(patsubst %,$(PRJOBJDIR)/%/moddeps.mk,$(fil
 # include moddeps now to have all the needed USELIB for external dependency resolution
 include $(PRJOBJDIR)/$(MODNAME)/moddeps.mk
 
-# include extern libraries management rules
-ifneq ($(INCLUDE_EXTLIB),false)
-include $(ABSROOT)/core/common-extlib.mk
-endif
+# include EXTLIBMAKES after moddeps.mk to have all USELIB
+include $(EXTLIBMAKES)
+
 
 TR_APP_INCLUDE_DIR=$(TRDIR)/include/$(APPNAME)
 TR_MOD_INCLUDE_DIR=$(TR_APP_INCLUDE_DIR)/$(MODNAME)
