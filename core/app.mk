@@ -153,13 +153,13 @@ cleanbuild:
 	@-test ! -d build || chmod -R u+w build 2> /dev/null
 	@$(ABS_PRINT_info) "Removing build"
 	@rm -rf build
-	@! test -f $(CLANGD_DB) || rm $(CLANGD_DB)
+	@test ! -f $(CLANGD_DB) || rm $(CLANGD_DB)
 
 define checkModName
 MODNAME=`grep -E "^MODNAME" $1/module.cfg | sed -E 's/.*=(.*)/\1/g'` && test "$$MODNAME" = "$1" || test -z "$$MODNAME" || $(ABS_PRINT_warning) "The name of the module $$MODNAME doesn't match the name of the module directory $1. This can have side effects."
 endef
 
-$(PRJOBJDIR)/%/.done: $(EXTLIBS_DEFAULT_ALL_RESOLVE)
+$(PRJOBJDIR)/%/.done: $(DEFAULT_EXTLIBMAKES)
 	@$(ABS_PRINT_info) "==============="
 	@$(ABS_PRINT_info) "Building module $*..."
 	@$(call checkModName,$*)

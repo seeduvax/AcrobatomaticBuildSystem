@@ -387,43 +387,16 @@ EXTLIBMAKES=$(patsubst %,$(EXTLIBDIR)/%/import.mk,$(subst |,-,$(USELIB))) \
 	$(patsubst %,$(NDNA_EXTLIBDIR)/%/import.mk,$(subst |,-,$(NDNA_USELIB))) \
 	$(patsubst %,$(NA_EXTLIBDIR)/%/import.mk,$(subst |,-,$(NA_USELIB)))
 
-ifeq ($(filter getdeps%,$(MAKECMDGOALS)),)
-EXTLIBS_DEFAULT_LIBS=$(USELIB) $(NDUSELIB) $(NDNA_USELIB) $(NA_USELIB)
-EXTLIBS_DEFAULT_MD5=$(word 1,$(shell echo "$(sort $(EXTLIBS_DEFAULT_LIBS))" | md5sum))
-EXTLIBS_ALL_RESOLVED_FILE=$(EXTLIBS_PROJ_FILES_DIR)/extlibs_$(EXTLIBS_DEFAULT_MD5)
-EXTLIBS_DEFAULT_ALL_RESOLVE:=$(EXTLIBS_ALL_RESOLVED_FILE)
+DEFAULT_EXTLIBMAKES:=$(EXTLIBMAKES)
 
-# use allinclude.mk to be able to get all dependencies first.
-$(EXTLIBS_PROJ_FILES_DIR)/extlibs_%: $(ALL_PROJ_MODDEPS_MK)
-	@mkdir -p $(@D)
-	@# getdeps from app to be sure to have all dependencies.
-	@$(ABS_PRINT_info) "### Resolving all dependencies"
-	@+make --no-print-directory getdeps TRDIR="$(TRDIR)" LIBS_PATH_TO_RESOLVE="$(EXTLIBMAKES)"
-	@echo "# $(sort $(EXTLIBS_DEFAULT_LIBS))" > $@.tmp
-	@echo 'include $$(EXTLIBMAKES)' >> $@.tmp
-	@$(ABS_PRINT_info) "### All dependencies resolved"
-	@mv $@.tmp $@
-
-include $(EXTLIBS_DEFAULT_ALL_RESOLVE)
-# external libraries are expected before starting compilation.
-$(OBJS): $(EXTLIBS_DEFAULT_ALL_RESOLVE)
+include $(DEFAULT_EXTLIBMAKES)
 
 # The TUSELIB are libraries not needed for the main build but needed for the tests.
 ifeq ($(INCTESTS),)
 # add TUSELIB after to not objs depends on it
 NDUSELIB+=$(TUSELIB)
-include $(EXTLIBS_ALL_RESOLVED_FILE)
-endif
-
-else # ifeq ($(filter getdeps%,$(MAKECMDGOALS)),)
-
-ifneq ($(LIBS_PATH_TO_RESOLVE),)
-EXTLIBMAKES=$(LIBS_PATH_TO_RESOLVE)
-endif
-
 include $(EXTLIBMAKES)
-
-endif # ifeq ($(filter getdeps%,$(MAKECMDGOALS)),)
+endif
 
 
 # --------------------------------

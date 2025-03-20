@@ -159,13 +159,13 @@ $(TTARGETFILE): $(TCPPOBJS) $(TTARGETFILEDEP)
 	@mkdir -p $(@D)
 	@$(ld-test)
 
-# CPPUNIT must be added before following rules to recompute $(EXTLIBS_ALL_RESOLVED_FILE)
+# CPPUNIT must be added before following rules to recompute $(EXTLIBMAKES)
 NDUSELIB+=$(CPPUNIT)
 # ---------------------------------------------------------------------
 # Extra dependencies
 # ---------------------------------------------------------------------
 # Generating test object need cppunit libs and tools to be availables
-$(TCPPOBJS): $(EXTLIBS_ALL_RESOLVED_FILE)
+$(TCPPOBJS): $(EXTLIBMAKES)
 
 ifneq ($(wildcard test/Main.cpp),)
 

@@ -205,7 +205,7 @@ $(warning Unknown module type $(MODTYPE), no module specific rules included)
 endif
 
 # include resolved file in case new libs have been added to dependencies.
-include $(EXTLIBS_ALL_RESOLVED_FILE)
+include $(EXTLIBMAKES)
 
 # Copy of config files.
 # Use FILTER_FILES to find the config file which must be modified using FILTER_VARIABLES.
@@ -254,7 +254,7 @@ $(PRJOBJDIR)/%/.depready:
 $(OBJS): $(PRJOBJDIR)/$(MODNAME)/.depready
 
 # recompile all if a dependency changed.
-$(OBJS): $(EXTLIBS_DEFAULT_ALL_RESOLVE)
+$(OBJS): $(DEFAULT_EXTLIBMAKES)
 
 ifneq ($(filter $(APPNAME)_$(NOBUILD),$(ABS_INCLUDE_MODS)),)
 $(error $(MODNAME): can't build because of deactivated dependency: $(filter $(APPNAME)_$(NOBUILD),$(ABS_INCLUDE_MODS)))
@@ -262,7 +262,7 @@ endif
 
 endif
 
-$(PRJOBJDIR)/%/.done: $(EXTLIBS_DEFAULT_ALL_RESOLVE)
+$(PRJOBJDIR)/%/.done: $(DEFAULT_EXTLIBMAKES)
 	@$(ABS_PRINT_info) "==============="
 	@$(ABS_PRINT_info) "$(MODNAME): Build of dependency: $*"
 	@+make $(MMARGS) MODE=$(MODE) -C $(PRJROOT)/$*
