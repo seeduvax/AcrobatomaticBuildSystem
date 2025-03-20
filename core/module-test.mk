@@ -34,8 +34,8 @@ TIMEOUTCMD:=timeout $(TIMEOUT)
 endif
 
 CPPUNIT_DIR=$(NDEXTLIBDIR)/$(CPPUNIT)
-CFLAGS+=-I$(CPPUNIT_DIR)/include
-LDFLAGS+=-L$(CPPUNIT_DIR)/$(SODIR)
+TCFLAGS+=-I$(CPPUNIT_DIR)/include
+TLDFLAGS+=-L$(CPPUNIT_DIR)/$(SODIR)
 TLINKLIB+=cppunit
 
 # valgrind
@@ -159,16 +159,15 @@ $(TTARGETFILE): $(TCPPOBJS) $(TTARGETFILEDEP)
 	@mkdir -p $(@D)
 	@$(ld-test)
 
+# CPPUNIT must be added before following rules to recompute $(EXTLIBS_ALL_RESOLVED_FILE)
+NDUSELIB+=$(CPPUNIT)
 # ---------------------------------------------------------------------
 # Extra dependencies
 # ---------------------------------------------------------------------
 # Generating test object need cppunit libs and tools to be availables
-$(TCPPOBJS): $(ALL_EXT_LIBS_INCLUDED_FILE) $(CPPUNIT_DIR)/import.mk
+$(TCPPOBJS): $(EXTLIBS_ALL_RESOLVED_FILE)
 
 ifneq ($(wildcard test/Main.cpp),)
-
-# add cppunit import makefile
-include $(patsubst %,$(NDEXTLIBDIR)/%/import.mk,$(CPPUNIT))
 
 # Variable to handle the filter of some test files defined in FILTER_TEST_FILES.
 # The files in FILTER_TEST_FILES must start with 'test/'.

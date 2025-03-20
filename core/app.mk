@@ -10,6 +10,33 @@
 ## 
 include $(ABSROOT)/core/common.mk
 
+# if from app, includes moddeps.mk here to have full USELIB variable before doing extlib inclusion.
+ifeq ($(MODULES),)
+# search for module only if not explicitely defined from app.cfg.
+MODULES:=$(ALL_PROJ_MODULES)
+MODULES_DEPS:=$(filter-out $(NOBUILD),$(MODULES))
+else
+MODULES_DEPS:=$(MODULES)
+endif # ifeq ($(MODULES),)
+
+ifneq ($(filter kdistinstall,$(MAKECMDGOALS)),)
+KMODULES:=$(filter %_lkm,$(MODULES_DEPS))
+MODULES_DEPS:=$(KMODULES)
+endif
+
+MODULES_TO_BUILD:=$(patsubst %,$(PRJOBJDIR)/%/moddeps.mk,$(MODULES_DEPS))
+
+ifeq ($(filter clean% docker%,$(MAKECMDGOALS)),)
+ifneq ($(MODULES_TO_BUILD),)
+include $(MODULES_TO_BUILD)
+endif
+endif # ifeq ($(filter clean% docker%,$(MAKECMDGOALS)),)
+
+
+# include extern libraries management rules
+ifneq ($(INCLUDE_EXTLIB),false)
+include $(ABSROOT)/core/common-extlib.mk
+endif
 
 MODULES_TARGET:=$(patsubst %,$(PRJOBJDIR)/%/.done,$(MODULES_DEPS)) $(patsubst %,warnnobuild.%,$(NOBUILD))
 MODULES_TEST:=$(filter-out $(patsubst %,testmod.%,$(NOBUILD) $(NOTEST)),$(patsubst %,testmod.%,$(MODULES))) $(patsubst %,warnnotest.%,$(NOTEST) $(NOBUILD))
@@ -132,7 +159,7 @@ define checkModName
 MODNAME=`grep -E "^MODNAME" $1/module.cfg | sed -E 's/.*=(.*)/\1/g'` && test "$$MODNAME" = "$1" || test -z "$$MODNAME" || $(ABS_PRINT_warning) "The name of the module $$MODNAME doesn't match the name of the module directory $1. This can have side effects."
 endef
 
-$(PRJOBJDIR)/%/.done: $(ALL_EXT_LIBS_INCLUDED_FILE)
+$(PRJOBJDIR)/%/.done: $(EXTLIBS_DEFAULT_ALL_RESOLVE)
 	@$(ABS_PRINT_info) "==============="
 	@$(ABS_PRINT_info) "Building module $*..."
 	@$(call checkModName,$*)
@@ -230,7 +257,7 @@ cleanabs:
 	@$(ABS_PRINT_info) "Setting write permissions to $(ABSWS)..."
 	@test ! -d $(ABSWS)/extlib || chmod -R u+w $(ABSWS)/extlib
 	@test ! -d $(ABSWS)/cache || chmod -R u+w $(ABSWS)/cache
-	@test ! -f $(ALL_EXT_LIBS_INCLUDED_FILE) || rm $(ALL_EXT_LIBS_INCLUDED_FILE)
+	@test ! -d $(EXTLIBS_PROJ_FILES_DIR) || rm -rf $(EXTLIBS_PROJ_FILES_DIR)
 	@chmod -R u+w $(ABSROOT) 2> /dev/null
 	@$(ABS_PRINT_info) "Cleaning ABS cache $(ABSWS)..."
 	@rm -rf $(ABSWS)/extlib $(ABSWS)/cache 
@@ -243,7 +270,7 @@ cleanabs:
 purgeabs:
 	@$(ABS_PRINT_info) "Setting write permissions to $(ABSWS)..."
 	@chmod -R u+w $(ABSWS) 2> /dev/null
-	@test ! -f $(ALL_EXT_LIBS_INCLUDED_FILE) || rm $(ALL_EXT_LIBS_INCLUDED_FILE)
+	@test ! -f $(EXTLIBS_PROJ_FILES_DIR) || rm $(EXTLIBS_PROJ_FILES_DIR)
 	@$(ABS_PRINT_info) "Removing ABS files and cache $(ABSWS)..."
 	@rm -rf $(ABSWS)
 	@$(ABS_PRINT_info) "ABS purge completed."

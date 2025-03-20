@@ -2,7 +2,7 @@
 ## ------------------------------------------------------------------------
 ## Dependencies management
 ## ------------------------------------------------------------------------
-ALL_EXT_LIBS_INCLUDED_FILE=$(PRJOBJDIR)/all_ext_deps_included.mk
+EXTLIBS_PROJ_FILES_DIR=$(PRJOBJDIR)/_extlibs
 
 # replace the | by - in libs specifications.
 USELIB_FOR_PATH=$(subst |,-,$(USELIB))
@@ -388,30 +388,41 @@ EXTLIBMAKES=$(patsubst %,$(EXTLIBDIR)/%/import.mk,$(subst |,-,$(USELIB))) \
 	$(patsubst %,$(NA_EXTLIBDIR)/%/import.mk,$(subst |,-,$(NA_USELIB)))
 
 ifeq ($(filter getdeps%,$(MAKECMDGOALS)),)
+EXTLIBS_DEFAULT_LIBS=$(USELIB) $(NDUSELIB) $(NDNA_USELIB) $(NA_USELIB)
+EXTLIBS_DEFAULT_MD5=$(word 1,$(shell echo "$(sort $(EXTLIBS_DEFAULT_LIBS))" | md5sum))
+EXTLIBS_ALL_RESOLVED_FILE=$(EXTLIBS_PROJ_FILES_DIR)/extlibs_$(EXTLIBS_DEFAULT_MD5)
+EXTLIBS_DEFAULT_ALL_RESOLVE:=$(EXTLIBS_ALL_RESOLVED_FILE)
 
 # use allinclude.mk to be able to get all dependencies first.
-$(ALL_EXT_LIBS_INCLUDED_FILE): $(ALL_PROJ_MODDEPS_MK) $(PRJROOT)/app.cfg
+$(EXTLIBS_PROJ_FILES_DIR)/extlibs_%: $(ALL_PROJ_MODDEPS_MK) $(EXTLIBMAKES)
 	@mkdir -p $(@D)
 	@# getdeps from app to be sure to have all dependencies.
-ifeq ($(ABS_FROMAPP),true)
-	@$(ABS_PRINT_info) "Getting all dependencies"
-	@+make --no-print-directory getdeps PRJROOT="$(PRJROOT)" TRDIR="$(TRDIR)" PRJOBJDIR="$(PRJOBJDIR)"
-	@echo "# $(sort $(USELIB) $(NDUSELIB) $(NDNA_USELIB) $(NA_USELIB))" > $@.tmp
+	@$(ABS_PRINT_info) "Resolving all dependencies"
+	@+make --no-print-directory getdeps TRDIR="$(TRDIR)" LIBS_PATH_TO_RESOLVE="$(EXTLIBMAKES)"
+	@echo "# $(sort $(EXTLIBS_DEFAULT_LIBS))" > $@.tmp
 	@echo 'include $$(EXTLIBMAKES)' >> $@.tmp
 	@mv $@.tmp $@
-else
-	@+make --no-print-directory $@ -C $(PRJROOT) PRJROOT="$(PRJROOT)" TRDIR="$(TRDIR)" PRJOBJDIR="$(PRJOBJDIR)"
+
+include $(EXTLIBS_DEFAULT_ALL_RESOLVE)
+# external libraries are expected before starting compilation.
+$(OBJS): $(EXTLIBS_DEFAULT_ALL_RESOLVE)
+
+# The TUSELIB are libraries not needed for the main build but needed for the tests.
+ifeq ($(INCTESTS),)
+# add TUSELIB after to not objs depends on it
+NDUSELIB+=$(TUSELIB)
+include $(EXTLIBS_ALL_RESOLVED_FILE)
 endif
 
-include $(ALL_EXT_LIBS_INCLUDED_FILE)
-# external libraries are expected before starting compilation.
-$(OBJS): $(ALL_EXT_LIBS_INCLUDED_FILE)
+else # ifeq ($(filter getdeps%,$(MAKECMDGOALS)),)
 
-else
+ifneq ($(LIBS_PATH_TO_RESOLVE),)
+EXTLIBMAKES=$(LIBS_PATH_TO_RESOLVE)
+endif
 
 include $(EXTLIBMAKES)
 
-endif
+endif # ifeq ($(filter getdeps%,$(MAKECMDGOALS)),)
 
 
 # --------------------------------

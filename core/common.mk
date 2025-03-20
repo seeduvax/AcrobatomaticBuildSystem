@@ -232,18 +232,20 @@ endif
 NOTHING:=$(shell $(call writeToBuildLogs,make goals: $(MAKECMDGOALS)))
 endif
 
-
 # external libraries local repository
 INCTESTS:=$(filter test %test check %check testbuild help coverage Test%,$(MAKECMDGOALS))
-
-# The TUSELIB are libraries not needed for the main build but needed for the tests.
-NDUSELIB+=$(TUSELIB)
 
 # profiler.mk contains VFLAVOR
 include $(ABSROOT)/core/profiler.mk
 
 ifneq ($(VFLAVOR),)
 VERSION:=$(VERSION)_$(subst $(_space_),_,$(sort $(VFLAVOR)))
+endif
+
+# BROWSER was introduced for charm but is not really needed yet...
+#BROWSER:=$(word 1,$(shell which chromium firefox chrome edge safari iexplorer firefox-esr 2>/dev/null))
+ifneq ($(wildcard $(PRJROOT)/_charm),)
+include $(ABSROOT)/charm/main.mk
 endif
 
 ALL_PROJ_MODULES=$(patsubst $(PRJROOT)/%/module.cfg,%,$(wildcard $(PRJROOT)/*/module.cfg))
@@ -254,44 +256,6 @@ PROJECT_INC_MODS=$(patsubst %,$(APPNAME)_%,$(ALL_PROJ_MODULES))
 # dependencies between modules
 $(PRJOBJDIR)/%/moddeps.mk: $(PRJROOT)/%/module.cfg
 	@+make -C $(PRJROOT)/$* --no-print-directory PRJROOT="$(PRJROOT)" TRDIR="$(TRDIR)" PRJOBJDIR="$(PRJOBJDIR)" ARCH="$(ARCH)" -f $(ABSROOT)/core/module-depends.mk
-
-ifeq ($(ABS_FROMAPP),true)
-# if from app, includes moddeps.mk here to have full USELIB variable before doing extlib inclusion.
-ifeq ($(MODULES),)
-# search for module only if not explicitely defined from app.cfg.
-MODULES:=$(ALL_PROJ_MODULES)
-MODULES_DEPS:=$(filter-out $(NOBUILD),$(MODULES))
-else
-MODULES_DEPS:=$(MODULES)
-endif # ifeq ($(MODULES),)
-
-ifneq ($(filter kdistinstall,$(MAKECMDGOALS)),)
-KMODULES:=$(filter %_lkm,$(MODULES_DEPS))
-MODULES_DEPS:=$(KMODULES)
-endif
-
-MODULES_TO_BUILD:=$(patsubst %,$(PRJOBJDIR)/%/moddeps.mk,$(MODULES_DEPS))
-
-ifeq ($(filter clean% docker%,$(MAKECMDGOALS)),)
-ifneq ($(MODULES_TO_BUILD),)
-include $(MODULES_TO_BUILD)
-endif
-endif # ifeq ($(filter clean% docker%,$(MAKECMDGOALS)),)
-
-endif
-
-
-# include extern libraries management rules
-ifneq ($(INCLUDE_EXTLIB),false)
-include $(ABSROOT)/core/common-extlib.mk
-endif
-
-# BROWSER was introduced for charm but is not really needed yet...
-#BROWSER:=$(word 1,$(shell which chromium firefox chrome edge safari iexplorer firefox-esr 2>/dev/null))
-ifneq ($(wildcard $(PRJROOT)/_charm),)
-include $(ABSROOT)/charm/main.mk
-endif
-
 
 ## 
 ## --------------------------------------------------------------------

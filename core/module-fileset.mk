@@ -37,4 +37,7 @@ endif
 endif
 
 include $(ABSROOT)/core/module-crules-vars.mk
+
+ifneq ($(INCTESTS),)
 include $(ABSROOT)/core/module-test.mk
+endif

@@ -60,6 +60,18 @@ GENOBJS:=
 
 include $(ABSROOT)/core/common.mk
 
+# all moddeps.mk must be generated before including module moddeps.mk
+# Otherwise compilation of dependencies will start before to have all targets.
+$(PRJOBJDIR)/$(MODNAME)/moddeps.mk: $(patsubst %,$(PRJOBJDIR)/%/moddeps.mk,$(filter-out $(MODNAME),$(ALL_PROJ_MODULES)))
+
+# include moddeps now to have all the needed USELIB for external dependency resolution
+include $(PRJOBJDIR)/$(MODNAME)/moddeps.mk
+
+# include extern libraries management rules
+ifneq ($(INCLUDE_EXTLIB),false)
+include $(ABSROOT)/core/common-extlib.mk
+endif
+
 TR_APP_INCLUDE_DIR=$(TRDIR)/include/$(APPNAME)
 TR_MOD_INCLUDE_DIR=$(TR_APP_INCLUDE_DIR)/$(MODNAME)
 
@@ -192,6 +204,9 @@ else
 $(warning Unknown module type $(MODTYPE), no module specific rules included)
 endif
 
+# include resolved file in case new libs have been added to dependencies.
+include $(EXTLIBS_ALL_RESOLVED_FILE)
+
 # Copy of config files.
 # Use FILTER_FILES to find the config file which must be modified using FILTER_VARIABLES.
 $(TRDIR)/etc/%: etc/%
@@ -217,9 +232,12 @@ clean-module:
 
 # update bootstrap makefile if needed.
 ifneq ($(PRESERVEMAKEFILE),true)
+# Keep this jobs to be able to update old projects.
 Makefile: ../Makefile
 	@$(ABS_PRINT_info) "Updating bootstrap makefile."
-	@cp $< $@
+	@echo "# Generated make bootstrap, do not edit. Edit module.cfg to configure module build." > $@.tmp	
+	@echo "include $<" >> $@.tmp
+	@mv $@.tmp $@
 endif
 
 ### 
@@ -228,13 +246,7 @@ endif
 ### ---------------------------------------------------------------------
 ifeq ($(filter clean% new% showvar,$(MAKECMDGOALS)),)
 
-include $(PRJOBJDIR)/$(MODNAME)/moddeps.mk
-
-# all moddeps.mk must be generated before including module moddeps.mk
-# Otherwise compilation of dependencies will start before to have all targets.
-$(PRJOBJDIR)/$(MODNAME)/moddeps.mk: $(patsubst %,$(PRJOBJDIR)/%/moddeps.mk,$(filter-out $(MODNAME),$(ALL_PROJ_MODULES)))
-
-# do not create .depready file to avoid recompilation of all objects when a dependency changed.
+# do not recreate .depready file to avoid recompilation of all objects when a dependency changed.
 .PHONY: $(PRJOBJDIR)/%/.depready
 $(PRJOBJDIR)/%/.depready:
 	@test -f $@ || touch $@
@@ -242,7 +254,7 @@ $(PRJOBJDIR)/%/.depready:
 $(OBJS): $(PRJOBJDIR)/$(MODNAME)/.depready
 
 # recompile all if a dependency changed.
-$(OBJS): $(ALL_EXT_LIBS_INCLUDED_FILE)
+$(OBJS): $(EXTLIBS_DEFAULT_ALL_RESOLVE)
 
 ifneq ($(filter $(APPNAME)_$(NOBUILD),$(ABS_INCLUDE_MODS)),)
 $(error $(MODNAME): can't build because of deactivated dependency: $(filter $(APPNAME)_$(NOBUILD),$(ABS_INCLUDE_MODS)))
@@ -250,7 +262,7 @@ endif
 
 endif
 
-$(PRJOBJDIR)/%/.done: $(ALL_EXT_LIBS_INCLUDED_FILE)
+$(PRJOBJDIR)/%/.done: $(EXTLIBS_DEFAULT_ALL_RESOLVE)
 	@$(ABS_PRINT_info) "==============="
 	@$(ABS_PRINT_info) "$(MODNAME): Build of dependency: $*"
 	@+make $(MMARGS) MODE=$(MODE) -C $(PRJROOT)/$*
