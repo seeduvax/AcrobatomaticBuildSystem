@@ -392,7 +392,7 @@ DEFAULT_EXTLIBMAKES:=$(EXTLIBMAKES)
 include $(DEFAULT_EXTLIBMAKES)
 
 # The TUSELIB are libraries not needed for the main build but needed for the tests.
-ifeq ($(INCTESTS),)
+ifneq ($(INCTESTS),)
 # add TUSELIB after to not objs depends on it
 NDUSELIB+=$(TUSELIB)
 include $(EXTLIBMAKES)
