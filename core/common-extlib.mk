@@ -394,13 +394,14 @@ EXTLIBS_ALL_RESOLVED_FILE=$(EXTLIBS_PROJ_FILES_DIR)/extlibs_$(EXTLIBS_DEFAULT_MD
 EXTLIBS_DEFAULT_ALL_RESOLVE:=$(EXTLIBS_ALL_RESOLVED_FILE)
 
 # use allinclude.mk to be able to get all dependencies first.
-$(EXTLIBS_PROJ_FILES_DIR)/extlibs_%: $(ALL_PROJ_MODDEPS_MK) $(EXTLIBMAKES)
+$(EXTLIBS_PROJ_FILES_DIR)/extlibs_%: $(ALL_PROJ_MODDEPS_MK)
 	@mkdir -p $(@D)
 	@# getdeps from app to be sure to have all dependencies.
-	@$(ABS_PRINT_info) "Resolving all dependencies"
+	@$(ABS_PRINT_info) "### Resolving all dependencies"
 	@+make --no-print-directory getdeps TRDIR="$(TRDIR)" LIBS_PATH_TO_RESOLVE="$(EXTLIBMAKES)"
 	@echo "# $(sort $(EXTLIBS_DEFAULT_LIBS))" > $@.tmp
 	@echo 'include $$(EXTLIBMAKES)' >> $@.tmp
+	@$(ABS_PRINT_info) "### All dependencies resolved"
 	@mv $@.tmp $@
 
 include $(EXTLIBS_DEFAULT_ALL_RESOLVE)
