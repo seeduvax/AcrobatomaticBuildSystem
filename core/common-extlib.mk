@@ -2,8 +2,6 @@
 ## ------------------------------------------------------------------------
 ## Dependencies management
 ## ------------------------------------------------------------------------
-EXTLIBS_PROJ_FILES_DIR=$(PRJOBJDIR)/_extlibs
-
 # replace the | by - in libs specifications.
 USELIB_FOR_PATH=$(subst |,-,$(USELIB))
 
@@ -388,6 +386,9 @@ EXTLIBMAKES=$(patsubst %,$(EXTLIBDIR)/%/import.mk,$(subst |,-,$(USELIB))) \
 	$(patsubst %,$(NA_EXTLIBDIR)/%/import.mk,$(subst |,-,$(NA_USELIB)))
 
 DEFAULT_EXTLIBMAKES:=$(EXTLIBMAKES)
+
+# import.mk depends on all moddeps.mk to because moddeps.mk can have addionnals USELIB
+$(DEFAULT_EXTLIBMAKES): $(ALL_PROJ_MODDEPS_MK)
 
 include $(DEFAULT_EXTLIBMAKES)
 
