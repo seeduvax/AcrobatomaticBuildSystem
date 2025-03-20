@@ -68,8 +68,7 @@ $(PRJOBJDIR)/$(MODNAME)/moddeps.mk: $(patsubst %,$(PRJOBJDIR)/%/moddeps.mk,$(fil
 include $(PRJOBJDIR)/$(MODNAME)/moddeps.mk
 
 # include EXTLIBMAKES after moddeps.mk to have all USELIB
-include $(EXTLIBMAKES)
-
+$(eval $(call extlib_updates_deps))
 
 TR_APP_INCLUDE_DIR=$(TRDIR)/include/$(APPNAME)
 TR_MOD_INCLUDE_DIR=$(TR_APP_INCLUDE_DIR)/$(MODNAME)
@@ -204,7 +203,7 @@ $(warning Unknown module type $(MODTYPE), no module specific rules included)
 endif
 
 # include resolved file in case new libs have been added to dependencies.
-include $(EXTLIBMAKES)
+$(eval $(call extlib_updates_deps))
 
 # Copy of config files.
 # Use FILTER_FILES to find the config file which must be modified using FILTER_VARIABLES.

@@ -387,14 +387,19 @@ EXTLIBMAKES=$(patsubst %,$(EXTLIBDIR)/%/import.mk,$(subst |,-,$(USELIB))) \
 
 DEFAULT_EXTLIBMAKES:=$(EXTLIBMAKES)
 
-# import.mk depends on all moddeps.mk to because moddeps.mk can have additionnals USELIB
-$(DEFAULT_EXTLIBMAKES): $(ALL_PROJ_MODDEPS_MK)
-
 # The TUSELIB are libraries not needed for the main build but needed for the tests.
 ifneq ($(INCTESTS),)
 # add TUSELIB after to not objs depends on it
 NDUSELIB+=$(TUSELIB)
 endif
+
+# Macro to launch the inclusion of externals libs.
+# This macro only included not already included dependency.
+ALREADY_INCLUDED=
+define extlib_updates_deps
+include $(filter-out $(ALREADY_INCLUDED),$(EXTLIBMAKES))
+ALREADY_INCLUDED+=$(filter-out $(ALREADY_INCLUDED),$(EXTLIBMAKES))
+endef
 
 # --------------------------------
 # Print warning or fail according strict checking mode when

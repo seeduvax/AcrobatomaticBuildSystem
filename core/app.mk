@@ -33,7 +33,7 @@ endif
 endif # ifeq ($(filter clean% docker%,$(MAKECMDGOALS)),)
 
 # include EXTLIBMAKES after moddeps.mk to have all USELIB
-include $(EXTLIBMAKES)
+$(eval $(call extlib_updates_deps))
 
 MODULES_TARGET:=$(patsubst %,$(PRJOBJDIR)/%/.done,$(MODULES_DEPS)) $(patsubst %,warnnobuild.%,$(NOBUILD))
 MODULES_TEST:=$(filter-out $(patsubst %,testmod.%,$(NOBUILD) $(NOTEST)),$(patsubst %,testmod.%,$(MODULES))) $(patsubst %,warnnotest.%,$(NOTEST) $(NOBUILD))
