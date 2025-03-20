@@ -107,7 +107,7 @@ endif
 
 TLDLIBP=$(LDLIBP):$(subst $(_space_),:,$(patsubst -L%,%,$(filter -L%,$(TLDFLAGS))))
 
-MODTEST_PREPROC_CFLAGS=-x c++ $(CXXFLAGS) $(CFLAGS) $(TCFLAGS) -E
+MODTEST_PREPROC_CFLAGS=$(sort $(filter-out -I% -Wall -Wextra -Werror,-x c++ $(CXXFLAGS) $(CFLAGS) $(TCFLAGS) -E))
 
 -include $(patsubst %.o,%.o.d,$(TCPPOBJS))
 # ---------------------------------------------------------------------
