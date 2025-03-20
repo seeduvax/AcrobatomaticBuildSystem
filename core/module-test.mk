@@ -107,6 +107,8 @@ endif
 
 TLDLIBP=$(LDLIBP):$(subst $(_space_),:,$(patsubst -L%,%,$(filter -L%,$(TLDFLAGS))))
 
+MODTEST_PREPROC_CFLAGS=-x c++ $(CXXFLAGS) $(CFLAGS) $(TCFLAGS) -E
+
 -include $(patsubst %.o,%.o.d,$(TCPPOBJS))
 # ---------------------------------------------------------------------
 # transformation rules specific to tests.
@@ -115,7 +117,10 @@ $(OBJDIR)/test/%.o: test/%.cpp
 	@$(ABS_PRINT_info) "Compiling test $< ..."
 	@mkdir -p $(@D)
 	@$(call writeToBuildLogs,$(CPPC) $(CXXFLAGS) $(CFLAGS) $(TCFLAGS) -c $< -o $@)
-	@grep -v "#\s*include" $< | cpp -x c++ $(CXXFLAGS) $(CFLAGS) $(TCFLAGS) -E | grep -E "ABS_TEST_.*_BEGIN|ABS_TEST_SUITE_END" | sed -E 's/\{ *$$//g' | cpp -include $(ABSROOT)/core/include/abs/testdef2cppunitdecl.h | sed -e '/^#/d;s/!$$//g;s/ !!!/\n!!!/g;s/!!!/#/g' > $(patsubst %.o,%.h,$@)
+	@grep -v "#\s*include" $< | $(CPPC) $(MODTEST_PREPROC_CFLAGS) - |\
+		grep -E "ABS_TEST_.*_BEGIN|ABS_TEST_SUITE_END" | sed -E 's/\{ *$$//g' |\
+		$(CPPC) $(MODTEST_PREPROC_CFLAGS) -include $(ABSROOT)/core/include/abs/testdef2cppunitdecl.h - |\
+		sed -e '/^#/d;s/!$$//g;s/ !!!/\n!!!/g;s/!!!/#/g' > $(patsubst %.o,%.h,$@)
 	$(gen-json-test-cppc)
 	@$(CPPC) $(CXXFLAGS) $(CFLAGS) $(TCFLAGS) -include $(patsubst %.o,%.h,$@) -MMD -MF $@.d -c $< -o $@
 ifeq ($(ISWINDOWS),true)
