@@ -5,6 +5,9 @@
 #define profiler_enabled true
 #endif
 
+#define testMultiLine \
+macro;
+
 namespace test {
 class IPlop {};
 class IPlop2 {};
