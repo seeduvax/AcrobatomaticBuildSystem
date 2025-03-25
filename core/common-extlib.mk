@@ -70,6 +70,14 @@ define isLibInListByName
 $(filter $(call getLibNameFromVersioned,$1)-%,$(subst |,-,$2))
 endef
 
+# resolve all dependencies by transitivity from one dependency.
+# 1: module/app name
+# 2: list of already added dependencies (to avoid loop)
+# return the list of the dependencies.
+define getDependenciesByTransitivity
+$(if $(filter $1,$2),,$1 $(foreach depend,$(_module_$1_depends),$(call getDependenciesByTransitivity,$(depend),$2 $1)))
+endef
+
 ABSWS_EXTLIBDIR=$(ABSWS)/extlib/$(ARCH)
 ABSWS_NA_EXTLIBDIR=$(ABSWS)/extlib/noarch
 ABSWS_NDEXTLIBDIR=$(ABSWS_EXTLIBDIR).nodist

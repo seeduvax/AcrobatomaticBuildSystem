@@ -77,12 +77,14 @@ ifeq ($(MAKECMDGOALS),__installextlibs)
 # needed external modules and libs retreiving
 PROJMODS=$(patsubst %,$(APPNAME)_%,$(DIST_MODS))
 include $(patsubst %,$(DIST_FLATTEN_DIR)/obj/%/moddeps.mk,$(DIST_MODS))
+
+
 # INCLUDE_INSTALL_MODS additionnals external mods to include in the installation.
-NEEDED_MODS=$(filter-out $(PROJMODS),$(sort $(foreach dmod,$(DIST_MODS),$(_module_$(APPNAME)_$(dmod)_depends)) $(foreach dmod,$(INCLUDE_INSTALL_MODS),$(_module_$(dmod)_depends)) $(INCLUDE_INSTALL_MODS)))
+NEEDED_MODS=$(filter-out $(PROJMODS),$(sort $(foreach mod,$(DIST_MODS),$(call getDependenciesByTransitivity,$(APPNAME)_$(mod))) $(foreach mod,$(INCLUDE_INSTALL_MODS),$(call getDependenciesByTransitivity,$(mod)))))
 # Install external dependencies
 # Use _dir variable because _depends can be empty
-INCLUDE_EXT_MODULES:=$(sort $(foreach mod,$(NEEDED_MODS),$(if $(_module_$(mod)_dir),$(mod),)))
-INCLUDE_EXT_LIBS:=$(sort $(foreach mod,$(NEEDED_MODS),$(if $(_module_$(mod)_dir),,$(mod))))
+INCLUDE_EXT_MODULES=$(sort $(foreach mod,$(NEEDED_MODS),$(if $(_module_$(mod)_dir),$(mod),)))
+INCLUDE_EXT_LIBS=$(sort $(foreach mod,$(NEEDED_MODS),$(if $(_module_$(mod)_dir),,$(mod))))
 INCLUDE_EXT_MODS_TO_INSTALL=$(patsubst %,installExt.%,$(INCLUDE_EXT_MODULES))
 INCLUDE_EXT_LIBS_TO_INSTALL=$(patsubst %,installExtLib.%,$(INCLUDE_EXT_LIBS))
 
