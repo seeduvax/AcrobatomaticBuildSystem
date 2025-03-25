@@ -42,11 +42,9 @@ $(DIST_FLATTEN_DIR)/obj/compiled:
 	@$(ABS_PRINT_info) "Compilation of the project finished !"
 	@touch $@
 
+EXPMOD_INCLUDES_DIR=$(wildcard $(patsubst %,%/include,$(EXPMOD)))
 $(DIST_FLATTEN_DIR)/import.mk: $(DIST_FLATTEN_DIR)/obj/compiled
-	@for modDir in $(EXPMOD); do \
-	test ! -d $$modDir/include || cp -r $$modDir/include $(@D)/ ; \
-	: ; \
-	done
+	@$(if $(EXPMOD_INCLUDES_DIR),cp -r $(EXPMOD_INCLUDES_DIR) $(@D))
 	@test -f export.mk && m4 -D__app__=$(APPNAME) -D__version__=$(VERSION) export.mk -D__uselib__="$(sort $(USELIB))" > $@.tmp || true
 	@echo "# generated: ABS-$(__ABS_VERSION__) $(USER)@"`hostname`" "`$(TRACE_DATE_CMD)` >> $@.tmp
 	@test -f export.mk || printf '_app_$(APPNAME)_dir:=$$(dir $$(lastword $$(MAKEFILE_LIST)))\n\n' >> $@.tmp
@@ -75,16 +73,15 @@ $(DIST_ARCHIVE): $(DIST_FLATTEN_DIR)/import.mk
 ifeq ($(MAKECMDGOALS),__installextlibs)
 
 # needed external modules and libs retreiving
-PROJMODS=$(patsubst %,$(APPNAME)_%,$(DIST_MODS))
+DIST_PROJ_MODS=$(patsubst %,$(APPNAME)_%,$(DIST_MODS))
 include $(patsubst %,$(DIST_FLATTEN_DIR)/obj/%/moddeps.mk,$(DIST_MODS))
 
-
 # INCLUDE_INSTALL_MODS additionnals external mods to include in the installation.
-NEEDED_MODS=$(filter-out $(PROJMODS),$(sort $(foreach mod,$(DIST_MODS),$(call getDependenciesByTransitivity,$(APPNAME)_$(mod))) $(foreach mod,$(INCLUDE_INSTALL_MODS),$(call getDependenciesByTransitivity,$(mod)))))
+NEEDED_MODS=$(filter-out $(DIST_PROJ_MODS),$(sort $(foreach mod,$(INCLUDE_INSTALL_MODS) $(DIST_PROJ_MODS),$(call getDependenciesByTransitivity,$(mod)))))
 # Install external dependencies
 # Use _dir variable because _depends can be empty
-INCLUDE_EXT_MODULES=$(sort $(foreach mod,$(NEEDED_MODS),$(if $(_module_$(mod)_dir),$(mod),)))
-INCLUDE_EXT_LIBS=$(sort $(foreach mod,$(NEEDED_MODS),$(if $(_module_$(mod)_dir),,$(mod))))
+INCLUDE_EXT_MODULES=$(foreach mod,$(NEEDED_MODS),$(if $(_module_$(mod)_dir),$(mod),))
+INCLUDE_EXT_LIBS=$(foreach mod,$(NEEDED_MODS),$(if $(_module_$(mod)_dir),,$(mod)))
 INCLUDE_EXT_MODS_TO_INSTALL=$(patsubst %,installExt.%,$(INCLUDE_EXT_MODULES))
 INCLUDE_EXT_LIBS_TO_INSTALL=$(patsubst %,installExtLib.%,$(INCLUDE_EXT_LIBS))
 

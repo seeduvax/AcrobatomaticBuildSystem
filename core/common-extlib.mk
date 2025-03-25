@@ -92,7 +92,7 @@ NA_EXTLIBDIR?=$(TRDIR)/extlib
 endif
 NDEXTLIBDIR:=$(EXTLIBDIR).nodist
 NDNA_EXTLIBDIR:=$(NA_EXTLIBDIR).nodist
-EXTLIBDIR_READONLY?=1
+EXTLIBDIR_READONLY?=true
 
 ifeq ($(ISWINDOWS),true)
 	LNDIR:=cp -r
@@ -193,11 +193,11 @@ $(ABS_CACHE)/%:
 define unpackArchive
 	@$(ABS_PRINT_info) "Unpacking library : $*"
 	@$(ABS_PRINT_debug) "$<"
-	@if [ -d $(@D) ]; then chmod -R u+w $(@D) && rm -rf $(@D); fi
+	@$(if $(wildcard $(@D)),chmod -R u+w $(@D) && rm -rf $(@D))
 	@mkdir -p $(@D)
-	@tar --exclude=$*/import.mk -xmzf $< -C $(1)
+	@tar --exclude=$*/import.mk -xmzf $< -C $1
 	@tar -xmzf $< -C $(1) $*/import.mk
-	@if [ $(EXTLIBDIR_READONLY) -eq 1 ]; then chmod -R a-w $(@D); fi
+	@$(if $(filter 1 true,$(EXTLIBDIR_READONLY)),chmod -R a-w $(@D))
 	@touch $@
 endef
 
@@ -221,7 +221,7 @@ $(ABSWS_NDNA_EXTLIBDIR)/%/import.mk: $(ABS_CACHE)/noarch/%.tar.gz
 define extlib_linkLibrary
 	@mkdir -p `dirname $(@D)`
 	@mkdir -p $(TRDIR)
-	@test -d $(@D) && rm $(@D) || true
+	@$(if $(wildcard $(@D)),rm $(@D))
 	@$(LNDIR) $(<D) $(@D)
 	@function createSymLinks() { \
 		basedir=$$(readlink -f $$1) ;\
@@ -270,7 +270,7 @@ $(NDNA_EXTLIBDIR)/%/import.mk: $(ABSWS_NDNA_EXTLIBDIR)/%/import.mk
 # same for java libraries
 $(NA_EXTLIBDIR)/%.jar: $(ABS_CACHE)/noarch/%.jar
 	@mkdir -p $(@D)
-	@$(LNFILE) -sf $< $@
+	@$(LNFILE) $< $@
 
 $(NDNA_EXTLIBDIR)/%.jar: $(ABS_CACHE)/noarch/%.jar
 	@mkdir -p $(@D)
@@ -367,6 +367,7 @@ endef
 # $1 lib dependency name
 # $2 lib version
 # $3 libs to include
+# return the list of import.mk to include
 define extlib_import
 $(if $(call isLibInList,$1-$2,$(EXTLIBS_ALL_USELIB)),$(call extlib_import2,$1,$2,$3,$(EXTLIBDIR),EXTLIBS_ALL_USELIB))
 $(if $(call isLibInList,$1-$2,$(EXTLIBS_ALL_NAUSELIB)),$(call extlib_import2,$1,$2,$3,$(NA_EXTLIBDIR),EXTLIBS_ALL_NAUSELIB))
