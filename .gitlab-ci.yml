@@ -4,7 +4,7 @@ variables:
     GIT_CHECKOUT: "true"
     GIT_CLEAN_FLAGS: -ffdx -e cache/
     GIT_DEPTH: "3"
-    GIT_CLONE_PATH: $CI_BUILDS_DIR
+    GIT_CLONE_PATH: $CI_BUILDS_DIR/build
     ABS_REPO: "https://www.eduvax.net/dist"
 
 stages:

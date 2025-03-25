@@ -13,6 +13,7 @@ JAVACMD:=java -Djava.awt.headless=true
 DOXYGENCMD:=$(shell which doxygen 2>/dev/null)
 DOCROOT:=$(ABSROOT)/doc
 HTML_STYLE_BUNDLE+=$(patsubst %,$(ABSROOT)/doc/html/%.tar.gz,style impress.js highlight.js mathjax.js)
+JENKINS_USER?=jenkins
 
 # files to be processed by doxygen.
 DOXSRCFILES:=$(shell find $(PRJROOT) -name *.h -o -name *.c -o -name *.hpp -o -name *.cpp -o -name *.py -o -name *.java | fgrep -v "/build/" | fgrep -v "/dist/" | fgrep -v "$(ABSROOT)")
@@ -235,7 +236,7 @@ $(PDFDIR)/%.pdf: $(TEXDIR)/%.tex
 	@mkdir -p $(OBJDIR)
 	@# remove previous generated elements to avoid references problems.
 	@rm -f $(OBJDIR)/$(*F).aux $(OBJDIR)/$(*F).lo* $(OBJDIR)/$(*F).out $(OBJDIR)/$(*F).toc
-ifneq ($(USER),jenkins)
+ifneq ($(USER),$(JENKINS_USER))
 	@cd $(OBJDIR) && $(TEXENV) $(TEXFOT) $(PDFLATEX) --interaction nonstopmode $< > $(OBJDIR)/tex.$(@F).log && pass=2 && \
 		while [ "`cat $(OBJDIR)/tex.$(@F).log | grep \"Rerun to get cross-references right\"`" != "" ]; do \
 			$(ABS_PRINT_info) "Pass number $$pass for $(@F)" && \
