@@ -7,6 +7,10 @@ if [ ! -d $TTARGETDIR ]; then
     exit 1
 fi
 
+if [ "$MODE" = "" ]; then
+MODE=debug
+fi
+
 testDirectory=$TTARGETDIR/$testName
 MODROOT=`pwd`
 PRJROOT=$MODROOT/../../

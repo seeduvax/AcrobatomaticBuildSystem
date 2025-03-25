@@ -2,10 +2,6 @@
 
 source $(dirname $0)/initTest.sh testPatches
 
-if [ "$MODE" = "" ]; then
-MODE=debug
-fi
-
 cd $testDirectory
 executeMake pubdist libtest
 executeMake pubdist testlib-dashed
