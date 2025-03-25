@@ -2,10 +2,6 @@
 
 source $(dirname $0)/initTest.sh testTests
 
-cd $testDirectory
-executeMake pubdist libtest
-executeMake pubdist testlib-dashed
-
 executeMake pubdist projA
 testLinked projA cppexe projA_cpplib
 

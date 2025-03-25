@@ -23,7 +23,7 @@ mkdir -p $testDirectory/repository/noarch
 echo "Copy resources to $testDirectory"
 
 ln -s $PRJROOT $testDirectory/absws/abs-99.99.99
-cp -R test/resources/proj* test/resources/libtest test/resources/testlib-dashed test/resources/cppunit test/resources/tracy $testDirectory
+cp -R test/resources/proj* test/resources/libtest test/resources/libtest2 test/resources/testlib-dashed test/resources/cppunit test/resources/tracy $testDirectory
 
 unset TTARGETDIR
 unset TRDIR
@@ -122,3 +122,7 @@ function testNotImported {
 cd $testDirectory
 executeMake pubdist cppunit
 executeMake pubdist tracy
+
+executeMake pubdist libtest2
+executeMake pubdist libtest
+executeMake pubdist testlib-dashed

@@ -2,10 +2,7 @@
 
 source $(dirname $0)/initTest.sh testDependencies
 
-cd $testDirectory
-executeMake pubdist libtest
 executeMake pubdist libtest VERSION=2.0.0
-executeMake pubdist testlib-dashed
 
 executeMake pubdist projA
 testLinked projA cppexe projA_cpplib
@@ -61,24 +58,17 @@ if [ ! -f $binInstall ]; then
 fi
 $binInstall install $testDirectory/projC/dist/installed
 
-testFile="$testDirectory/projC/dist/installed/etc/aFile.txt"
-if [ ! -f $testFile ]; then
-    echo "Error: File '$testFile' not published"
-    doExit 8
-fi
+buildlog="$testDirectory/projC/dist/flatten/projC-2.4.3d/obj/build.log"
+grep "Processing external" $buildlog | sed -E 's/.*> //g' > $buildlog.processed
 
+testFile $buildlog.processed $MODROOT/test/resources/expected/projC_extmods.txt
+
+testFileExists $testDirectory/projC/dist/installed/etc/aFile.txt
 # test dependencies transitivity
-testFile="$testDirectory/projC/dist/installed/etc/projB/aFile.txt"
-if [ ! -f $testFile ]; then
-    echo "Error: File '$testFile' not published"
-    doExit 9
-fi
+testFileExists $testDirectory/projC/dist/installed/etc/projB/aFile.txt
 
-testFile="$testDirectory/projC/dist/installed/etc/projA/aFile.txt"
-if [ ! -f $testFile ]; then
-    echo "Error: File '$testFile' not published"
-    doExit 10
-fi
+testFileExists $testDirectory/projC/dist/installed/etc/projA/aFile.txt
+
 testFile $testDirectory/projC/dist/installed/etc/projB/aFile.txt $MODROOT/test/resources/expected/aFileB.txt
 
 doExit 0

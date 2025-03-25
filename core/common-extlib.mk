@@ -78,6 +78,14 @@ define getDependenciesByTransitivity
 $(if $(filter $1,$2),,$1 $(foreach depend,$(_module_$1_depends),$(call getDependenciesByTransitivity,$(depend),$2 $1)))
 endef
 
+# get dependencies for external libs (without modules).
+# 1: name of the lib
+# 2: list of already added dependencies (to avoid loop)
+# return the list of the dependencies.
+define getLibsDependenciesByTransitivity
+$(if $(filter $1,$2),,$1 $(foreach depend,$(_app_$1_depends),$(call getLibsDependenciesByTransitivity,$(depend),$2 $1)))
+endef
+
 ABSWS_EXTLIBDIR=$(ABSWS)/extlib/$(ARCH)
 ABSWS_NA_EXTLIBDIR=$(ABSWS)/extlib/noarch
 ABSWS_NDEXTLIBDIR=$(ABSWS_EXTLIBDIR).nodist

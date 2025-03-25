@@ -2,10 +2,6 @@
 
 source $(dirname $0)/initTest.sh testDistInstall
 
-cd $testDirectory
-executeMake pubdist libtest
-executeMake pubdist testlib-dashed
-
 executeMake distinstall projA
 executeMake pubdist projA
 executeMake distinstall projB

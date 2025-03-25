@@ -81,17 +81,19 @@ NEEDED_MODS=$(filter-out $(DIST_PROJ_MODS),$(sort $(foreach mod,$(INCLUDE_INSTAL
 # Install external dependencies
 # Use _dir variable because _depends can be empty
 INCLUDE_EXT_MODULES=$(foreach mod,$(NEEDED_MODS),$(if $(_module_$(mod)_dir),$(mod),))
-INCLUDE_EXT_LIBS=$(foreach mod,$(NEEDED_MODS),$(if $(_module_$(mod)_dir),,$(mod)))
+INCLUDE_EXT_LIBS=$(sort $(foreach mod,$(NEEDED_MODS),$(if $(_module_$(mod)_dir),,$(call getLibsDependenciesByTransitivity,$(mod)))))
 INCLUDE_EXT_MODS_TO_INSTALL=$(patsubst %,installExt.%,$(INCLUDE_EXT_MODULES))
 INCLUDE_EXT_LIBS_TO_INSTALL=$(patsubst %,installExtLib.%,$(INCLUDE_EXT_LIBS))
 
 installExt.%:
 	@$(ABS_PRINT_info) "  Processing external module $* ..."
+	@$(call writeToBuildLogs,Processing external module $*)
 	@modPath=$(_module_$*_dir) && test -z "$$modPath" || test ! -d $$modPath || test ! -f $(_module_$*_dir)/.abs/content/$*.filelist || (\
 		cat $(_module_$*_dir)/.abs/content/$*.filelist | tar -C $$modPath/ -cf - -T - | tar -C $(INSTALL_TMP_DIR)/ -xf -)
 
 installExtLib.%:
 	@$(ABS_PRINT_info) "  Processing external library $* ..."
+	@$(call writeToBuildLogs,Processing external library $*)
 	@libPath=$(_app_$*_dir) && test -n "$$libPath" && test -d $$libPath && cp -rf $$libPath/* $(INSTALL_TMP_DIR)/ && chmod -R u+rw $(INSTALL_TMP_DIR) || true
 
 # Advanced dependency management disabled: old way with all the libraries included in the binary
