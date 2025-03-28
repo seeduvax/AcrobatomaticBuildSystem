@@ -8,6 +8,14 @@ KERNELDIR?=/lib/modules/$(KVERSION)/build
 endif
 LKMNAME:=$(patsubst %_lkm,%,$(MODNAME))
 
+ifeq ($(CROSS_ARCH),mingw)
+CROSS_COMPILE?=x86_64-w64-mingw32-
+else
+ifneq ($(CROSS_ARCH),)
+CROSS_COMPILE?=$(CROSS_ARCH)-linux-gnu-
+endif
+endif
+
 include $(ABSROOT)/core/module-cheaders.mk
 
 include $(ABSROOT)/core/module-crules-patches.mk
@@ -29,7 +37,7 @@ $(TRDIR)/etc/init.d/%: $(LKMSRCDIR)/etc/init.d/%
 	@chmod +x $@
 
 all-impl:: $(OBJDIR)/Makefile $(PUBLISHED_HEADERS) $(CFGFILES) $(SERVICEFILES) $(INITSFILES)
-	$(MAKE) -C $(KERNELDIR) M=$(OBJDIR) KBUILD_EXTRA_SYMBOLS="$(EXTRA_SIMVERS)" modules
+	$(MAKE) -C $(KERNELDIR) M=$(OBJDIR) KBUILD_EXTRA_SYMBOLS="$(EXTRA_SIMVERS)" CROSS_COMPILE=$(CROSS_COMPILE) modules
 	@mkdir -p $(TRDIR)/lib/modules/
 	@cp $(OBJDIR)/*.ko $(TRDIR)/lib/modules
 
