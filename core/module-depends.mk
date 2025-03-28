@@ -19,16 +19,17 @@ $(PRJOBJDIR)/$(MODNAME)/moddeps.mk:
 	@mkdir -p $(@D)
 	@echo "# "`date` > $@.tmp
 	@printf 'ifeq ($$(_module_$(APPNAME)_$(MODNAME)_dir),)\n'\
-'include $$(patsubst %%,$$(PRJOBJDIR)/%%/moddeps.mk,$(USEMOD))\n\n'\
+'_module_$(APPNAME)_$(MODNAME)_usemods=$$(sort $(USEMOD) $$(if $$(filter $(MODNAME),$$(MODNAME)),$$(if $$(INCTESTS),$(TESTUSEMOD))))\n'\
+'include $$(patsubst %%,$$(PRJOBJDIR)/%%/moddeps.mk,$$(_module_$(APPNAME)_$(MODNAME)_usemods))\n\n'\
 'ABS_INCLUDE_MODS+=$$(patsubst %%,$$(APPNAME)_%%,$(USEMOD))\n'\
 '_module_$(APPNAME)_$(MODNAME)_dir=$$(TRDIR)\n'\
 '_module_$(APPNAME)_$(MODNAME)_depends_raw=$$(sort $(LINKLIB) $(INCLUDE_MODS) $(patsubst %,$(APPNAME)_%,$(USEMOD)))\n'\
 '_module_$(APPNAME)_$(MODNAME)_depends=$$(foreach dep,$$(_module_$(APPNAME)_$(MODNAME)_depends_raw),$$(if $$(_app_lib$$(dep)_dir),lib$$(dep),$$(dep)))\n\n'\
-'_module_$(APPNAME)_$(MODNAME)_done_depends=$$(patsubst %%,$$(PRJOBJDIR)/%%/.done,$(sort $(USEMOD) $(TESTUSEMOD)))\n\n'\
+'_module_$(APPNAME)_$(MODNAME)_done_depends=$$(patsubst %%,$$(PRJOBJDIR)/%%/.done,$$(_module_$(APPNAME)_$(MODNAME)_usemods))\n\n'\
 'USELIB+=$(filter-out $(DEFAULT_USELIB),$(USELIB))\n'\
 'NDUSELIB+=$(filter-out $(DEFAULT_NDUSELIB),$(NDUSELIB))\n\n'\
 '$$(PRJOBJDIR)/$(MODNAME)/.depready: $$(_module_$(APPNAME)_$(MODNAME)_done_depends)\n\n'\
-'$$(PRJOBJDIR)/$(MODNAME)/.done: $$(wildcard $$(call find,$$(PRJROOT)/$(MODNAME),*))\n\n'\
+'$$(PRJOBJDIR)/$(MODNAME)/.done: $$(wildcard $$(foreach toLook,src include module.cfg local.cfg,$$(call find,$$(PRJROOT)/$(MODNAME)/$(toLook),*)))\n\n'\
 '$$(PRJOBJDIR)/$(MODNAME)/.done: $$(_module_$(APPNAME)_$(MODNAME)_done_depends)\n\n'\
 'testmod.$(MODNAME): $$(patsubst %%,testmod.%%,$(sort $(USEMOD) $(TESTUSEMOD)))\n\n'\
 'endif\n' >> $@.tmp
