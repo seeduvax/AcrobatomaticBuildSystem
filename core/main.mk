@@ -19,6 +19,10 @@ endif
 .PHONY: all
 all:
 
+# remove a lot of default suffixes not used by abs.
+.SUFFIXES:
+	@:
+
 ifneq ($(wildcard app.cfg),)
 ABS_FROMAPP:=true
 include $(ABSROOT)/core/app.mk

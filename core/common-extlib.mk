@@ -77,13 +77,21 @@ define getLibrariesNameFromLinklib
 $(foreach lib,$1,$(if $(_module_$(lib)_dir)$(_app_$(lib)_dir),$(lib),$(if $(_app_lib$(lib)_dir),lib$(lib))))
 endef
 
+# resolve all dependencies by transitivity from dependencies (private macro)
+# 1: module/apps name
+# 2: name of the variable for the list of already added dependencies (to avoid loop)
+# return the list of the dependencies.
+define _getDependenciesByTransitivity
+$(filter-out $($2),$1) \
+$(foreach element,$(filter-out $($2),$1),$(eval $2+=$(element))$(call _getDependenciesByTransitivity,$(_module_$(element)_depends) $(_app_$(element)_depends),$2))
+endef
+
 # resolve all dependencies by transitivity from dependencies
 # 1: module/apps name
-# 2: list of already added dependencies (to avoid loop)
+# 2: name of the variable for the list of already added dependencies (to avoid loop)
 # return the list of the dependencies.
 define getDependenciesByTransitivity
-$(filter-out $2,$1) \
-$(foreach element,$(filter-out $2,$1),$(call getDependenciesByTransitivity,$(_module_$(element)_depends) $(_app_$(element)_depends),$2 $(element)))
+$(eval $2=)$(call _getDependenciesByTransitivity,$1,$2)
 endef
 
 ABSWS_EXTLIBDIR=$(ABSWS)/extlib/$(ARCH)

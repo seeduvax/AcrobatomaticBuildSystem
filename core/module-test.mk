@@ -51,7 +51,7 @@ ifeq ($(VALGRIND_XML),true)
 	VALGRIND_ARGS+=--xml=yes --xml-file=$(TTARGETDIR)/$(MODNAME)_valgrind_result.xml
 endif
 
-T_ALL_DEPENDENCIES=$(sort $(call getDependenciesByTransitivity,$(call getLibrariesNameFromLinklib,$(TLINKLIB)) $(INCLUDE_TESTMODS) $(patsubst %,$(APPNAME)_%,$(TESTUSEMOD))))
+T_ALL_DEPENDENCIES=$(sort $(call getDependenciesByTransitivity,$(call getLibrariesNameFromLinklib,$(TLINKLIB)) $(INCLUDE_TESTMODS) $(patsubst %,$(APPNAME)_%,$(TESTUSEMOD)),_MOD_TESTS_DEPSVAR_))
 
 # objects to be generated from test classes.
 TALLSRCFILES=$(call find,test,*.cpp *.c)
