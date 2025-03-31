@@ -74,7 +74,7 @@ endef
 # 1: link libs
 # return the list of the libraries if possible.
 define getLibrariesNameFromLinklib
-$(foreach lib,$1,$(if $(_module_$(lib)_dir),$(lib),$(if $(_app_$(lib)_dir),$(lib),$(if $(_app_lib$(lib)_dir),lib$(lib)))))
+$(foreach lib,$1,$(if $(_module_$(lib)_dir)$(_app_$(lib)_dir),$(lib),$(if $(_app_lib$(lib)_dir),lib$(lib))))
 endef
 
 # resolve all dependencies by transitivity from dependencies

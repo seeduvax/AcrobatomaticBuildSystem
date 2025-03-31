@@ -20,8 +20,7 @@ $(PRJOBJDIR)/$(MODNAME)/moddeps.mk:
 	@printf 'ifeq ($$(_module_$(APPNAME)_$(MODNAME)_dir),)\n'\
 'include $$(patsubst %%,$$(PRJOBJDIR)/%%/moddeps.mk,$(sort $(USEMOD) $(TESTUSEMOD)))\n\n'\
 '_module_$(APPNAME)_$(MODNAME)_dir=$$(TRDIR)\n'\
-'_module_$(APPNAME)_$(MODNAME)_depends_raw=$$(sort $(LINKLIB) $(INCLUDE_MODS) $(patsubst %,$(APPNAME)_%,$(USEMOD)))\n'\
-'_module_$(APPNAME)_$(MODNAME)_depends=$$(foreach dep,$$(_module_$(APPNAME)_$(MODNAME)_depends_raw),$$(if $$(_app_lib$$(dep)_dir),lib$$(dep),$$(dep)))\n\n'\
+'_module_$(APPNAME)_$(MODNAME)_depends=$$(sort $$(call getLibrariesNameFromLinklib,$(LINKLIB)) $(INCLUDE_MODS) $(patsubst %,$(APPNAME)_%,$(USEMOD)))\n\n'\
 '_module_$(APPNAME)_$(MODNAME)_done_depends=$$(patsubst %%,$$(PRJOBJDIR)/%%/.done,$(sort $(USEMOD) $(TESTUSEMOD)))\n\n'\
 'USELIB+=$(filter-out $(DEFAULT_USELIB),$(USELIB))\n'\
 'NDUSELIB+=$(filter-out $(DEFAULT_NDUSELIB),$(NDUSELIB))\n\n'\
