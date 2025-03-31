@@ -12,6 +12,7 @@ testFile $testDirectory/projA/dist/flatten/projA-1.4.2d/import2.mk $MODROOT/test
 
 executeMake pubdist projB
 testLinked projB cpplib projA_cpplib test
+testLinked projB cpplib2 projA_cpplib testlib-dashed
 
 projBOutDir=$testDirectory/projB/dist/flatten/projB-2.4.2d
 projBObjDir=$projBOutDir/obj

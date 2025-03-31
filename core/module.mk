@@ -73,6 +73,9 @@ $(eval $(call extlib_updates_deps))
 TR_APP_INCLUDE_DIR=$(TRDIR)/include/$(APPNAME)
 TR_MOD_INCLUDE_DIR=$(TR_APP_INCLUDE_DIR)/$(MODNAME)
 
+# all the dependencies of this module. Resolve by transitivity among first level dependencies.
+ALL_DEPENDENCIES=$(sort $(call getDependenciesByTransitivity,$(call getLibrariesNameFromLinklib,$(LINKLIB)) $(INCLUDE_MODS) $(patsubst %,$(APPNAME)_%,$(USEMOD))))
+
 # ultimate wildcard to eliminate files with space
 SRCFILES:=$(wildcard $(call find,src,*))
 EXTSRCFILES:=
@@ -254,8 +257,8 @@ $(OBJS): $(PRJOBJDIR)/$(MODNAME)/.depready
 # recompile all if a dependency changed.
 $(OBJS): $(DEFAULT_EXTLIBMAKES)
 
-ifneq ($(filter $(APPNAME)_$(NOBUILD),$(ABS_INCLUDE_MODS)),)
-$(error $(MODNAME): can't build because of deactivated dependency: $(filter $(APPNAME)_$(NOBUILD),$(ABS_INCLUDE_MODS)))
+ifneq ($(filter $(APPNAME)_$(NOBUILD),$(ALL_DEPENDENCIES)),)
+$(error $(MODNAME): can't build because of deactivated dependency: $(filter $(APPNAME)_$(NOBUILD),$(ALL_DEPENDENCIES)))
 endif
 
 endif
