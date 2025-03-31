@@ -278,10 +278,10 @@ CRULES_VAR_LDFLAGS+=$(filter-out -l% -L%,$(LDFLAGS)) $(CRULES_VAR_LINKED_DIRS) $
 # 1: destination import lib
 # 2: generated objects
 define getWindowsLibLDFlags
--Wl,--out-implib=$@ \
+-Wl,--out-implib=$1 \
 -Wl,--export-all-symbols \
 -Wl,--enable-auto-import \
--Wl,--whole-archive $(OBJS) \
+-Wl,--whole-archive $2 \
 -Wl,--no-whole-archive
 endef
 
