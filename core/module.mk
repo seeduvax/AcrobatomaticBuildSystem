@@ -73,9 +73,6 @@ $(eval $(call extlib_updates_deps))
 TR_APP_INCLUDE_DIR=$(TRDIR)/include/$(APPNAME)
 TR_MOD_INCLUDE_DIR=$(TR_APP_INCLUDE_DIR)/$(MODNAME)
 
-# all the dependencies of this module. Resolve by transitivity among first level dependencies.
-ALL_DEPENDENCIES=$(sort $(call getDependenciesByTransitivity,$(call getLibrariesNameFromLinklib,$(LINKLIB)) $(INCLUDE_MODS) $(patsubst %,$(APPNAME)_%,$(USEMOD))))
-
 # ultimate wildcard to eliminate files with space
 SRCFILES:=$(wildcard $(call find,src,*))
 EXTSRCFILES:=
