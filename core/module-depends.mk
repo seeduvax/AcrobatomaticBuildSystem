@@ -31,6 +31,8 @@ $(PRJOBJDIR)/$(MODNAME)/moddeps.mk:
 '$$(PRJOBJDIR)/$(MODNAME)/.depready: $$(_module_$(APPNAME)_$(MODNAME)_done_depends)\n\n'\
 '$$(PRJOBJDIR)/$(MODNAME)/.done: $$(wildcard $$(foreach toLook,src include module.cfg local.cfg,$$(call find,$$(PRJROOT)/$(MODNAME)/$$(toLook),*)))\n\n'\
 '$$(PRJOBJDIR)/$(MODNAME)/.done: $$(_module_$(APPNAME)_$(MODNAME)_done_depends)\n\n'\
+'$$(PRJOBJDIR)/$(MODNAME)/.testdone: $$(PRJOBJDIR)/$(MODNAME)/.done\n'\
+'$$(PRJOBJDIR)/$(MODNAME)/.testdone: $$(wildcard $$(foreach toLook,test module.cfg local.cfg,$$(call find,$$(PRJROOT)/$(MODNAME)/$$(toLook),*)))\n\n'\
 'testmod.$(MODNAME): $$(patsubst %%,testmod.%%,$(sort $(USEMOD) $(TESTUSEMOD)))\n\n'\
 'endif\n' >> $@.tmp
 	@mv $@.tmp $@

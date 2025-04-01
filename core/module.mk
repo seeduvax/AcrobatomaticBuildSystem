@@ -110,7 +110,6 @@ EXT_MODSRC_DIR=$(OBJDIR)/extsrc
 ##  - all (default): builds all
 .PHONY: all
 all: all-impl
-	@date > $(OBJDIR)/.done
 
 ##  - clean: removed all files created by the module build process
 .PHONY: clean

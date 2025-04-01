@@ -165,6 +165,12 @@ $(PRJOBJDIR)/%/.done: $(DEFAULT_EXTLIBMAKES)
 	@rm -f $(TRDIR)/obj/$*/files.ts
 	@$(ABS_PRINT_info) "Module $* built."
 
+.PRECIOUS: $(PRJOBJDIR)/%/.testdone	
+$(PRJOBJDIR)/%/.testdone: $(PRJOBJDIR)/%/.done
+	@$(ABS_PRINT_info) "==============="
+	@$(ABS_PRINT_info) "Building test module $*... $@"
+	@+make $(MMARGS) MODE=$(MODE) -C $* testbuild && date > $@
+
 # depends on mod.% to compile dependencies of module.
 testmod.%: $(PRJOBJDIR)/%/.done
 	make $(MMARGS) MODE=$(MODE) -C $* test
@@ -172,8 +178,8 @@ testmod.%: $(PRJOBJDIR)/%/.done
 valgrindtestmod.%: $(PRJOBJDIR)/%/.done
 	make $(MMARGS) MODE=$(MODE) -C $* valgrindtest
 
-testbuildmod.%: $(PRJOBJDIR)/%/.done
-	make $(MMARGS) MODE=$(MODE) -C $* testbuild
+testbuildmod.%: $(PRJOBJDIR)/%/.testdone
+	@:
 
 warnnobuild.%:
 	@$(ABS_PRINT_warning) "module $* build is disabled."
