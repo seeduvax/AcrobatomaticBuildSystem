@@ -92,6 +92,11 @@ define filter_out_substr
 $(foreach w,$2,$(if $(findstring $1,$w),,$w))
 endef
 
+define generateTmpVariable
+$1$(shell echo $$RANDOM $$RANDOM $$RANDOM $$RANDOM | md5sum | head -c 8)
+endef
+
+
 TRACE_DATE_CMD:=date '+%Y-%m-%d %H:%M:%S%z'
 
 # some vars to store some particular chars for their use in macros.

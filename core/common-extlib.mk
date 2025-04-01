@@ -81,17 +81,24 @@ endef
 # 1: module/apps name
 # 2: name of the variable for the list of already added dependencies (to avoid loop)
 # return the list of the dependencies.
-define _getDependenciesByTransitivity
+define _getDependenciesByTransitivity2
 $(filter-out $($2),$1) \
-$(foreach element,$(filter-out $($2),$1),$(eval $2+=$(element))$(call _getDependenciesByTransitivity,$(_module_$(element)_depends) $(_app_$(element)_depends),$2))
+$(foreach element,$(filter-out $($2),$1),$(eval $2+=$(element))$(call _getDependenciesByTransitivity2,$(_module_$(element)_depends) $(_app_$(element)_depends),$2))
+endef
+
+# resolve all dependencies by transitivity from dependencies (private macro)
+# 1: module/apps name
+# 2: name of the variable for the list of already added dependencies (to avoid loop)
+# return the list of the dependencies.
+define _getDependenciesByTransitivity1
+$(eval $2=)$(sort $(call _getDependenciesByTransitivity2,$1,$2))
 endef
 
 # resolve all dependencies by transitivity from dependencies
 # 1: module/apps name
-# 2: name of the variable for the list of already added dependencies (to avoid loop)
 # return the list of the dependencies.
 define getDependenciesByTransitivity
-$(eval $2=)$(call _getDependenciesByTransitivity,$1,$2)
+$(call _getDependenciesByTransitivity1,$1,$(call generateTmpVariable,_depvar_))
 endef
 
 ABSWS_EXTLIBDIR=$(ABSWS)/extlib/$(ARCH)
@@ -110,12 +117,16 @@ NDEXTLIBDIR:=$(EXTLIBDIR).nodist
 NDNA_EXTLIBDIR:=$(NA_EXTLIBDIR).nodist
 EXTLIBDIR_READONLY?=true
 
+UNPACK_ARGS=
 ifeq ($(ISWINDOWS),true)
 	LNDIR:=cp -r
 	LNFILE:=cp
+	RMLINK:=rm -rf
+	UNPACK_ARGS+=-h
 else
 	LNDIR:=ln -sf
 	LNFILE:=ln -sf
+	RMLINK:=rm
 endif
 
 # tell the bootstrap makefile to not define its own default download rule.
@@ -211,8 +222,8 @@ define unpackArchive
 	@$(ABS_PRINT_debug) "$<"
 	@$(if $(wildcard $(@D)),chmod -R u+w $(@D) && rm -rf $(@D))
 	@mkdir -p $(@D)
-	@tar --exclude=$*/import.mk -xmzf $< -C $1
-	@tar -xmzf $< -C $(1) $*/import.mk
+	@tar $(UNPACK_ARGS) --exclude=$*/import.mk -xmf $< -C $1
+	@tar $(UNPACK_ARGS) -xmf $< -C $(1) $*/import.mk
 	@$(if $(filter 1 true,$(EXTLIBDIR_READONLY)),chmod -R a-w $(@D))
 	@touch $@
 endef
@@ -237,7 +248,7 @@ $(ABSWS_NDNA_EXTLIBDIR)/%/import.mk: $(ABS_CACHE)/noarch/%.tar.gz
 define extlib_linkLibrary
 	@mkdir -p `dirname $(@D)`
 	@mkdir -p $(TRDIR)
-	@$(if $(wildcard $(@D)),rm $(@D))
+	@$(if $(wildcard $(@D)),$(RMLINK) $(@D))
 	@$(LNDIR) $(<D) $(@D)
 	@function createSymLinks() { \
 		basedir=$$(readlink -f $$1) ;\

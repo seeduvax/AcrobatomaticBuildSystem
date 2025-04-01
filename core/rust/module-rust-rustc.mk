@@ -40,7 +40,7 @@ RUSTLIBDIR=$(TRDIR)/lib
 
 RUSTLIBS=$(foreach MOD,$(USEMOD),--extern $(MOD)=$(RUSTLIBDIR)/librust_$(APPNAME)_$(MOD).so)
 
-ALL_DEPENDENCIES=$(sort $(call getDependenciesByTransitivity,$(call getLibrariesNameFromLinklib,$(LINKLIB)) $(INCLUDE_MODS) $(patsubst %,$(APPNAME)_%,$(USEMOD)),_MOD_RUST_DEPSVAR_))
+ALL_DEPENDENCIES=$(call getDependenciesByTransitivity,$(call getLibrariesNameFromLinklib,$(LINKLIB)) $(INCLUDE_MODS) $(patsubst %,$(APPNAME)_%,$(USEMOD)))
 
 INCLUDE_MODS_EXT=$(filter-out $(PROJECT_INC_MODS),$(sort $(ALL_DEPENDENCIES)))
 INCLUDE_MODS_EXT_LOOKING_PATHS=$(sort $(foreach modExt,$(INCLUDE_MODS_EXT),$(_module_$(modExt)_dir) $(_app_$(modExt)_dir)))

@@ -5,7 +5,11 @@ DEFAULT_USELIB:=$(USELIB)
 DEFAULT_NDUSELIB:=$(NDUSELIB)
 include module.cfg
 
-MODNAME?=$(notdir $(abspath .))
+_MODNAME:=$(notdir $(abspath .))
+ifneq ($(filter-out $(_MODNAME),$(MODNAME)),)
+$(info $(shell $(ABS_PRINT_warning) "The name of the module '$(MODNAME) differ from the module directory name '$(_MODNAME)'"))
+endif
+MODNAME?=$(_MODNAME)
 
 # add dependencies between modules to avoid compile module at the same time.
 # .done must depends of other .done to propagate the multithread dependency.
