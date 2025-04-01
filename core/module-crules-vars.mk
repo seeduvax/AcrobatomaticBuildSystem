@@ -113,21 +113,22 @@ TARGETFILE_LIB=$(TARGETDIR)/$(TARGET_LIB)
 TARGETFILE_EXE=$(TARGETDIR)/$(TARGET_EXE)
 TARGETARCHIVE=$(TARGETDIR)/$(patsubst %.$(SOEXT),%.$(AREXT),$(TARGET_LIB))
 
+# all the dependencies of this module. Resolve by transitivity among first level dependencies.
+ALL_DEPENDENCIES=$(call getDependenciesByTransitivity,$(call getLibrariesNameFromLinklib,$(LINKLIB)) $(INCLUDE_MODS) $(patsubst %,$(APPNAME)_%,$(USEMOD)))
 # LDFLAGS permit to get the created .so that are not MODTYPE library.
 # this variable must be evaluated at the use time because at declaration time, the dependencies are not generated yet.
-INCLUDE_PROJ_MODS=$(filter-out $(MODNAME),$(patsubst $(APPNAME)_%,%,$(filter $(PROJECT_INC_MODS),$(sort $(ABS_INCLUDE_MODS)))))
-LDFLAGS+=-L$(TRDIR)/$(SODIR) $(foreach mod,$(INCLUDE_PROJ_MODS),$(if $(wildcard $(TRDIR)/$(SODIR)/$(SOPFX)$(APPNAME)_$(mod).$(SOEXT)),-l$(APPNAME)_$(mod),)$(if $(wildcard $(TRDIR)/$(SODIR)/$(SOPFX)$(mod).$(SOEXT)),-l$(mod),))
-LDFLAGS+=-L$(TRDIR)/$(SODIR) $(foreach mod,$(INCLUDE_PROJ_MODS),$(if $(wildcard $(TRDIR)/$(SODIR)/$(SOPFX)$(APPNAME)_$(mod).$(AREXT)),-l$(APPNAME)_$(mod),)$(if $(wildcard $(TRDIR)/$(SODIR)/$(SOPFX)$(mod).$(AREXT)),-l$(mod),))
+INCLUDE_PROJ_MODS=$(filter-out $(MODNAME),$(patsubst $(APPNAME)_%,%,$(filter $(PROJECT_INC_MODS),$(ALL_DEPENDENCIES))))
+LDFLAGS+=-L$(TRDIR)/$(SODIR)
+LDFLAGS+=$(foreach mod,$(USEMOD),$(if $(wildcard $(TRDIR)/$(SODIR)/$(SOPFX)$(APPNAME)_$(mod).$(SOEXT)),-l$(APPNAME)_$(mod),)$(if $(wildcard $(TRDIR)/$(SODIR)/$(SOPFX)$(mod).$(SOEXT)),-l$(mod),))
+LDFLAGS+=$(foreach mod,$(INCLUDE_PROJ_MODS),$(if $(wildcard $(TRDIR)/$(SODIR)/$(SOPFX)$(APPNAME)_$(mod).$(AREXT)),-l$(APPNAME)_$(mod),)$(if $(wildcard $(TRDIR)/$(SODIR)/$(SOPFX)$(mod).$(AREXT)),-l$(mod),))
 
 # add paths to used modules' headers & libs.
 CFLAGS+=-I$(TRDIR)/include
-CFLAGS+=$(foreach mod,$(INCLUDE_PROJ_MODS),$(if $(wildcard $(PRJROOT)/$(mod)/include),-I$(PRJROOT)/$(mod)/include,))
-CFLAGS+=$(foreach mod,$(INCLUDE_MODS),$(if $(_app_$(mod)_dir),-I$(_app_$(mod)_dir)/include,))
-CFLAGS+=$(foreach mod,$(INCLUDE_MODS),$(if $(_module_$(mod)_dir),-I$(_module_$(mod)_dir)/include,))
+CFLAGS+=$(foreach mod,$(INCLUDE_PROJ_MODS),$(if $(wildcard $(PRJROOT)/$(mod)/include),-I$(PRJROOT)/$(mod)/include))
 LDFLAGS+=$(patsubst %,-l%,$(LINKLIB))
 
-INCLUDE_MODS_EXT=$(filter-out $(PROJECT_INC_MODS),$(sort $(ABS_INCLUDE_MODS))) $(LINKLIB)
-INCLUDE_MODS_EXT_LOOKING_PATHS=$(sort $(foreach modExt,$(INCLUDE_MODS_EXT),$(_module_$(modExt)_dir) $(_app_$(modExt)_dir)))
+INCLUDE_MODS_EXT=$(filter-out $(PROJECT_INC_MODS),$(ALL_DEPENDENCIES))
+INCLUDE_MODS_EXT_LOOKING_PATHS=$(sort $(foreach modExt,$(INCLUDE_MODS_EXT),$(_module_$(modExt)_dir) $(_app_$(modExt)_dir) $(_app_lib$(modExt)_dir)))
 INCLUDE_MODS_EXT_CPATHS=$(foreach path,$(INCLUDE_MODS_EXT_LOOKING_PATHS),$(wildcard $(path)/include))
 CFLAGS+=$(foreach extPath,$(INCLUDE_MODS_EXT_CPATHS),-I$(extPath))
 INCLUDE_MODS_EXT_LDPATHS+=$(foreach path,$(INCLUDE_MODS_EXT_LOOKING_PATHS),$(filter-out %/library.json,$(wildcard $(path)/lib*)))

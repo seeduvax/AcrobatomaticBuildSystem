@@ -70,20 +70,35 @@ define isLibInListByName
 $(filter $(call getLibNameFromVersioned,$1)-%,$(subst |,-,$2))
 endef
 
-# resolve all dependencies by transitivity from one dependency.
-# 1: module/app name
-# 2: list of already added dependencies (to avoid loop)
-# return the list of the dependencies.
-define getDependenciesByTransitivity
-$(if $(filter $1,$2),,$1 $(foreach depend,$(_module_$1_depends),$(call getDependenciesByTransitivity,$(depend),$2 $1)))
+# Get the name of the library from LINKLIB variable
+# 1: link libs
+# return the list of the libraries if possible.
+define getLibrariesNameFromLinklib
+$(foreach lib,$1,$(if $(_module_$(lib)_dir)$(_app_$(lib)_dir),$(lib),$(if $(_app_lib$(lib)_dir),lib$(lib))))
 endef
 
-# get dependencies for external libs (without modules).
-# 1: name of the lib
-# 2: list of already added dependencies (to avoid loop)
+# resolve all dependencies by transitivity from dependencies (private macro)
+# 1: module/apps name
+# 2: name of the variable for the list of already added dependencies (to avoid loop)
 # return the list of the dependencies.
-define getLibsDependenciesByTransitivity
-$(if $(filter $1,$2),,$1 $(foreach depend,$(_app_$1_depends),$(call getLibsDependenciesByTransitivity,$(depend),$2 $1)))
+define _getDependenciesByTransitivity2
+$(filter-out $($2),$1) \
+$(foreach element,$(filter-out $($2),$1),$(eval $2+=$(element))$(call _getDependenciesByTransitivity2,$(_module_$(element)_depends) $(_app_$(element)_depends),$2))
+endef
+
+# resolve all dependencies by transitivity from dependencies (private macro)
+# 1: module/apps name
+# 2: name of the variable for the list of already added dependencies (to avoid loop)
+# return the list of the dependencies.
+define _getDependenciesByTransitivity1
+$(eval $2=)$(sort $(call _getDependenciesByTransitivity2,$1,$2))
+endef
+
+# resolve all dependencies by transitivity from dependencies
+# 1: module/apps name
+# return the list of the dependencies.
+define getDependenciesByTransitivity
+$(call _getDependenciesByTransitivity1,$1,$(call generateTmpVariable,_depvar_))
 endef
 
 ABSWS_EXTLIBDIR=$(ABSWS)/extlib/$(ARCH)
@@ -102,12 +117,15 @@ NDEXTLIBDIR:=$(EXTLIBDIR).nodist
 NDNA_EXTLIBDIR:=$(NA_EXTLIBDIR).nodist
 EXTLIBDIR_READONLY?=true
 
+UNPACK_ARGS=
 ifeq ($(ISWINDOWS),true)
 	LNDIR:=cp -r
 	LNFILE:=cp
+	RMLINK:=rm -rf
 else
 	LNDIR:=ln -sf
 	LNFILE:=ln -sf
+	RMLINK:=rm
 endif
 
 # tell the bootstrap makefile to not define its own default download rule.
@@ -229,7 +247,7 @@ $(ABSWS_NDNA_EXTLIBDIR)/%/import.mk: $(ABS_CACHE)/noarch/%.tar.gz
 define extlib_linkLibrary
 	@mkdir -p `dirname $(@D)`
 	@mkdir -p $(TRDIR)
-	@$(if $(wildcard $(@D)),rm $(@D))
+	@$(if $(wildcard $(@D)),$(RMLINK) $(@D))
 	@$(LNDIR) $(<D) $(@D)
 	@function createSymLinks() { \
 		basedir=$$(readlink -f $$1) ;\
@@ -381,7 +399,6 @@ $(if $(call isLibInList,$1-$2,$(EXTLIBS_ALL_USELIB)),$(call extlib_import2,$1,$2
 $(if $(call isLibInList,$1-$2,$(EXTLIBS_ALL_NAUSELIB)),$(call extlib_import2,$1,$2,$3,$(NA_EXTLIBDIR),EXTLIBS_ALL_NAUSELIB))
 $(if $(call isLibInList,$1-$2,$(EXTLIBS_ALL_NDUSELIB)),$(call extlib_import2,$1,$2,$3,$(NDEXTLIBDIR),EXTLIBS_ALL_NDUSELIB))
 $(if $(call isLibInList,$1-$2,$(EXTLIBS_ALL_NDNAUSELIB)),$(call extlib_import2,$1,$2,$3,$(NDNA_EXTLIBDIR),EXTLIBS_ALL_NDNAUSELIB))
-$(eval ABS_INCLUDE_MODS+=$1)
 endef
 
 define extlib_import_template

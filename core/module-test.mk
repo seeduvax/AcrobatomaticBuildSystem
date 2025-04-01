@@ -51,6 +51,8 @@ ifeq ($(VALGRIND_XML),true)
 	VALGRIND_ARGS+=--xml=yes --xml-file=$(TTARGETDIR)/$(MODNAME)_valgrind_result.xml
 endif
 
+T_ALL_DEPENDENCIES=$(call getDependenciesByTransitivity,$(call getLibrariesNameFromLinklib,$(TLINKLIB)) $(INCLUDE_TESTMODS) $(patsubst %,$(APPNAME)_%,$(TESTUSEMOD)))
+
 # objects to be generated from test classes.
 TALLSRCFILES=$(call find,test,*.cpp *.c)
 TSRCFILES=$(filter-out $(patsubst %,test/%,$(TDISABLE_SRC)),$(TALLSRCFILES))
@@ -58,20 +60,17 @@ TCPPOBJS=$(patsubst test/%.cpp,$(OBJDIR)/test/%.o,$(filter %.cpp,$(TSRCFILES))) 
 		$(patsubst test/%.c,$(OBJDIR)/test/%.o,$(filter %.c,$(TSRCFILES)))
 
 # compiler options specific to test
-TCFLAGS+=$(patsubst %,-I$(PRJROOT)/%/include,$(TESTUSEMOD))
+TCFLAGS+=$(patsubst %,-I$(PRJROOT)/%/include,$(patsubst $(APPNAME)_%,%,$(filter $(PROJECT_INC_MODS),$(T_ALL_DEPENDENCIES))))
 
 # linker options specific to test
-TLDFLAGS+=-L$(TRDIR)/$(SODIR) $(patsubst %,-l$(APPNAME)_%,$(TESTUSEMOD)) $(patsubst %,-l%,$(TLINKLIB))
-TLDFLAGS+=$(patsubst %,-L$(TRDIR)/$(SODIR),$(TESTUSEMOD))
+TLDFLAGS+=-L$(TRDIR)/$(SODIR)
+TLDFLAGS+=$(patsubst %,-l$(APPNAME)_%,$(TESTUSEMOD)) $(patsubst %,-l%,$(TLINKLIB))
 
-INCLUDE_TESTMODS_EXT=$(filter-out $(PROJECT_INC_MODS),$(sort $(TLINKLIB)))
+INCLUDE_TESTMODS_EXT=$(filter-out $(PROJECT_INC_MODS),$(sort $(T_ALL_DEPENDENCIES)))
 
 INCLUDE_TESTMODS_EXT_LOOKING_PATHS=$(sort $(foreach modExt,$(INCLUDE_TESTMODS_EXT),$(_module_$(modExt)_dir) $(_app_$(modExt)_dir)))
 INCLUDE_TESTMODS_EXT_CPATHS=$(foreach path,$(INCLUDE_TESTMODS_EXT_LOOKING_PATHS),$(wildcard $(path)/include))
 TCFLAGS+=$(foreach extPath,$(INCLUDE_TESTMODS_EXT_CPATHS),-I$(extPath))
-TCFLAGS+=$(foreach mod,$(INCLUDE_TESTMODS),$(if $(_app_$(mod)_dir),-I$(_app_$(mod)_dir)/include,))
-TCFLAGS+=$(foreach mod,$(INCLUDE_TESTMODS),$(if $(_module_$(mod)_dir),-I$(_module_$(mod)_dir)/include,))
-TCFLAGS+=$(foreach mod,$(INCLUDE_TESTMODS),$(if $(wildcard $(PRJROOT)/$(mod)/include),-I$(PRJROOT)/$(mod)/include,))
 
 INCLUDE_TESTMODS_EXT_LDPATHS+=$(foreach path,$(INCLUDE_TESTMODS_EXT_LOOKING_PATHS),$(filter-out %/library.json,$(wildcard $(path)/lib*)))
 TLDFLAGS+=$(foreach extPath,$(INCLUDE_TESTMODS_EXT_LDPATHS),-L$(extPath))
