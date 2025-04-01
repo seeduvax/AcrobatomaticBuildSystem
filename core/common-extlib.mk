@@ -122,7 +122,6 @@ ifeq ($(ISWINDOWS),true)
 	LNDIR:=cp -r
 	LNFILE:=cp
 	RMLINK:=rm -rf
-	UNPACK_ARGS+=-h
 else
 	LNDIR:=ln -sf
 	LNFILE:=ln -sf
@@ -222,8 +221,8 @@ define unpackArchive
 	@$(ABS_PRINT_debug) "$<"
 	@$(if $(wildcard $(@D)),chmod -R u+w $(@D) && rm -rf $(@D))
 	@mkdir -p $(@D)
-	@tar $(UNPACK_ARGS) --exclude=$*/import.mk -xmf $< -C $1
-	@tar $(UNPACK_ARGS) -xmf $< -C $(1) $*/import.mk
+	@tar --exclude=$*/import.mk -xmzf $< -C $1
+	@tar -xmzf $< -C $(1) $*/import.mk
 	@$(if $(filter 1 true,$(EXTLIBDIR_READONLY)),chmod -R a-w $(@D))
 	@touch $@
 endef

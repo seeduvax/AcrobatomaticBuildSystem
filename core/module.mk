@@ -60,12 +60,7 @@ GENOBJS:=
 
 include $(ABSROOT)/core/common.mk
 
-# all moddeps.mk must be generated before including module moddeps.mk
-# Otherwise compilation of dependencies will start before to have all targets.
-$(PRJOBJDIR)/$(MODNAME)/moddeps.mk: $(patsubst %,$(PRJOBJDIR)/%/moddeps.mk,$(filter-out $(MODNAME),$(ALL_PROJ_MODULES)))
-
-# include moddeps now to have all the needed USELIB for external dependency resolution
-include $(PRJOBJDIR)/$(MODNAME)/moddeps.mk
+include $(LOAD_MODDEPS_FILE)
 
 # include EXTLIBMAKES after moddeps.mk to have all USELIB
 $(eval $(call extlib_updates_deps))

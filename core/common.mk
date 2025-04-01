@@ -257,10 +257,14 @@ ALL_PROJ_MODULES=$(patsubst $(PRJROOT)/%/module.cfg,%,$(wildcard $(PRJROOT)/*/mo
 ALL_PROJ_MODDEPS_MK=$(patsubst %,$(PRJOBJDIR)/%/moddeps.mk,$(ALL_PROJ_MODULES))
 # PROJECT_INC_MODS permit to filter project modules in INCLUDE_MODS or ABS_INCLUDE_MODS variable for example.
 PROJECT_INC_MODS=$(patsubst %,$(APPNAME)_%,$(ALL_PROJ_MODULES))
+LOAD_MODDEPS_FILE=$(PRJOBJDIR)/loadmoddeps.mk
 
 # dependencies between modules
 $(PRJOBJDIR)/%/moddeps.mk: $(PRJROOT)/%/module.cfg
 	@+make -C $(PRJROOT)/$* --no-print-directory PRJROOT="$(PRJROOT)" TRDIR="$(TRDIR)" PRJOBJDIR="$(PRJOBJDIR)" ARCH="$(ARCH)" -f $(ABSROOT)/core/module-depends.mk
+
+$(LOAD_MODDEPS_FILE): $(ALL_PROJ_MODDEPS_MK)
+	@printf 'include $$(if $$(MODNAME),$$(PRJOBJDIR)/$$(MODNAME)/moddeps.mk,$$(patsubst %%,$$(PRJOBJDIR)/%%/moddeps.mk,$$(MODULES_DEPS)))' > $@
 
 # include extern libraries management rules
 ifneq ($(INCLUDE_EXTLIB),false)

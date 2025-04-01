@@ -24,12 +24,8 @@ KMODULES:=$(filter %_lkm,$(MODULES_DEPS))
 MODULES_DEPS:=$(KMODULES)
 endif
 
-MODULES_TO_BUILD:=$(patsubst %,$(PRJOBJDIR)/%/moddeps.mk,$(MODULES_DEPS))
-
 ifeq ($(filter clean% docker%,$(MAKECMDGOALS)),)
-ifneq ($(MODULES_TO_BUILD),)
-include $(MODULES_TO_BUILD)
-endif
+include $(LOAD_MODDEPS_FILE)
 endif # ifeq ($(filter clean% docker%,$(MAKECMDGOALS)),)
 
 # include EXTLIBMAKES after moddeps.mk to have all USELIB
