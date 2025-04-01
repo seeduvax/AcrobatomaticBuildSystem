@@ -168,7 +168,7 @@ $(PRJOBJDIR)/%/.done: $(DEFAULT_EXTLIBMAKES)
 .PRECIOUS: $(PRJOBJDIR)/%/.testdone	
 $(PRJOBJDIR)/%/.testdone: $(PRJOBJDIR)/%/.done
 	@$(ABS_PRINT_info) "==============="
-	@$(ABS_PRINT_info) "Building test module $*... $@"
+	@$(ABS_PRINT_info) "Building test module $*..."
 	@+make $(MMARGS) MODE=$(MODE) -C $* testbuild && date > $@
 
 # depends on mod.% to compile dependencies of module.
