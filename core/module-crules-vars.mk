@@ -269,11 +269,12 @@ CRULES_VAR_LINKED_LIBS=$(sort $(filter -l%,$(LDFLAGS)))
 CRULES_VAR_LINKED_DIRS=$(sort $(filter -L%,$(LDFLAGS)))
 # --rpath-link permit to the linker to find shared libraries (needed for cross compiler linker for exe generation).
 CRULES_VAR_RPATH_LINKS=$(patsubst -L%,-Wl$(_comma_)--rpath-link=%,$(CRULES_VAR_LINKED_DIRS))
-CRULES_VAR_LDFLAGS=
+CRULES_VAR_LDFLAGS=$(CRULES_VAR_LINKED_DIRS)
 ifneq ($(MODTYPE),library) 
 CRULES_VAR_LDFLAGS+=$(CRULES_VAR_RPATH_LINKS)
 endif
-CRULES_VAR_LDFLAGS+=$(filter-out -l% -L%,$(LDFLAGS)) $(CRULES_VAR_LINKED_DIRS) $(CRULES_VAR_LINKED_LIBS)
+CRULES_VAR_LDFLAGS+=$(filter-out -l% -L%,$(LDFLAGS))
+CRULES_VAR_LDFLAGS+=$(CRULES_VAR_LINKED_LIBS)
 
 # generate the additionnals LDFLAGS to link lib on Windows.
 # 1: destination import lib

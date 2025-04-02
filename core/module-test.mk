@@ -89,6 +89,8 @@ ifeq ($(MODTYPE),exe)
 # to build the exe
 # TODO: a bit strange, why not just reuse OBJS?
 	TCPPOBJS+=$(patsubst src/%.cpp,$(OBJDIR)/bintest/%.o,$(filter %.cpp,$(SRCFILES)))  $(OBJDIR)/vinfo.o
+# use links of executable.
+	TLDFLAGS+=$(filter -l%,$(LDFLAGS))
 endif
 	TLDFLAGS+=-shared -ldl
 endif
@@ -143,17 +145,20 @@ ifneq ($(filter exe library,$(MODTYPE)),)
 TTARGETFILEDEP:=$(TARGETFILE)
 endif
 
+TLDFLAGS_L=$(filter -l%,$(TLDFLAGS))
+TLDFLAGS_NO_L=$(filter-out -l%,$(TLDFLAGS) $(LDFLAGS))
+
 ifneq ($(ISWINDOWS),true)
 define ld-test
 @$(ABS_PRINT_info) "Linking $@ ..."
-@$(call writeToBuildLogs,t_$(MODNAME) linked to $(sort $(patsubst -l%,%,$(filter -l%,$(TLDFLAGS)))))
-@$(call executeAndLogCmd,$(LD) -o $@ $(TCPPOBJS) $(TLDFLAGS) $(LDFLAGS))
+@$(call writeToBuildLogs,t_$(MODNAME) linked to $(sort $(patsubst -l%,%,$(TLDFLAGS_L))))
+@$(call executeAndLogCmd,$(LD) -o $@ $(TCPPOBJS) $(TLDFLAGS_NO_L) $(TLDFLAGS_L))
 endef
 else
 define ld-test
 @$(ABS_PRINT_info) "Linking $(TCYGTARGET) ..."
-@$(call writeToBuildLogs,t_$(MODNAME) linked to $(sort $(patsubst -l%,%,$(filter -l%,$(TLDFLAGS)))))
-@$(call executeAndLogCmd,$(LD) -shared -o $(TCYGTARGET) $(call getWindowsLibLDFlags,$@,$(TCPPOBJS)) $(TLDFLAGS) $(LDFLAGS))
+@$(call writeToBuildLogs,t_$(MODNAME) linked to $(sort $(patsubst -l%,%,$(TLDFLAGS_L))))
+@$(call executeAndLogCmd,$(LD) -shared -o $(TCYGTARGET) $(call getWindowsLibLDFlags,$@,$(TCPPOBJS)) $(TLDFLAGS_NO_L) $(TLDFLAGS_L))
 endef
 endif
 
