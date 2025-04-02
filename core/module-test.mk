@@ -145,7 +145,8 @@ ifneq ($(filter exe library,$(MODTYPE)),)
 TTARGETFILEDEP:=$(TARGETFILE)
 endif
 
-TLDFLAGS_L=$(filter -l%,$(TLDFLAGS))
+# link main lib dependencies too (in case the main lib is not directly used.)
+TLDFLAGS_L=$(filter -l%,$(TLDFLAGS) $(LDFLAGS))
 TLDFLAGS_NO_L=$(filter-out -l%,$(TLDFLAGS) $(LDFLAGS))
 
 ifneq ($(ISWINDOWS),true)

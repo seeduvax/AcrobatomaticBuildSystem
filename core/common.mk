@@ -121,7 +121,7 @@ _comma_=,
 ##  - USER: name of the user running the build
 USER?=$(shell whoami)
 USER:=$(subst \,/,$(USER))
-ISWINDOWS?=$(if $(WINDIR),true,)
+ISWINDOWS?=$(if $(WINDIR),true)
 ifeq ($(ISWINDOWS),true)
 define absGetPath
 $(shell cygpath -m $(1))
