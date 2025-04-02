@@ -503,7 +503,6 @@ endef
 define generateCheckModDep
 	@$(ABS_PRINT_info) "Generating modules dependency graph."
 	@printf 'digraph deps {\ngraph [rankdir="LR",ranksep=1];\nnode [width=2, shape=box, style="rounded"];\n' > $@
-	@printf ' $(foreach dep,$(subst |,-,$(sort $1)),"$(APPNAME)"->"$(APPNAME)_$(dep)";\n)'>> $@
 	@printf ' $(sort $(foreach dep,$(subst |,-,$1),$(call getModsDepsForGraph,$(APPNAME)_$(dep))))' | sort -u>> $@
 	@echo "}" >> $@
 	@dot -Tpng $@ > $@.png
