@@ -64,7 +64,8 @@ TCFLAGS+=$(patsubst %,-I$(PRJROOT)/%/include,$(patsubst $(APPNAME)_%,%,$(filter 
 
 # linker options specific to test
 TLDFLAGS+=-L$(TRDIR)/$(SODIR)
-TLDFLAGS+=$(patsubst %,-l$(APPNAME)_%,$(TESTUSEMOD)) $(patsubst %,-l%,$(TLINKLIB))
+TLDFLAGS+=$(patsubst %,-l%,$(call GetExistingModGeneratedSO,$(TESTUSEMOD))) 
+TLDFLAGS+=$(patsubst %,-l%,$(TLINKLIB))
 
 INCLUDE_TESTMODS_EXT=$(filter-out $(PROJECT_INC_MODS),$(sort $(T_ALL_DEPENDENCIES)))
 

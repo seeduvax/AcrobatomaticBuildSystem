@@ -110,6 +110,12 @@ else
 	TARGETDIR=$(TRDIR)/bin
 endif
 
+# Get the mods for which a .so or .dll has been generated
+# 1: the list of USEMOD.
+define GetExistingModGeneratedSO
+$(foreach mod,$1,$(if $(wildcard $(TRDIR)/$(SODIR)/$(SOPFX)$(APPNAME)_$(mod).$(SOEXT)),$(APPNAME)_$(mod))$(if $(wildcard $(TRDIR)/$(SODIR)/$(SOPFX)$(mod).$(SOEXT)),$(mod)))
+endef
+
 # target full path
 TARGETFILE=$(TARGETDIR)/$(TARGET)
 TARGETFILE_LIB=$(TARGETDIR)/$(TARGET_LIB)
@@ -122,7 +128,7 @@ ALL_DEPENDENCIES=$(call getDependenciesByTransitivity,$(call getLibrariesNameFro
 # this variable must be evaluated at the use time because at declaration time, the dependencies are not generated yet.
 INCLUDE_PROJ_MODS=$(filter-out $(MODNAME),$(patsubst $(APPNAME)_%,%,$(filter $(PROJECT_INC_MODS),$(ALL_DEPENDENCIES))))
 LDFLAGS+=-L$(TRDIR)/$(SODIR)
-LDFLAGS+=$(foreach mod,$(USEMOD),$(if $(wildcard $(TRDIR)/$(SODIR)/$(SOPFX)$(APPNAME)_$(mod).$(SOEXT)),-l$(APPNAME)_$(mod),)$(if $(wildcard $(TRDIR)/$(SODIR)/$(SOPFX)$(mod).$(SOEXT)),-l$(mod),))
+LDFLAGS+=$(patsubst %,-l%,$(call GetExistingModGeneratedSO,$(USEMOD)))
 LDFLAGS+=$(foreach mod,$(INCLUDE_PROJ_MODS),$(if $(wildcard $(TRDIR)/$(SODIR)/$(SOPFX)$(APPNAME)_$(mod).$(AREXT)),-l$(APPNAME)_$(mod),)$(if $(wildcard $(TRDIR)/$(SODIR)/$(SOPFX)$(mod).$(AREXT)),-l$(mod),))
 
 # add paths to used modules' headers & libs.
