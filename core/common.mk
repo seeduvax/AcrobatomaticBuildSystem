@@ -121,6 +121,7 @@ _comma_=,
 ##  - USER: name of the user running the build
 USER?=$(shell whoami)
 USER:=$(subst \,/,$(USER))
+# ISWINDOWS indicates ABS run on Windows (with cygwin or msys)
 ISWINDOWS?=$(if $(WINDIR),true)
 ifeq ($(ISWINDOWS),true)
 define absGetPath

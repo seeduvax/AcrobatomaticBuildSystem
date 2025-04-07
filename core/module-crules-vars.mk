@@ -12,10 +12,13 @@ endif
 
 # default C flags
 CFLAGS+=-I$(ABSROOT)/core/include
-ifneq ($(ISWINDOWS),true)
-CFLAGS+=-Iinclude -fPIC -I$(TRDIR)/include
+CFLAGS+=-Iinclude -I$(TRDIR)/include
+
+ifneq ($(filter true,$(ISWINDOWS))$(filter mingw,$(CROSS_ARCH)),)
+# compilation of windows executable (in cross compilation or directly on windows.)
+CFLAGS+=-Wa,-mbig-obj
 else
-CFLAGS+=-Iinclude -I$(TRDIR)/include -Wa,-mbig-obj
+CFLAGS+=-fPIC
 endif
 
 # default C/C++ commands and flags
