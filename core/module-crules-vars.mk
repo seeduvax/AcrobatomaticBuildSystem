@@ -265,6 +265,10 @@ $(cxx-command-base)
 endef
 endif
 
+# --no-as-needed permit to add the linked libraries even if they are not used in this module.
+# This is the default value for old compilers.
+LDFLAGS+=-Wl,--no-as-needed
+
 CRULES_VAR_LINKED_LIBS=$(sort $(filter -l%,$(LDFLAGS)))
 CRULES_VAR_LINKED_DIRS=$(sort $(filter -L%,$(LDFLAGS)))
 # --rpath-link permit to the linker to find shared libraries (needed for cross compiler linker for exe generation).
