@@ -15,7 +15,7 @@
 ##  - TDISABLE_SRC: List of files in test directory to not compile
 ## 
 ## ------------------------------------------------------------------------
-ifeq ($(filter %-win32,$(CC_VERSION)),)
+ifeq ($(filter %-win32 %-posix,$(CC_VERSION)),)
 CC_VERSION_GE6:=$(shell [ `echo "$(CC_VERSION)" | cut -f1 -d.` -ge 6 ] && echo true || echo false)
 ifeq ($(CC_VERSION_GE6),false)
 CPPUNIT?=cppunit-1.12.1
