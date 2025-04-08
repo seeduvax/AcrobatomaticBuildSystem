@@ -1,18 +1,18 @@
 include ../extlib.mk
 
-ifeq ($(ISWINDOWS),true)
+ifneq ($(filter true,$(ISWINDOWS))$(filter mingw,$(CROSS_ARCH)),)
 $(INSTDIR)/bin/lua$(SHORTVERSION).dll: $(INSTDIR)/import.mk
-	gcc -shared  -o $@ $(filter-out $(patsubst %,$(SRCDIR)/src/%.o, lua luac),$(wildcard $(SRCDIR)/src/*.o))
+	$(CROSS_COMPILE)gcc -shared  -o $@ $(filter-out $(patsubst %,$(SRCDIR)/src/%.o, lua luac),$(wildcard $(SRCDIR)/src/*.o))
 
 $(INSTDIR)/bin/luap: $(INSTDIR)/bin/lua$(SHORTVERSION).dll
 	wget $(LUAPSRCURL) -O luap.tar.gz
 	tar xvzf luap.tar.gz
-	make -C luap*/ PREFIX=$(INSTDIR) VERSION=$(MEDVERSION) LUA_CFLAGS="-I$(INSTDIR)/include" LUA_LDFLAGS="-L$(INSTDIR)/bin -llua$(SHORTVERSION)" install
+	make -C luap*/ PREFIX=$(INSTDIR) VERSION=$(MEDVERSION) CC=$(CROSS_COMPILE)gcc LUA_CFLAGS="-I$(INSTDIR)/include" LUA_LDFLAGS="-L$(INSTDIR)/bin -L$(INSTDIR)/lib -llua$(SHORTVERSION)" install
 	rm -rf luap*
 
 else
 $(INSTDIR)/lib/liblua.so: $(INSTDIR)/import.mk
-	gcc -shared  -o $@ $(filter-out $(patsubst %,$(SRCDIR)/src/%.o, lua luac),$(wildcard $(SRCDIR)/src/*.o))
+	$(CROSS_COMPILE)gcc -shared  -o $@ $(filter-out $(patsubst %,$(SRCDIR)/src/%.o, lua luac),$(wildcard $(SRCDIR)/src/*.o))
 
 $(INSTDIR)/bin/luap: $(INSTDIR)/lib/liblua.so
 	wget $(LUAPSRCURL) -O luap.tar.gz
