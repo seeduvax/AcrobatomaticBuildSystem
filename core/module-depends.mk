@@ -11,6 +11,9 @@ $(info $(shell $(ABS_PRINT_warning) "The name of the module '$(MODNAME) differ f
 endif
 MODNAME?=$(_MODNAME)
 
+# INCLUDE_MODS permit to add dependency between mods but without doing link between generated libraries.
+NEEDED_PROJ_MODS=$(sort $(USEMOD) $(TESTUSEMOD) $(patsubst $(APPNAME)_%,%,$(filter $(APPNAME)_%,$(INCLUDE_MODS))))
+
 # add dependencies between modules to avoid compile module at the same time.
 # .done must depends of other .done to propagate the multithread dependency.
 # the variable _depends will contains libs needed by the module. If the archive name is same than .so, the name lib$(dep) will be used instead of $(dep)
@@ -22,10 +25,10 @@ $(PRJOBJDIR)/$(MODNAME)/moddeps.mk:
 	@mkdir -p $(@D)
 	@echo "# "`date` > $@.tmp
 	@printf 'ifeq ($$(_module_$(APPNAME)_$(MODNAME)_dir),)\n'\
-'include $$(patsubst %%,$$(PRJOBJDIR)/%%/moddeps.mk,$(sort $(USEMOD) $(TESTUSEMOD)))\n\n'\
+'include $$(patsubst %%,$$(PRJOBJDIR)/%%/moddeps.mk,$(NEEDED_PROJ_MODS))\n\n'\
 '_module_$(APPNAME)_$(MODNAME)_dir=$$(TRDIR)\n'\
 '_module_$(APPNAME)_$(MODNAME)_depends=$$(sort $$(call getLibrariesNameFromLinklib,$(LINKLIB)) $(INCLUDE_MODS) $(patsubst %,$(APPNAME)_%,$(USEMOD)))\n\n'\
-'_module_$(APPNAME)_$(MODNAME)_done_depends=$$(patsubst %%,$$(PRJOBJDIR)/%%/.done,$(sort $(USEMOD) $(TESTUSEMOD)))\n\n'\
+'_module_$(APPNAME)_$(MODNAME)_done_depends=$$(patsubst %%,$$(PRJOBJDIR)/%%/.done,$(NEEDED_PROJ_MODS))\n\n'\
 'USELIB+=$(filter-out $(DEFAULT_USELIB),$(USELIB))\n'\
 'NDUSELIB+=$(filter-out $(DEFAULT_NDUSELIB),$(NDUSELIB))\n\n'\
 '$$(PRJOBJDIR)/$(MODNAME)/.depready: $$(_module_$(APPNAME)_$(MODNAME)_done_depends)\n\n'\
@@ -33,7 +36,7 @@ $(PRJOBJDIR)/$(MODNAME)/moddeps.mk:
 '$$(PRJOBJDIR)/$(MODNAME)/.done: $$(_module_$(APPNAME)_$(MODNAME)_done_depends)\n\n'\
 '$$(PRJOBJDIR)/$(MODNAME)/.testdone: $$(PRJOBJDIR)/$(MODNAME)/.done\n'\
 '$$(PRJOBJDIR)/$(MODNAME)/.testdone: $$(wildcard $$(foreach toLook,test module.cfg local.cfg,$$(call find,$$(PRJROOT)/$(MODNAME)/$$(toLook),*)))\n\n'\
-'testmod.$(MODNAME): $$(patsubst %%,testmod.%%,$(sort $(USEMOD) $(TESTUSEMOD)))\n\n'\
+'testmod.$(MODNAME): $$(patsubst %%,testmod.%%,$(NEEDED_PROJ_MODS))\n\n'\
 'endif\n' >> $@.tmp
 	@mv $@.tmp $@
 
