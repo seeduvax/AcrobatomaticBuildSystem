@@ -67,6 +67,8 @@ testFile $buildlog.processed $MODROOT/test/resources/expected/projC_extmods.txt
 testFileExists $testDirectory/projC/dist/installed/etc/aFile.txt
 # test dependencies transitivity
 testFileExists $testDirectory/projC/dist/installed/etc/projB/aFile.txt
+# test presence of hidden files.
+testFileExists $testDirectory/projC/dist/installed/etc/projB/.ImHidden
 
 testFileExists $testDirectory/projC/dist/installed/etc/projA/aFile.txt
 
