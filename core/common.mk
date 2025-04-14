@@ -83,7 +83,7 @@ endef
 # -----------------------------------------------------
 # Misc utility macros
 define find
-$(foreach d,$(wildcard $1/*),$(if $(wildcard $d/.),$(call find,$d,$2),$(filter $(subst *,%,$2),$d)))
+$(foreach d,$(filter-out $1/..,$(filter-out $1/.,$(wildcard $1/* $1/.*))),$(if $(wildcard $d/.),$(call find,$d,$2),$(filter $(subst *,%,$2),$d)))
 endef
 define filter_substr
 $(foreach w,$2,$(if $(findstring $1,$w),$w,))
