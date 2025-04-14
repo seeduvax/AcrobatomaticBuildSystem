@@ -151,10 +151,6 @@ EXT_LIBS_WITHOUT_JSON_LDPATHS+=$(foreach path,$(EXT_LIBS_WITHOUT_JSON),$(filter-
 LDFLAGS+=$(foreach extPath,$(EXT_LIBS_WITHOUT_JSON_LDPATHS),-L$(extPath))
 endif
 
-# --no-as-needed permit to add the linked libraries even if they are not used in this module.
-# This is the default value for old compilers.
-LDFLAGS+=-Wl,--no-as-needed
-
 # library dir list (to be forwarded to LD_LIBRARY_PATH env var before running the app)
 LDLIBP=$(subst $(_space_),:,$(patsubst -L%,%,$(filter -L%,$(LDFLAGS))))
 RUNPATH:=$(TRDIR)/bin$(subst $(_space_),,$(patsubst %,:$(EXTLIBDIR)/%/bin,$(USELIB_FOR_PATH))):$(PATH)
@@ -292,7 +288,9 @@ endef
 # only process abs managed ldflags to permit developer to add elements in LDFLAGS with its own order.
 CRULES_VAR_LINKED_LIBS=$(sort $(filter -l%,$(LDFLAGS)))
 
-FULL_LDFLAGS=
+# --no-as-needed permit to add the linked libraries even if they are not used in this module.
+# This is the default value for old compilers (only for generated libs, not for test libs).
+FULL_LDFLAGS=-Wl,--no-as-needed
 ifneq ($(MODTYPE),library) 
 # --rpath-link permit to the linker to find shared libraries (needed for cross compiler linker for exe generation).
 FULL_LDFLAGS+=$(patsubst -L%,-Wl$(_comma_)--rpath-link=%,$(sort $(filter -L%,$(LDFLAGS))))
