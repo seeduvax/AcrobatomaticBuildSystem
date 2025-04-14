@@ -151,6 +151,10 @@ EXT_LIBS_WITHOUT_JSON_LDPATHS+=$(foreach path,$(EXT_LIBS_WITHOUT_JSON),$(filter-
 LDFLAGS+=$(foreach extPath,$(EXT_LIBS_WITHOUT_JSON_LDPATHS),-L$(extPath))
 endif
 
+# --no-as-needed permit to add the linked libraries even if they are not used in this module.
+# This is the default value for old compilers.
+LDFLAGS+=-Wl,--no-as-needed
+
 # library dir list (to be forwarded to LD_LIBRARY_PATH env var before running the app)
 LDLIBP=$(subst $(_space_),:,$(patsubst -L%,%,$(filter -L%,$(LDFLAGS))))
 RUNPATH:=$(TRDIR)/bin$(subst $(_space_),,$(patsubst %,:$(EXTLIBDIR)/%/bin,$(USELIB_FOR_PATH))):$(PATH)
@@ -274,21 +278,6 @@ $(cxx-command-base)
 endef
 endif
 
-# --no-as-needed permit to add the linked libraries even if they are not used in this module.
-# This is the default value for old compilers.
-LDFLAGS+=-Wl,--no-as-needed
-
-CRULES_VAR_LINKED_LIBS=$(sort $(filter -l%,$(LDFLAGS)))
-CRULES_VAR_LINKED_DIRS=$(sort $(filter -L%,$(LDFLAGS)))
-# --rpath-link permit to the linker to find shared libraries (needed for cross compiler linker for exe generation).
-CRULES_VAR_RPATH_LINKS=$(patsubst -L%,-Wl$(_comma_)--rpath-link=%,$(CRULES_VAR_LINKED_DIRS))
-CRULES_VAR_LDFLAGS=$(CRULES_VAR_LINKED_DIRS)
-ifneq ($(MODTYPE),library) 
-CRULES_VAR_LDFLAGS+=$(CRULES_VAR_RPATH_LINKS)
-endif
-CRULES_VAR_LDFLAGS+=$(filter-out -l% -L%,$(LDFLAGS))
-CRULES_VAR_LDFLAGS+=$(CRULES_VAR_LINKED_LIBS)
-
 # generate the additionnals LDFLAGS to link lib on Windows.
 # 1: destination import lib
 # 2: generated objects
@@ -299,6 +288,16 @@ define getWindowsLibLDFlags
 -Wl,--whole-archive $2 \
 -Wl,--no-whole-archive
 endef
+
+# only process abs managed ldflags to permit developer to add elements in LDFLAGS with its own order.
+CRULES_VAR_LINKED_LIBS=$(sort $(filter -l%,$(LDFLAGS)))
+
+FULL_LDFLAGS=
+ifneq ($(MODTYPE),library) 
+# --rpath-link permit to the linker to find shared libraries (needed for cross compiler linker for exe generation).
+FULL_LDFLAGS+=$(patsubst -L%,-Wl$(_comma_)--rpath-link=%,$(sort $(filter -L%,$(LDFLAGS))))
+endif
+FULL_LDFLAGS+=$(LDFLAGS)
 
 # on none Windows, add creation of static archive
 # for static lib, remove vinfo.o and rename lib.so -> lib.a
@@ -312,7 +311,7 @@ define ld-command-lib
 @$(ABS_PRINT_info) "Linking $@ ..."
 @mkdir -p $(TARGETDIR)
 @$(call writeToBuildLogs,$(MODNAME) linked to $(sort $(patsubst -l%,%,$(CRULES_VAR_LINKED_LIBS))))
-@$(call executeAndLogCmd,LD_RUN_PATH='$(LDRUNP)' LD_LIBRARY_PATH=$(LDLIBP) $(LD) -o $@ $(OBJS) $(CRULES_VAR_LDFLAGS))
+@$(call executeAndLogCmd,LD_RUN_PATH='$(LDRUNP)' LD_LIBRARY_PATH=$(LDLIBP) $(LD) -o $@ $(OBJS) $(FULL_LDFLAGS))
 endef
 define ld-command-exe
 $(ld-command-lib)
@@ -327,6 +326,6 @@ define ld-command-exe
 @$(ABS_PRINT_info) "Linking $@ ..."
 @mkdir -p $(TARGETDIR) $(CYGTARGETDIR)
 @$(call writeToBuildLogs,$(MODNAME) linked to $(sort $(patsubst -l%,%,$(CRULES_VAR_LINKED_LIBS))))
-@$(call executeAndLogCmd,$(LD) -o $@ -Wl$(_comma_)--enable-auto-import $(OBJS) $(LDFLAGS))
+@$(call executeAndLogCmd,$(LD) -o $@ -Wl$(_comma_)--enable-auto-import $(OBJS) $(FULL_LDFLAGS))
 endef
 endif # ifneq ($(ISWINDOWS),true)

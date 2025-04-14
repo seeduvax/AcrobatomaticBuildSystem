@@ -148,19 +148,18 @@ endif
 
 # link main lib dependencies too (in case the main lib is not directly used.)
 TLDFLAGS_L=$(filter -l%,$(TLDFLAGS) $(LDFLAGS))
-TLDFLAGS_NO_L=$(filter-out -l%,$(TLDFLAGS) $(LDFLAGS))
 
 ifneq ($(ISWINDOWS),true)
 define ld-test
 @$(ABS_PRINT_info) "Linking $@ ..."
 @$(call writeToBuildLogs,t_$(MODNAME) linked to $(sort $(patsubst -l%,%,$(TLDFLAGS_L))))
-@$(call executeAndLogCmd,$(LD) -o $@ $(TCPPOBJS) $(TLDFLAGS_NO_L) $(TLDFLAGS_L))
+@$(call executeAndLogCmd,$(LD) -o $@ $(TCPPOBJS) $(LDFLAGS) $(TLDFLAGS))
 endef
 else
 define ld-test
 @$(ABS_PRINT_info) "Linking $(TCYGTARGET) ..."
 @$(call writeToBuildLogs,t_$(MODNAME) linked to $(sort $(patsubst -l%,%,$(TLDFLAGS_L))))
-@$(call executeAndLogCmd,$(LD) -shared -o $(TCYGTARGET) $(call getWindowsLibLDFlags,$@,$(TCPPOBJS)) $(TLDFLAGS_NO_L) $(TLDFLAGS_L))
+@$(call executeAndLogCmd,$(LD) -shared -o $(TCYGTARGET) $(call getWindowsLibLDFlags,$@,$(TCPPOBJS)) $(LDFLAGS) $(TLDFLAGS))
 endef
 endif
 
