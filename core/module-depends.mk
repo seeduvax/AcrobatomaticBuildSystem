@@ -7,12 +7,14 @@ include module.cfg
 
 _MODNAME:=$(notdir $(abspath .))
 ifneq ($(filter-out $(_MODNAME),$(MODNAME)),)
-$(info $(shell $(ABS_PRINT_warning) "The name of the module '$(MODNAME) differ from the module directory name '$(_MODNAME)'"))
+$(info $(shell $(ABS_PRINT_warning) "The name of the module '$(MODNAME)' differ from the module directory name '$(_MODNAME)'"))
 endif
 MODNAME?=$(_MODNAME)
 
+# PROJECT_INC_MODS permit to filter project modules in INCLUDE_MODS
+PROJECT_INC_MODS:=$(patsubst $(PRJROOT)/%/module.cfg,$(APPNAME)_%,$(wildcard $(PRJROOT)/*/module.cfg))
 # INCLUDE_MODS permit to add dependency between mods but without doing link between generated libraries.
-NEEDED_PROJ_MODS=$(sort $(USEMOD) $(TESTUSEMOD) $(patsubst $(APPNAME)_%,%,$(filter $(APPNAME)_%,$(INCLUDE_MODS))))
+NEEDED_PROJ_MODS=$(sort $(USEMOD) $(TESTUSEMOD) $(patsubst $(APPNAME)_%,%,$(filter $(PROJECT_INC_MODS),$(INCLUDE_MODS))))
 
 # DISABLE_USELIB_PROPAGATION permit to not propagate USELIB or NDUSELIB defined in the module.cfg
 ifneq ($(DISABLE_USELIB_PROPAGATION),true)

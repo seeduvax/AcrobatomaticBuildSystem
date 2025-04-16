@@ -256,7 +256,7 @@ endif
 
 ALL_PROJ_MODULES=$(patsubst $(PRJROOT)/%/module.cfg,%,$(wildcard $(PRJROOT)/*/module.cfg))
 ALL_PROJ_MODDEPS_MK=$(patsubst %,$(PRJOBJDIR)/%/moddeps.mk,$(ALL_PROJ_MODULES))
-# PROJECT_INC_MODS permit to filter project modules in INCLUDE_MODS or ABS_INCLUDE_MODS variable for example.
+# PROJECT_INC_MODS permit to filter project modules in INCLUDE_MODS variable for example.
 PROJECT_INC_MODS=$(patsubst %,$(APPNAME)_%,$(ALL_PROJ_MODULES))
 LOAD_MODDEPS_FILE=$(PRJOBJDIR)/loadmoddeps.mk
 
