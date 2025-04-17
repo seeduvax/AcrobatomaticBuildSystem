@@ -39,7 +39,7 @@ $(PRJOBJDIR)/$(MODNAME)/moddeps.mk:
 'USELIB+=$(if $(PROPAGATE_USELIB),$(filter-out $(DEFAULT_USELIB),$(USELIB)))\n'\
 'NDUSELIB+=$(if $(PROPAGATE_USELIB),$(filter-out $(DEFAULT_NDUSELIB),$(NDUSELIB)))\n\n'\
 '$$(PRJOBJDIR)/$(MODNAME)/.depready: $$(_module_$(APPNAME)_$(MODNAME)_done_depends)\n\n'\
-'$$(PRJOBJDIR)/$(MODNAME)/.done: $$(wildcard $$(foreach toLook,src include module.cfg local.cfg,$$(call find,$$(PRJROOT)/$(MODNAME)/$$(toLook),*)))\n\n'\
+'$$(PRJOBJDIR)/$(MODNAME)/.done: $$(wildcard $$(foreach toLook,etc src include module.cfg local.cfg,$$(call find,$$(PRJROOT)/$(MODNAME)/$$(toLook),*)))\n\n'\
 '$$(PRJOBJDIR)/$(MODNAME)/.done: $$(_module_$(APPNAME)_$(MODNAME)_done_depends)\n\n'\
 '$$(PRJOBJDIR)/$(MODNAME)/.testdone: $$(PRJOBJDIR)/$(MODNAME)/.done\n'\
 '$$(PRJOBJDIR)/$(MODNAME)/.testdone: $$(wildcard $$(foreach toLook,test module.cfg local.cfg,$$(call find,$$(PRJROOT)/$(MODNAME)/$$(toLook),*)))\n\n'\
