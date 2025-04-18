@@ -254,13 +254,12 @@ endif
 ##  - debugcheck [RUNARGS="<arg> [<arg>]*": run test from gdb debugger
 # TODO add cygwin support
 
-GDBCMDTEST:=$(BUILDROOT)/gdb-$(MODNAME).test
+GDBCMDTEST:=$(OBJDIR)/gdb-$(MODNAME).test
 
-
-.PHONY: gdbcmdtest
-gdbcmdtest: testbuild
+.PHONY: $(GDBCMDTEST)
+$(GDBCMDTEST): testbuild
 	@$(ABS_PRINT_info) "Generating gdb test script $(GDBCMDTEST)"
-	@mkdir -p $(BUILDROOT)
+	@mkdir -p $(@D)
 	@echo 'set environment LD_LIBRARY_PATH=$(TLDLIBP)' > $(GDBCMDTEST)
 	@echo 'set environment TRDIR=$(TRDIR)' >> $(GDBCMDTEST)
 	@echo 'set environment TTARGETDIR=$(TTARGETDIR)' >> $(GDBCMDTEST)
@@ -270,9 +269,9 @@ gdbcmdtest: testbuild
 
 
 .PHONY: debugcheck
-debugcheck: testbuild gdbcmdtest
+debugcheck: $(GDBCMDTEST)
 	@$(ABS_PRINT) "use" "Use runtests command to launch tests from gdb"
-	@PATH="$(RUNPATH)" gdb  -x $(GDBCMDTEST)
+	@PATH="$(RUNPATH)" gdb -x $<
 
 GDBSERVER_PORT?=9091
 ##  - remotedebugtest [RUNARGS="<arg> [<arg>]*": run test from gdbserver debugger] [GDBSERVER_PORT=9091 : default gdbserver port]
