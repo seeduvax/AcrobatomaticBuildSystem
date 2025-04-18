@@ -124,7 +124,7 @@ $(OBJDIR)/test/%.o: test/%.cpp
 		$(CPPC) -x c++ -E -include $(ABSROOT)/core/include/abs/testdef2cppunitdecl.h - |\
 		sed -e '/^#/d;s/!$$//g;s/ !!!/\n!!!/g;s/!!!/#/g' > $(patsubst %.o,%.h,$@)
 	$(gen-json-test-cppc)
-	@$(CPPC) $(CXXFLAGS) $(CFLAGS) $(TCFLAGS) -include $(patsubst %.o,%.h,$@) -MMD -MF $@.d -c $< -o $@
+	@$(CPPC) $(CXXFLAGS) $(CFLAGS) $(TCFLAGS) -include $(patsubst %.o,%.h,$@) $(GEN_DEP_FLAGS) -c $< -o $@
 ifeq ($(ISWINDOWS),true)
 	$(win-patch-dep)
 endif
@@ -133,7 +133,7 @@ $(OBJDIR)/test/%.o: test/%.c
 	@$(ABS_PRINT_info) "Compiling test $< ..."
 	@mkdir -p $(@D)
 	$(gen-json-test-cc)
-	@$(call executeAndLogCmd,$(CC) $(CFLAGS) $(TCFLAGS) -MMD -MF $@.d -c $< -o $@)
+	@$(call executeAndLogCmd,$(CC) $(CFLAGS) $(TCFLAGS) $(GEN_DEP_FLAGS) -c $< -o $@)
 ifeq ($(ISWINDOWS),true)
 	$(win-patch-dep)
 endif

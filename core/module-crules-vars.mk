@@ -215,7 +215,7 @@ define gen-json-cc
 @echo '{"directory":"$(MODROOT)","command":"$(CC) $(CFLAGS) -c $< -o $@","file":"$<","output":"$@"},' > $@.json
 endef
 define gen-json-test-cc
-@echo '{"directory":"$(MODROOT)","command":"$(CC) $(CFLAGS) $(TCFLAGS) -include $(patsubst %.o,%.h,$@) -MMD -MF -c $< -o $@","file":"$<","output":"$@"},' > $@.json
+@echo '{"directory":"$(MODROOT)","command":"$(CC) $(CFLAGS) $(TCFLAGS) -include $(patsubst %.o,%.h,$@) $(GEN_DEP_FLAGS) -c $< -o $@","file":"$<","output":"$@"},' > $@.json
 endef
 endif
 
@@ -231,7 +231,7 @@ define gen-json-cppc
 @echo '{"directory":"$(MODROOT)","command":"$(CPPC) $(CXXFLAGS) $(CFLAGS) -c $< -o $@","file":"$<","output":"$@"},' > $@.json
 endef
 define gen-json-test-cppc
-@echo '{"directory":"$(MODROOT)","command":"$(CPPC) $(CXXFLAGS) $(CFLAGS) $(TCFLAGS) -include $(patsubst %.o,%.h,$@) -MMD -MF -c $< -o $@","file":"$<","output":"$@"},' > $@.json
+@echo '{"directory":"$(MODROOT)","command":"$(CPPC) $(CXXFLAGS) $(CFLAGS) $(TCFLAGS) -include $(patsubst %.o,%.h,$@) $(GEN_DEP_FLAGS) -c $< -o $@","file":"$<","output":"$@"},' > $@.json
 endef
 endif
 
