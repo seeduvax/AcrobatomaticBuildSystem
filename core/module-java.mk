@@ -61,7 +61,7 @@ RESFILES=$(patsubst src/%,$(JARIMGDIR)/%,$(filter-out %.java src/test/%,$(SRCFIL
 # ---------------------------------------------------------------------
 # Default target : build target file
 # ---------------------------------------------------------------------
-all-impl:: $(TARGETFILE)
+TARGETFILES+=$(TARGETFILE)
 
 # ---------------------------------------------------------------------
 # Main transformation rules

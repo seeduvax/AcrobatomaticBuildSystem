@@ -72,15 +72,14 @@ RES_HEADER=$(TR_MOD_INCLUDE_DIR)/res.h
 # ---------------------------------------------------------------------
 # Default target : build target file
 # ---------------------------------------------------------------------
-C_RULES_ALL_TARGETS+=$(PUBLISHED_HEADERS)
 ifeq ($(MODTYPE),exe)
-C_RULES_ALL_TARGETS+=$(TARGETFILE_EXE)
+TARGETFILES+=$(TARGETFILE_EXE)
 else
 ifneq ($(DYNAMIC_LIB),false)
-C_RULES_ALL_TARGETS+=$(TARGETFILE_LIB)
+TARGETFILES+=$(TARGETFILE_LIB)
 endif
 ifeq ($(STATIC_LIB),true)
-C_RULES_ALL_TARGETS+=$(TARGETARCHIVE)
+TARGETFILES+=$(TARGETARCHIVE)
 endif
 endif
 # ---------------------------------------------------------------------
@@ -282,5 +281,3 @@ clean-crule:
 	@rm -rf $(RES_HEADER) 
 
 clean:: clean-crule
-
-all-impl:: $(C_RULES_ALL_TARGETS) etc

@@ -115,10 +115,6 @@ all: all-impl
 .PHONY: clean
 clean:: clean-module
 
-# copy config files
-.PHONY: etc
-etc::
-
 ##  - run [RUNARGS="<arg> [<arg>]*"]: run application
 .PHONY: run
 run::
@@ -146,14 +142,10 @@ testbuild:: all
 .PHONY: check
 check:: test
 
-# this target must not defined a rule to avoid issues during parallel builds.
-all-impl::
-
-
 # ---------------------------------------------------------------------
 # Config files
 # ---------------------------------------------------------------------
-CONFIGFILES:=$(patsubst %,$(TRDIR)/%,$(call filter_out_substr,/.svn/,$(call find,etc,*)))
+TARGETFILES+=$(patsubst %,$(TRDIR)/%,$(call filter_out_substr,/.svn/,$(call find,etc,*)))
 
 # ---------------------------------------------------------------------
 # external sources / svn checkout
@@ -208,8 +200,6 @@ $(TRDIR)/etc/%: etc/%
 	@cp $< $@
 	@$(call executeFiltering, $<, $@)
 
-etc:: $(CONFIGFILES)
-
 # ---------------------------------------------------------------------
 # Misc utility rules
 # ---------------------------------------------------------------------
@@ -218,9 +208,12 @@ include $(ABSROOT)/core/module-util.mk
 # ---------------------------------------------------------------------
 # Generic targets
 # ---------------------------------------------------------------------
+# this target must not defined a rule to avoid issues during parallel builds.
+all-impl:: $(TARGETFILES)
+
 clean-module:
 	@$(ABS_PRINT_info) "Cleaning module..."
-	@rm -rf $(TARGETFILE) $(OBJDIR) $(CONFIGFILES)
+	@rm -rf $(TARGETFILES) $(OBJDIR)
 
 # update bootstrap makefile if needed.
 ifneq ($(PRESERVEMAKEFILE),true)
@@ -243,10 +236,10 @@ ifeq ($(filter clean% new% showvar,$(MAKECMDGOALS)),)
 $(PRJOBJDIR)/%/.depready:
 	@test -f $@ || touch $@
 
-$(OBJS): $(PRJOBJDIR)/$(MODNAME)/.depready
-
 # recompile all if a dependency changed.
-$(OBJS): $(DEFAULT_EXTLIBMAKES)
+NEEDED_FOR_OBJS+=$(DEFAULT_EXTLIBMAKES) $(PRJOBJDIR)/$(MODNAME)/.depready
+
+$(OBJS): $(NEEDED_FOR_OBJS)
 
 ifneq ($(filter $(APPNAME)_$(NOBUILD),$(ALL_DEPENDENCIES)),)
 $(error $(MODNAME): can't build because of deactivated dependency: $(filter $(APPNAME)_$(NOBUILD),$(ALL_DEPENDENCIES)))

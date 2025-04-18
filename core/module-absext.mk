@@ -1,5 +1,4 @@
-
-TARGETFILES=$(patsubst src/%,$(TRDIR)/.abs/%,$(SRCFILES)) $(TRDIR)/.abs/index_$(MODNAME).mk
+TARGETFILES+=$(patsubst src/%,$(TRDIR)/.abs/%,$(SRCFILES)) $(TRDIR)/.abs/index_$(MODNAME).mk
 
 $(TRDIR)/.abs/index_$(MODNAME).mk:
 	@$(ABS_PRINT_info) "Generating ABS extension index..."
@@ -11,5 +10,3 @@ $(TRDIR)/.abs/%: src/%
 	@$(ABS_PRINT_info) "Publishing $<..."
 	@mkdir -p $(@D)
 	@cp $< $@
-
-all-impl::$(TARGETFILES)

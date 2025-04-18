@@ -24,8 +24,10 @@ EXTRA_SIMVERS:=$(patsubst %,$(PRJOBJDIR)/%/Module.symvers,$(USELKMOD))
 CFGFILES:=$(patsubst %,$(TRDIR)/%,$(shell find etc -type f -a \( -name $(LKMNAME).conf -o -name $(LKMNAME) \)))
 SERVICEFILES:=$(patsubst %,$(TRDIR)/%,$(shell find etc -name $(LKMNAME).service))
 INITSFILES:=$(patsubst %,$(TRDIR)/%,$(shell find etc -type f -name $(LKMNAME)))
-
+KOFILE_CREATED=$(OBJDIR)/.kofilecreated
 LKMSRCDIR=src
+
+TARGETFILES+=$(KOFILE_CREATED)
 
 $(TRDIR)/etc/$(APPNAME)/%: $(LKMSRCDIR)/etc/$(APPNAME)/%
 	@mkdir -p $(@D)
@@ -36,10 +38,11 @@ $(TRDIR)/etc/init.d/%: $(LKMSRCDIR)/etc/init.d/%
 	cp $< $@
 	@chmod +x $@
 
-all-impl:: $(OBJDIR)/Makefile $(PUBLISHED_HEADERS) $(CFGFILES) $(SERVICEFILES) $(INITSFILES)
+$(KOFILE_CREATED): $(OBJDIR)/Makefile $(CFGFILES) $(SERVICEFILES) $(INITSFILES)
 	$(MAKE) -C $(KERNELDIR) M=$(OBJDIR) KBUILD_EXTRA_SYMBOLS="$(EXTRA_SIMVERS)" CROSS_COMPILE=$(CROSS_COMPILE) modules
 	@mkdir -p $(TRDIR)/lib/modules/
 	@cp $(OBJDIR)/*.ko $(TRDIR)/lib/modules
+	@touch $@
 
 install:: all
 	@( test -x /etc/init.d/$(LKMNAME) && ( \

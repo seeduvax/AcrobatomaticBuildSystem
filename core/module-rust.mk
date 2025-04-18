@@ -14,7 +14,7 @@ include $(ABSROOT)/core/rust/module-rust-rustc.mk
 
 endif # ($(USE_CARGO),true)
 
-all-impl:: $(RUST_TARGET_FILES) 
+TARGETFILES+=$(RUST_TARGET_FILES) 
 
 # this target will create the archive for rust dynamic loaded libraries.
 RUST_GENERATION_DIR=$(OBJDIR)/rust_arch_generation

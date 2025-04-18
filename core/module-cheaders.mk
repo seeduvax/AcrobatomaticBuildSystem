@@ -1,6 +1,6 @@
 # A way to publish public headers from "imported" modules, without having to
 # move files to please buildscripts.
-PUBLISHED_HEADERS=$(patsubst %,$(TR_MOD_INCLUDE_DIR)/%,$(PUB_H))
+TARGETFILES+=$(patsubst %,$(TR_MOD_INCLUDE_DIR)/%,$(PUB_H))
 # headers publication rule
 $(TR_MOD_INCLUDE_DIR)/%.h: src/%.h
 	@$(ABS_PRINT_info) "Publishing $< ..."

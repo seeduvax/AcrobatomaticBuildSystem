@@ -16,7 +16,7 @@ endif
 
 OBJ_SCRIPTS:=$(patsubst src/%,$(OBJDIR)/.sh/%,$(SRC_SCRIPTS))
 
-all-impl:: $(OBJ_SCRIPTS) etc	
+TARGETFILES+=$(OBJ_SCRIPTS)
 
 # use pseudo target in $(OBJDIR)/.sh to avoid any rules collision risk without
 # having to play with particular file name extension for scripts.

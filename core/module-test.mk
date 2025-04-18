@@ -46,6 +46,7 @@ TTARGETFILE=$(TTARGETDIR)/t_$(TARGET)
 ifeq ($(ISWINDOWS),true)
 TCYGTARGET=$(TTARGETDIR)/t_$(CYGTARGET)
 endif
+TARGETFILES+=$(TTARGETFILE)
 
 ifeq ($(VALGRIND_XML),true)
 	VALGRIND_ARGS+=--xml=yes --xml-file=$(TTARGETDIR)/$(MODNAME)_valgrind_result.xml

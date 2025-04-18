@@ -141,7 +141,7 @@ HEMLTOXML_STYLE?=$(DOCROOT)/docbook/style.docbook.xsl $(HEMLTOXML_FLAGS)
 ## 
 ##  - all: for documentation module, the default target builds html, pdf
 ##      from heml files, and doxygen reference.
-all-impl:: $(HTMLS) $(PDFS)
+TARGETFILES+=$(HTMLS) $(PDFS)
 
 $(HTMLS) $(PDFS): $(IMGS)
 
@@ -150,7 +150,7 @@ $(HTMLS): $(CSS)
 .PRECIOUS: $(HEMLJAR) $(LUAJJAR) $(PUMLJAR) $(patsubst $(NDNA_EXTLIBDIR)/%,$(ABS_CACHE)/noarch/%,$(HEMLJAR) $(PUMLJAR)) $(IMGS) $(TEXDIR)/%.tex $(OBJDIR)/%.pumlgenerated
 
 ifneq ($(DOXYGENCMD),)
-all-impl:: $(DOXDIR)
+TARGETFILES+=$(DOXDIR)
 
 $(DOXDIR): $(DOXSRCFILES)
 	@$(ABS_PRINT_info) "Generating API reference documentation..."

@@ -65,9 +65,9 @@ endif
 PY_MODULE_EXE=$(TRDIR)/bin/$(APPNAME)_$(MODNAME).sh
 
 ## 
-## python services tagets:
+## python services targets
 ## 
-all-impl:: $(PY_OBJS) $(PY_MODULE_EXE)
+$(TARGETFILES)+=$(PY_OBJS) $(PY_MODULE_EXE)
 
 # MAIN SCRIPT
 $(PY_MODULE_EXE):
