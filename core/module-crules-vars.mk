@@ -116,6 +116,10 @@ define GetExistingModGeneratedSO
 $(foreach mod,$1,$(if $(wildcard $(TRDIR)/$(SODIR)/$(SOPFX)$(APPNAME)_$(mod).$(SOEXT)),$(APPNAME)_$(mod))$(if $(wildcard $(TRDIR)/$(SODIR)/$(SOPFX)$(mod).$(SOEXT)),$(mod)))
 endef
 
+# --no-as-needed permit to add the linked libraries even if they are not used in this module.
+# This is the default value for old compilers
+LDFLAGS+=-Wl,--no-as-needed
+
 # target full path
 TARGETFILE=$(TARGETDIR)/$(TARGET)
 TARGETFILE_LIB=$(TARGETDIR)/$(TARGET_LIB)
@@ -288,9 +292,7 @@ endef
 # only process abs managed ldflags to permit developer to add elements in LDFLAGS with its own order.
 CRULES_VAR_LINKED_LIBS=$(sort $(filter -l%,$(LDFLAGS)))
 
-# --no-as-needed permit to add the linked libraries even if they are not used in this module.
-# This is the default value for old compilers (only for generated libs, not for test libs).
-FULL_LDFLAGS=-Wl,--no-as-needed
+FULL_LDFLAGS=
 ifneq ($(MODTYPE),library) 
 # --rpath-link permit to the linker to find shared libraries (needed for cross compiler linker for exe generation).
 FULL_LDFLAGS+=$(patsubst -L%,-Wl$(_comma_)--rpath-link=%,$(sort $(filter -L%,$(LDFLAGS))))
