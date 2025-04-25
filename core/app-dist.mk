@@ -42,16 +42,17 @@ $(DIST_FLATTEN_DIR)/obj/compiled:
 	@$(ABS_PRINT_info) "Compilation of the project finished !"
 	@touch $@
 
-$(DIST_FLATTEN_DIR)/obj/%/distinfo.mk: $(DIST_FLATTEN_DIR)/obj/compiled
+DIST_MODS_DISTINFO_FILES=$(patsubst %,$(DIST_FLATTEN_DIR)/obj/%/distinfo.mk,$(DIST_MODS))
+$(DIST_MODS_DISTINFO_FILES): $(DIST_FLATTEN_DIR)/obj/compiled
 	@:
 
 ifneq ($(filter dist distinstall pubdist pubinstall cachedist kdistinstall install,$(MAKECMDGOALS)),)
 # include distinfo.mk needed for import.mk generation
-include $(patsubst %,$(DIST_FLATTEN_DIR)/obj/%/distinfo.mk,$(DIST_MODS))
+include $(DIST_MODS_DISTINFO_FILES)
 endif
 
 EXPMOD_INCLUDES_DIR=$(wildcard $(patsubst %,%/include,$(EXPMOD)))
-$(DIST_FLATTEN_DIR)/import.mk: $(DIST_FLATTEN_DIR)/obj/compiled $(DIST_FLATTEN_DIR)/obj/%/distinfo.mk
+$(DIST_FLATTEN_DIR)/import.mk: $(DIST_FLATTEN_DIR)/obj/compiled $(DIST_MODS_DISTINFO_FILES)
 	@$(if $(EXPMOD_INCLUDES_DIR),cp -r $(EXPMOD_INCLUDES_DIR) $(@D))
 	@test -f export.mk && m4 -D__app__=$(APPNAME) -D__version__=$(VERSION) export.mk -D__uselib__="$(sort $(USELIB))" > $@.tmp || true
 	@echo "# generated: ABS-$(__ABS_VERSION__) $(USER)@"`hostname`" "`$(TRACE_DATE_CMD)` >> $@.tmp
