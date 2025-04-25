@@ -51,6 +51,7 @@ ifneq ($(filter dist distinstall pubdist pubinstall cachedist kdistinstall insta
 include $(DIST_MODS_DISTINFO_FILES)
 endif
 
+DIST_MODS_WITH_USELIBS=$(foreach mod,$(sort $(DIST_MODS)),$(if $(_module_$(APPNAME)_$(mod)_uselib),$(mod)))
 EXPMOD_INCLUDES_DIR=$(wildcard $(patsubst %,%/include,$(EXPMOD)))
 $(DIST_FLATTEN_DIR)/import.mk: $(DIST_FLATTEN_DIR)/obj/compiled $(DIST_MODS_DISTINFO_FILES)
 	@$(if $(EXPMOD_INCLUDES_DIR),cp -r $(EXPMOD_INCLUDES_DIR) $(@D))
@@ -60,10 +61,10 @@ $(DIST_FLATTEN_DIR)/import.mk: $(DIST_FLATTEN_DIR)/obj/compiled $(DIST_MODS_DIST
 	@test -f export.mk || printf '_app_$(APPNAME)_version:=$(VERSION)\n' >> $@.tmp
 	@test -f export.mk || printf '_app_$(APPNAME)_uselib:=$(sort $(USELIB))\n' >> $@.tmp
 	@test -f export.mk || printf '_app_$(APPNAME)_modules:=$(sort $(DIST_MODS))\n' >> $@.tmp
-	@test -f export.mk || printf '$(foreach mod,$(sort $(DIST_MODS)),$(if $(_module_$(APPNAME)_$(mod)_uselib),\n_module_$(APPNAME)_$(mod)_uselib:=$(_module_$(APPNAME)_$(mod)_uselib)))\n' >> $@.tmp
+	@test -f export.mk || printf '$(foreach mod,$(sort $(DIST_MODS_WITH_USELIBS)),\n_module_$(APPNAME)_$(mod)_uselib:=$(_module_$(APPNAME)_$(mod)_uselib))\n' >> $@.tmp
 	@test -f export.mk || printf '$(foreach mod,$(sort $(DIST_MODS)),$(if $(_module_$(APPNAME)_$(mod)_depends),\n_module_$(APPNAME)_$(mod)_depends:=$(_module_$(APPNAME)_$(mod)_depends)))\n' >> $@.tmp
 	@test -f export.mk || printf '$(foreach mod,$(sort $(DIST_MODS)) _extra,\n_module_$(APPNAME)_$(mod)_dir:=$$(_app_$(APPNAME)_dir))\n' >> $@.tmp
-	@test -f export.mk || printf '_app_$(APPNAME)_alluselib:=$$(sort $$(_app_$(APPNAME)_uselib) $(foreach mod,$(sort $(DIST_MODS)),$(if $(_module_$(APPNAME)_$(mod)_uselib),$$(_module_$(APPNAME)_$(mod)_uselib))))\n\n' >> $@.tmp
+	@test -f export.mk || printf '_app_$(APPNAME)_alluselib:=$$(sort $$(_app_$(APPNAME)_uselib) $(foreach mod,$(sort $(DIST_MODS_WITH_USELIBS)),$$(_module_$(APPNAME)_$(mod)_uselib)))\n\n' >> $@.tmp
 	@test -f export.mk || echo '-include $$(wildcard $$(_app_$(APPNAME)_dir)/.abs/index_*.mk)' >> $@.tmp
 	@test -f export.mk || printf '$$(eval $$(call extlib_import_template,$(APPNAME),$$(_app_$(APPNAME)_version),$$(_app_$(APPNAME)_alluselib)))\n\n' >> $@.tmp
 	@test -f export.mk || printf '$(_extra_import_defs_)\n' >> $@.tmp

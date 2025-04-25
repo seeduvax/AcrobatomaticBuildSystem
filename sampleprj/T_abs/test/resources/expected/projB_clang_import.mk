@@ -16,7 +16,7 @@ _module_projB_cpplib2_dir:=$(_app_projB_dir)
 _module_projB_cpplib3_dir:=$(_app_projB_dir)
 _module_projB_fileset_dir:=$(_app_projB_dir)
 _module_projB__extra_dir:=$(_app_projB_dir)
-_app_projB_alluselib:=$(sort $(_app_projB_uselib) $(_module_projB_cpplib_uselib) $(_module_projB_cpplib2_uselib)  )
+_app_projB_alluselib:=$(sort $(_app_projB_uselib) $(_module_projB_cpplib_uselib) $(_module_projB_cpplib2_uselib))
 
 -include $(wildcard $(_app_projB_dir)/.abs/index_*.mk)
 $(eval $(call extlib_import_template,projB,$(_app_projB_version),$(_app_projB_alluselib)))
