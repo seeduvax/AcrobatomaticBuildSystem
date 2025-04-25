@@ -42,19 +42,32 @@ $(DIST_FLATTEN_DIR)/obj/compiled:
 	@$(ABS_PRINT_info) "Compilation of the project finished !"
 	@touch $@
 
+$(DIST_FLATTEN_DIR)/obj/%/distinfo.mk: $(DIST_FLATTEN_DIR)/obj/compiled
+	@:
+
+ifneq ($(filter dist distinstall pubdist pubinstall cachedist kdistinstall,$(MAKECMDGOALS)),)
+# include distinfo.mk needed for import.mk generation
+include $(patsubst %,$(DIST_FLATTEN_DIR)/obj/%/distinfo.mk,$(DIST_MODS))
+endif
+
 EXPMOD_INCLUDES_DIR=$(wildcard $(patsubst %,%/include,$(EXPMOD)))
-$(DIST_FLATTEN_DIR)/import.mk: $(DIST_FLATTEN_DIR)/obj/compiled
+$(DIST_FLATTEN_DIR)/import.mk: $(DIST_FLATTEN_DIR)/obj/compiled $(DIST_FLATTEN_DIR)/obj/%/distinfo.mk
 	@$(if $(EXPMOD_INCLUDES_DIR),cp -r $(EXPMOD_INCLUDES_DIR) $(@D))
 	@test -f export.mk && m4 -D__app__=$(APPNAME) -D__version__=$(VERSION) export.mk -D__uselib__="$(sort $(USELIB))" > $@.tmp || true
 	@echo "# generated: ABS-$(__ABS_VERSION__) $(USER)@"`hostname`" "`$(TRACE_DATE_CMD)` >> $@.tmp
 	@test -f export.mk || printf '_app_$(APPNAME)_dir:=$$(dir $$(lastword $$(MAKEFILE_LIST)))\n\n' >> $@.tmp
 	@test -f export.mk || printf '_app_$(APPNAME)_version:=$(VERSION)\n' >> $@.tmp
-	@test -f export.mk || printf '_app_$(APPNAME)_uselib:=$(sort $(USELIB))\n\n' >> $@.tmp
+	@test -f export.mk || printf '_app_$(APPNAME)_uselib:=$(sort $(USELIB))\n' >> $@.tmp
+	@test -f export.mk || printf '_app_$(APPNAME)_modules:=$(sort $(DIST_MODS))\n' >> $@.tmp
+	@test -f export.mk || printf '$(foreach mod,$(sort $(DIST_MODS)),$(if $(_module_$(APPNAME)_$(mod)_uselib),\n_module_$(APPNAME)_$(mod)_uselib:=$(_module_$(APPNAME)_$(mod)_uselib)))\n' >> $@.tmp
+	@test -f export.mk || printf '$(foreach mod,$(sort $(DIST_MODS)),$(if $(_module_$(APPNAME)_$(mod)_depends),\n_module_$(APPNAME)_$(mod)_depends:=$(_module_$(APPNAME)_$(mod)_depends)))\n' >> $@.tmp
+	@test -f export.mk || printf '$(foreach mod,$(sort $(DIST_MODS)) _extra,\n_module_$(APPNAME)_$(mod)_dir:=$$(_app_$(APPNAME)_dir))\n' >> $@.tmp
+	@test -f export.mk || printf '_app_$(APPNAME)_alluselib:=$$(sort $$(_app_$(APPNAME)_uselib) $(foreach mod,$(sort $(DIST_MODS)),$(if $(_module_$(APPNAME)_$(mod)_uselib),$$(_module_$(APPNAME)_$(mod)_uselib))))\n\n' >> $@.tmp
 	@test -f export.mk || echo '-include $$(wildcard $$(_app_$(APPNAME)_dir)/.abs/index_*.mk)' >> $@.tmp
-	@test -f export.mk || printf '$$(eval $$(call extlib_import_template,$(APPNAME),$$(_app_$(APPNAME)_version),$$(_app_$(APPNAME)_uselib)))\n' >> $@.tmp
-	@test -f export.mk || printf '$(foreach mod,$(sort $(DIST_MODS)),\n_module_$(APPNAME)_$(mod)_depends:=$(_module_$(APPNAME)_$(mod)_depends))\n' >> $@.tmp
-	@test -f export.mk || printf '$(subst $(_space_),\n,$(foreach mod,$(sort $(DIST_MODS)) _extra,_module_$(APPNAME)_$(mod)_dir:=$$(_app_$(APPNAME)_dir)))\n\n' >> $@.tmp
+	@test -f export.mk || printf '$$(eval $$(call extlib_import_template,$(APPNAME),$$(_app_$(APPNAME)_version),$$(_app_$(APPNAME)_alluselib)))\n\n' >> $@.tmp
 	@test -f export.mk || printf '$(_extra_import_defs_)\n' >> $@.tmp
+	@# remove spaces at the end of each lines (due to foreach executions).
+	@test -f export.mk || sed -i -E 's/ *$$//g' $@.tmp
 	@touch $(@D)/obj/extraFiles.ts
 	@if [ -x extradist.sh ]; then VERSION=$(VERSION) APP=$(APPNAME) APPNAME=$(APPNAME) ./extradist.sh `dirname $@`; fi
 	@find $(@D) -type f -cnewer $(@D)/obj/extraFiles.ts | grep -v $(@D)/obj | sed 's~$(@D)/~~g' | grep -E -v "$(subst *,.*,$(subst $(_space_),|,$(DIST_EXCLUDE)))" > $(@D)/.abs/content/$(APPNAME)__extra.filelist || true
@@ -75,6 +88,7 @@ ifeq ($(MAKECMDGOALS),__installextlibs)
 # needed external modules and libs retreiving
 DIST_PROJ_MODS=$(patsubst %,$(APPNAME)_%,$(DIST_MODS))
 include $(patsubst %,$(DIST_FLATTEN_DIR)/obj/%/moddeps.mk,$(DIST_MODS))
+include $(patsubst %,$(DIST_FLATTEN_DIR)/obj/%/distinfo.mk,$(DIST_MODS))
 
 # INCLUDE_INSTALL_MODS additionnals external mods to include in the installation.
 NEEDED_MODS=$(filter-out $(DIST_PROJ_MODS),$(call getDependenciesByTransitivity,$(INCLUDE_INSTALL_MODS) $(DIST_PROJ_MODS)))
@@ -88,8 +102,8 @@ INCLUDE_EXT_LIBS_TO_INSTALL=$(patsubst %,installExtLib.%,$(INCLUDE_EXT_LIBS))
 installExt.%:
 	@$(ABS_PRINT_info) "  Processing external module $* ..."
 	@$(call writeToBuildLogs,Processing external module $*)
-	@modPath=$(_module_$*_dir) && test -z "$$modPath" || test ! -d $$modPath || test ! -f $(_module_$*_dir)/.abs/content/$*.filelist || (\
-		cat $(_module_$*_dir)/.abs/content/$*.filelist | tar -C $$modPath/ -cf - -T - | tar -C $(INSTALL_TMP_DIR)/ -xf -)
+	@modPath=$(_module_$*_dir) && test -z "$$modPath" || test ! -d $$modPath || test ! -f $$modPath/.abs/content/$*.filelist || (\
+		cat $$modPath/.abs/content/$*.filelist | tar -C $$modPath/ -cf - -T - | tar -C $(INSTALL_TMP_DIR)/ -xf -)
 
 installExtLib.%:
 	@$(ABS_PRINT_info) "  Processing external library $* ..."

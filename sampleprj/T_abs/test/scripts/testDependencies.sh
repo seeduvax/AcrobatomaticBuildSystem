@@ -12,7 +12,7 @@ testFile $testDirectory/projA/dist/flatten/projA-1.4.2d/import2.mk $MODROOT/test
 
 executeMake pubdist projB
 testLinked projB cpplib projA_cpplib test
-testLinked projB cpplib2 projA_cpplib testlib-dashed
+testLinked projB cpplib2 projA_cpplib test3 testlib-dashed
 
 projBOutDir=$testDirectory/projB/dist/flatten/projB-2.4.2d
 projBObjDir=$projBOutDir/obj
@@ -25,6 +25,9 @@ testFileExists $projBObjDir/cpplib3/extsrc/source3.cpp
 testFileExists $projBOutDir/include/projB/cpplib3/subdir/inc.h
 testFileExists $projBOutDir/include/projB/cpplib3/subdir/inc2.h
 testFileExists $projBOutDir/include/projB/cpplib3/inc3.hpp
+
+tail -n +2 $testDirectory/projB/dist/flatten/projB-2.4.2d/import.mk > $testDirectory/projB/dist/flatten/projB-2.4.2d/import2.mk
+testFile $testDirectory/projB/dist/flatten/projB-2.4.2d/import2.mk $MODROOT/test/resources/expected/projB_import2.mk
 
 executeMake pubdist projD
 executeMake testbuild projC
@@ -42,15 +45,12 @@ testFileExists $projCOutDir/include/projC/cpplib/archive1/subdir/inc.h
 testFileExists $projCOutDir/include/projC/cpplib/archive2/subdir/inc2.h
 
 tail -n +2 $testDirectory/projC/dist/flatten/projC-2.4.3d/import.mk > $testDirectory/projC/dist/flatten/projC-2.4.3d/import2.mk
-tail -n +2 $testDirectory/projB/dist/flatten/projB-2.4.2d/import.mk > $testDirectory/projB/dist/flatten/projB-2.4.2d/import2.mk
+testFile $testDirectory/projC/dist/flatten/projC-2.4.3d/import2.mk $MODROOT/test/resources/expected/import2.mk
 
 testFileExists $testDirectory/repository/NotALinux/projA-1.4.2d.NotALinux.tar.gz
 testFileExists $testDirectory/repository/NotALinux/projB/projB-2.4.2d.NotALinux.tar.gz
 testFileExists $testDirectory/projC/dist/flatten/projC-2.4.3d/lib/libprojC_cpplib.a
 testFileExists $testDirectory/projC/dist/flatten/projC-2.4.3d/lib/libprojC_cpplib.so
-
-testFile $testDirectory/projC/dist/flatten/projC-2.4.3d/import2.mk $MODROOT/test/resources/expected/import2.mk
-testFile $testDirectory/projB/dist/flatten/projB-2.4.2d/import2.mk $MODROOT/test/resources/expected/projB_import2.mk
 
 binInstall="$testDirectory/projC/dist/projC-2.4.3d.NotALinux-install.bin"
 if [ ! -f $binInstall ]; then

@@ -23,7 +23,10 @@ mkdir -p $testDirectory/repository/noarch
 echo "Copy resources to $testDirectory"
 
 ln -s $PRJROOT $testDirectory/absws/abs-99.99.99
-cp -R test/resources/proj* test/resources/libtest test/resources/libtest2 test/resources/testlib-dashed test/resources/cppunit test/resources/tracy $testDirectory
+cp -R test/resources/proj* test/resources/libtest test/resources/libtest2 \
+    test/resources/testlib-dashed test/resources/cppunit test/resources/tracy \
+    test/resources/clang test/resources/runtime-clang \
+    $testDirectory
 
 unset TTARGETDIR
 unset TRDIR
@@ -46,7 +49,13 @@ function testFile {
     diff -q $1 $2
     if [ $? -ne 0 ]; then
         echo "Error: $1 not equal to $2"
-        doExit 6
+        echo "Do you want to override expected files ? (y/N)"
+        read answer
+        if [ "$answer" = "y" ]; then
+            cp $1 $2
+        else
+            doExit 6
+        fi
     fi
 }
 

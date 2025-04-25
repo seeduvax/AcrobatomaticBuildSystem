@@ -75,6 +75,9 @@ EXTSRCFILES:=
 TTARGETDIR?=$(TRDIR)/test
 TEST_REPORT_PATH:=$(TTARGETDIR)/$(APPNAME)_$(MODNAME).xml
 
+DISTINFO_FILE=$(OBJDIR)/distinfo.mk
+TARGETFILES+=$(DISTINFO_FILE)
+
 ifeq ($(REVISION),)
 REVISION:=undef
 ifeq ($(ABS_SCM_TYPE),svn)
@@ -103,6 +106,9 @@ endif
 # object files go in a subdirectory of build dir dedicated to the module
 OBJDIR?=$(PRJOBJDIR)/$(MODNAME)
 EXT_MODSRC_DIR=$(OBJDIR)/extsrc
+
+# INCLUDE_MODS permit to add dependency between mods but without doing link between generated libraries.
+NEEDED_PROJ_MODS=$(sort $(USEMOD) $(patsubst $(APPNAME)_%,%,$(filter $(PROJECT_INC_MODS),$(INCLUDE_MODS))))
 
 ## 
 ## Common make targets:
@@ -246,6 +252,22 @@ $(error $(MODNAME): can't build because of deactivated dependency: $(filter $(AP
 endif
 
 endif
+
+# DISABLE_USELIB_PROPAGATION permit to not propagate USELIB or NDUSELIB defined in the module.cfg
+ifneq ($(DISABLE_USELIB_PROPAGATION),true)
+PROPAGATE_USELIB=true
+endif
+
+# generation of the distinfo.mk to have all uselib even if brought by an abs extension.
+$(DISTINFO_FILE): $(DEFAULT_EXTLIBMAKES)
+	@mkdir -p $(@D)
+	@printf 'ifeq ($$(_DIST_INFO_$(MODNAME)_loaded_),)\n'\
+'_DIST_INFO_$(MODNAME)_loaded_=true\n'\
+'include $$(patsubst %%,$$(DIST_FLATTEN_DIR)/obj/%%/distinfo.mk,$(NEEDED_PROJ_MODS))\n'\
+'_module_$(APPNAME)_$(MODNAME)_alluselib=$(if $(PROPAGATE_USELIB),$(USELIB))\n'\
+'_module_$(APPNAME)_$(MODNAME)_uselib=$$(filter-out $$(USELIB),$$(_module_$(APPNAME)_$(MODNAME)_alluselib))\n'\
+'_module_$(APPNAME)_$(MODNAME)_depends=$(sort $(call getLibrariesNameFromLinklib,$(LINKLIB)) $(INCLUDE_MODS) $(patsubst %,$(APPNAME)_%,$(USEMOD)))\n\n'\
+'endif' > $@
 
 $(PRJOBJDIR)/%/.done: $(DEFAULT_EXTLIBMAKES)
 	@$(ABS_PRINT_info) "==============="

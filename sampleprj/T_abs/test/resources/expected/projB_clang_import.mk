@@ -1,7 +1,7 @@
 _app_projB_dir:=$(dir $(lastword $(MAKEFILE_LIST)))
 
-_app_projB_version:=2.4.2d
-_app_projB_uselib:=projA|1.4.2d testlib-dashed|1.0.1
+_app_projB_version:=2.4.2d_clang-13
+_app_projB_uselib:=projA|1.4.2d runtime-clang-13 testlib-dashed|1.0.1
 _app_projB_modules:=cpplib cpplib2 cpplib3 fileset
 
 _module_projB_cpplib_uselib:=libtest-1.0.0
