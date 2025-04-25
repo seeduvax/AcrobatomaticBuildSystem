@@ -110,6 +110,13 @@ EXT_MODSRC_DIR=$(OBJDIR)/extsrc
 # INCLUDE_MODS permit to add dependency between mods but without doing link between generated libraries.
 NEEDED_PROJ_MODS=$(sort $(USEMOD) $(patsubst $(APPNAME)_%,%,$(filter $(PROJECT_INC_MODS),$(INCLUDE_MODS))))
 
+# ---------------------------------------------------------------------
+# Config files
+# ---------------------------------------------------------------------
+# the variable CONFIGFILES can be used for rules dependencies in abs extensions.
+CONFIGFILES:=$(patsubst %,$(TRDIR)/%,$(call filter_out_substr,/.svn/,$(call find,etc,*)))
+TARGETFILES+=$(patsubst %,$(TRDIR)/%,$(call filter_out_substr,/.svn/,$(call find,etc,*)))
+
 ## 
 ## Common make targets:
 ##
@@ -147,11 +154,6 @@ testbuild:: all
 ##  - check: alias for test
 .PHONY: check
 check:: test
-
-# ---------------------------------------------------------------------
-# Config files
-# ---------------------------------------------------------------------
-TARGETFILES+=$(patsubst %,$(TRDIR)/%,$(call filter_out_substr,/.svn/,$(call find,etc,*)))
 
 # ---------------------------------------------------------------------
 # external sources / svn checkout
