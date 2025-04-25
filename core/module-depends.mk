@@ -1,8 +1,6 @@
 all:
 
 include ../app.cfg
-DEFAULT_USELIB:=$(USELIB)
-DEFAULT_NDUSELIB:=$(NDUSELIB)
 include module.cfg
 
 _MODNAME:=$(notdir $(abspath .))

@@ -233,7 +233,7 @@ endef
 
 ##  - test: alias for check
 test:: testbuild
-	$(call run-test, $(TIMEOUTCMD))
+	$(call run-test,$(TIMEOUTCMD))
 
 ##  - check [RUNARGS="<arg> [<arg>]*] [T=<test name>]: builds and runs tests
 ##         When only one test shall be run, use optionnal T variable argument.

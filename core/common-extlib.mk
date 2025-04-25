@@ -325,7 +325,10 @@ ifneq ($(BUILDCHAIN),)
 USELIB+=runtime-$(BUILDCHAIN)
 endif
 
-EXTLIBS_ALL_USELIB=$(USELIB)
+# USELIB from modules. (needed for dist)
+MODS_USELIBS=$(sort $(foreach mod,$(MODULES_DEPS),$(_module_$(APPNAME)_$(mod)_uselib)))
+
+EXTLIBS_ALL_USELIB=$(USELIB) $(MODS_USELIBS)
 EXTLIBS_ALL_NAUSELIB=$(NA_USELIB)
 EXTLIBS_ALL_NDUSELIB=$(NDUSELIB)
 EXTLIBS_ALL_NDNAUSELIB=$(NDNA_USELIB)
@@ -414,7 +417,7 @@ endef
 # we don't care importing the dependencies.
 ifeq ($(filter clean% purgeabs docker% tag,$(MAKECMDGOALS)),)
 
-EXTLIBMAKES=$(patsubst %,$(EXTLIBDIR)/%/import.mk,$(subst |,-,$(USELIB))) \
+EXTLIBMAKES=$(patsubst %,$(EXTLIBDIR)/%/import.mk,$(subst |,-,$(USELIB) $(MODS_USELIBS))) \
 	$(patsubst %,$(NDEXTLIBDIR)/%/import.mk,$(subst |,-,$(NDUSELIB))) \
 	$(patsubst %,$(NDNA_EXTLIBDIR)/%/import.mk,$(subst |,-,$(NDNA_USELIB))) \
 	$(patsubst %,$(NA_EXTLIBDIR)/%/import.mk,$(subst |,-,$(NA_USELIB)))

@@ -45,7 +45,7 @@ $(DIST_FLATTEN_DIR)/obj/compiled:
 $(DIST_FLATTEN_DIR)/obj/%/distinfo.mk: $(DIST_FLATTEN_DIR)/obj/compiled
 	@:
 
-ifneq ($(filter dist distinstall pubdist pubinstall cachedist kdistinstall,$(MAKECMDGOALS)),)
+ifneq ($(filter dist distinstall pubdist pubinstall cachedist kdistinstall install,$(MAKECMDGOALS)),)
 # include distinfo.mk needed for import.mk generation
 include $(patsubst %,$(DIST_FLATTEN_DIR)/obj/%/distinfo.mk,$(DIST_MODS))
 endif
@@ -89,6 +89,8 @@ ifeq ($(MAKECMDGOALS),__installextlibs)
 DIST_PROJ_MODS=$(patsubst %,$(APPNAME)_%,$(DIST_MODS))
 include $(patsubst %,$(DIST_FLATTEN_DIR)/obj/%/moddeps.mk,$(DIST_MODS))
 include $(patsubst %,$(DIST_FLATTEN_DIR)/obj/%/distinfo.mk,$(DIST_MODS))
+# get external libs now because need uselib information from distinfo.mk
+$(eval $(call extlib_updates_deps))
 
 # INCLUDE_INSTALL_MODS additionnals external mods to include in the installation.
 NEEDED_MODS=$(filter-out $(DIST_PROJ_MODS),$(call getDependenciesByTransitivity,$(INCLUDE_INSTALL_MODS) $(DIST_PROJ_MODS)))
@@ -100,13 +102,13 @@ INCLUDE_EXT_MODS_TO_INSTALL=$(patsubst %,installExt.%,$(INCLUDE_EXT_MODULES))
 INCLUDE_EXT_LIBS_TO_INSTALL=$(patsubst %,installExtLib.%,$(INCLUDE_EXT_LIBS))
 
 installExt.%:
-	@$(ABS_PRINT_info) "  Processing external module $* ..."
+	@$(ABS_PRINT_info) "  Processing external module $* $(if $(_module_$*_dir),,(Not found !)) ..."
 	@$(call writeToBuildLogs,Processing external module $*)
 	@modPath=$(_module_$*_dir) && test -z "$$modPath" || test ! -d $$modPath || test ! -f $$modPath/.abs/content/$*.filelist || (\
 		cat $$modPath/.abs/content/$*.filelist | tar -C $$modPath/ -cf - -T - | tar -C $(INSTALL_TMP_DIR)/ -xf -)
 
 installExtLib.%:
-	@$(ABS_PRINT_info) "  Processing external library $* ..."
+	@$(ABS_PRINT_info) "  Processing external library $* $(if $(_app_$*_dir),,(Not found !)) ..."
 	@$(call writeToBuildLogs,Processing external library $*)
 	@libPath=$(_app_$*_dir) && test -n "$$libPath" && test -d $$libPath && cp -rf $$libPath/* $(INSTALL_TMP_DIR)/ && chmod -R u+rw $(INSTALL_TMP_DIR) || true
 
