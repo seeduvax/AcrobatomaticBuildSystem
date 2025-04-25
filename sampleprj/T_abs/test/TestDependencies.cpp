@@ -28,20 +28,29 @@ public:
     void tearDown() {
     }
 
-    ABS_TEST_CASE_BEGIN(Dependencies)
+    ABS_TEST_CASE_BEGIN(Dependencies) {
         CPPUNIT_ASSERT_EQUAL(0, ::system("./test/scripts/testDependencies.sh"));
+    }
     ABS_TEST_CASE_END
     
-    ABS_TEST_CASE_BEGIN(DistInstall)
+    ABS_TEST_CASE_BEGIN(DistInstall) {
         CPPUNIT_ASSERT_EQUAL(0, ::system("./test/scripts/testDistInstall.sh"));
+    }
     ABS_TEST_CASE_END
 
-    ABS_TEST_CASE_BEGIN(Patches)
+    ABS_TEST_CASE_BEGIN(Patches) {
         CPPUNIT_ASSERT_EQUAL(0, ::system("./test/scripts/testPatches.sh"));
+    }
     ABS_TEST_CASE_END
 
-    ABS_TEST_CASE_BEGIN(Tests)
+    ABS_TEST_CASE_BEGIN(Tests) {
         CPPUNIT_ASSERT_EQUAL(0, ::system("./test/scripts/testTests.sh"));
+    }
+    ABS_TEST_CASE_END
+    
+    ABS_TEST_CASE_BEGIN(Error) {
+        CPPUNIT_ASSERT_EQUAL(0, ::system("./test/scripts/testError.sh"));
+    }
     ABS_TEST_CASE_END
 
 /* Test case template, uncomment and complete according this pattern for each test case

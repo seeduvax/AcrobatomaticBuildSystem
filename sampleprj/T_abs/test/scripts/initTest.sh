@@ -74,6 +74,21 @@ function executeMake {
     fi
 }
 
+function executeMakeWithError {
+    module=$2
+    goal=$1
+    echo ""
+    echo "### Execution $module on $goal"
+    echo ""
+    shift;shift;
+    # reset makelevel to 0
+    MAKELEVEL=0 ARCH=NotALinux make -C $module $goal ABS_LOG_LEVEL=debug $*
+    if [ $? -eq 0 ]; then
+        echo "The execution of make $goal on $module should be in error"
+        doExit 15
+    fi
+}
+
 # 1: project
 # 2: module
 # *: links
@@ -95,11 +110,10 @@ function testLinked {
 # 1: project
 # 2: module
 # *: links
-function testLinkedInBuild {
+function testBuildLogContains {
     project=$1
-    module=$2
-    shift;shift;
-    expected=" $module linked to $*"
+    shift;
+    expected="$*"
     buildlog=`find $testDirectory/$project/build/NotALinux/*/obj/build.log`
     testFileExists $buildlog
     grep -E -q "$expected\$" $buildlog
@@ -108,6 +122,17 @@ function testLinkedInBuild {
         echo "Error, cannot find $expected"
         doExit 12
     fi
+}
+
+# 1: project
+# 2: module
+# *: links
+function testLinkedInBuild {
+    project=$1
+    module=$2
+    shift;shift;
+    expected=" $module linked to $*"
+    testBuildLogContains $project $expected
 }
 
 # 1: project

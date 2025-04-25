@@ -107,7 +107,7 @@ endif
 OBJDIR?=$(PRJOBJDIR)/$(MODNAME)
 EXT_MODSRC_DIR=$(OBJDIR)/extsrc
 
-# INCLUDE_MODS permit to add dependency between mods but without doing link between generated libraries.
+# NEEDED_PROJ_MODS permit to add dependency between mods but without doing link between generated libraries.
 NEEDED_PROJ_MODS=$(sort $(USEMOD) $(patsubst $(APPNAME)_%,%,$(filter $(PROJECT_INC_MODS),$(INCLUDE_MODS))))
 
 # ---------------------------------------------------------------------
@@ -249,8 +249,10 @@ NEEDED_FOR_OBJS+=$(DEFAULT_EXTLIBMAKES) $(PRJOBJDIR)/$(MODNAME)/.depready
 
 $(OBJS): $(NEEDED_FOR_OBJS)
 
-ifneq ($(filter $(APPNAME)_$(NOBUILD),$(ALL_DEPENDENCIES)),)
-$(error $(MODNAME): can't build because of deactivated dependency: $(filter $(APPNAME)_$(NOBUILD),$(ALL_DEPENDENCIES)))
+NOBUILD_MODS_IN_DEPS=$(filter $(NOBUILD),$(NEEDED_PROJ_MODS))
+ifneq ($(NOBUILD_MODS_IN_DEPS),)
+NOTHING:=$(shell $(call writeToBuildLogs,Can't build because of deactivated dependency: $(NOBUILD_MODS_IN_DEPS)))
+$(error $(MODNAME): can't build because of deactivated dependency: $(NOBUILD_MODS_IN_DEPS))
 endif
 
 endif
