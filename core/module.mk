@@ -65,6 +65,10 @@ include $(LOAD_MODDEPS_FILE)
 # include EXTLIBMAKES after moddeps.mk to have all USELIB
 $(eval $(call extlib_updates_deps))
 
+# object files go in a subdirectory of build dir dedicated to the module
+OBJDIR?=$(PRJOBJDIR)/$(MODNAME)
+EXT_MODSRC_DIR=$(OBJDIR)/extsrc
+
 TR_APP_INCLUDE_DIR=$(TRDIR)/include/$(APPNAME)
 TR_MOD_INCLUDE_DIR=$(TR_APP_INCLUDE_DIR)/$(MODNAME)
 
@@ -102,10 +106,6 @@ else
 define executeFiltering
 endef
 endif
-
-# object files go in a subdirectory of build dir dedicated to the module
-OBJDIR?=$(PRJOBJDIR)/$(MODNAME)
-EXT_MODSRC_DIR=$(OBJDIR)/extsrc
 
 # NEEDED_PROJ_MODS permit to add dependency between mods but without doing link between generated libraries.
 NEEDED_PROJ_MODS=$(sort $(USEMOD) $(patsubst $(APPNAME)_%,%,$(filter $(PROJECT_INC_MODS),$(INCLUDE_MODS))))

@@ -1,6 +1,8 @@
 all:
 
 include ../app.cfg
+DEFAULT_USELIB:=$(USELIB)
+DEFAULT_NDUSELIB:=$(NDUSELIB)
 include module.cfg
 
 _MODNAME:=$(notdir $(abspath .))
@@ -13,6 +15,11 @@ MODNAME?=$(_MODNAME)
 PROJECT_INC_MODS:=$(patsubst $(PRJROOT)/%/module.cfg,$(APPNAME)_%,$(wildcard $(PRJROOT)/*/module.cfg))
 # INCLUDE_MODS permit to add dependency between mods but without doing link between generated libraries.
 NEEDED_PROJ_MODS=$(sort $(USEMOD) $(TESTUSEMOD) $(patsubst $(APPNAME)_%,%,$(filter $(PROJECT_INC_MODS),$(INCLUDE_MODS))))
+
+# DISABLE_USELIB_PROPAGATION permit to not propagate USELIB or NDUSELIB defined in the module.cfg
+ifneq ($(DISABLE_USELIB_PROPAGATION),true)
+PROPAGATE_USELIB=true
+endif
 
 # add dependencies between modules to avoid compile module at the same time.
 # .done must depends of other .done to propagate the multithread dependency.
@@ -29,6 +36,8 @@ $(PRJOBJDIR)/$(MODNAME)/moddeps.mk:
 '_module_$(APPNAME)_$(MODNAME)_dir=$$(TRDIR)\n'\
 '_module_$(APPNAME)_$(MODNAME)_depends=$$(sort $$(call getLibrariesNameFromLinklib,$(LINKLIB)) $(INCLUDE_MODS) $(patsubst %,$(APPNAME)_%,$(USEMOD)))\n\n'\
 '_module_$(APPNAME)_$(MODNAME)_done_depends=$$(patsubst %%,$$(PRJOBJDIR)/%%/.done,$(NEEDED_PROJ_MODS))\n\n'\
+'_module_$(APPNAME)_$(MODNAME)_uselib=$(if $(PROPAGATE_USELIB),$(filter-out $(DEFAULT_USELIB),$(USELIB)))\n'\
+'_module_$(APPNAME)_$(MODNAME)_nduselib=$(if $(PROPAGATE_USELIB),$(filter-out $(DEFAULT_NDUSELIB),$(NDUSELIB)))\n\n'\
 '$$(PRJOBJDIR)/$(MODNAME)/.depready: $$(_module_$(APPNAME)_$(MODNAME)_done_depends)\n\n'\
 '$$(PRJOBJDIR)/$(MODNAME)/.done: $$(wildcard $$(foreach toLook,etc src include module.cfg local.cfg,$$(call find,$$(PRJROOT)/$(MODNAME)/$$(toLook),*)))\n\n'\
 '$$(PRJOBJDIR)/$(MODNAME)/.done: $$(_module_$(APPNAME)_$(MODNAME)_done_depends)\n\n'\

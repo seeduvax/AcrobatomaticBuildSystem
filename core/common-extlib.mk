@@ -325,12 +325,14 @@ ifneq ($(BUILDCHAIN),)
 USELIB+=runtime-$(BUILDCHAIN)
 endif
 
-# USELIB from modules. (needed for dist)
+# USELIB / NDUSELIB from modules. (needed for dist)
+# permit to load external dependencies during app level initialization.
 MODS_USELIBS=$(sort $(foreach mod,$(MODULES_DEPS),$(_module_$(APPNAME)_$(mod)_uselib)))
+MODS_NDUSELIBS=$(sort $(foreach mod,$(MODULES_DEPS),$(_module_$(APPNAME)_$(mod)_nduselib)))
 
 EXTLIBS_ALL_USELIB=$(USELIB) $(MODS_USELIBS)
 EXTLIBS_ALL_NAUSELIB=$(NA_USELIB)
-EXTLIBS_ALL_NDUSELIB=$(NDUSELIB)
+EXTLIBS_ALL_NDUSELIB=$(NDUSELIB) $(MODS_NDUSELIBS)
 EXTLIBS_ALL_NDNAUSELIB=$(NDNA_USELIB)
 
 ALLUSELIB=$(USELIB) $(NDUSELIB)
