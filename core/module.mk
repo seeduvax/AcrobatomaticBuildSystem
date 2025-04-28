@@ -270,6 +270,7 @@ $(DISTINFO_FILE): $(DEFAULT_EXTLIBMAKES)
 'include $$(patsubst %%,$$(DIST_FLATTEN_DIR)/obj/%%/distinfo.mk,$(NEEDED_PROJ_MODS))\n'\
 '_module_$(APPNAME)_$(MODNAME)_alluselib=$(if $(PROPAGATE_USELIB),$(USELIB))\n'\
 '_module_$(APPNAME)_$(MODNAME)_uselib=$$(filter-out $$(USELIB),$$(_module_$(APPNAME)_$(MODNAME)_alluselib))\n'\
+'_modules_$(APPNAME)_uselib+=$$(_module_$(APPNAME)_$(MODNAME)_uselib)\n'\
 '_module_$(APPNAME)_$(MODNAME)_depends=$(sort $(call getLibrariesNameFromLinklib,$(LINKLIB)) $(INCLUDE_MODS) $(patsubst %,$(APPNAME)_%,$(USEMOD)))\n\n'\
 'endif' > $@
 

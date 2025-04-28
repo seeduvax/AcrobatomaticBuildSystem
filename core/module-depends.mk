@@ -37,7 +37,9 @@ $(PRJOBJDIR)/$(MODNAME)/moddeps.mk:
 '_module_$(APPNAME)_$(MODNAME)_depends=$$(sort $$(call getLibrariesNameFromLinklib,$(LINKLIB)) $(INCLUDE_MODS) $(patsubst %,$(APPNAME)_%,$(USEMOD)))\n\n'\
 '_module_$(APPNAME)_$(MODNAME)_done_depends=$$(patsubst %%,$$(PRJOBJDIR)/%%/.done,$(NEEDED_PROJ_MODS))\n\n'\
 '_module_$(APPNAME)_$(MODNAME)_uselib=$(if $(PROPAGATE_USELIB),$(filter-out $(DEFAULT_USELIB),$(USELIB)))\n'\
-'_module_$(APPNAME)_$(MODNAME)_nduselib=$(if $(PROPAGATE_USELIB),$(filter-out $(DEFAULT_NDUSELIB),$(NDUSELIB)))\n\n'\
+'_module_$(APPNAME)_$(MODNAME)_nduselib=$(if $(PROPAGATE_USELIB),$(filter-out $(DEFAULT_NDUSELIB),$(NDUSELIB)))\n'\
+'_modules_$(APPNAME)_uselib+=$$(_module_$(APPNAME)_$(MODNAME)_uselib)\n'\
+'_modules_$(APPNAME)_nduselib+=$$(_module_$(APPNAME)_$(MODNAME)_nduselib)\n\n'\
 '$$(PRJOBJDIR)/$(MODNAME)/.depready: $$(_module_$(APPNAME)_$(MODNAME)_done_depends)\n\n'\
 '$$(PRJOBJDIR)/$(MODNAME)/.done: $$(wildcard $$(foreach toLook,etc src include module.cfg local.cfg,$$(call find,$$(PRJROOT)/$(MODNAME)/$$(toLook),*)))\n\n'\
 '$$(PRJOBJDIR)/$(MODNAME)/.done: $$(_module_$(APPNAME)_$(MODNAME)_done_depends)\n\n'\

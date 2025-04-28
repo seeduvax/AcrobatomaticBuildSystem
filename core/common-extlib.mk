@@ -327,8 +327,8 @@ endif
 
 # USELIB / NDUSELIB from modules. (needed for dist)
 # permit to load external dependencies during app level initialization.
-MODS_USELIBS=$(sort $(foreach mod,$(MODULES_DEPS),$(_module_$(APPNAME)_$(mod)_uselib)))
-MODS_NDUSELIBS=$(sort $(foreach mod,$(MODULES_DEPS),$(_module_$(APPNAME)_$(mod)_nduselib)))
+MODS_USELIBS=$(sort $(_modules_$(APPNAME)_$(mod)_uselib))
+MODS_NDUSELIBS=$(sort $(_modules_$(APPNAME)_$(mod)_nduselib))
 
 EXTLIBS_ALL_USELIB=$(USELIB) $(MODS_USELIBS)
 EXTLIBS_ALL_NAUSELIB=$(NA_USELIB)
