@@ -1,4 +1,5 @@
 # by default module dir is directly under project root dir
+
 ifeq ($(MODROOT),)
 	MODROOT:=$(abspath .)
 endif
@@ -12,6 +13,12 @@ $(info $(shell $(ABS_PRINT_warning) "The name of the module '$(MODNAME)' differ 
 endif
 MODNAME?=$(_MODNAME)
 
+# remove a lot of default suffixes not used by abs.
+.SUFFIXES:
+	@:
+
+
+DISABLE_SCM_CHECK:=true
 INCLUDE_EXTLIB:=false
 include $(ABSROOT)/core/common.mk
 
@@ -51,5 +58,6 @@ $(PRJOBJDIR)/$(MODNAME)/$(MODDEPS_FILENAME):
 'testmod.$(MODNAME): $$(patsubst %%,testmod.%%,$(NEEDED_PROJ_MODS))\n\n'\
 'endif\n' > $@
 
+.PHONY: generate
 generate: $(PRJOBJDIR)/$(MODNAME)/$(MODDEPS_FILENAME)
 	@:

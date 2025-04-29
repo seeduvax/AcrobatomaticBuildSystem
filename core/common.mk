@@ -179,7 +179,9 @@ VMEDIUM:=$(word 2,$(VERSION_FIELDS))
 VMINOR:=$(word 3,$(VERSION_FIELDS))
 VSUFFIX:=$(patsubst %,.%,$(word 4,$(VERSION_FIELDS)))
 
+ifneq ($(DISABLE_SCM_CHECK),true)
 include $(ABSROOT)/core/scm-$(ABS_SCM_TYPE).mk
+endif
 
 # if version is overloaded, consider workspace is tag.
 ifneq ($(VERSION_OVERLOADED),)
