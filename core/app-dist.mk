@@ -72,6 +72,7 @@ $(DIST_FLATTEN_DIR)/import.mk: $(DIST_FLATTEN_DIR)/obj/compiled $(DIST_MODS_DIST
 	@test -f export.mk || sed -i -E 's/ *$$//g' $@.tmp
 	@touch $(@D)/obj/extraFiles.ts
 	@if [ -x extradist.sh ]; then VERSION=$(VERSION) APP=$(APPNAME) APPNAME=$(APPNAME) ./extradist.sh `dirname $@`; fi
+	@mkdir -p $(@D)/.abs/content
 	@find $(@D) -type f -cnewer $(@D)/obj/extraFiles.ts | grep -v $(@D)/obj | sed 's~$(@D)/~~g' | grep -E -v "$(subst *,.*,$(subst $(_space_),|,$(DIST_EXCLUDE)))" > $(@D)/.abs/content/$(APPNAME)__extra.filelist || true
 	@rm -f $(@D)/obj/extraFiles.ts
 	@test -d .svn && find dist -name ".svn" | xargs rm -rf || true
@@ -135,6 +136,7 @@ $(INSTALL_TMP_DIR)/import.mk: $(DIST_FLATTEN_DIR)/import.mk
 	@$(ABS_PRINT_info) "Copying file tree..."
 	@tar -cf - $(patsubst %,--exclude %,obj extlib extlib.nodist import.mk) -C $(<D) . | tar -C $(@D) -xf -
 	@$(ABS_PRINT_info)  "Copying dependencies..."
+	@# copy of external libs that are not in directories (ex: jar files)
 	@test ! -d $(DIST_FLATTEN_DIR)/extlib || for lib in `ls $(DIST_FLATTEN_DIR)/extlib | fgrep -v cppunit-` ; do \
 	if [ ! -d $(DIST_FLATTEN_DIR)/extlib/$$lib ]; then \
 	$(ABS_PRINT_info) "  Processing $$lib..." ; \
