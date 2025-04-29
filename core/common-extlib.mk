@@ -330,12 +330,12 @@ endif
 MODS_USELIBS=$(sort $(_modules_$(APPNAME)_uselib))
 MODS_NDUSELIBS=$(sort $(_modules_$(APPNAME)_nduselib))
 
-EXTLIBS_ALL_USELIB=$(USELIB) $(MODS_USELIBS)
-EXTLIBS_ALL_NDUSELIB=$(NDUSELIB) $(MODS_NDUSELIBS)
+EXTLIBS_ALL_USELIB=$(sort $(USELIB) $(MODS_USELIBS))
+EXTLIBS_ALL_NDUSELIB=$(sort $(NDUSELIB) $(MODS_NDUSELIBS))
 EXTLIBS_ALL_NAUSELIB=$(NA_USELIB)
 EXTLIBS_ALL_NDNAUSELIB=$(NDNA_USELIB)
 
-ALLUSELIB=$(USELIB) $(NDUSELIB) $(MODS_USELIBS) $(MODS_NDUSELIBS)
+ALLUSELIB=$(sort $(USELIB) $(NDUSELIB) $(MODS_USELIBS) $(MODS_NDUSELIBS))
 DEV_USELIB=$(filter-out $(DEV_USELIB_IGNORE),$(filter %d,$(ALLUSELIB)))
 
 # macro to include lib
@@ -419,10 +419,10 @@ endef
 # we don't care importing the dependencies.
 ifeq ($(filter clean% purgeabs docker% tag,$(MAKECMDGOALS)),)
 
-EXTLIBMAKES=$(patsubst %,$(EXTLIBDIR)/%/import.mk,$(subst |,-,$(USELIB) $(MODS_USELIBS))) \
-	$(patsubst %,$(NDEXTLIBDIR)/%/import.mk,$(subst |,-,$(NDUSELIB) $(MODS_NDUSELIBS))) \
-	$(patsubst %,$(NDNA_EXTLIBDIR)/%/import.mk,$(subst |,-,$(NDNA_USELIB))) \
-	$(patsubst %,$(NA_EXTLIBDIR)/%/import.mk,$(subst |,-,$(NA_USELIB)))
+EXTLIBMAKES=$(patsubst %,$(EXTLIBDIR)/%/import.mk,$(subst |,-,$(sort $(USELIB) $(MODS_USELIBS)))) \
+	$(patsubst %,$(NDEXTLIBDIR)/%/import.mk,$(subst |,-,$(sort $(NDUSELIB) $(MODS_NDUSELIBS)))) \
+	$(patsubst %,$(NDNA_EXTLIBDIR)/%/import.mk,$(subst |,-,$(sort $(NDNA_USELIB)))) \
+	$(patsubst %,$(NA_EXTLIBDIR)/%/import.mk,$(subst |,-,$(sort $(NA_USELIB))))
 
 DEFAULT_EXTLIBMAKES:=$(EXTLIBMAKES)
 
