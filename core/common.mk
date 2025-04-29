@@ -142,6 +142,8 @@ BUILDROOT?=$(PRJROOT)/build
 HOSTNAME?=$(shell hostname)
 
 ABS_SCM_TYPE:=null
+DISTINFO_FILENAME=.distinfo.mk
+MODDEPS_FILENAME=moddeps.mk
 
 # explicitely checking and forcing variable makefile generation now since 
 # include + rule may lead to delayed include, making this one to late regarding
@@ -255,17 +257,17 @@ include $(ABSROOT)/charm/main.mk
 endif
 
 ALL_PROJ_MODULES=$(patsubst $(PRJROOT)/%/module.cfg,%,$(wildcard $(PRJROOT)/*/module.cfg))
-ALL_PROJ_MODDEPS_MK=$(patsubst %,$(PRJOBJDIR)/%/moddeps.mk,$(ALL_PROJ_MODULES))
+ALL_PROJ_MODDEPS_MK=$(patsubst %,$(PRJOBJDIR)/%/$(MODDEPS_FILENAME),$(ALL_PROJ_MODULES))
 # PROJECT_INC_MODS permit to filter project modules in INCLUDE_MODS variable for example.
 PROJECT_INC_MODS=$(patsubst %,$(APPNAME)_%,$(ALL_PROJ_MODULES))
 LOAD_MODDEPS_FILE=$(PRJOBJDIR)/loadmoddeps.mk
 
 # dependencies between modules
-$(PRJOBJDIR)/%/moddeps.mk: $(PRJROOT)/%/module.cfg
-	@+make -C $(PRJROOT)/$* --no-print-directory PRJROOT="$(PRJROOT)" TRDIR="$(TRDIR)" PRJOBJDIR="$(PRJOBJDIR)" ARCH="$(ARCH)" -f $(ABSROOT)/core/module-depends.mk
+$(PRJOBJDIR)/%/$(MODDEPS_FILENAME): $(PRJROOT)/%/module.cfg
+	@+make -C $(PRJROOT)/$* --no-print-directory ABSROOT="$(ABSROOT)" TRDIR="$(TRDIR)" -f $(ABSROOT)/core/module-depends.mk generate
 
 $(LOAD_MODDEPS_FILE): $(ALL_PROJ_MODDEPS_MK)
-	@printf 'include $$(if $$(MODNAME),$$(PRJOBJDIR)/$$(MODNAME)/moddeps.mk,$$(patsubst %%,$$(PRJOBJDIR)/%%/moddeps.mk,$$(MODULES_DEPS)))' > $@
+	@printf 'include $$(if $$(MODNAME),$$(PRJOBJDIR)/$$(MODNAME)/$(MODDEPS_FILENAME),$$(patsubst %%,$$(PRJOBJDIR)/%%/$(MODDEPS_FILENAME),$$(MODULES_DEPS)))' > $@
 
 # include extern libraries management rules
 ifneq ($(INCLUDE_EXTLIB),false)

@@ -2,13 +2,17 @@
 
 source $(dirname $0)/initTest.sh testDependencies
 
+expectedDir="$MODROOT/test/resources/expected"
 executeMake pubdist libtest VERSION=2.0.0
 
 executeMake pubdist projA
 testLinked projA cppexe projA_cpplib
 
-tail -n +2 $testDirectory/projA/dist/flatten/projA-1.4.2d/import.mk > $testDirectory/projA/dist/flatten/projA-1.4.2d/import2.mk
-testFile $testDirectory/projA/dist/flatten/projA-1.4.2d/import2.mk $MODROOT/test/resources/expected/projA_import2.mk
+projAOutDir=$testDirectory/projA/dist/flatten/projA-1.4.2d
+projAObjDir=$projAOutDir/obj
+testFile $projAObjDir/cppexe/moddeps.mk $expectedDir/projA_cppexe_moddeps.mk
+tail -n +2 $projAOutDir/import.mk > $projAOutDir/import2.mk
+testFile $projAOutDir/import2.mk $expectedDir/projA_import2.mk
 
 executeMake pubdist projB
 testLinked projB cpplib projA_cpplib test
@@ -27,7 +31,7 @@ testFileExists $projBOutDir/include/projB/cpplib3/subdir/inc2.h
 testFileExists $projBOutDir/include/projB/cpplib3/inc3.hpp
 
 tail -n +2 $testDirectory/projB/dist/flatten/projB-2.4.2d/import.mk > $testDirectory/projB/dist/flatten/projB-2.4.2d/import2.mk
-testFile $testDirectory/projB/dist/flatten/projB-2.4.2d/import2.mk $MODROOT/test/resources/expected/projB_import2.mk
+testFile $testDirectory/projB/dist/flatten/projB-2.4.2d/import2.mk $expectedDir/projB_import2.mk
 
 executeMake pubdist projD
 executeMake testbuild projC
@@ -45,7 +49,7 @@ testFileExists $projCOutDir/include/projC/cpplib/archive1/subdir/inc.h
 testFileExists $projCOutDir/include/projC/cpplib/archive2/subdir/inc2.h
 
 tail -n +2 $testDirectory/projC/dist/flatten/projC-2.4.3d/import.mk > $testDirectory/projC/dist/flatten/projC-2.4.3d/import2.mk
-testFile $testDirectory/projC/dist/flatten/projC-2.4.3d/import2.mk $MODROOT/test/resources/expected/import2.mk
+testFile $testDirectory/projC/dist/flatten/projC-2.4.3d/import2.mk $expectedDir/import2.mk
 
 testFileExists $testDirectory/repository/NotALinux/projA-1.4.2d.NotALinux.tar.gz
 testFileExists $testDirectory/repository/NotALinux/projB/projB-2.4.2d.NotALinux.tar.gz
@@ -62,7 +66,7 @@ $binInstall install $testDirectory/projC/dist/installed
 buildlog="$testDirectory/projC/dist/flatten/projC-2.4.3d/obj/build.log"
 grep "Processing external" $buildlog | sed -E 's/.*> //g' > $buildlog.processed
 
-testFile $buildlog.processed $MODROOT/test/resources/expected/projC_extmods.txt
+testFile $buildlog.processed $expectedDir/projC_extmods.txt
 
 testFileExists $testDirectory/projC/dist/installed/etc/aFile.txt
 # test dependencies transitivity
@@ -72,6 +76,6 @@ testFileExists $testDirectory/projC/dist/installed/etc/projB/.ImHidden
 
 testFileExists $testDirectory/projC/dist/installed/etc/projA/aFile.txt
 
-testFile $testDirectory/projC/dist/installed/etc/projB/aFile.txt $MODROOT/test/resources/expected/aFileB.txt
+testFile $testDirectory/projC/dist/installed/etc/projB/aFile.txt $expectedDir/aFileB.txt
 
 doExit 0

@@ -42,13 +42,15 @@ $(DIST_FLATTEN_DIR)/obj/compiled:
 	@$(ABS_PRINT_info) "Compilation of the project finished !"
 	@touch $@
 
-DIST_MODS_DISTINFO_FILES=$(patsubst %,$(DIST_FLATTEN_DIR)/obj/%/distinfo.mk,$(DIST_MODS))
+DIST_MODS_DISTINFO_FILES=$(patsubst %,$(DIST_FLATTEN_DIR)/obj/%/$(DISTINFO_FILENAME),$(DIST_MODS))
 $(DIST_MODS_DISTINFO_FILES): $(DIST_FLATTEN_DIR)/obj/compiled
 	@:
 
-ifneq ($(filter dist distinstall pubdist pubinstall cachedist kdistinstall install,$(MAKECMDGOALS)),)
-# include distinfo.mk needed for import.mk generation
+ifneq ($(filter dist distinstall pubdist pubinstall cachedist kdistinstall install __installextlibs,$(MAKECMDGOALS)),)
+# include .distinfo.mk needed for import.mk generation
 include $(DIST_MODS_DISTINFO_FILES)
+# get external libs now because need uselib information from .distinfo.mk
+$(eval $(call extlib_updates_deps))
 endif
 
 DIST_MODS_WITH_USELIBS=$(foreach mod,$(sort $(DIST_MODS)),$(if $(_module_$(APPNAME)_$(mod)_uselib),$(mod)))
@@ -90,10 +92,6 @@ ifeq ($(MAKECMDGOALS),__installextlibs)
 
 # needed external modules and libs retreiving
 DIST_PROJ_MODS=$(patsubst %,$(APPNAME)_%,$(DIST_MODS))
-include $(patsubst %,$(DIST_FLATTEN_DIR)/obj/%/moddeps.mk,$(DIST_MODS))
-include $(patsubst %,$(DIST_FLATTEN_DIR)/obj/%/distinfo.mk,$(DIST_MODS))
-# get external libs now because need uselib information from distinfo.mk
-$(eval $(call extlib_updates_deps))
 
 # INCLUDE_INSTALL_MODS additionnals external mods to include in the installation.
 NEEDED_MODS=$(filter-out $(DIST_PROJ_MODS),$(call getDependenciesByTransitivity,$(INCLUDE_INSTALL_MODS) $(DIST_PROJ_MODS)))

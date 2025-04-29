@@ -1,15 +1,19 @@
-all:
+# by default module dir is directly under project root dir
+ifeq ($(MODROOT),)
+	MODROOT:=$(abspath .)
+endif
+ifeq ($(PRJROOT),)
+	PRJROOT:=$(dir $(MODROOT))
+endif
 
-include ../app.cfg
-DEFAULT_USELIB:=$(USELIB)
-DEFAULT_NDUSELIB:=$(NDUSELIB)
-include module.cfg
-
-_MODNAME:=$(notdir $(abspath .))
+_MODNAME:=$(notdir $(MODROOT))
 ifneq ($(filter-out $(_MODNAME),$(MODNAME)),)
 $(info $(shell $(ABS_PRINT_warning) "The name of the module '$(MODNAME)' differ from the module directory name '$(_MODNAME)'"))
 endif
 MODNAME?=$(_MODNAME)
+
+INCLUDE_EXTLIB:=false
+include $(ABSROOT)/core/common.mk
 
 # PROJECT_INC_MODS permit to filter project modules in INCLUDE_MODS
 PROJECT_INC_MODS:=$(patsubst $(PRJROOT)/%/module.cfg,$(APPNAME)_%,$(wildcard $(PRJROOT)/*/module.cfg))
@@ -27,17 +31,16 @@ endif
 # The externals libs EXTLIBMAKES must be done before launching compilation of dependences.
 # ultimate wildcard to eliminate files with space
 # add dependence between testmod, to test the modules in the order of dependences. (only use in app level)
-$(PRJOBJDIR)/$(MODNAME)/moddeps.mk:
+$(PRJOBJDIR)/$(MODNAME)/$(MODDEPS_FILENAME):
 	@$(ABS_PRINT_info) "Generating $(MODNAME) module dependency file."
 	@mkdir -p $(@D)
-	@echo "# "`date` > $@.tmp
 	@printf 'ifeq ($$(_module_$(APPNAME)_$(MODNAME)_dir),)\n'\
-'include $$(patsubst %%,$$(PRJOBJDIR)/%%/moddeps.mk,$(NEEDED_PROJ_MODS))\n\n'\
+'include $$(patsubst %%,$$(PRJOBJDIR)/%%/$(MODDEPS_FILENAME),$(NEEDED_PROJ_MODS))\n\n'\
 '_module_$(APPNAME)_$(MODNAME)_dir=$$(TRDIR)\n'\
 '_module_$(APPNAME)_$(MODNAME)_depends=$$(sort $$(call getLibrariesNameFromLinklib,$(LINKLIB)) $(INCLUDE_MODS) $(patsubst %,$(APPNAME)_%,$(USEMOD)))\n\n'\
 '_module_$(APPNAME)_$(MODNAME)_done_depends=$$(patsubst %%,$$(PRJOBJDIR)/%%/.done,$(NEEDED_PROJ_MODS))\n\n'\
-'_module_$(APPNAME)_$(MODNAME)_uselib=$(if $(PROPAGATE_USELIB),$(filter-out $(DEFAULT_USELIB),$(USELIB)))\n'\
-'_module_$(APPNAME)_$(MODNAME)_nduselib=$(if $(PROPAGATE_USELIB),$(filter-out $(DEFAULT_NDUSELIB),$(NDUSELIB)))\n'\
+'_module_$(APPNAME)_$(MODNAME)_uselib=$(if $(PROPAGATE_USELIB),$(USELIB))\n'\
+'_module_$(APPNAME)_$(MODNAME)_nduselib=$(if $(PROPAGATE_USELIB),$(NDUSELIB))\n'\
 '_modules_$(APPNAME)_uselib+=$$(_module_$(APPNAME)_$(MODNAME)_uselib)\n'\
 '_modules_$(APPNAME)_nduselib+=$$(_module_$(APPNAME)_$(MODNAME)_nduselib)\n\n'\
 '$$(PRJOBJDIR)/$(MODNAME)/.depready: $$(_module_$(APPNAME)_$(MODNAME)_done_depends)\n\n'\
@@ -46,8 +49,7 @@ $(PRJOBJDIR)/$(MODNAME)/moddeps.mk:
 '$$(PRJOBJDIR)/$(MODNAME)/.testdone: $$(PRJOBJDIR)/$(MODNAME)/.done\n'\
 '$$(PRJOBJDIR)/$(MODNAME)/.testdone: $$(wildcard $$(foreach toLook,test module.cfg local.cfg,$$(call find,$$(PRJROOT)/$(MODNAME)/$$(toLook),*)))\n\n'\
 'testmod.$(MODNAME): $$(patsubst %%,testmod.%%,$(NEEDED_PROJ_MODS))\n\n'\
-'endif\n' >> $@.tmp
-	@mv $@.tmp $@
+'endif\n' > $@
 
-all: $(PRJOBJDIR)/$(MODNAME)/moddeps.mk
+generate: $(PRJOBJDIR)/$(MODNAME)/$(MODDEPS_FILENAME)
 	@:
