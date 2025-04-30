@@ -249,7 +249,7 @@ define extlib_linkLibrary
 	@mkdir -p $(TRDIR)
 	@$(if $(wildcard $(@D)),$(RMLINK) $(@D))
 	@$(LNDIR) $(<D) $(@D)
-	@function createSymLinks() { \
+	@$(if $(filter $(TR_DIST_DIR),$(TRDIR)),,function createSymLinks() { \
 		basedir=$$(readlink -f $$1) ;\
 		subdir=$$2 ;\
 		root=$$(readlink -f $$3) ;\
@@ -271,10 +271,8 @@ define extlib_linkLibrary
 			( cd $${dest_dir} ; ln -sf $$f ) ;\
 		done ;\
 	} ;\
-	if [[ ! "$(TRDIR)" == *"/dist/flatten/"* ]]; then \
-		$(ABS_PRINT_debug) "Creating symlinks for $$(basename $(@D)) dependency to $(TRDIR) ..." ;\
-		for extd in etc share; do createSymLinks $(<D) $$extd $(TRDIR); done ;\
-	fi
+	$(ABS_PRINT_debug) "Creating symlinks for $$(basename $(@D)) dependency to $(TRDIR) ..." ;\
+	for extd in etc share; do createSymLinks $(<D) $$extd $(TRDIR); done ;)
 endef
 
 # unpack arch specific external lib

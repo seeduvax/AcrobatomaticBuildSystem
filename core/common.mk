@@ -224,6 +224,8 @@ MODE=release
 endif
 
 PRJOBJDIR=$(TRDIR)/obj
+# directory for dist compilation
+TR_DIST_DIR=$(PRJROOT)/dist/flatten/$(APPNAME)-$(VERSION)
 
 # log containing all commands executed to generate objects
 BUILDLOG=$(PRJOBJDIR)/build.log

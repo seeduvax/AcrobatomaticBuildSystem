@@ -267,7 +267,7 @@ $(DISTINFO_FILE): $(DEFAULT_EXTLIBMAKES)
 	@mkdir -p $(@D)
 	@printf 'ifeq ($$(_DIST_INFO_$(MODNAME)_loaded_),)\n'\
 '_DIST_INFO_$(MODNAME)_loaded_=true\n'\
-'include $$(patsubst %%,$$(DIST_FLATTEN_DIR)/obj/%%/$(DISTINFO_FILENAME),$(NEEDED_PROJ_MODS))\n'\
+'include $$(patsubst %%,$$(TRDIR)/obj/%%/$(DISTINFO_FILENAME),$(NEEDED_PROJ_MODS))\n'\
 '_module_$(APPNAME)_$(MODNAME)_alluselib=$(if $(PROPAGATE_USELIB),$(USELIB))\n'\
 '_module_$(APPNAME)_$(MODNAME)_uselib=$$(filter-out $$(USELIB),$$(_module_$(APPNAME)_$(MODNAME)_alluselib))\n'\
 '_modules_$(APPNAME)_uselib+=$$(_module_$(APPNAME)_$(MODNAME)_uselib)\n'\

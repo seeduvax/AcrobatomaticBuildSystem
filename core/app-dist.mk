@@ -22,40 +22,52 @@ _extra_import_defs_:=$(subst !,\n,$(_extra_import_defs_))
 _extra_import_defs_:=$(subst $(_carriage_return_),\n,$(_extra_import_defs_))
 $(eval _extra_import_defs_:=$(_extra_import_defs_))
 
-cleandist:
-	@$(ABS_PRINT_info) "Cleaning dist ..."
-	@$(ABS_PRINT_info) "Changing permissions of dist"
-	@-test ! -d dist || chmod -R u+w dist 2> /dev/null
-	@$(ABS_PRINT_info) "Removing dist"
-	@rm -rf dist
-
-DIST_FLATTEN_DIR:=dist/flatten/$(APPNAME)-$(VERSION)
-INSTALL_TMP_DIR:=dist/install/$(APPNAME)-$(VERSION)
+INSTALL_DIST_DIR:=dist/install/$(APPNAME)-$(VERSION)
 DIST_MODS:=$(filter-out $(NODISTMOD),$(MODULES_DEPS))
+# needed external modules and libs retreiving
+DIST_PROJ_MODS=$(patsubst %,$(APPNAME)_%,$(DIST_MODS))
+MODULES_DIST_TARGETS:=$(patsubst %,$(TR_DIST_DIR)/obj/%/.done,$(DIST_MODS))
 
-$(DIST_FLATTEN_DIR)/obj/compiled:
-	@rm -rf $(DIST_FLATTEN_DIR)
-	@mkdir -p $(@D)
-	@$(ABS_PRINT_info) "Compilation of the project in mode: $(MODE)"
-	@$(ABS_PRINT_debug) "Compilation of the modules: $(DIST_MODS)"
-	@+make TRDIR=$(PRJROOT)/$(DIST_FLATTEN_DIR) MODE=$(MODE) NOBUILD="$(NOBUILD)" $(patsubst %,$(PRJROOT)/$(DIST_FLATTEN_DIR)/obj/%/.done,$(DIST_MODS))
-	@$(ABS_PRINT_info) "Compilation of the project finished !"
+DIST_ARCHIVE:=dist/$(APPNAME)-$(VERSION).$(ARCH).tar.gz
+DISTINSTALL_BINARY:=dist/$(APPNAME)-$(VERSION).$(ARCH)-install.bin
+KDISTINSTALL_BINARY:=dist/$(APPNAME)_lkm-$(VERSION)-$(KVERSION)-install.bin
+
+ifneq ($(TRDIR),$(TR_DIST_DIR))
+# compile first to have the .distinfo files available
+$(TR_DIST_DIR)/obj/.compiled:
+	@+make $(MODULES_DIST_TARGETS) TRDIR=$(TR_DIST_DIR) MODE=$(MODE) DIST_COMPILE_MODE=true
 	@touch $@
 
-DIST_MODS_DISTINFO_FILES=$(patsubst %,$(DIST_FLATTEN_DIR)/obj/%/$(DISTINFO_FILENAME),$(DIST_MODS))
-$(DIST_MODS_DISTINFO_FILES): $(DIST_FLATTEN_DIR)/obj/compiled
-	@:
+$(TR_DIST_DIR)/import.mk: $(TR_DIST_DIR)/obj/.compiled
+	@+make $@ TRDIR=$(TR_DIST_DIR) MODE=$(MODE)
 
-ifneq ($(filter dist distinstall pubdist pubinstall cachedist kdistinstall install __installextlibs,$(MAKECMDGOALS)),)
+$(INSTALL_DIST_DIR)/import.mk: $(TR_DIST_DIR)/obj/.compiled
+	@+make $@ TRDIR=$(TR_DIST_DIR) MODE=$(MODE) -j1
+
+else #ifneq ($(TRDIR),$(TR_DIST_DIR))
+
+DIST_MODS_WITH_USELIBS=$(foreach mod,$(sort $(DIST_MODS)),$(if $(_module_$(APPNAME)_$(mod)_uselib),$(mod)))
+EXPMOD_INCLUDES_DIR=$(wildcard $(patsubst %,%/include,$(EXPMOD)))
+
+ifneq ($(DIST_COMPILE_MODE),true)
 # include .distinfo.mk needed for import.mk generation
-include $(DIST_MODS_DISTINFO_FILES)
+include $(patsubst %,$(TRDIR)/obj/%/$(DISTINFO_FILENAME),$(DIST_MODS))
 # get external libs now because need uselib information from .distinfo.mk
 $(eval $(call extlib_updates_deps))
 endif
 
-DIST_MODS_WITH_USELIBS=$(foreach mod,$(sort $(DIST_MODS)),$(if $(_module_$(APPNAME)_$(mod)_uselib),$(mod)))
-EXPMOD_INCLUDES_DIR=$(wildcard $(patsubst %,%/include,$(EXPMOD)))
-$(DIST_FLATTEN_DIR)/import.mk: $(DIST_FLATTEN_DIR)/obj/compiled $(DIST_MODS_DISTINFO_FILES)
+
+# INCLUDE_INSTALL_MODS additionnals external mods to include in the installation.
+NEEDED_MODS=$(filter-out $(DIST_PROJ_MODS),$(call getDependenciesByTransitivity,$(INCLUDE_INSTALL_MODS) $(DIST_PROJ_MODS)))
+# Install external dependencies
+# Use _dir variable because _depends can be empty
+INCLUDE_EXT_MODULES=$(foreach mod,$(NEEDED_MODS),$(if $(_module_$(mod)_dir),$(mod),))
+INCLUDE_EXT_LIBS=$(sort $(foreach mod,$(NEEDED_MODS),$(if $(_module_$(mod)_dir),,$(mod))))
+INCLUDE_EXT_MODS_TO_INSTALL=$(patsubst %,installExt.%,$(INCLUDE_EXT_MODULES))
+INCLUDE_EXT_LIBS_TO_INSTALL=$(patsubst %,installExtLib.%,$(INCLUDE_EXT_LIBS))
+
+
+$(TRDIR)/import.mk: $(MODULES_DIST_TARGETS)
 	@$(if $(EXPMOD_INCLUDES_DIR),cp -r $(EXPMOD_INCLUDES_DIR) $(@D))
 	@test -f export.mk && m4 -D__app__=$(APPNAME) -D__version__=$(VERSION) export.mk -D__uselib__="$(sort $(USELIB))" > $@.tmp || true
 	@echo "# generated: ABS-$(__ABS_VERSION__) $(USER)@"`hostname`" "`$(TRACE_DATE_CMD)` >> $@.tmp
@@ -79,75 +91,60 @@ $(DIST_FLATTEN_DIR)/import.mk: $(DIST_FLATTEN_DIR)/obj/compiled $(DIST_MODS_DIST
 	@rm -f $(@D)/obj/extraFiles.ts
 	@test -d .svn && find dist -name ".svn" | xargs rm -rf || true
 	@mv $@.tmp $@
+	
+# Advanced dependency management disabled: old way with all the libraries included in the binary
+ifeq ($(ADV_DEPENDS_MANAGEMENT),false)
+$(TRDIR)/obj/.libsInstalled: $(TRDIR)/import.mk
+	@for lib in `ls $(TRDIR)/extlib/ | fgrep -v cppunit-` ; do \
+		$(ABS_PRINT_info) "  Processing $$lib..." ; \
+		test -d $(TRDIR)/extlib/$$lib && (tar -C $(TRDIR)/extlib/$$lib -cf - $(DISTTARFLAGS) --exclude=import.mk --mode=755 . | tar -C $(INSTALL_DIST_DIR) -xf - ) || cp $(TRDIR)/extlib/$$lib $(INSTALL_DIST_DIR)/lib ; \
+		done
+	@touch $@
+else # ifeq ($(ADV_DEPENDS_MANAGEMENT),false)
 
-DIST_ARCHIVE:=dist/$(APPNAME)-$(VERSION).$(ARCH).tar.gz
-DISTINSTALL_BINARY:=dist/$(APPNAME)-$(VERSION).$(ARCH)-install.bin
-KDISTINSTALL_BINARY:=dist/$(APPNAME)_lkm-$(VERSION)-$(KVERSION)-install.bin
-
-$(DIST_ARCHIVE): $(DIST_FLATTEN_DIR)/import.mk
-	@tar -czf $(DIST_ARCHIVE) -C dist/flatten $(DISTTARFLAGS) $(APPNAME)-$(VERSION)
-
-
-ifeq ($(MAKECMDGOALS),__installextlibs)
-
-# needed external modules and libs retreiving
-DIST_PROJ_MODS=$(patsubst %,$(APPNAME)_%,$(DIST_MODS))
-
-# INCLUDE_INSTALL_MODS additionnals external mods to include in the installation.
-NEEDED_MODS=$(filter-out $(DIST_PROJ_MODS),$(call getDependenciesByTransitivity,$(INCLUDE_INSTALL_MODS) $(DIST_PROJ_MODS)))
-# Install external dependencies
-# Use _dir variable because _depends can be empty
-INCLUDE_EXT_MODULES=$(foreach mod,$(NEEDED_MODS),$(if $(_module_$(mod)_dir),$(mod),))
-INCLUDE_EXT_LIBS=$(sort $(foreach mod,$(NEEDED_MODS),$(if $(_module_$(mod)_dir),,$(mod))))
-INCLUDE_EXT_MODS_TO_INSTALL=$(patsubst %,installExt.%,$(INCLUDE_EXT_MODULES))
-INCLUDE_EXT_LIBS_TO_INSTALL=$(patsubst %,installExtLib.%,$(INCLUDE_EXT_LIBS))
-
-installExt.%:
+installExt.%: $(TRDIR)/import.mk
+	@mkdir -p $(INSTALL_DIST_DIR)
 	@$(ABS_PRINT_info) "  Processing external module $* $(if $(_module_$*_dir),,(Not found !)) ..."
 	@$(call writeToBuildLogs,Processing external module $*)
 	@modPath=$(_module_$*_dir) && test -z "$$modPath" || test ! -d $$modPath || test ! -f $$modPath/.abs/content/$*.filelist || (\
-		cat $$modPath/.abs/content/$*.filelist | tar -C $$modPath/ -cf - -T - | tar -C $(INSTALL_TMP_DIR)/ -xf -)
+		cat $$modPath/.abs/content/$*.filelist | tar -C $$modPath/ -cf - -T - | tar -C $(INSTALL_DIST_DIR)/ -xf -)
 
-installExtLib.%:
+installExtLib.%: $(TRDIR)/import.mk
+	@mkdir -p $(INSTALL_DIST_DIR)
 	@$(ABS_PRINT_info) "  Processing external library $* $(if $(_app_$*_dir),,(Not found !)) ..."
 	@$(call writeToBuildLogs,Processing external library $*)
-	@libPath=$(_app_$*_dir) && test -n "$$libPath" && test -d $$libPath && cp -rf $$libPath/* $(INSTALL_TMP_DIR)/ && chmod -R u+rw $(INSTALL_TMP_DIR) || true
+	@libPath=$(_app_$*_dir) && test -n "$$libPath" && test -d $$libPath && cp -rf $$libPath/* $(INSTALL_DIST_DIR)/ && chmod -R u+rw $(INSTALL_DIST_DIR) || true
 
-# Advanced dependency management disabled: old way with all the libraries included in the binary
-ifeq ($(ADV_DEPENDS_MANAGEMENT),false)
-__installextlibs:
-	@for lib in `ls $(DIST_FLATTEN_DIR)/extlib/ | fgrep -v cppunit-` ; do \
-		$(ABS_PRINT_info) "  Processing $$lib..." ; \
-		test -d $(DIST_FLATTEN_DIR)/extlib/$$lib && (tar -C $(DIST_FLATTEN_DIR)/extlib/$$lib -cf - $(DISTTARFLAGS) --exclude=import.mk --mode=755 . | tar -C $(INSTALL_TMP_DIR) -xf - ) || cp $(DIST_FLATTEN_DIR)/extlib/$$lib $(INSTALL_TMP_DIR)/lib ; \
-		done
 
-else # ifeq ($(ADV_DEPENDS_MANAGEMENT),false)
-__installextlibs: $(INCLUDE_EXT_MODS_TO_INSTALL) $(INCLUDE_EXT_LIBS_TO_INSTALL)
+$(TRDIR)/obj/.libsInstalled:  $(INCLUDE_EXT_MODS_TO_INSTALL) $(INCLUDE_EXT_LIBS_TO_INSTALL)
+	@touch $@
 
 endif # ifeq ($(ADV_DEPENDS_MANAGEMENT),false)
 
-endif # ifeq ($(MAKECMDGOALS),__installextlibs)
-
-$(INSTALL_TMP_DIR)/import.mk: $(DIST_FLATTEN_DIR)/import.mk
+$(INSTALL_DIST_DIR)/import.mk: $(TRDIR)/obj/.libsInstalled
 	@mkdir -p $(@D)
-	@+make TRDIR=$(PRJROOT)/$(DIST_FLATTEN_DIR) MODE=$(MODE) -j1 __installextlibs
 	@$(ABS_PRINT_info) "Copying file tree..."
-	@tar -cf - $(patsubst %,--exclude %,obj extlib extlib.nodist import.mk) -C $(<D) . | tar -C $(@D) -xf -
+	@tar -cf - $(patsubst %,--exclude %,obj extlib extlib.nodist import.mk) -C $(TRDIR) . | tar -C $(@D) -xf -
 	@$(ABS_PRINT_info)  "Copying dependencies..."
 	@# copy of external libs that are not in directories (ex: jar files)
-	@test ! -d $(DIST_FLATTEN_DIR)/extlib || for lib in `ls $(DIST_FLATTEN_DIR)/extlib | fgrep -v cppunit-` ; do \
-	if [ ! -d $(DIST_FLATTEN_DIR)/extlib/$$lib ]; then \
+	@test ! -d $(TRDIR)/extlib || for lib in `ls $(TRDIR)/extlib | fgrep -v cppunit-` ; do \
+	if [ ! -d $(TRDIR)/extlib/$$lib ]; then \
 	$(ABS_PRINT_info) "  Processing $$lib..." ; \
-	cp $(DIST_FLATTEN_DIR)/extlib/$$lib $(@D)/lib ; \
+	cp $(TRDIR)/extlib/$$lib $(@D)/lib ; \
 	fi; \
 	done
 	@cp $< $@
+
+endif #ifneq ($(TRDIR),$(TR_DIST_DIR))
+
+$(DIST_ARCHIVE): $(TR_DIST_DIR)/import.mk
+	@tar -czf $(DIST_ARCHIVE) -C $(@D) $(DISTTARFLAGS) $(APPNAME)-$(VERSION)
 
 .PHONY: install
 install: $(DISTINSTALL_BINARY)
 	@./$(DISTINSTALL_BINARY) install $(PREFIX)
 
-$(DISTINSTALL_BINARY): $(INSTALL_TMP_DIR)/import.mk
+$(DISTINSTALL_BINARY): $(INSTALL_DIST_DIR)/import.mk
 	@tar -C $(<D)/../ -czf - $(DISTTARFLAGS) $(INSTALLTARFLAGS) $(APPNAME)-$(VERSION) > $@.tmp2
 	@sed -e 's/__appname__/$(APPNAME)/g' \
 		-e 's/__version__/$(VERSION)/g' \
@@ -181,8 +178,8 @@ kdistinstall: $(KDISTINSTALL_BINARY)
 
 endif
 
-$(KDISTINSTALL_BINARY): $(DIST_FLATTEN_DIR)/import.mk
-	tar -C $(DIST_FLATTEN_DIR) $(DISTTARFLAGS) -cvzf "$@.tmp2" etc/ lib/
+$(KDISTINSTALL_BINARY): $(TR_DIST_DIR)/import.mk
+	tar -C $(TR_DIST_DIR) $(DISTTARFLAGS) -cvzf "$@.tmp2" etc/ lib/
 	sed -e 's/__app__/$(APPNAME)/g' \
 		-e 's/__version__/$(VERSION)/g' \
 		-e 's/__kversion__/$(KVERSION)/g' \
@@ -197,6 +194,14 @@ PROJ_DIST_REPO=$(DISTREPO)/$(ARCH)/$(APPNAME)
 else
 PROJ_DIST_REPO=$(DISTREPO)/$(ARCH)
 endif
+
+##  - cleandist: remove the dist directory
+cleandist:
+	@$(ABS_PRINT_info) "Cleaning dist ..."
+	@$(ABS_PRINT_info) "Changing permissions of dist"
+	@-test ! -d dist || chmod -R u+w dist 2> /dev/null
+	@$(ABS_PRINT_info) "Removing dist"
+	@rm -rf dist
 
 ##  - pubdist: publish dist package
 pubdist: dist
