@@ -225,7 +225,8 @@ endif
 
 PRJOBJDIR=$(TRDIR)/obj
 # directory for dist compilation
-TR_DIST_DIR=$(PRJROOT)/dist/flatten/$(APPNAME)-$(VERSION)
+DIST_FLATTEN_DIR=$(PRJROOT)/dist/flatten
+TR_DIST_DIR=$(DIST_FLATTEN_DIR)/$(APPNAME)-$(VERSION)
 
 # log containing all commands executed to generate objects
 BUILDLOG=$(PRJOBJDIR)/build.log

@@ -138,7 +138,7 @@ $(INSTALL_DIST_DIR)/import.mk: $(TRDIR)/obj/.libsInstalled
 endif #ifneq ($(TRDIR),$(TR_DIST_DIR))
 
 $(DIST_ARCHIVE): $(TR_DIST_DIR)/import.mk
-	@tar -czf $(DIST_ARCHIVE) -C $(@D) $(DISTTARFLAGS) $(APPNAME)-$(VERSION)
+	@tar -czf $(DIST_ARCHIVE) -C $(DIST_FLATTEN_DIR) $(DISTTARFLAGS) $(APPNAME)-$(VERSION)
 
 .PHONY: install
 install: $(DISTINSTALL_BINARY)
