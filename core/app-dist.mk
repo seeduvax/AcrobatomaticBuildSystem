@@ -13,6 +13,9 @@
 ##  - distinstall: builds installation package.
 ##  - kdistinstall: builds linux kernel modules installation package
 ##  - dist: creates binary package
+##  - pubdist: publish dist package
+##  - cachedist: record dist package into local abs packages cache.
+##  - pubinstall: publish install package
 
 PUBLISH_TO_APP_LEVEL?=false
 
@@ -139,10 +142,7 @@ endif #ifneq ($(TRDIR),$(TR_DIST_DIR))
 
 $(DIST_ARCHIVE): $(TR_DIST_DIR)/import.mk
 	@tar -czf $(DIST_ARCHIVE) -C $(DIST_FLATTEN_DIR) $(DISTTARFLAGS) $(APPNAME)-$(VERSION)
-
-.PHONY: install
-install: $(DISTINSTALL_BINARY)
-	@./$(DISTINSTALL_BINARY) install $(PREFIX)
+	@$(ABS_PRINT_info) "Archive $@ created"
 
 $(DISTINSTALL_BINARY): $(INSTALL_DIST_DIR)/import.mk
 	@tar -C $(<D)/../ -czf - $(DISTTARFLAGS) $(INSTALLTARFLAGS) $(APPNAME)-$(VERSION) > $@.tmp2
@@ -155,6 +155,11 @@ $(DISTINSTALL_BINARY): $(INSTALL_DIST_DIR)/import.mk
 	@chmod +x "$@.tmp"
 	@rm $@.tmp2
 	@mv $@.tmp $@
+	@$(ABS_PRINT_info) "Binary installer $@ created"
+
+.PHONY: install
+install: $(DISTINSTALL_BINARY)
+	@./$(DISTINSTALL_BINARY) install $(PREFIX)
 
 ifeq ($(ACTIVATE_SANITIZER),true)
 dist:
@@ -195,7 +200,6 @@ else
 PROJ_DIST_REPO=$(DISTREPO)/$(ARCH)
 endif
 
-##  - cleandist: remove the dist directory
 cleandist:
 	@$(ABS_PRINT_info) "Cleaning dist ..."
 	@$(ABS_PRINT_info) "Changing permissions of dist"
@@ -203,7 +207,6 @@ cleandist:
 	@$(ABS_PRINT_info) "Removing dist"
 	@rm -rf dist
 
-##  - pubdist: publish dist package
 pubdist: dist
 	@$(ABS_PRINT_info)  "Publishing dist archive $(DIST_ARCHIVE) $(USER) on $(DISTREPO)"
 ifneq ($(filter file://%,$(PROJ_DIST_REPO)),)
@@ -214,13 +217,11 @@ else
 	@scp $(SCPFLAGS) $(DIST_ARCHIVE) $(PROJ_DIST_REPO)/$(APPNAME)-$(VERSION).$(ARCH).tar.gz
 endif
 
-##  - cachedist: record dist package into local abs pacakges cache.
 cachedist: dist
 	@$(ABS_PRINT_info) "Storing dist archive $(DIST_ARCHIVE) into local ABS cache"
 	@mkdir -p $(ABS_CACHE)/$(ARCH)
 	@mv $(DIST_ARCHIVE) $(ABS_CACHE)/$(ARCH)/
 
-##  - pubinstall: publish install package
 pubinstall: distinstall
 	@$(ABS_PRINT_info)  "Publishing install binary $(DISTINSTALL_BINARY) $(USER) on $(DISTREPO)"
 ifneq ($(filter file://%,$(PROJ_DIST_REPO)),)
