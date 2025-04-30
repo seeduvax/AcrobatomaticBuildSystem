@@ -268,7 +268,7 @@ PROJECT_INC_MODS=$(patsubst %,$(APPNAME)_%,$(ALL_PROJ_MODULES))
 LOAD_MODDEPS_FILE=$(PRJOBJDIR)/loadmoddeps.mk
 
 # dependencies between modules
-$(PRJOBJDIR)/%/$(MODDEPS_FILENAME): $(PRJROOT)/%/module.cfg
+$(PRJOBJDIR)/%/$(MODDEPS_FILENAME): $(PRJROOT)/app.cfg $(PRJROOT)/%/module.cfg
 	@+make -C $(PRJROOT)/$* --no-print-directory ABSROOT="$(ABSROOT)" TRDIR="$(TRDIR)" -f $(ABSROOT)/core/module-depends.mk generate
 
 $(LOAD_MODDEPS_FILE): $(ALL_PROJ_MODDEPS_MK)

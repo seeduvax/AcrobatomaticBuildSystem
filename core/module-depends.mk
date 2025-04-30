@@ -38,7 +38,7 @@ endif
 # The externals libs EXTLIBMAKES must be done before launching compilation of dependences.
 # ultimate wildcard to eliminate files with space
 # add dependence between testmod, to test the modules in the order of dependences. (only use in app level)
-$(PRJOBJDIR)/$(MODNAME)/$(MODDEPS_FILENAME):
+$(PRJOBJDIR)/$(MODNAME)/$(MODDEPS_FILENAME): $(PRJROOT)/app.cfg $(PRJROOT)/$(MODNAME)/module.cfg
 	@$(ABS_PRINT_info) "Generating $(MODNAME) module dependency file."
 	@mkdir -p $(@D)
 	@printf 'ifeq ($$(_module_$(APPNAME)_$(MODNAME)_dir),)\n'\
