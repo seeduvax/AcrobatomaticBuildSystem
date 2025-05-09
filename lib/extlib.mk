@@ -68,9 +68,9 @@ endif
 
 $(INSTDIR)/import.mk: $(SRCDIR)/Makefile $(PATCHES)
 	mkdir -p ${@D}
-	@make -C $(SRCDIR) $(MARGS)
+	@make -C $(SRCDIR) $(MARGS) INSTDIR=$(INSTDIR) -f Makefile
 	$(POSTMAKE)	
-	@grep -q "^install:" $(SRCDIR)/Makefile && make -C $(SRCDIR) $(MIARGS) install || :
+	@grep -q "^install:" $(SRCDIR)/Makefile && make -C $(SRCDIR) $(MIARGS) INSTDIR=$(INSTDIR) -f Makefile install || :
 	@printf '# buildscripts generated dependency file\n$$(eval $$(call extlib_import_template,$(PRODUCT),$(VERSION)$(VPATCH),$(USELIB)))\n$(IMPORTEXTRA)\n' > $@
 	@test -r $(LICENSEFILE) && { mkdir -p ${@D}/share ; cp $(LICENSEFILE) ${@D}/share/$(PRODUCT)-$(VERSION).license; } || :
 	@echo Done
