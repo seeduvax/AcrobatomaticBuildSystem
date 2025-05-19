@@ -8,6 +8,7 @@
 ##          If node is not present on the system please export this variable.
 ##  - TSC: path to typescript compiler main file (usually named tsc in the bin folder of the official github release).
 ##  - TS_MODULE_TYPE: how to resolve modules: use amd for web development and commonjs for nodejs development.
+##  - TS_ESLIB: version of ES standard, default is es5.
 NODE?=$(shell which node 2>/dev/null)
 ifeq ($(NODE),)
 $(call abs_error,Unable to find a valid node interpreter, please set NODE environment variable)
@@ -18,6 +19,10 @@ endif
 
 $(call abs_debug,Using NODE=$(NODE))
 $(call abs_debug,Using TSC=$(TSC))
+
+TS_ESLIB?=ES5
+
+TS_LIBS?=$(TS_ESLIB),DOM,ScriptHost
 
 TS_MODULE_TYPE?=commonjs
 
@@ -49,8 +54,8 @@ TS_TYPE_ROOTS2=$(subst $(TS_SPACE),$(TS_COMMA),$(TS_TYPE_ROOTS))
 $(call abs_debug,Using TS_TYPE_ROOTS=$(TS_TYPE_ROOTS2))
 
 #Nice we'got a big problem: TSC cannot deal with multi-layer directories
-TSCFLAGS=--baseUrl $(TS_SRCDIR) --module $(TS_MODULE_TYPE) --typeRoots $(TS_TYPE_ROOTS2)
-TSXCFLAGS=--baseUrl $(TS_SRCDIR) --module $(TS_MODULE_TYPE) --typeRoots $(TS_TYPE_ROOTS2) --jsx react --esModuleInterop
+TSCFLAGS=--lib $(TS_LIBS) --baseUrl $(TS_SRCDIR) --module $(TS_MODULE_TYPE) --typeRoots $(TS_TYPE_ROOTS2)
+TSXCFLAGS=--lib $(TS_LIBS) --baseUrl $(TS_SRCDIR) --module $(TS_MODULE_TYPE) --typeRoots $(TS_TYPE_ROOTS2) --jsx react --esModuleInterop
 
 #TS_SRC=$(wildcard $(TS_SRCDIR)/*.ts)
 #TSX_SRC=$(wildcard $(TS_SRCDIR)/*.tsx)
