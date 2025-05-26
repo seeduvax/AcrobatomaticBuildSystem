@@ -8,7 +8,7 @@
 # a removed and no more used header will not make the compilation fail.
 # Check http://mad-scientist.net/make/autodep.html#norule for more
 # details.
-## 
+##
 ## ---------------------------------------------------------------------
 ## C/C++ build options
 ## ---------------------------------------------------------------------
@@ -18,8 +18,8 @@
 ##    dynamically. Default value is true.
 ##    When both STATIC_LIB and DYNAMIC_LIB are true, builds both static and
 ##    dynamic libraries but link executables dynamically only.
-##  - NO_VINFO=true|false, when true, do not generate and link the source file 
-##    for the target binary embedded identifiers string. Default is false. 
+##  - NO_VINFO=true|false, when true, do not generate and link the source file
+##    for the target binary embedded identifiers string. Default is false.
 ##    activate this option in case of small memory footprint or reproductible
 ##    builds requirements (because the string might be long and include build
 ##    context info such as build host and build date).
@@ -39,6 +39,7 @@
 ##  - DEFINES: The defines to add to CFLAGS variables.
 ##      Each define will be -D$(define) in CFLAGS
 ##  - DISABLE_SRC: List of files in src directory to not compile
+##  - PREPROC_ONLY: if true, "object files" will be inlined code for each compilation unit, and "linkage" will just create an empty file
 
 include $(ABSROOT)/core/module-cheaders.mk
 
@@ -98,13 +99,13 @@ $(OBJDIR)/%.o: $(OBJDIR)/%.c
 # external C file compilation
 $(OBJDIR)/%.o: $(EXT_SRC_DIR)/%.c
 	$(cc-command)
-	
+
 # external C file compilation
 $(OBJDIR)/%.o: $(EXT_MODSRC_DIR)/%.c
 	$(cc-command)
 
 # from idl generated cpp files compilation
-$(OBJDIR)/idl/%.o: $(OBJDIR)/idl/%.cpp 
+$(OBJDIR)/idl/%.o: $(OBJDIR)/idl/%.cpp
 	$(CPPC) $(CFLAGS) -c $< -o $@
 
 # cpp files compilation
@@ -173,7 +174,7 @@ endif
 
 $(RES_HEADER):
 	@$(ABS_PRINT_info) "Generating Empty Resource header..."
-	@mkdir -p `dirname $(RES_HEADER)` 
+	@mkdir -p `dirname $(RES_HEADER)`
 	@printf "/* Generated resource constant header, do not edit */\n\
 #ifndef __$(APPNAME)_$(MODNAME)_res_h__\n\
 # define __$(APPNAME)_$(MODNAME)_res_h__\n\
@@ -188,7 +189,7 @@ extern \"C\" {\n\
 	@printf "# ifdef __cplusplus\n\
 }\n\
 # endif\n\
-#endif" >> $@ 
+#endif" >> $@
 
 # data file embedding using xxd
 $(OBJDIR)/%.c: src/% $(RES_HEADER)
@@ -279,6 +280,6 @@ endif
 
 clean-crule:
 	@$(ABS_PRINT_info) "Removing generated resource header files..."
-	@rm -rf $(RES_HEADER) 
+	@rm -rf $(RES_HEADER)
 
 clean:: clean-crule
