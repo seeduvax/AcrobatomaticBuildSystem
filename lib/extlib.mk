@@ -56,7 +56,7 @@ ifneq ($(HASCONFIGURE),0)
 $(SRCDIR)/configure: $(SRCDIR)
 
 $(SRCDIR)/Makefile: $(SRCDIR)/configure
-	@cd ${@D} ;\
+	cd ${@D} ;\
 	./configure --prefix $(INSTDIR) $(ACFLAGS)
 	$(POSTCONFIGURE)
 endif
