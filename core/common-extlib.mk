@@ -137,83 +137,79 @@ ABS_DEPDOWNLOAD_RULE_OVERLOADED:=1
 .PRECIOUS: $(ABS_CACHE)/noarch/%.jar
 .PRECIOUS: $(ABSWS_EXTLIBDIR)/%/import.mk $(ABSWS_NDEXTLIBDIR)/%/import.mk $(ABSWS_NA_EXTLIBDIR)/%/import.mk $(ABSWS_NDNA_EXTLIBDIR)/%/import.mk
 
-# Download an archive from an URL list
-# Each URL from given list is tried successively according the list order.
-# No longer tries anything once the file has been succesfully downloaded once.
-# $1: Name of file to download
-# $2: URL list
-# $3: Destination file path
+
+ABS_REPO_TEMPLATE=$(foreach entry, $(ABS_REPO),$(if $(findstring {,$(entry)),$(entry),$(entry)/{arch}/{name}-{version}.{arch}{ext} $(entry)/{arch}/{name}/{name}-{version}.{arch}{ext} $(entry)/noarch/{name}-{version}{ext}))
+
+# fetch package with wget (any URL kind that wget can handle)
+# $1 URL to download from
+# $2 destination file path
+define downloadFromUrlTo
+	@test -f $2 || ( $(ABS_PRINT_debug) "Downloading $1..." ; wget -q $(WGETFLAGS) $1 -O $2 || rm -f $2 )
+
+endef
+
+# fetch package by linking to local file
+# $1 local file URL
+# $2 destination file path
+define linkFromFileUrlTo
+	@test -f $2 || ( $(ABS_PRINT_debug) "Linking $1..." ; ln -sf $(patsubst file://%,%,$1) $2 ; test -r $2 || rm -f $2 )
+
+endef
+
+# fetch package with scp
+# $1 source URL
+# $2 destination file path
+define scpFromFileUrlTo
+	@test -f $2 || ( $(ABS_PRINT_debug) "Downloading $1..." ; scp $(SCPFLAGS) $(patsubst scp:%,%,$1) $2 || : )
+
+endef
+
+# build list of commands to fetch package
+# $1 target file
+# $2 list of URL to try to get the package.
 define downloadFromURLs
-@$(ABS_PRINT_info) "Fetching $1..."; \
-	for repo in $2 ; do \
-	$(ABS_PRINT_debug) "Fetching $1 from $$repo" ; \
-	case $$repo in \
-		file://*) srcfile=`echo "$$repo" | cut -f 2 -d ':'`;\
-			test -f $$srcfile && ln -sf $$srcfile $3 ; \
-			test -r $3 && $(ABS_PRINT_info) "$1 got from $$repo" && exit 0 || true;; \
-		scp:*) srcfile=`echo "$$repo" | cut -f 2,3 -d ':'`;\
-			scp $(SCPFLAGS) $$srcfile $3.tmp && mv $3.tmp $3 && $(ABS_PRINT_info) "$1 got from $$repo" && exit 0;;\
-		*) wget -q $(WGETFLAGS) $$repo -O $3.tmp && mv $3.tmp $3 && touch $3 && $(ABS_PRINT_info) "$1 got from $$repo" && exit 0 || \
-			rm -rf $3 ;; \
-	esac \
-done ; \
-for repo in $2; do $(ABS_PRINT_warning) "$1 not available from $$repo"; done; \
-$(ABS_PRINT_error) "Can't fetch $1." ; rm -rf $3 ; exit 1
+$(foreach entry,$2,$(if $(filter file://%,$(entry),),$(call linkFromFileUrlTo,$(entry),$1))$(if $(filter scp:%,$(entry),),$(call scpFromFileUrlTo,$(entry),$1))$(if $(filter-out file://% scp:%,$(entry)),$(call downloadFromUrlTo,$(entry),$1)))
 endef
 
-# Download an archive from repositories
-# !!! Deprecated, downloadFromURLs shall be used.
-# $1: File to download
-# $2: Repositories list
-# $3: Dest file
-define downloadFromRepos
-	$(ABS_PRINT_warning) "Macro downloadFromRepos is deprecated. ABS extension or project configuration should be updated to new ABS standards."
-$(call downloadFromURLs,$1,$(patsubst %,%/$1,$2),$3)
+# Get list of concrete URL for each ABS repo pattern and package attributes
+# $1 package name
+# $2 package version
+# $3 architecture name
+# $4 file extension
+define SubstituteRepoTemplate
+$(subst {name},$1,$(subst {version},$2,$(subst {arch},$3,$(subst {ext},$4,$(ABS_REPO_TEMPLATE)))))
 endef
 
-ifeq ($(findstring %,$(ABS_REPO)),)
-ABS_REPO_PATTERN:=$(patsubst %,%/$(ARCH)/%,$(ABS_REPO))
-ABS_REPO_NA_PATTERN:=$(patsubst %,%/noarch/%,$(ABS_REPO))
-else
-$(eval ABS_REPO_PATTERN:=$(ABS_REPO))
-$(eval ABS_REPO_NA_PATTERN:=$(subst $$(ARCH),noarch,$(ABS_REPO)))
-endif
 
-# macro to get repos for a library
-# Args:
-#   - 1: pattern abs repo
-#	- 2: name of the library archive (ex: libtest-0.0.1.NotALinux.tar.gz)
-define getReposToUse
-$(patsubst %,$1,$2) \
-$(patsubst %,$1,$(call getLibNameFromArchiveName,$2,$(ALLUSELIB))/$2)
+# Get URL list related to a package
+# $1 package file name. expected format is <name>-<version>.<arch>.<ext>
+define GetDownloadURLs
+$(call SubstituteRepoTemplate,$(word 1,$(subst -, ,$1)),$(subst $(word 1,$(subst -, ,$1))-,,$(word 1,$(subst .$(ARCH), ,$1))),$(ARCH),.$(word 2,$(subst $(ARCH)., ,$1)))
 endef
 
-# macro to get the list of repositories where to find dependencies
-# Looking for $(ABS_REPO)/noarch/ and $(ABS_REPO)/noarch/<dependency name>/
-# Args:
-#   - 1: List of patterns abs repo
-#	- 2: name of the library archive (ex: libtest-0.0.1.NotALinux.tar.gz)
-define getReposToUseForNoArch
-$(foreach pat,$(1),$(call getReposToUse,$(pat),$(2)))
+define GetNoarchDownloadURLs
+$(call SubstituteRepoTemplate,$(word 1,$(subst -, ,$1)),$(subst $(word 1,$(subst -, ,$1))-,,$(word 1,$(subst .$(ARCH), ,$1))),noarch,)
 endef
-# macro to get the list of repositories where to find dependencies
-# Looking for $(ABS_REPO)/$(ARCH)/ and $(ABS_REPO)/$(ARCH)/<dependency name>/
-#             $(ABS_REPO)/noarch/ and $(ABS_REPO)/noarch/<dependency name>/
-# Args:
-#   - 1: List of patterns abs repo
-#	- 2: name of the library archive (ex: libtest-0.0.1.NotALinux.tar.gz)
-define getReposToUseForArch
-$(foreach pat,$(1),$(call getReposToUse,$(pat),$(2))\
-	$(subst $(ARCH),noarch,$(call getReposToUse,$(pat),$(2))))
+
+# Get URL list related to a raw package package file name
+# $1 package file name where package name has no structure.
+define GetRawPckNameDownloadURLs
+$(foreach entry,$(ABS_REPO_TEMPLATE),$(if $(findstring {file},$(entry)),$(subst {file},$1,$(entry))))
 endef
 
 $(ABS_CACHE)/noarch/%:
 	@mkdir -p $(@D)
-	$(call downloadFromURLs,$*,$(call getReposToUseForNoArch,$(ABS_REPO_NA_PATTERN),$(@F)),$@)
+	@$(ABS_PRINT_info) "Fetching NA $@..."
+	$(call downloadFromURLs,$@,$(call GetNoarchDownloadURLs,$(@F)))
+	@test -f $@
+
 
 $(ABS_CACHE)/%:
 	@mkdir -p $(@D)
-	$(call downloadFromURLs,$*,$(call getReposToUseForArch,$(ABS_REPO_PATTERN),$(@F)),$@)
+	@$(ABS_PRINT_info) "Fetching $@..."
+	@$(ABS_PRINT_debug) "Debug on."
+	$(call downloadFromURLs,$@,$(call GetDownloadURLs,$(@F)))
+	@test -f $@
 
 # extract import.mk at the end to be sure the extraction is complete.
 define unpackArchive
