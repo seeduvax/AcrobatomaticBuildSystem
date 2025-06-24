@@ -108,7 +108,7 @@ install() {
         chmod 750 $PREFIX/etc/$APP/inits/*
         
         if [ "$(which systemd)" != "" ]; then
-            echo "Installation des drivers pour systemd"
+            echo "Installation of drivers for systemd"
             mkdir -p "$PREFIX/lib/systemd/system"
             for initFile in `ls $PREFIX/etc/$APP/inits/*`; do
                 serviceFile="$PREFIX/etc/$APP/services/$(basename -- $initFile).service"
@@ -123,7 +123,7 @@ install() {
                 cp "$serviceFile" "$PREFIX/lib/systemd/system/"
             done
         else
-            echo "Installation des drivers avec init.d"
+            echo "Installation of drivers using init.d"
             for execFile in `ls $PREFIX/etc/$APP/inits/*`; do
                 echo "Linking $execFile into init.d"
                 chmod 750 $execFile
