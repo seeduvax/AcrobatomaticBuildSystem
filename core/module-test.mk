@@ -390,10 +390,10 @@ ABS_TEST_SUITE_BEGIN( $(TESTNAME) )\n\
 private:\n\
 \n\
 public:\n\
-    void setUp() {\n\
+    void setUp() override {\n\
     }\n\
 \n\
-    void tearDown() {\n\
+    void tearDown() override {\n\
     }\n\
 \n\
 /* Test case template, uncomment and complete according this pattern for each test case\n\

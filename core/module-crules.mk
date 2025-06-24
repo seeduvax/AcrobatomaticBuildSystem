@@ -282,3 +282,18 @@ clean-crule:
 	@rm -rf $(RES_HEADER) 
 
 clean:: clean-crule
+
+$(OBJDIR)/cppcheck_includes.txt:
+	@echo "$(ABSROOT)/core/include" > $@.tmp
+	@find $(PRJROOT) -maxdepth 2 -name include -type d >> $@.tmp
+	@find -L $(wildcard $(EXTLIBDIR) $(NA_EXTLIBDIR) $(NDEXTLIBDIR) $(NDNA_EXTLIBDIR)) -maxdepth 3 -name include -type d >> $@.tmp
+	@mv $@.tmp $@
+
+.PHONY: $(OBJDIR)/cppcheck.log
+$(OBJDIR)/cppcheck.log: $(OBJDIR)/cppcheck_includes.txt
+	@cppcheck --enable=all --suppress=missingIncludeSystem --suppress=*:build/extlib/* --inline-suppr --error-exitcode=1 --includes-file=$< --report-progress --output-file=$@ $(CPPCHECK_ARGS) . || $(ABS_PRINT_error) "Errors found while analyzing cpp code"
+
+
+##  - cppcheck: launch cppcheck and generate report
+cppcheck: $(OBJDIR)/cppcheck.log
+	@$(ABS_PRINT_info) "File $< generated"
