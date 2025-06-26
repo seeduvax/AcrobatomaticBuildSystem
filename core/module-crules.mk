@@ -292,7 +292,7 @@ CPPCHECK_ARGS+=$(sort $(filter -D%,$(CXXFLAGS) $(CFLAGS)))
 $(CPPCHECK_INCLUDES_FILE):
 	@echo "$(ABSROOT)/core/include" > $@.tmp
 	@echo "/usr/include" >> $@.tmp
-	@$(foreach mod,$(USEMOD),echo $(PRJROOT)/$(mod)/include >> $@.tmp;)
+	@$(foreach mod,$(INCLUDE_PROJ_MODS) $(MODNAME),echo $(PRJROOT)/$(mod)/include >> $@.tmp;)
 	@find -L $(wildcard $(EXTLIBDIR) $(NA_EXTLIBDIR) $(NDEXTLIBDIR) $(NDNA_EXTLIBDIR)) -maxdepth 3 -name include -type d >> $@.tmp
 	@mv $@.tmp $@
 
@@ -301,13 +301,13 @@ $(CPPCHECK_SUPPRESS_FILE):
 	@echo "*:/usr/include/*" > $@.tmp
 	@echo "*:$(PRJROOT)/build/extlib/*" >> $@.tmp
 	@echo "unmatchedSuppression" >> $@.tmp
-	@$(foreach mod,$(USEMOD),echo *:$(PRJROOT)/$(mod)/include/* >> $@.tmp;)
+	@$(foreach mod,$(INCLUDE_PROJ_MODS),echo *:$(PRJROOT)/$(mod)/include/* >> $@.tmp;)
 	@mv $@.tmp $@
 
 
 .PHONY: $(OBJDIR)/cppcheck.log
 $(OBJDIR)/cppcheck.log: $(CPPCHECK_INCLUDES_FILE) $(CPPCHECK_SUPPRESS_FILE)
-	cppcheck --enable=all --includes-file=$< --suppressions-list=$(CPPCHECK_SUPPRESS_FILE) --output-file=$@ $(CPPCHECK_ARGS) . || $(ABS_PRINT_error) "Errors found while analyzing cpp code"
+	cppcheck --enable=all --includes-file=$< --suppressions-list=$(CPPCHECK_SUPPRESS_FILE) --output-file=$@ $(CPPCHECK_ARGS) src || $(ABS_PRINT_error) "Errors found while analyzing cpp code"
 
 
 ##  - cppcheck: launch cppcheck and generate report
