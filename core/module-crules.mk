@@ -291,11 +291,10 @@ CPPCHECK_ARGS+=$(sort $(filter -D%,$(CXXFLAGS) $(CFLAGS)))
 
 $(CPPCHECK_INCLUDES_FILE):
 	@echo "$(ABSROOT)/core/include" > $@.tmp
-	@echo "/usr/include" >> $@.tmp
 	@$(foreach mod,$(INCLUDE_PROJ_MODS) $(MODNAME),echo $(PRJROOT)/$(mod)/include >> $@.tmp;)
 	@find -L $(wildcard $(EXTLIBDIR) $(NA_EXTLIBDIR) $(NDEXTLIBDIR) $(NDNA_EXTLIBDIR)) -maxdepth 3 -name include -type d >> $@.tmp
+	@echo "/usr/include" >> $@.tmp
 	@mv $@.tmp $@
-
 	
 $(CPPCHECK_SUPPRESS_FILE):
 	@echo "*:/usr/include/*" > $@.tmp
@@ -303,7 +302,6 @@ $(CPPCHECK_SUPPRESS_FILE):
 	@echo "unmatchedSuppression" >> $@.tmp
 	@$(foreach mod,$(INCLUDE_PROJ_MODS),echo *:$(PRJROOT)/$(mod)/include/* >> $@.tmp;)
 	@mv $@.tmp $@
-
 
 .PHONY: $(OBJDIR)/cppcheck.log
 $(OBJDIR)/cppcheck.log: $(CPPCHECK_INCLUDES_FILE) $(CPPCHECK_SUPPRESS_FILE)
