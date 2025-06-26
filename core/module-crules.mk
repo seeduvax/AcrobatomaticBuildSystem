@@ -283,8 +283,8 @@ clean-crule:
 
 clean:: clean-crule
 
-CPPCHECK_SUPPRESS_FILE=$(OBJDIR)/cppcheck_includes.txt
-CPPCHECK_INCLUDES_FILE=$(OBJDIR)/cppcheck_suppress.txt
+CPPCHECK_SUPPRESS_FILE=$(OBJDIR)/cppcheck_suppress.txt
+CPPCHECK_INCLUDES_FILE=$(OBJDIR)/cppcheck_includes.txt
 
 CPPCHECK_ARGS+=--inline-suppr --error-exitcode=1 --report-progress
 CPPCHECK_ARGS+=$(sort $(filter -D%,$(CXXFLAGS) $(CFLAGS)))
