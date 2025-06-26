@@ -283,15 +283,31 @@ clean-crule:
 
 clean:: clean-crule
 
-$(OBJDIR)/cppcheck_includes.txt:
+CPPCHECK_SUPPRESS_FILE=$(OBJDIR)/cppcheck_includes.txt
+CPPCHECK_INCLUDES_FILE=$(OBJDIR)/cppcheck_suppress.txt
+
+CPPCHECK_ARGS+=--inline-suppr --error-exitcode=1 --report-progress
+CPPCHECK_ARGS+=$(sort $(filter -D%,$(CXXFLAGS) $(CFLAGS)))
+
+$(CPPCHECK_INCLUDES_FILE):
 	@echo "$(ABSROOT)/core/include" > $@.tmp
-	@find $(PRJROOT) -maxdepth 2 -name include -type d >> $@.tmp
+	@echo "/usr/include" >> $@.tmp
+	@$(foreach mod,$(USEMOD),echo $(PRJROOT)/$(mod)/include >> $@.tmp;)
 	@find -L $(wildcard $(EXTLIBDIR) $(NA_EXTLIBDIR) $(NDEXTLIBDIR) $(NDNA_EXTLIBDIR)) -maxdepth 3 -name include -type d >> $@.tmp
 	@mv $@.tmp $@
 
+	
+$(CPPCHECK_SUPPRESS_FILE):
+	@echo "*:/usr/include/*" > $@.tmp
+	@echo "*:$(PRJROOT)/build/extlib/*" >> $@.tmp
+	@echo "unmatchedSuppression" >> $@.tmp
+	@$(foreach mod,$(USEMOD),echo *:$(PRJROOT)/$(mod)/include/* >> $@.tmp;)
+	@mv $@.tmp $@
+
+
 .PHONY: $(OBJDIR)/cppcheck.log
-$(OBJDIR)/cppcheck.log: $(OBJDIR)/cppcheck_includes.txt
-	@cppcheck --enable=all --suppress=missingIncludeSystem --suppress=*:build/extlib/* --inline-suppr --error-exitcode=1 --includes-file=$< --report-progress --output-file=$@ $(CPPCHECK_ARGS) . || $(ABS_PRINT_error) "Errors found while analyzing cpp code"
+$(OBJDIR)/cppcheck.log: $(CPPCHECK_INCLUDES_FILE) $(CPPCHECK_SUPPRESS_FILE)
+	cppcheck --enable=all --includes-file=$< --suppressions-list=$(CPPCHECK_SUPPRESS_FILE) --output-file=$@ $(CPPCHECK_ARGS) . || $(ABS_PRINT_error) "Errors found while analyzing cpp code"
 
 
 ##  - cppcheck: launch cppcheck and generate report
