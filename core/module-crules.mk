@@ -282,3 +282,32 @@ clean-crule:
 	@rm -rf $(RES_HEADER) 
 
 clean:: clean-crule
+
+CPPCHECK_SUPPRESS_FILE=$(OBJDIR)/cppcheck_suppress.txt
+CPPCHECK_INCLUDES_FILE=$(OBJDIR)/cppcheck_includes.txt
+
+CPPCHECK_ARGS+=--inline-suppr --error-exitcode=1 --report-progress
+CPPCHECK_ARGS+=$(sort $(filter -D%,$(CXXFLAGS) $(CFLAGS)))
+
+$(CPPCHECK_INCLUDES_FILE):
+	@echo "$(ABSROOT)/core/include" > $@.tmp
+	@$(foreach mod,$(INCLUDE_PROJ_MODS) $(MODNAME),echo $(PRJROOT)/$(mod)/include >> $@.tmp;)
+	@find -L $(wildcard $(EXTLIBDIR) $(NA_EXTLIBDIR) $(NDEXTLIBDIR) $(NDNA_EXTLIBDIR)) -maxdepth 3 -name include -type d >> $@.tmp
+	@echo "/usr/include" >> $@.tmp
+	@mv $@.tmp $@
+	
+$(CPPCHECK_SUPPRESS_FILE):
+	@echo "*:/usr/include/*" > $@.tmp
+	@echo "*:$(PRJROOT)/build/extlib/*" >> $@.tmp
+	@echo "unmatchedSuppression" >> $@.tmp
+	@$(foreach mod,$(INCLUDE_PROJ_MODS),echo *:$(PRJROOT)/$(mod)/include/* >> $@.tmp;)
+	@mv $@.tmp $@
+
+.PHONY: $(OBJDIR)/cppcheck.log
+$(OBJDIR)/cppcheck.log: $(CPPCHECK_INCLUDES_FILE) $(CPPCHECK_SUPPRESS_FILE)
+	cppcheck --enable=all --includes-file=$< --suppressions-list=$(CPPCHECK_SUPPRESS_FILE) --output-file=$@ $(CPPCHECK_ARGS) src || $(ABS_PRINT_error) "Errors found while analyzing cpp code"
+
+
+##  - cppcheck: launch cppcheck and generate report
+cppcheck: $(OBJDIR)/cppcheck.log
+	@$(ABS_PRINT_info) "File $< generated"

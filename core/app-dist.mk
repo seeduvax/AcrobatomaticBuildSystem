@@ -54,7 +54,8 @@ EXPMOD_INCLUDES_DIR=$(wildcard $(patsubst %,%/include,$(EXPMOD)))
 
 ifneq ($(DIST_COMPILE_MODE),true)
 # include .distinfo.mk needed for import.mk generation
-include $(patsubst %,$(TRDIR)/obj/%/$(DISTINFO_FILENAME),$(DIST_MODS))
+# use wildcard because some files doesn't exists 
+include $(wildcard $(patsubst %,$(TRDIR)/obj/%/$(DISTINFO_FILENAME),$(DIST_MODS)))
 # get external libs now because need uselib information from .distinfo.mk
 $(eval $(call extlib_updates_deps))
 endif
