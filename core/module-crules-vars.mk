@@ -84,7 +84,7 @@ TARGET_LIB=$(SOPFX)$(TARGET_PARTNAME).$(SOEXT)
 TARGET_EXE=$(TARGET_PARTNAME)$(BINEXT)
 
 # Target definition
-ifeq ($(MODTYPE),library) 
+ifeq ($(MODTYPE),library)
 # target is a library
 # build a shared library
 # name of shared library file
@@ -161,7 +161,7 @@ RUNPATH:=$(TRDIR)/bin$(subst $(_space_),,$(patsubst %,:$(EXTLIBDIR)/%/bin,$(USEL
 
 LDRUNP?=$$ORIGIN/../lib
 
-## 
+##
 ## ---------------------------------------------------------------------
 ## Compilation flags by compilation modes
 ## ---------------------------------------------------------------------
@@ -204,8 +204,15 @@ endif
 TLDPRELOADFORMATTED=$(subst $(_space_),:,$(TLDPRELOAD))
 
 GEN_DEP_FLAGS=-MMD -MF $@.d
-EXTRA_CFLAGS=$(GEN_DEP_FLAGS)
-EXTRA_CXXFLAGS=$(GEN_DEP_FLAGS)
+PREPROC_FLAGS=
+ifeq ($(PREPROC_ONLY),true)
+# use for extra flags such as -P or -CC
+PREPROC_EXTRA_FLAGS?=
+PREPROC_FLAGS=-E $(PREPROC_EXTRA_FLAGS)
+endif
+
+EXTRA_CFLAGS=$(PREPROC_FLAGS) $(GEN_DEP_FLAGS)
+EXTRA_CXXFLAGS=$(PREPROC_FLAGS) $(GEN_DEP_FLAGS)
 
 ifneq ($(filter clang%,$(CC)),)
 EXTRA_CFLAGS+=-MJ $@.json
@@ -293,11 +300,16 @@ endef
 CRULES_VAR_LINKED_LIBS=$(sort $(filter -l%,$(LDFLAGS)))
 
 FULL_LDFLAGS=
-ifneq ($(MODTYPE),library) 
+ifneq ($(MODTYPE),library)
 # --rpath-link permit to the linker to find shared libraries (needed for cross compiler linker for exe generation).
 FULL_LDFLAGS+=$(patsubst -L%,-Wl$(_comma_)--rpath-link=%,$(sort $(filter -L%,$(LDFLAGS))))
 endif
 FULL_LDFLAGS+=$(LDFLAGS)
+
+define ld-command-preproc
+@mkdir -p $(TARGETDIR)
+@touch $@
+endef
 
 # on none Windows, add creation of static archive
 # for static lib, remove vinfo.o and rename lib.so -> lib.a
@@ -307,16 +319,23 @@ define ar-command-lib
 @mkdir -p $(TARGETDIR)
 @$(call executeAndLogCmd,LD_RUN_PATH='$(LDRUNP)' $(AR) rcs $@ $(OBJS_NO_VINFO))
 endef
+ifneq ($(PREPROC_ONLY),true)
 define ld-command-lib
 @$(ABS_PRINT_info) "Linking $@ ..."
 @mkdir -p $(TARGETDIR)
 @$(call writeToBuildLogs,$(MODNAME) linked to $(sort $(patsubst -l%,%,$(CRULES_VAR_LINKED_LIBS))))
 @$(call executeAndLogCmd,LD_RUN_PATH='$(LDRUNP)' LD_LIBRARY_PATH=$(LDLIBP) $(LD) -o $@ $(OBJS) $(FULL_LDFLAGS))
 endef
+else
+define ld-command-lib
+$(ld-comand-preproc)
+endef
+endif
 define ld-command-exe
 $(ld-command-lib)
 endef
 else #ifeq ($(ISWINDOWS),true)
+ifneq ($(PREPROC_ONLY),true)
 define ld-command-lib
 @$(ABS_PRINT_info) "Linking $@ ..."
 @mkdir -p $(TARGETDIR) $(CYGTARGETDIR)
@@ -328,4 +347,12 @@ define ld-command-exe
 @$(call writeToBuildLogs,$(MODNAME) linked to $(sort $(patsubst -l%,%,$(CRULES_VAR_LINKED_LIBS))))
 @$(call executeAndLogCmd,$(LD) -o $@ -Wl$(_comma_)--enable-auto-import $(OBJS) $(FULL_LDFLAGS))
 endef
+else
+define ld-command-lib
+$(ld-command-preproc)
+endef
+define ld-command-exe
+$(ld-command-preproc)
+endef
+endif
 endif # ifneq ($(ISWINDOWS),true)

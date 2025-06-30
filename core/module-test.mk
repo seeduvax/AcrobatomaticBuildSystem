@@ -1,10 +1,10 @@
-## 
+##
 ## --------------------------------------------------------------------
 ## C/C++ Unit test services
 ## ------------------------------------------------------------------------
-## 
+##
 ## Test services variables
-## 
+##
 ##  - CPPUNIT: cppunit version. Default is set accorging your gcc version
 ##    - 1.14.0 for gcc >= 6.0
 ##    - 1.12.1 for gcc < 6.0
@@ -13,7 +13,7 @@
 ##  - TCFLAGS: CFLAGS used for tests compilation
 ##  - TLDFLAGS: LDFLAGS used for tests linkage
 ##  - TDISABLE_SRC: List of files in test directory to not compile
-## 
+##
 ## ------------------------------------------------------------------------
 ifeq ($(filter %-win32 %-posix,$(CC_VERSION)),)
 CC_VERSION_GE6:=$(shell [ `echo "$(CC_VERSION)" | cut -f1 -d.` -ge 6 ] && echo true || echo false)
@@ -65,7 +65,7 @@ TCFLAGS+=$(patsubst %,-I$(PRJROOT)/%/include,$(patsubst $(APPNAME)_%,%,$(filter 
 
 # linker options specific to test
 TLDFLAGS+=-L$(TRDIR)/$(SODIR)
-TLDFLAGS+=$(patsubst %,-l%,$(call GetExistingModGeneratedSO,$(TESTUSEMOD))) 
+TLDFLAGS+=$(patsubst %,-l%,$(call GetExistingModGeneratedSO,$(TESTUSEMOD)))
 TLDFLAGS+=$(patsubst %,-l%,$(TLINKLIB))
 
 INCLUDE_TESTMODS_EXT=$(filter-out $(PROJECT_INC_MODS),$(sort $(T_ALL_DEPENDENCIES)))
@@ -138,10 +138,15 @@ ifeq ($(ISWINDOWS),true)
 	$(win-patch-dep)
 endif
 
+ifneq ($(PREPROC_ONLY),true)
 $(OBJDIR)/bintest/%.o: $(OBJDIR)/%.o
 	@$(ABS_PRINT_info) "Checking $(@F) symbols for Test Mode..."
 	@mkdir -p $(@D)
 	@$(call executeAndLogCmd,$(OBJCOPY) --redefine-sym main=__Exec_Main_Stubbed_for_unit_tests__ $< $@)
+else
+$(OBJDIR)/bintest/%.o: $(OBJDIR)/%.o
+	@-cp $< $@ 2> /dev/null
+endif
 
 ifneq ($(filter exe library,$(MODTYPE)),)
 TTARGETFILEDEP:=$(TARGETFILE)
@@ -150,6 +155,7 @@ endif
 # link main lib dependencies too (in case the main lib is not directly used.)
 TLDFLAGS_L=$(filter -l%,$(TLDFLAGS) $(LDFLAGS))
 
+ifneq ($(PREPROC_ONLY),true)
 ifneq ($(ISWINDOWS),true)
 define ld-test
 @$(ABS_PRINT_info) "Linking $@ ..."
@@ -161,6 +167,11 @@ define ld-test
 @$(ABS_PRINT_info) "Linking $(TCYGTARGET) ..."
 @$(call writeToBuildLogs,t_$(MODNAME) linked to $(sort $(patsubst -l%,%,$(TLDFLAGS_L))))
 @$(call executeAndLogCmd,$(LD) -shared -o $(TCYGTARGET) $(call getWindowsLibLDFlags,$@,$(TCPPOBJS)) $(LDFLAGS) $(TLDFLAGS))
+endef
+endif
+else
+define ld-test
+$(ld-command-preproc)
 endef
 endif
 
@@ -192,15 +203,15 @@ $(FILTERED_DIRECTORY)/%: test/%
 	@/bin/bash -c "echo \"Filtering $@ ...\"; $(call filterCmds, $@)"
 
 # ---------------------------------------------------------------------
-## 
+##
 ## Test targets:
-## 
+##
 ##  - testbuild: builds tests but do not run them.
 .PHONY:	testbuild
 testbuild::	$(TTARGETFILE) $(FILTERED_TEST_FILES_OUTPUT)
 
 define pre-test
-@( [ -d test ] && mkdir -p $(TTARGETDIR) ) || true 
+@( [ -d test ] && mkdir -p $(TTARGETDIR) ) || true
 @( [ -d test ] && rm -f $(TEST_REPORT_PATH) ) || true
 endef
 
@@ -220,12 +231,12 @@ endef
 endif
 
 define post-test
-@( [ -d test -a ! -r $(TEST_REPORT_PATH) ] && $(ABS_PRINT_error) "no test report, test runner exited abnormally." ) || true 
+@( [ -d test -a ! -r $(TEST_REPORT_PATH) ] && $(ABS_PRINT_error) "no test report, test runner exited abnormally." ) || true
 @( [ -d test -a -r $(TEST_REPORT_PATH) ] && xsltproc $(ABSROOT)/core/$(TXTXSL) $(TEST_REPORT_PATH) ) || true
 @if [ -d test ]; then [ -s $(TEST_REPORT_PATH) ]; else true; fi
 endef
 
-define run-test 
+define run-test
 $(pre-test)
 $(exec-test)
 $(post-test)
@@ -329,14 +340,14 @@ export gen_vsdebugtest
 
 ##  - vsdebugtest: print unit tests setup for vscode
 .PHONY:	vsdebugtest
-vsdebugtest:	
+vsdebugtest:
 	@echo "**** vscode launch configuration: .vscode/launch.json ****"
 	@echo "$$gen_vsdebugtest"
 
 
 ##  - edebugtest: print unit tests setup for eclipse
 .PHONY:	edebugtest
-edebugtest:	
+edebugtest:
 	@echo "**** Eclipse debugger setup for tests : ****"
 	@echo
 	@printf "Application:\t\t"
