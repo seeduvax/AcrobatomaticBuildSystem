@@ -44,38 +44,28 @@ include $(ABSROOT)/core/main.mk
 # Default and minimal rule download files from repository
 # May be overloaded by dependencies download rules for more features
 ifeq ($(ABS_DEPDOWNLOAD_RULE_OVERLOADED),)
-ABS_REPO_1ST=$(word 1,$(ABS_REPO))
-ifeq ($(findstring %,$(ABS_REPO_1ST)),)
-ABS_REPO_PATTERN_1ST:=$(ABS_REPO_1ST)/$(ARCH)/%
-ABS_REPO_NA_PATTERN_1ST:=$(ABS_REPO_1ST)/noarch/%
-else
-$(eval ABS_REPO_PATTERN_1ST:=$(ABS_REPO_1ST))
-$(eval ABS_REPO_NA_PATTERN_1ST:=$(subst $$(ARCH),noarch,$(ABS_REPO_1ST)))
-endif
+ABS_REPO_TEMPLATE=$(foreach entry, $(ABS_REPO),$(if $(findstring {,$(entry)),$(entry),$(entry)/{arch}/{name}-{version}.{arch}{ext} $(entry)/{arch}/{name}/{name}-{version}.{arch}{ext} $(entry)/noarch/{name}-{version}{ext}))
+# CAUTION: empty line before endef into the next 3 macro define is needed
+define GetFileWget
+	@test -f $2 || ( echo "Downloading $1..." ; wget -q $(WGETFLAGS) $1 -O $2 || rm -f $2 )
 
-$(ABS_CACHE)/noarch/%:
-	@mkdir -p $(@D)
-ifeq ($(findstring file://,$(ABS_REPO_NA_PATTERN_1ST)),file://)
-	@test -r $(patsubst file://%,%,$(patsubst %,$(ABS_REPO_NA_PATTERN_1ST),$(@F))) || exit 1
-	@echo "Linking $(@F) from $(ABS_REPO_NA_PATTERN_1ST)"
-	@ln -sf $(patsubst file://%,%,$(patsubst %,$(ABS_REPO_NA_PATTERN_1ST),$(@F))) $@
-else
-	@echo "Fetching $(@F) from $(ABS_REPO_NA_PATTERN_1ST)"
-	@wget -q $(WGETFLAGS) $(patsubst %,$(ABS_REPO_NA_PATTERN_1ST),$(@F)) -O $@.tmp
-	@mv $@.tmp $@
-endif
+endef
+define GetFileScp
+	@test -f $2 || ( echo "Downloading $1..." ; scp $(SCPFLAGS) $(patsubst scp:%,%,$1) $2 || : )
 
-$(ABS_CACHE)/%:
+endef
+define GetFileLink
+	@test -f $2 || ( echo "Linking $1..." ; ln -sf $(patsubst file://%,%,$1) $2 ; test -r $2 || rm -f $2 )
+
+endef
+define downloadFromURLs
+$(foreach entry,$2,$(if $(filter file://%,$(entry),),$(call GetFileLink,$(entry),$1))$(if $(filter scp:%,$(entry),),$(call GetFileScp,$(entry),$1))$(if $(filter-out file://% scp:%,$(entry)),$(call GetFileWget,$(entry),$1)))
+endef
+
+$(ABS_CACHE)/noarch/abs.%-$(VABS).tar.gz:
 	@mkdir -p $(@D)
-ifeq ($(findstring file://,$(ABS_REPO_PATTERN_1ST)),file://)
-	@test -r $(patsubst file://%,%,$(patsubst %,$(ABS_REPO_PATTERN_1ST),$(@F))) || exit 1
-	@echo "Linking $(@F) from $(ABS_REPO_PATTERN_1ST)"
-	@ln -sf $(patsubst file://%,%,$(patsubst %,$(ABS_REPO_PATTERN_1ST),$(@F))) $@
-else
-	@echo "Fetching $(@F) from $(ABS_REPO_PATTERN_1ST)"
-	@wget -q $(WGETFLAGS) $(patsubst %,$(ABS_REPO_PATTERN_1ST),$(@F)) -O $@.tmp
-	@mv $@.tmp $@
-endif
+	$(call downloadFromURLs,$@,$(subst {name},abs.core,$(subst {version},$(VABS),$(subst {ext},.tar.gz,$(subst {arch},noarch,$(ABS_REPO_TEMPLATE))))))
+	@test -f $@
 
 endif
 

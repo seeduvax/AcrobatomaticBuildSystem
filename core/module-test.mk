@@ -18,10 +18,10 @@
 ifeq ($(filter %-win32 %-posix,$(CC_VERSION)),)
 CC_VERSION_GE6:=$(shell [ `echo "$(CC_VERSION)" | cut -f1 -d.` -ge 6 ] && echo true || echo false)
 ifeq ($(CC_VERSION_GE6),false)
-CPPUNIT?=cppunit-1.12.1
+CPPUNIT?=cppunit|1.12.1
 endif
 endif
-CPPUNIT?=cppunit-1.14.0
+CPPUNIT?=cppunit|1.14.0
 
 TESTRUNNER=ctrunner$(BINEXT)
 TXTXSL=xunit2txt.xsl
@@ -33,7 +33,7 @@ else
 TIMEOUTCMD:=timeout $(TIMEOUT)
 endif
 
-CPPUNIT_DIR=$(NDEXTLIBDIR)/$(CPPUNIT)
+CPPUNIT_DIR=$(NDEXTLIBDIR)/$(word 1,$(subst |, ,$(CPPUNIT)))/$(word 2,$(subst |, ,$(CPPUNIT)))
 TCFLAGS+=-I$(CPPUNIT_DIR)/include
 TLDFLAGS+=-L$(CPPUNIT_DIR)/$(SODIR)
 TLINKLIB+=cppunit

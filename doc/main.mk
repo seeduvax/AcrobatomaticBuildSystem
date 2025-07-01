@@ -24,9 +24,9 @@ HEMLARGS:=-param app $(APPNAME) -param version $(VERSION) -param date "`date --r
 
 PUMLVERSION?=1.2021.6
 LUAJVERSION?=3.0.1
-PUMLJAR?=$(NDNA_EXTLIBDIR)/plantuml.$(PUMLVERSION).jar
-LUAJJAR?=$(NDNA_EXTLIBDIR)/luaj-jse-$(LUAJVERSION).jar
-HEMLJAR?=$(NDNA_EXTLIBDIR)/heml-$(HEMLVERSION).jar
+PUMLJAR?=$(NDNA_EXTLIBDIR)/plantuml/$(PUMLVERSION)/pck.jar
+LUAJJAR?=$(NDNA_EXTLIBDIR)/luaj-jse/$(LUAJVERSION)/pck.jar
+HEMLJAR?=$(NDNA_EXTLIBDIR)/heml/$(HEMLVERSION)/pck.jar
 HEMLCMD?=$(JAVACMD) -jar $(call absGetPath,$(HEMLJAR))
 PUMLCMD?=$(JAVACMD) -jar $(call absGetPath,$(PUMLJAR))
 

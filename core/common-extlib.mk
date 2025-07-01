@@ -2,8 +2,6 @@
 ## ------------------------------------------------------------------------
 ## Dependencies management
 ## ------------------------------------------------------------------------
-# replace the | by - in libs specifications.
-USELIB_FOR_PATH=$(subst |,-,$(USELIB))
 
 # MAP to get version of lib with | separator.
 # This permit to correctly identify version even if lib have a '-' in its name
@@ -24,32 +22,13 @@ endef
 define getLibNameFromVersioned
 $(if $(findstring |,$1),$(word 1,$(subst |, ,$1)),$(word 1,$(subst -, ,$1)))
 endef
-
-# macro to get the lib name from lib with version.
-# This macro use libs in list to get the real name of lib
-#  if the list contains the lib with '|'
-# 1: the name of lib with version
-# 2: the list of libs
-define findLibNameFromVersioned
-$(call getLibNameFromVersioned,$(call getLibWithBar,$1,$2))
+# macro to get the lib version from <libname>-<version> or <libname>|<version>
+# 1: the name of lib with version.
+define getLibVersionFromVersioned
+$(if $(findstring |,$1),$(word 2,$(subst |, ,$1)),$(subst $(word 1,$(subst -, ,$1))-,,$1))
 endef
 
-# macro to get lib from the name of the archive
-# 1: archive name (ex: cppunit-1.14.0.$(ARCH).tar.gz)
-# return the name of lib (ex: cppunit-1.14.0)
-define getLibFromArchiveName
-$(strip $(patsubst %.$(ARCH).tar.gz,%,$(filter %.$(ARCH).tar.gz,$1))\
-$(patsubst %.noarch.tar.gz,%,$(filter %.noarch.tar.gz,$1)))
-endef
-
-# macro to get lib name from the name of the archive
-# 1: archive name (ex: cppunit-1.14.0.$(ARCH).tar.gz)
-# 2: list of libs
-define getLibNameFromArchiveName
-$(call findLibNameFromVersioned,$(call getLibFromArchiveName,$1),$2)
-endef
-
-# mecro to get the list from a list using its name.
+# macro to get the list from a list using its name.
 # 1: name of the lib
 # 2: list of libs
 define getLibWithLibName
@@ -138,7 +117,7 @@ ABS_DEPDOWNLOAD_RULE_OVERLOADED:=1
 .PRECIOUS: $(ABSWS_EXTLIBDIR)/%/import.mk $(ABSWS_NDEXTLIBDIR)/%/import.mk $(ABSWS_NA_EXTLIBDIR)/%/import.mk $(ABSWS_NDNA_EXTLIBDIR)/%/import.mk
 
 
-ABS_REPO_TEMPLATE=$(foreach entry, $(ABS_REPO),$(if $(findstring {,$(entry)),$(entry),$(entry)/{arch}/{name}-{version}.{arch}{ext} $(entry)/{arch}/{name}/{name}-{version}.{arch}{ext} $(entry)/noarch/{name}-{version}{ext}))
+ABS_REPO_TEMPLATE=$(foreach entry, $(ABS_REPO),$(if $(findstring {,$(entry)),$(entry),$(entry)/{arch}/{name}-{version}.{arch}.{ext} $(entry)/{arch}/{name}/{name}-{version}.{arch}.{ext} $(entry)/noarch/{name}-{version}.{ext}))
 
 # fetch package with wget (any URL kind that wget can handle)
 # $1 URL to download from
@@ -182,13 +161,13 @@ endef
 
 
 # Get URL list related to a package
-# $1 package file name. expected format is <name>-<version>.<arch>.<ext>
+# $1 package file name. expected format is <name>/<version>/pck.<ext>
 define GetDownloadURLs
-$(call SubstituteRepoTemplate,$(word 1,$(subst -, ,$1)),$(subst $(word 1,$(subst -, ,$1))-,,$(word 1,$(subst .$(ARCH), ,$1))),$(ARCH),.$(word 2,$(subst $(ARCH)., ,$1)))
+$(call SubstituteRepoTemplate,$(word 1,$(subst /, ,$1)),$(word 2,$(subst /, ,$1)),$(ARCH),$(subst pck.,,$(word 3,$(subst /, ,$1))))
 endef
 
 define GetNoarchDownloadURLs
-$(call SubstituteRepoTemplate,$(word 1,$(subst -, ,$1)),$(subst $(word 1,$(subst -, ,$1))-,,$(word 1,$(subst .$(ARCH), ,$1))),noarch,)
+$(call SubstituteRepoTemplate,$(word 1,$(subst /, ,$1)),$(word 2,$(subst /, ,$1)),noarch,$(subst pck.,,$(word 3,$(subst /, ,$1))))
 endef
 
 # Get URL list related to a raw package package file name
@@ -200,15 +179,14 @@ endef
 $(ABS_CACHE)/noarch/%:
 	@mkdir -p $(@D)
 	@$(ABS_PRINT_info) "Fetching NA $@..."
-	$(call downloadFromURLs,$@,$(call GetNoarchDownloadURLs,$(@F)))
+	$(call downloadFromURLs,$@,$(call GetNoarchDownloadURLs,$(subst $(ABS_CACHE)/noarch/,,$@)))
 	@test -f $@
 
 
 $(ABS_CACHE)/%:
 	@mkdir -p $(@D)
 	@$(ABS_PRINT_info) "Fetching $@..."
-	@$(ABS_PRINT_debug) "Debug on."
-	$(call downloadFromURLs,$@,$(call GetDownloadURLs,$(@F)))
+	$(call downloadFromURLs,$@,$(call GetDownloadURLs,$(subst $(ABS_CACHE)/$(ARCH)/,,$@)))
 	@test -f $@
 
 # extract import.mk at the end to be sure the extraction is complete.
@@ -217,26 +195,25 @@ define unpackArchive
 	@$(ABS_PRINT_debug) "$<"
 	@$(if $(wildcard $(@D)),chmod -R u+w $(@D) && rm -rf $(@D))
 	@mkdir -p $(@D)
-	@tar --exclude=$*/import.mk -xmzf $< -C $1
-	@tar -xmzf $< -C $(1) $*/import.mk
+	@tar -xmzf $< -C $(@D) --strip-components=1
 	@$(if $(filter 1 true,$(EXTLIBDIR_READONLY)),chmod -R a-w $(@D))
 	@touch $@
 endef
 
 # unpack arch specific external lib
-$(ABSWS_EXTLIBDIR)/%/import.mk: $(ABS_CACHE)/$(ARCH)/%.$(ARCH).tar.gz
+$(ABSWS_EXTLIBDIR)/%/import.mk: $(ABS_CACHE)/$(ARCH)/%/pck.tar.gz
 	$(call unpackArchive,$(ABSWS_EXTLIBDIR))
 
 # unpack external lib that should not be forwarded to dist package
-$(ABSWS_NDEXTLIBDIR)/%/import.mk: $(ABS_CACHE)/$(ARCH)/%.$(ARCH).tar.gz
+$(ABSWS_NDEXTLIBDIR)/%/import.mk: $(ABS_CACHE)/$(ARCH)/%/pck.tar.gz
 	$(call unpackArchive,$(ABSWS_NDEXTLIBDIR))
 
 # unpack no arch external lib
-$(ABSWS_NA_EXTLIBDIR)/%/import.mk: $(ABS_CACHE)/noarch/%.tar.gz
+$(ABSWS_NA_EXTLIBDIR)/%/import.mk: $(ABS_CACHE)/noarch/%/pck.tar.gz
 	$(call unpackArchive,$(ABSWS_NA_EXTLIBDIR))
 
 # unpack no arch external lib that should not be forwarded to dist package
-$(ABSWS_NDNA_EXTLIBDIR)/%/import.mk: $(ABS_CACHE)/noarch/%.tar.gz
+$(ABSWS_NDNA_EXTLIBDIR)/%/import.mk: $(ABS_CACHE)/noarch/%/pck.tar.gz
 	$(call unpackArchive,$(ABSWS_NDNA_EXTLIBDIR))
 
 
@@ -316,7 +293,7 @@ $(NDNA_EXTLIBDIR)/%/.dir: $(ABSWS_NDNA_EXTLIBDIR)/%/.dir
 	$(call extlib_linkLibrary)
 
 ifneq ($(BUILDCHAIN),)
-USELIB+=runtime-$(BUILDCHAIN)
+USELIB+=runtime|$(BUILDCHAIN)
 endif
 
 # USELIB / NDUSELIB from modules. (needed for dist)
@@ -382,7 +359,7 @@ endef
 # $5 variable to use to store libs
 define extlib_import2
 $(foreach lib,$3,$(call extlib_import3,$(lib),$1-$2,$4,$5))
-$(eval _app_$1_dir:=$4/$1-$2)
+$(eval _app_$1_dir:=$4/$1/$2)
 $(eval _app_$1_depends+=$(foreach lib,$3,$(call getLibNameFromVersioned,$(lib))))
 $(eval ALL_LIBS_LOADED+=$1)
 endef
@@ -408,15 +385,17 @@ $$(NA_EXTLIBDIR)/%.jar: $$(EXTLIBDIR)/$1-$2/lib/%.jar
 	@mkdir -p $$(@D)
 	@$$(LNFILE) $$< $$@
 endef
+
 # list of import makefile from external libraries declared in module
 # configuration only if not requesting clean or cleanabs target. In this case,
 # we don't care importing the dependencies.
 ifeq ($(filter clean% purgeabs docker% tag,$(MAKECMDGOALS)),)
+EXTLIBMAKES= \
+	$(foreach entry,$(sort $(USELIB) $(MODS_USELIBS)),$(EXTLIBDIR)/$(call getLibNameFromVersioned,$(entry))/$(call getLibVersionFromVersioned,$(entry))/import.mk) \
+	$(foreach entry,$(sort $(NDUSELIB) $(MODS_NDUSELIBS)),$(NDEXTLIBDIR)/$(call getLibNameFromVersioned,$(entry))/$(call getLibVersionFromVersioned,$(entry))/import.mk) \
+	$(foreach entry,$(sort $(NDNA_USELIB)),$(NDNA_EXTLIBDIR)/$(call getLibNameFromVersioned,$(entry))/$(call getLibVersionFromVersioned,$(entry))/import.mk) \
+	$(foreach entry,$(sort $(NA_USELIB)),$(NA_EXTLIBDIR)/$(call getLibNameFromVersioned,$(entry))/$(call getLibVersionFromVersioned,$(entry))/import.mk)
 
-EXTLIBMAKES=$(patsubst %,$(EXTLIBDIR)/%/import.mk,$(subst |,-,$(sort $(USELIB) $(MODS_USELIBS)))) \
-	$(patsubst %,$(NDEXTLIBDIR)/%/import.mk,$(subst |,-,$(sort $(NDUSELIB) $(MODS_NDUSELIBS)))) \
-	$(patsubst %,$(NDNA_EXTLIBDIR)/%/import.mk,$(subst |,-,$(sort $(NDNA_USELIB)))) \
-	$(patsubst %,$(NA_EXTLIBDIR)/%/import.mk,$(subst |,-,$(sort $(NA_USELIB))))
 
 DEFAULT_EXTLIBMAKES:=$(EXTLIBMAKES)
 
