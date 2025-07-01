@@ -44,7 +44,8 @@ include $(ABSROOT)/core/main.mk
 # Default and minimal rule download files from repository
 # May be overloaded by dependencies download rules for more features
 ifeq ($(ABS_DEPDOWNLOAD_RULE_OVERLOADED),)
-ABS_REPO_TEMPLATE=$(foreach entry, $(ABS_REPO),$(if $(findstring {,$(entry)),$(entry),$(entry)/{arch}/{name}-{version}.{arch}{ext} $(entry)/{arch}/{name}/{name}-{version}.{arch}{ext} $(entry)/noarch/{name}-{version}{ext}))
+OPEN_BRACE:={
+ABS_REPO_TEMPLATE=$(foreach entry, $(ABS_REPO),$(if $(findstring $(OPEN_BRACE),$(entry)),$(entry),$(entry)/{arch}/{name}-{version}.{arch}{ext} $(entry)/{arch}/{name}/{name}-{version}.{arch}{ext} $(entry)/noarch/{name}-{version}{ext}))
 # CAUTION: empty line before endef into the next 3 macro define is needed
 define GetFileWget
 	@test -f $2 || ( echo "Downloading $1..." ; wget -q $(WGETFLAGS) $1 -O $2 || rm -f $2 )
