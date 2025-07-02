@@ -117,7 +117,7 @@ ABS_DEPDOWNLOAD_RULE_OVERLOADED:=1
 .PRECIOUS: $(ABSWS_EXTLIBDIR)/%/import.mk $(ABSWS_NDEXTLIBDIR)/%/import.mk $(ABSWS_NA_EXTLIBDIR)/%/import.mk $(ABSWS_NDNA_EXTLIBDIR)/%/import.mk
 
 OPEN_BRACE:={
-ABS_REPO_TEMPLATE=$(foreach entry, $(ABS_REPO),$(if $(findstring $(OPEN_BRACE),$(entry)),$(entry),$(entry)/{arch}/{name}-{version}.{arch}.{ext} $(entry)/{arch}/{name}/{name}-{version}.{arch}.{ext} $(entry)/noarch/{name}-{version}.{ext}))
+ABS_REPO_TEMPLATE=$(foreach entry, $(ABS_REPO),$(if $(findstring $(OPEN_BRACE),$(entry)),$(entry),$(entry)/{arch}/{name}-{version}.{arch}{ext} $(entry)/{arch}/{name}/{name}-{version}.{arch}{ext} $(entry)/noarch/{name}-{version}{ext}))
 
 # fetch package with wget (any URL kind that wget can handle)
 # Caution: empty line at end of macro def is required for proper commands
@@ -154,7 +154,8 @@ endef
 # $2 list of URL to try to get the package.
 define downloadFromURLs
 $(foreach entry,$2,$(if $(filter file://%,$(entry),),$(call linkFromFileUrlTo,$(entry),$1))$(if $(filter scp:%,$(entry),),$(call scpFromFileUrlTo,$(entry),$1))$(if $(filter-out file://% scp:%,$(entry)),$(call downloadFromUrlTo,$(entry),$1)))
-	test -f $1 || ($(ABS_PRINT_error) "Cannot get library $1"; $(foreach entry,$2,$(ABS_PRINT_warning) "   tried $(entry)";) )
+
+@test -f $1 || ($(ABS_PRINT_error) "Cannot get library $1"; $(foreach entry,$2,$(ABS_PRINT_warning) "   tried $(entry)";) )
 endef
 
 # Get list of concrete URL for each ABS repo pattern and package attributes
@@ -166,15 +167,31 @@ define SubstituteRepoTemplate
 $(subst {name},$1,$(subst {version},$2,$(subst {arch},$3,$(subst {ext},$4,$(ABS_REPO_TEMPLATE)))))
 endef
 
+# Get the path to the external directory for a specified library
+# $1: root path of extlib dir ($(EXTLIBDIR), ...)
+# $2: library with version (ex: cppunit|1.14.0)
+define GetExtLibDir
+$1/$(call getLibNameFromVersioned,$2)/$(call getLibVersionFromVersioned,$2)
+endef
+
+# Get the path to the external directory for a specified library
+# $1: root path of extlib dir ($(EXTLIBDIR), ...)
+# $2: library with version (ex: cppunit|1.14.0)
+# $3: extension
+define GetExtLibFile
+$(call GetExtLibDir,$1,$2)/pck.$3
+endef
+
 
 # Get URL list related to a package
 # $1 package file name. expected format is <name>/<version>/pck.<ext>
 define GetDownloadURLs
-$(call SubstituteRepoTemplate,$(word 1,$(subst /, ,$1)),$(word 2,$(subst /, ,$1)),$(ARCH),$(subst pck.,,$(word 3,$(subst /, ,$1))))
+$(call SubstituteRepoTemplate,$(word 1,$(subst /, ,$1)),$(word 2,$(subst /, ,$1)),$(ARCH),$(subst pck,,$(word 3,$(subst /, ,$1)))) \
+$(call SubstituteRepoTemplate,$(word 1,$(subst /, ,$1)),$(word 2,$(subst /, ,$1)),noarch,$(subst pck,,$(word 3,$(subst /, ,$1))))
 endef
 
 define GetNoarchDownloadURLs
-$(call SubstituteRepoTemplate,$(word 1,$(subst /, ,$1)),$(word 2,$(subst /, ,$1)),noarch,$(subst pck.,,$(word 3,$(subst /, ,$1))))
+$(call SubstituteRepoTemplate,$(word 1,$(subst /, ,$1)),$(word 2,$(subst /, ,$1)),noarch,$(subst pck,,$(word 3,$(subst /, ,$1))))
 endef
 
 # Get URL list related to a raw package package file name
@@ -322,7 +339,7 @@ DEV_USELIB=$(filter-out $(DEV_USELIB_IGNORE),$(filter %d,$(ALLUSELIB)))
 # $3 variable to use to store libs
 define extlib_import_include
 $(eval $3+=$1)
-$(patsubst %,$2/%/import.mk,$(subst |,-,$1))
+$(call GetExtLibDir,$2,$1)/import.mk
 endef
 
 # macro to include lib
@@ -398,11 +415,11 @@ endef
 # we don't care importing the dependencies.
 ifeq ($(filter clean% purgeabs docker% tag,$(MAKECMDGOALS)),)
 EXTLIBMAKES= \
-	$(foreach entry,$(sort $(USELIB) $(MODS_USELIBS)),$(EXTLIBDIR)/$(call getLibNameFromVersioned,$(entry))/$(call getLibVersionFromVersioned,$(entry))/import.mk) \
-	$(foreach entry,$(sort $(NDUSELIB) $(MODS_NDUSELIBS)),$(NDEXTLIBDIR)/$(call getLibNameFromVersioned,$(entry))/$(call getLibVersionFromVersioned,$(entry))/import.mk) \
-	$(foreach entry,$(sort $(NDNA_USELIB)),$(NDNA_EXTLIBDIR)/$(call getLibNameFromVersioned,$(entry))/$(call getLibVersionFromVersioned,$(entry))/import.mk) \
-	$(foreach entry,$(sort $(NA_USELIB)),$(NA_EXTLIBDIR)/$(call getLibNameFromVersioned,$(entry))/$(call getLibVersionFromVersioned,$(entry))/import.mk)
-
+	$(foreach entry,$(sort $(USELIB) $(MODS_USELIBS)),$(call GetExtLibDir,$(EXTLIBDIR),$(entry))/import.mk) \
+	$(foreach entry,$(sort $(NDUSELIB) $(MODS_NDUSELIBS)),$(call GetExtLibDir,$(NDEXTLIBDIR),$(entry))/import.mk) \
+	$(foreach entry,$(sort $(NDNA_USELIB)),$(call GetExtLibDir,$(NDNA_EXTLIBDIR),$(entry))/import.mk) \
+	$(foreach entry,$(sort $(NA_USELIB)),$(call GetExtLibDir,$(NA_EXTLIBDIR),$(entry))/import.mk)
+	
 
 DEFAULT_EXTLIBMAKES:=$(EXTLIBMAKES)
 

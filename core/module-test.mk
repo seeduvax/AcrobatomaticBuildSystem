@@ -33,7 +33,7 @@ else
 TIMEOUTCMD:=timeout $(TIMEOUT)
 endif
 
-CPPUNIT_DIR=$(NDEXTLIBDIR)/$(word 1,$(subst |, ,$(CPPUNIT)))/$(word 2,$(subst |, ,$(CPPUNIT)))
+CPPUNIT_DIR=$(call GetExtLibDir,$(NDEXTLIBDIR),$(CPPUNIT))
 TCFLAGS+=-I$(CPPUNIT_DIR)/include
 TLDFLAGS+=-L$(CPPUNIT_DIR)/$(SODIR)
 TLINKLIB+=cppunit

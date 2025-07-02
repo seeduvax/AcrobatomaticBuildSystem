@@ -8,6 +8,10 @@
 ##  - TARGS: run only test class with name containing the string given with this variable.
 JUNIT?=junit-4.8.2
 JUNITXML?=junitXmlFormatter-0.0
+
+JUNIT_EXTLIB_FILE=$(call GetExtLibFile,$(NA_EXTLIBDIR),$(JUNIT),jar)
+JUNITXML_EXTLIB_FILE=$(call GetExtLibFile,$(NA_EXTLIBDIR),$(JUNITXML),jar)
+
 TXTXSL=xunit2txt.xsl
 TESTCLASSFILES=$(patsubst %.java,$(OBJDIR)/%.class,$(shell find test -name "Test*.java" 2>/dev/null))
 TESTCLASSES:=$(subst /,.,$(patsubst $(OBJDIR)/test/%.class,test/%,$(TESTCLASSFILES)))
@@ -18,10 +22,10 @@ ifneq ($(TARGS),)
   TESTCLASSES:=$(foreach tc,$(TESTCLASSES),$(if $(findstring $(filter-out +f,$(TARGS)),$(tc)),$(tc),))
 endif
 ifeq ($(ISWINDOWS),true)
-TESTCLASSPATH=$(shell cygpath -mp '$(OBJDIR):$(JARIMGDIR):$(NA_EXTLIBDIR)/$(JUNIT).jar:$(NA_EXTLIBDIR)/$(JUNITXML).jar');$(CLASSPATH)
+TESTCLASSPATH=$(shell cygpath -mp '$(OBJDIR):$(JARIMGDIR):$(JUNIT_EXTLIB_FILE):$(JUNITXML_EXTLIB_FILE)');$(CLASSPATH)
 JUFLAGS=-classpath "$(TESTCLASSPATH)" -d "$(shell cygpath -m '$(OBJDIR)')" -sourcepath "$(shell cygpath -mp '.:src:$(OBJDIR)')"
 else
-TESTCLASSPATH=$(OBJDIR):$(JARIMGDIR):$(NA_EXTLIBDIR)/$(JUNIT).jar:$(NA_EXTLIBDIR)/$(JUNITXML).jar:$(CLASSPATH)
+TESTCLASSPATH=$(OBJDIR):$(JARIMGDIR):$(JUNIT_EXTLIB_FILE):$(JUNITXML_EXTLIB_FILE):$(CLASSPATH)
 JUFLAGS=-classpath "$(TESTCLASSPATH)" -d $(OBJDIR) -sourcepath ".:src:$(OBJDIR)"
 endif
 
@@ -37,7 +41,7 @@ $(OBJDIR)/test/%.class: src/test/%.java
 	@$(call writeToBuildLogs,$(JC) $(JUFLAGS) $<)
 	@$(JC) $(JUFLAGS) $< || ( echo 'Failed: JUFLAGS=$(JUFLAGS)' ; exit 1 )
 
-$(TESTCLASSFILES): $(NA_EXTLIBDIR)/$(JUNITXML).jar $(NA_EXTLIBDIR)/$(JUNIT).jar $(TARGETFILE)
+$(TESTCLASSFILES): $(JUNIT_EXTLIB_FILE) $(JUNITXML_EXTLIB_FILE) $(TARGETFILE)
 
 ## 
 ## Targets:
