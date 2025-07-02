@@ -117,7 +117,7 @@ ABS_DEPDOWNLOAD_RULE_OVERLOADED:=1
 .PRECIOUS: $(ABSWS_EXTLIBDIR)/%/import.mk $(ABSWS_NDEXTLIBDIR)/%/import.mk $(ABSWS_NA_EXTLIBDIR)/%/import.mk $(ABSWS_NDNA_EXTLIBDIR)/%/import.mk
 
 OPEN_BRACE:={
-ABS_REPO_TEMPLATE=$(foreach entry, $(ABS_REPO),$(if $(findstring $(OPEN_BRACE),$(entry)),$(entry),$(entry)/{arch}/{name}-{version}.{arch}.{ext} $(entry)/{arch}/{name}/{name}-{version}.{arch}.{ext} $(entry)/noarch/{name}-{version}.{ext}))
+ABS_REPO_TEMPLATE=$(foreach entry, $(ABS_REPO),$(if $(findstring $(OPEN_BRACE),$(entry)),$(entry),$(entry)/{arch}/{name}-{version}.{arch}.{ext} $(entry)/{arch}/{name}/{name}-{version}.{arch}.{ext} $(entry)/noarch/{name}-{version}.{ext} $(entry)/noarch/{name}-{version}.noarch.{ext}))
 
 # fetch package with wget (any URL kind that wget can handle)
 # Caution: empty line at end of macro def is required for proper commands
@@ -187,7 +187,6 @@ endef
 # $1 package file name. expected format is <name>/<version>/pck.<ext>
 define GetDownloadURLs
 $(call SubstituteRepoTemplate,$(word 1,$(subst /, ,$1)),$(word 2,$(subst /, ,$1)),$(ARCH),$(subst pck.,,$(word 3,$(subst /, ,$1))))
-$(call SubstituteRepoTemplate,$(word 1,$(subst /, ,$1)),$(word 2,$(subst /, ,$1)),noarch,$(subst pck.,,$(word 3,$(subst /, ,$1))))
 endef
 
 define GetNoarchDownloadURLs
@@ -289,13 +288,19 @@ $(NDNA_EXTLIBDIR)/%/import.mk: $(ABSWS_NDNA_EXTLIBDIR)/%/import.mk
 	$(call extlib_linkLibrary)
 
 # same for java libraries
+# caution: current way of linking jars is not accurate, TODO find a way to
+#          retrieve the file name it has on the repository where it is found.
 $(NA_EXTLIBDIR)/%.jar: $(ABS_CACHE)/noarch/%.jar
+	$(eval _local_target_spec:=$(subst /, ,$(patsubst $(ABS_CACHE)/noarch/%.jar,%,$<)))
 	@mkdir -p $(@D)
-	@$(LNFILE) $< $@
+	@cp $< $(NA_EXTLIBDIR)/$(word 1,$(_local_target_spec))-$(word 2,$(_local_target_spec)).jar
+	@date > $@
 
 $(NDNA_EXTLIBDIR)/%.jar: $(ABS_CACHE)/noarch/%.jar
+	$(eval _local_target_spec:=$(subst /, ,$(patsubst $(ABS_CACHE)/noarch/%.jar,%,$<)))
 	@mkdir -p $(@D)
-	@$(LNFILE) $< $@
+	@cp $< $(NDNA_EXTLIBDIR)/$(word 1,$(_local_target_spec))-$(word 2,$(_local_target_spec)).jar
+	@date > $@
 
 # --------------------------------------------------------------------
 # general purpose noarch file sets

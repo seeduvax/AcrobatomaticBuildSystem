@@ -44,6 +44,7 @@ JGENSRCDIR:=$(OBJDIR)/gjava
 
 # Java default settings
 JARLIBS:=$(patsubst %,$(NA_EXTLIBDIR)/%.jar,$(USEJAR))
+JARDEPS:=$(foreach entry,$(USEJAR),$(call GetExtLibFile,$(NA_EXTLIBDIR),$(entry),jar))
 JCLASSES:=$(patsubst src/%.java,$(JARIMGDIR)/%.class,$(filter %.java, $(SRCFILES)))
 CLASSPATH:=$(subst $(_space_),:,$(JARLIBS)):$(patsubst $(TARGETDIR)/$(DOMAIN).$(APPNAME).$(APPNAME).%,$(TARGETDIR)/$(DOMAIN).$(APPNAME).%,$(patsubst %,$(TARGETDIR)/$(DOMAIN).$(APPNAME).%-$(VERSION).jar,$(USEJMOD)))
 ifeq ($(ISWINDOWS),true)
@@ -82,7 +83,7 @@ $(JARIMGDIR)/%: src/%
 # external dependancies and module dependancies.
 .PRECIOUS: $(JARLIBS)
 
-$(JCLASSES): $(JARLIBS) $(patsubst %,$(TARGETDIR)/$(DOMAIN).$(APPNAME).%-$(VERSION).jar,$(USEJMOD))
+$(JCLASSES): $(JARDEPS) $(patsubst %,$(TARGETDIR)/$(DOMAIN).$(APPNAME).%-$(VERSION).jar,$(USEJMOD))
 
 $(OBJDIR)/$(MODNAME).Manifest: $(JCLASSES)
 	@$(ABS_PRINT_info) "Creating manifest file..."

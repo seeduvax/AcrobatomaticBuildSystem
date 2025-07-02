@@ -22,10 +22,10 @@ ifneq ($(TARGS),)
   TESTCLASSES:=$(foreach tc,$(TESTCLASSES),$(if $(findstring $(filter-out +f,$(TARGS)),$(tc)),$(tc),))
 endif
 ifeq ($(ISWINDOWS),true)
-TESTCLASSPATH=$(shell cygpath -mp '$(OBJDIR):$(JARIMGDIR):$(JUNIT_EXTLIB_FILE):$(JUNITXML_EXTLIB_FILE)');$(CLASSPATH)
+TESTCLASSPATH=$(shell cygpath -mp '$(OBJDIR):$(JARIMGDIR):$(NA_EXTLIBDIR)/$(JUNIT).jar:$(NA_EXTLIBDIR)/$(JUNITXML).jar');$(CLASSPATH)
 JUFLAGS=-classpath "$(TESTCLASSPATH)" -d "$(shell cygpath -m '$(OBJDIR)')" -sourcepath "$(shell cygpath -mp '.:src:$(OBJDIR)')"
 else
-TESTCLASSPATH=$(OBJDIR):$(JARIMGDIR):$(JUNIT_EXTLIB_FILE):$(JUNITXML_EXTLIB_FILE):$(CLASSPATH)
+TESTCLASSPATH=$(OBJDIR):$(JARIMGDIR):$(NA_EXTLIBDIR)/$(JUNIT).jar:$(NA_EXTLIBDIR)/$(JUNITXML).jar:$(CLASSPATH)
 JUFLAGS=-classpath "$(TESTCLASSPATH)" -d $(OBJDIR) -sourcepath ".:src:$(OBJDIR)"
 endif
 

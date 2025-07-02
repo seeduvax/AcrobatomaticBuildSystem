@@ -24,9 +24,12 @@ HEMLARGS:=-param app $(APPNAME) -param version $(VERSION) -param date "`date --r
 
 PUMLVERSION?=1.2021.6
 LUAJVERSION?=3.0.1
-PUMLJAR?=$(NDNA_EXTLIBDIR)/plantuml/$(PUMLVERSION)/pck.jar
-LUAJJAR?=$(NDNA_EXTLIBDIR)/luaj-jse/$(LUAJVERSION)/pck.jar
-HEMLJAR?=$(NDNA_EXTLIBDIR)/heml/$(HEMLVERSION)/pck.jar
+PUMLJAR?=$(NDNA_EXTLIBDIR)/plantuml-$(PUMLVERSION).jar
+PUMLJARTG?=$(NDNA_EXTLIBDIR)/plantuml/$(PUMLVERSION)/pck.jar
+LUAJJAR?=$(NDNA_EXTLIBDIR)/luaj-jse-$(LUAJVERSION).jar
+LUAJJARTG?=$(NDNA_EXTLIBDIR)/luaj-jse/$(LUAJVERSION)/pck.jar
+HEMLJAR?=$(NDNA_EXTLIBDIR)/heml-$(HEMLVERSION).jar
+HEMLJARTG?=$(NDNA_EXTLIBDIR)/heml/$(HEMLVERSION)/pck.jar
 HEMLCMD?=$(JAVACMD) -jar $(call absGetPath,$(HEMLJAR))
 PUMLCMD?=$(JAVACMD) -jar $(call absGetPath,$(PUMLJAR))
 
@@ -147,7 +150,7 @@ $(HTMLS) $(PDFS): $(IMGS)
 
 $(HTMLS): $(CSS)
 
-.PRECIOUS: $(HEMLJAR) $(LUAJJAR) $(PUMLJAR) $(patsubst $(NDNA_EXTLIBDIR)/%,$(ABS_CACHE)/noarch/%,$(HEMLJAR) $(PUMLJAR)) $(IMGS) $(TEXDIR)/%.tex $(OBJDIR)/%.pumlgenerated
+.PRECIOUS: $(HEMLJAR) $(LUAJJARTG) $(PUMLJARTG) $(patsubst $(NDNA_EXTLIBDIR)/%,$(ABS_CACHE)/noarch/%,$(HEMLJARTG) $(PUMLJARTG)) $(IMGS) $(TEXDIR)/%.tex $(OBJDIR)/%.pumlgenerated
 
 ifneq ($(DOXYGENCMD),)
 TARGETFILES+=$(DOXDIR)
@@ -197,7 +200,7 @@ $(HTMLDIR)/%.png: src/%.dia
 	@MROOT=`pwd` ; cd $(@D) ; dia -t png $$MROOT/$^
 endif
 
-$(OBJDIR)/%.pumlgenerated: src/% $(PUMLJAR)
+$(OBJDIR)/%.pumlgenerated: src/% $(PUMLJARTG)
 	@mkdir -p $(@D)
 	@mkdir -p $(HTMLDIR)/$(*D)
 	@$(ABS_PRINT_info) "Generating uml from $<"
@@ -215,13 +218,13 @@ define absHemlTransformation
 	@$(HEMLCMD) -in $(call absGetPath,$<) -xsl $(call absGetPath,$(1)) -path $(OBJDIR) -param srcdir "$(call absGetPath,$(<D))" -param srcfilename "$(call absGetPath,$(<F))" $(HEMLARGS) -param revision ""`$(call abs_scm_file_revision,$<)` -param showComments ""$(COMMENTS) -out $(call absGetPath,$@) -depattr fig:src:$(patsubst %/,%,$(patsubst src%,$(HTMLDIR)/%,$(<D)))
 endef
 
-$(HTMLDIR)/%.html: src/%.heml $(HEMLJAR) $(LUAJJAR) $(TESTINDEXES)
+$(HTMLDIR)/%.html: src/%.heml $(HEMLJARTG) $(LUAJJARTG) $(TESTINDEXES)
 	$(call absHemlTransformation,$(HEMLTOXHTML_STYLE) -dep $(patsubst $(HTMLDIR)/%,$(OBJDIR)/%.d,$@))
 
-$(DBDIR)/%.xml: src/%.heml $(HEMLJAR) $(LUAJJAR) $(TESTINDEXES)
+$(DBDIR)/%.xml: src/%.heml $(HEMLJARTG) $(LUAJJARTG) $(TESTINDEXES)
 	$(call absHemlTransformation,$(HEMLTOXML_STYLE) -dep $(patsubst $(DBDIR)/%,$(OBJDIR)/%.d,$@))
 
-$(TEXDIR)/%.tex: src/%.heml $(HEMLJAR) $(LUAJJAR) $(IMGS) $(TESTINDEXES)
+$(TEXDIR)/%.tex: src/%.heml $(HEMLJARTG) $(LUAJJARTG) $(IMGS) $(TESTINDEXES)
 	$(call absHemlTransformation,$(HEMLTOTEX_STYLE) -dep $(patsubst $(TEXDIR)/%,$(OBJDIR)/%.d,$@))
 
 TEXDEFAULTINPUTS?=:
