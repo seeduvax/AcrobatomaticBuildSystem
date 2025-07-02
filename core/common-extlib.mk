@@ -116,10 +116,12 @@ ABS_DEPDOWNLOAD_RULE_OVERLOADED:=1
 .PRECIOUS: $(ABS_CACHE)/noarch/%.jar
 .PRECIOUS: $(ABSWS_EXTLIBDIR)/%/import.mk $(ABSWS_NDEXTLIBDIR)/%/import.mk $(ABSWS_NA_EXTLIBDIR)/%/import.mk $(ABSWS_NDNA_EXTLIBDIR)/%/import.mk
 
-
-ABS_REPO_TEMPLATE=$(foreach entry, $(ABS_REPO),$(if $(findstring {,$(entry)),$(entry),$(entry)/{arch}/{name}-{version}.{arch}.{ext} $(entry)/{arch}/{name}/{name}-{version}.{arch}.{ext} $(entry)/noarch/{name}-{version}.{ext}))
+OPEN_BRACE:={
+ABS_REPO_TEMPLATE=$(foreach entry, $(ABS_REPO),$(if $(findstring $(OPEN_BRACE),$(entry)),$(entry),$(entry)/{arch}/{name}-{version}.{arch}.{ext} $(entry)/{arch}/{name}/{name}-{version}.{arch}.{ext} $(entry)/noarch/{name}-{version}.{ext}))
 
 # fetch package with wget (any URL kind that wget can handle)
+# Caution: empty line at end of macro def is required for proper commands
+# separation when expansed to the using target full script.
 # $1 URL to download from
 # $2 destination file path
 define downloadFromUrlTo
@@ -128,6 +130,8 @@ define downloadFromUrlTo
 endef
 
 # fetch package by linking to local file
+# Caution: empty line at end of macro def is required for proper commands
+# separation when expansed to the using target full script.
 # $1 local file URL
 # $2 destination file path
 define linkFromFileUrlTo
@@ -136,6 +140,8 @@ define linkFromFileUrlTo
 endef
 
 # fetch package with scp
+# Caution: empty line at end of macro def is required for proper commands
+# separation when expansed to the using target full script.
 # $1 source URL
 # $2 destination file path
 define scpFromFileUrlTo
@@ -148,6 +154,7 @@ endef
 # $2 list of URL to try to get the package.
 define downloadFromURLs
 $(foreach entry,$2,$(if $(filter file://%,$(entry),),$(call linkFromFileUrlTo,$(entry),$1))$(if $(filter scp:%,$(entry),),$(call scpFromFileUrlTo,$(entry),$1))$(if $(filter-out file://% scp:%,$(entry)),$(call downloadFromUrlTo,$(entry),$1)))
+	test -f $1 || ($(ABS_PRINT_error) "Cannot get library $1"; $(foreach entry,$2,$(ABS_PRINT_warning) "   tried $(entry)";) )
 endef
 
 # Get list of concrete URL for each ABS repo pattern and package attributes
