@@ -1,5 +1,5 @@
---- subdir/inc.h	2025-03-13 09:23:48.012321627 +0100
-+++ subdir/inc.h	2025-03-13 09:25:33.896319205 +0100
+--- subdir/inc.h
++++ subdir/inc.h
 @@ -1,6 +1,4 @@
  #pragma once
  

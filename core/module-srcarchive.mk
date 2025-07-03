@@ -107,13 +107,12 @@ $(ARCHSRC_INCLUDESFILES): $(ARCHSRC_EXTRACTED_INFO) $(ARCHSRC_INCLUDES_EXTRACTED
 # 1: sources originals directory
 # 2: sources modified directory
 define generatePatchesFor
-for file in `find $(1) -type f`; do \
+for file in `find $1 -type f`; do \
 	relativePath=`echo $$file | sed 's~$(1)/~~g'` && \
-	if [ `diff -q $$file $(2)/$$relativePath | wc -l` -ne 0 ]; then \
+	if [ `diff -q $$file $2/$$relativePath | wc -l` -ne 0 ]; then \
 		$(ABS_PRINT_info) "Generating patch for $$relativePath";\
 		mkdir -p $(ARCHSRC_GENE_PATCHES_OUT)/`dirname $$relativePath` && \
-		diff -Naur $$file $(2)/$$relativePath > $(ARCHSRC_GENE_PATCHES_OUT)/$$relativePath.patch; \
-		sed -i -e 's~$(1)/~~g' -e 's~$(2)/~~g' $(ARCHSRC_GENE_PATCHES_OUT)/$$relativePath.patch; \
+		diff --label $$relativePath --label $$relativePath -Nau $$file $2/$$relativePath > $(ARCHSRC_GENE_PATCHES_OUT)/$$relativePath.patch || :; \
 	fi; \
 done
 endef

@@ -28,17 +28,9 @@ fi
 testFileExists $projBOUtPatchesDir/subdir2/source2.cpp.patch
 testFileExists $projBOUtPatchesDir/subdir/inc.h.patch
 
-function removeDateFromPatch {
-    head -n 2 $1 | sed 's/\t.*//g' > $2
-    tail -n +3 $1 >> $2
-}
 
-removeDateFromPatch cpplib3/patches/subdir2/source2.cpp.patch $projBOUtPatchesDir/subdir2/source2.expected
-removeDateFromPatch cpplib3/patches/subdir/inc.h.patch $projBOUtPatchesDir/subdir/inc.expected
-removeDateFromPatch $projBOUtPatchesDir/subdir2/source2.cpp.patch $projBOUtPatchesDir/subdir2/source2.generated
-removeDateFromPatch $projBOUtPatchesDir/subdir/inc.h.patch $projBOUtPatchesDir/subdir/inc.generated
-
-testFile $projBOUtPatchesDir/subdir2/source2.expected $projBOUtPatchesDir/subdir2/source2.generated
-testFile $projBOUtPatchesDir/subdir/inc.expected $projBOUtPatchesDir/subdir/inc.generated
+echo "#### Test patches"
+testFile $projBOUtPatchesDir/subdir2/source2.cpp.patch $MODROOT/test/resources/projB/cpplib3/patches/subdir2/source2.cpp.patch
+testFile $projBOUtPatchesDir/subdir/inc.h.patch $MODROOT/test/resources/projB/cpplib3/patches/subdir/inc.h.patch
 
 doExit 0
