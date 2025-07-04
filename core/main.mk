@@ -8,6 +8,7 @@ PRJROOT:=$(abspath $(PRJROOT))
 ifeq ($(MAKE_RESTARTS),)
 ifeq ($(MAKELEVEL),0)
 $(info # Acrobatomatic Build System Core V $(__ABS_VERSION__))
+$(info To show debug logs, use variable ABS_LOG_LEVEL=debug)
 endif
 endif
 

@@ -203,7 +203,7 @@ endef
 
 $(ABS_CACHE)/noarch/%:
 	@mkdir -p $(@D)
-	@$(ABS_PRINT_info) "Fetching NA $@..."
+	@$(ABS_PRINT_info) "Fetching NA $*..."
 	$(call downloadFromURLs,$@.tmp,$(call GetNoarchDownloadURLs,$(subst $(ABS_CACHE)/noarch/,,$@)))
 	@mv $@.tmp $@
 	@test -f $@
@@ -211,7 +211,7 @@ $(ABS_CACHE)/noarch/%:
 
 $(ABS_CACHE)/%:
 	@mkdir -p $(@D)
-	@$(ABS_PRINT_info) "Fetching $@..."
+	@$(ABS_PRINT_info) "Fetching $*..."
 	$(call downloadFromURLs,$@.tmp,$(call GetDownloadURLs,$(subst $(ABS_CACHE)/$(ARCH)/,,$@)))
 	@mv $@.tmp $@
 	@test -f $@
