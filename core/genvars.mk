@@ -36,4 +36,4 @@ $(BUILDROOT)/.abs/$(HOSTNAME)-vars.mk:
 		*) echo "SYSNAME?=$$distId"_"$$mrelease" >> $@;;\
 	esac
 	@echo "HWNAME?="`uname -m` >> $@
-
+	@echo 'KERNARCH?=$$(if $$(filter Windows,$$(SYSNAME)),$$(SYSNAME),'`uname -s`')_$$(HWNAME)' >> $@

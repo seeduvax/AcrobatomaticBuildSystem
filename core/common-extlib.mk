@@ -117,7 +117,7 @@ ABS_DEPDOWNLOAD_RULE_OVERLOADED:=1
 .PRECIOUS: $(ABSWS_EXTLIBDIR)/%/import.mk $(ABSWS_NDEXTLIBDIR)/%/import.mk $(ABSWS_NA_EXTLIBDIR)/%/import.mk $(ABSWS_NDNA_EXTLIBDIR)/%/import.mk
 
 OPEN_BRACE:={
-ABS_REPO_TEMPLATE=$(foreach entry, $(ABS_REPO),$(if $(findstring $(OPEN_BRACE),$(entry)),$(entry),$(entry)/{arch}/{name}-{version}.{arch}.{ext} $(entry)/{arch}/{name}/{name}-{version}.{arch}.{ext} $(entry)/noarch/{name}-{version}.{ext} $(entry)/noarch/{name}-{version}.noarch.{ext}))
+ABS_REPO_TEMPLATE=$(foreach entry, $(ABS_REPO),$(if $(findstring $(OPEN_BRACE),$(entry)),$(entry),$(entry)/{arch}/{name}-{version}.{arch}.{ext} $(entry)/{arch}/{name}/{name}-{version}.{arch}.{ext} $(entry)/{arch}/{name}-{version}.{ext}))
 
 # fetch package with wget (any URL kind that wget can handle)
 # Caution: empty line at end of macro def is required for proper commands
@@ -186,7 +186,9 @@ endef
 # Get URL list related to a package
 # $1 package file name. expected format is <name>/<version>/pck.<ext>
 define GetDownloadURLs
-$(call SubstituteRepoTemplate,$(word 1,$(subst /, ,$1)),$(word 2,$(subst /, ,$1)),$(ARCH),$(subst pck.,,$(word 3,$(subst /, ,$1))))
+$(call SubstituteRepoTemplate,$(word 1,$(subst /, ,$1)),$(word 2,$(subst /, ,$1)),$(ARCH),$(subst pck.,,$(word 3,$(subst /, ,$1)))) \
+$(if $(filter $(ARCH),$(KERNARCH)),,$(call SubstituteRepoTemplate,$(word 1,$(subst /, ,$1)),$(word 2,$(subst /, ,$1)),$(KERNARCH),$(subst pck.,,$(word 3,$(subst /, ,$1))))) \
+$(call SubstituteRepoTemplate,$(word 1,$(subst /, ,$1)),$(word 2,$(subst /, ,$1)),noarch,$(subst pck.,,$(word 3,$(subst /, ,$1))))
 endef
 
 define GetNoarchDownloadURLs
@@ -202,14 +204,16 @@ endef
 $(ABS_CACHE)/noarch/%:
 	@mkdir -p $(@D)
 	@$(ABS_PRINT_info) "Fetching NA $@..."
-	$(call downloadFromURLs,$@,$(call GetNoarchDownloadURLs,$(subst $(ABS_CACHE)/noarch/,,$@)))
+	$(call downloadFromURLs,$@.tmp,$(call GetNoarchDownloadURLs,$(subst $(ABS_CACHE)/noarch/,,$@)))
+	@mv $@.tmp $@
 	@test -f $@
 
 
 $(ABS_CACHE)/%:
 	@mkdir -p $(@D)
 	@$(ABS_PRINT_info) "Fetching $@..."
-	$(call downloadFromURLs,$@,$(call GetDownloadURLs,$(subst $(ABS_CACHE)/$(ARCH)/,,$@)))
+	$(call downloadFromURLs,$@.tmp,$(call GetDownloadURLs,$(subst $(ABS_CACHE)/$(ARCH)/,,$@)))
+	@mv $@.tmp $@
 	@test -f $@
 
 # extract import.mk at the end to be sure the extraction is complete.
