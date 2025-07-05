@@ -207,6 +207,8 @@ $(ABS_CACHE)/noarch/%:
 	$(call downloadFromURLs,$@.tmp,$(call GetNoarchDownloadURLs,$(subst $(ABS_CACHE)/noarch/,,$@)))
 	@mv $@.tmp $@
 	@test -f $@
+	$(eval _local_target_spec:=$(subst /, ,$(patsubst $(ABS_CACHE)/noarch/%,%,$@)))
+	$(if $(filter %.jar,$(@F)),mv $@ $(ABS_CACHE)/noarch/$(word 1,$(_local_target_spec))-$(word 2,$(_local_target_spec)).jar;ln -s $(ABS_CACHE)/noarch/$(word 1,$(_local_target_spec))-$(word 2,$(_local_target_spec)).jar $@,)
 
 
 $(ABS_CACHE)/%:
@@ -294,17 +296,17 @@ $(NDNA_EXTLIBDIR)/%/import.mk: $(ABSWS_NDNA_EXTLIBDIR)/%/import.mk
 # same for java libraries
 # caution: current way of linking jars is not accurate, TODO find a way to
 #          retrieve the file name it has on the repository where it is found.
-$(NA_EXTLIBDIR)/%.jar: $(ABS_CACHE)/noarch/%.jar
-	$(eval _local_target_spec:=$(subst /, ,$(patsubst $(ABS_CACHE)/noarch/%.jar,%,$<)))
-	@mkdir -p $(@D)
-	@cp $< $(NA_EXTLIBDIR)/$(word 1,$(_local_target_spec))-$(word 2,$(_local_target_spec)).jar
-	@date > $@
-
-$(NDNA_EXTLIBDIR)/%.jar: $(ABS_CACHE)/noarch/%.jar
-	$(eval _local_target_spec:=$(subst /, ,$(patsubst $(ABS_CACHE)/noarch/%.jar,%,$<)))
-	@mkdir -p $(@D)
-	@cp $< $(NDNA_EXTLIBDIR)/$(word 1,$(_local_target_spec))-$(word 2,$(_local_target_spec)).jar
-	@date > $@
+# $(NA_EXTLIBDIR)/%.jar: $(ABS_CACHE)/noarch/%.jar
+# 	$(eval _local_target_spec:=$(subst /, ,$(patsubst $(ABS_CACHE)/noarch/%.jar,%,$<)))
+# 	@mkdir -p $(@D)
+# 	@cp $< $(NA_EXTLIBDIR)/$(word 1,$(_local_target_spec))-$(word 2,$(_local_target_spec)).jar
+# 	@date > $@
+# 
+# $(NDNA_EXTLIBDIR)/%.jar: $(ABS_CACHE)/noarch/%.jar
+# 	$(eval _local_target_spec:=$(subst /, ,$(patsubst $(ABS_CACHE)/noarch/%.jar,%,$<)))
+# 	@mkdir -p $(@D)
+# 	@cp $< $(NDNA_EXTLIBDIR)/$(word 1,$(_local_target_spec))-$(word 2,$(_local_target_spec)).jar
+# 	@date > $@
 
 # --------------------------------------------------------------------
 # general purpose noarch file sets

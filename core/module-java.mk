@@ -43,8 +43,8 @@ JARIMGDIR:=$(OBJDIR)/jar
 JGENSRCDIR:=$(OBJDIR)/gjava
 
 # Java default settings
-JARLIBS:=$(patsubst %,$(NA_EXTLIBDIR)/%.jar,$(USEJAR))
-JARDEPS:=$(foreach entry,$(USEJAR),$(call GetExtLibFile,$(NA_EXTLIBDIR),$(entry),jar))
+JARLIBS:=$(foreach entry,$(USEJAR),$(ABS_CACHE)/noarch/$(call getLibNameFromVersioned,$(entry))-$(call getLibVersionFromVersioned,$(entry)).jar)
+JARDEPS:=$(foreach entry,$(USEJAR),$(ABS_CACHE)/noarch/$(call getLibNameFromVersioned,$(entry))/$(call getLibVersionFromVersioned,$(entry))/pck.jar)
 JCLASSES:=$(patsubst src/%.java,$(JARIMGDIR)/%.class,$(filter %.java, $(SRCFILES)))
 CLASSPATH:=$(subst $(_space_),:,$(JARLIBS)):$(patsubst $(TARGETDIR)/$(DOMAIN).$(APPNAME).$(APPNAME).%,$(TARGETDIR)/$(DOMAIN).$(APPNAME).%,$(patsubst %,$(TARGETDIR)/$(DOMAIN).$(APPNAME).%-$(VERSION).jar,$(USEJMOD)))
 ifeq ($(ISWINDOWS),true)
