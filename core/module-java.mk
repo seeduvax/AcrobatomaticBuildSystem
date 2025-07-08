@@ -59,6 +59,12 @@ JCFLAGS:=$(JFLAGS) -sourcepath "src:$(JARIMGDIR):$(JGENSRCDIR)"
 endif
 RESFILES=$(patsubst src/%,$(JARIMGDIR)/%,$(filter-out %.java src/test/%,$(SRCFILES)))
 
+JAREXTLIBLINKS:=$(foreach entry,$(USEJAR),$(NA_EXTLIBDIR)/$(call getLibNameFromVersioned,$(entry))-$(call getLibVersionFromVersioned,$(entry)).jar)
+
+$(NA_EXTLIBDIR)/%.jar:
+	@mkdir -p $(@D)
+	@ln -sf $(ABS_CACHE)/noarch/$(@F) $@
+
 # ---------------------------------------------------------------------
 # Default target : build target file
 # ---------------------------------------------------------------------
@@ -100,7 +106,7 @@ $(OBJDIR)/$(MODNAME).Manifest: $(JCLASSES)
 	@printf "Class-Path: $(patsubst %, %.jar\n,$(USEJAR))  ../res\n\n\n" >> $@
 
 # Jar archive
-$(TARGETFILE): $(OBJDIR)/$(MODNAME).Manifest $(RESFILES)
+$(TARGETFILE): $(OBJDIR)/$(MODNAME).Manifest $(RESFILES) $(JAREXTLIBLINKS)
 	@$(ABS_PRINT_info) "Building archive $@ ..."
 	@mkdir -p $(TARGETDIR)
 ifeq ($(ISWINDOWS),true)

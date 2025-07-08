@@ -208,7 +208,8 @@ $(ABS_CACHE)/noarch/%:
 	@mv $@.tmp $@
 	@test -f $@
 	$(eval _local_target_spec:=$(subst /, ,$(patsubst $(ABS_CACHE)/noarch/%,%,$@)))
-	$(if $(filter %.jar,$(@F)),mv $@ $(ABS_CACHE)/noarch/$(word 1,$(_local_target_spec))-$(word 2,$(_local_target_spec)).jar;ln -s $(ABS_CACHE)/noarch/$(word 1,$(_local_target_spec))-$(word 2,$(_local_target_spec)).jar $@,)
+	$(eval _local_jarfile:=$$(word 1,$$(_local_target_spec))-$$(word 2,$(_local_target_spec)).jar)
+	$(if $(filter %.jar,$(@F)),@mv $@ $(ABS_CACHE)/noarch/$(_local_jarfile);ln -sf $(ABS_CACHE)/noarch/$(_local_jarfile) $@,)
 
 
 $(ABS_CACHE)/%:
