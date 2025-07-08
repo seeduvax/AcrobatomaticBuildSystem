@@ -9,8 +9,8 @@
 JUNIT?=junit-4.8.2
 JUNITXML?=junitXmlFormatter-0.0
 
-JUNIT_JAR_FILE=$(ABS_CACHE)/noarch/$(JUNIT),jar
-JUNITXML_JAR_FILE=$(ABS_CACHE)/noarch/$(JUNITXML),jar
+JUNIT_JAR_FILE=$(ABS_CACHE)/noarch/$(JUNIT).jar
+JUNITXML_JAR_FILE=$(ABS_CACHE)/noarch/$(JUNITXML).jar
 
 TXTXSL=xunit2txt.xsl
 TESTCLASSFILES=$(patsubst %.java,$(OBJDIR)/%.class,$(shell find test -name "Test*.java" 2>/dev/null))
@@ -41,7 +41,7 @@ $(OBJDIR)/test/%.class: src/test/%.java
 	@$(call writeToBuildLogs,$(JC) $(JUFLAGS) $<)
 	@$(JC) $(JUFLAGS) $< || ( echo 'Failed: JUFLAGS=$(JUFLAGS)' ; exit 1 )
 
-$(TESTCLASSFILES): $(ABS_CACHE)/noarch/$(call getLibNameFromVersioned,$(JUNIT))/$(call getLibVerionFromVersioned,$(JUNIT))/pck.jar $(ABS_CACHE)/noarch/$(call getLibNameFromVersioned,$(JUNITXML))/$(call getLibVerionFromVersioned,$(JUNITXML))/pck.jar $(TARGETFILE)
+$(TESTCLASSFILES): $(ABS_CACHE)/noarch/$(call getLibNameFromVersioned,$(JUNIT))/$(call getLibVersionFromVersioned,$(JUNIT))/pck.jar $(ABS_CACHE)/noarch/$(call getLibNameFromVersioned,$(JUNITXML))/$(call getLibVersionFromVersioned,$(JUNITXML))/pck.jar $(TARGETFILE)
 
 ## 
 ## Targets:
