@@ -290,24 +290,22 @@ CPPCHECK_INCLUDES_FILE=$(OBJDIR)/cppcheck_includes.txt
 CPPCHECK_ARGS+=--inline-suppr --error-exitcode=1 --report-progress
 CPPCHECK_ARGS+=$(sort $(filter -D%,$(CXXFLAGS) $(CFLAGS)))
 
+# /usr/include must not be included otherwise cppcheck can fail without analyzing code.
 $(CPPCHECK_INCLUDES_FILE): module.cfg $(PRJROOT)/app.cfg
 	@echo "$(ABSROOT)/core/include" > $@.tmp
 	@$(foreach mod,$(INCLUDE_PROJ_MODS) $(MODNAME),$(if $(wildcard $(PRJROOT)/$(mod)/include),echo $(PRJROOT)/$(mod)/include >> $@.tmp;))
 	@find -L $(wildcard $(EXTLIBDIR) $(NA_EXTLIBDIR) $(NDEXTLIBDIR) $(NDNA_EXTLIBDIR)) -maxdepth 3 -name include -type d >> $@.tmp
-	@echo "/usr/include" >> $@.tmp
 	@mv $@.tmp $@
 	
 $(CPPCHECK_SUPPRESS_FILE): module.cfg $(PRJROOT)/app.cfg
-	@echo "*:/usr/include/*" > $@.tmp
-	@echo "*:$(PRJROOT)/build/extlib/*" >> $@.tmp
+	@echo "*:$(PRJROOT)/build/extlib/*" > $@.tmp
 	@echo "unmatchedSuppression" >> $@.tmp
 	@$(foreach mod,$(INCLUDE_PROJ_MODS),echo *:$(PRJROOT)/$(mod)/include/* >> $@.tmp;)
 	@mv $@.tmp $@
 
 .PHONY: $(OBJDIR)/cppcheck.log
 $(OBJDIR)/cppcheck.log: $(CPPCHECK_INCLUDES_FILE) $(CPPCHECK_SUPPRESS_FILE)
-	@cppcheck --enable=all --includes-file=$< --suppressions-list=$(CPPCHECK_SUPPRESS_FILE) --output-file=$@ $(CPPCHECK_ARGS) src || $(ABS_PRINT_error) "Errors found while analyzing cpp code"
-
+	@cppcheck --enable=all --includes-file=$< --suppressions-list=$(CPPCHECK_SUPPRESS_FILE) --output-file=$@ $(CPPCHECK_ARGS) $(wildcard src test) || $(ABS_PRINT_error) "Errors found while analyzing cpp code"
 
 ##  - cppcheck: launch cppcheck and generate report
 cppcheck: $(OBJDIR)/cppcheck.log

@@ -7,8 +7,9 @@
 
 // defines variable to avoid undefined macro warnings.
 // theses defines are created by testdef2cppunitdecl.h and dynamically included
+// set default CPPUNIT_TEST macro to avoid warning on context variable
 #ifndef __ABS_TEST_SUITE_CPPUNIT_DECL
-#define __ABS_TEST_SUITE_CPPUNIT_DECL
+#define __ABS_TEST_SUITE_CPPUNIT_DECL CPPUNIT_TEST(noTest);
 #endif
 
 #define ABS_TEST_SUITE_BEGIN(testSuiteName, ...) class Test##testSuiteName; \
