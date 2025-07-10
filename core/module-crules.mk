@@ -291,7 +291,7 @@ CPPCHECK_SUPPRESS+=unmatchedSuppression
 # define each suppress because need preprocessorErrorDirective to avoid stop of analyze.
 CPPCHECK_EXTLIBS_SUPPRESS+=$(CPPCHECK_SUPPRESS)
 CPPCHECK_EXTLIBS_SUPPRESS+=missingOverride cstyleCast passedByValue uninitMemberVarPrivate unusedPrivateFunction duplInheritedMember
-CPPCHECK_EXTLIBS_SUPPRESS+=duplicateValueTernary operatorEqVarError
+CPPCHECK_EXTLIBS_SUPPRESS+=duplicateValueTernary operatorEqVarError unreadVariable
 
 CPPCHECK_ARGS+=--inline-suppr --error-exitcode=1 --report-progress
 CPPCHECK_ARGS+=$(sort $(filter -D%,$(CXXFLAGS) $(CFLAGS)))
