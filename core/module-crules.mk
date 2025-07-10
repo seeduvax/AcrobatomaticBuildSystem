@@ -287,6 +287,12 @@ clean:: clean-crule
 CPPCHECK_SUPPRESS_FILE=$(OBJDIR)/cppcheck_suppress.txt
 CPPCHECK_INCLUDES_FILE=$(OBJDIR)/cppcheck_includes.txt
 
+CPPCHECK_SUPPRESS+=unmatchedSuppression
+# define each suppress because need preprocessorErrorDirective to avoid stop of analyze.
+CPPCHECK_EXTLIBS_SUPPRESS+=$(CPPCHECK_SUPPRESS)
+CPPCHECK_EXTLIBS_SUPPRESS+=missingOverride cstyleCast passedByValue uninitMemberVarPrivate unusedPrivateFunction duplInheritedMember
+CPPCHECK_EXTLIBS_SUPPRESS+=duplicateValueTernary operatorEqVarError
+
 CPPCHECK_ARGS+=--inline-suppr --error-exitcode=1 --report-progress
 CPPCHECK_ARGS+=$(sort $(filter -D%,$(CXXFLAGS) $(CFLAGS)))
 
@@ -298,9 +304,10 @@ $(CPPCHECK_INCLUDES_FILE): module.cfg $(PRJROOT)/app.cfg
 	@mv $@.tmp $@
 	
 $(CPPCHECK_SUPPRESS_FILE): module.cfg $(PRJROOT)/app.cfg
-	@echo "*:$(PRJROOT)/build/extlib/*" > $@.tmp
-	@echo "unmatchedSuppression" >> $@.tmp
-	@$(foreach mod,$(INCLUDE_PROJ_MODS),echo *:$(PRJROOT)/$(mod)/include/* >> $@.tmp;)
+	@$(foreach suppr,$(CPPCHECK_EXTLIBS_SUPPRESS),echo "$(suppr):$(PRJROOT)/build/extlib/*" >> $@.tmp;)
+	@$(foreach suppr,$(CPPCHECK_SUPPRESS),echo $(suppr) >> $@.tmp;)
+	@$(foreach mod,$(INCLUDE_PROJ_MODS),\
+		$(foreach suppr,$(CPPCHECK_EXTLIBS_SUPPRESS),echo $(suppr):$(PRJROOT)/$(mod)/include/* >> $@.tmp;))
 	@mv $@.tmp $@
 
 .PHONY: $(OBJDIR)/cppcheck.log
