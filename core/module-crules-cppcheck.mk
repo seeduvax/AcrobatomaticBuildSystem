@@ -18,6 +18,7 @@ CPPCHECK_SUPPRESS+=unmatchedSuppression missingIncludeSystem
 CPPCHECK_EXTLIBS_SUPPRESS+=$(CPPCHECK_SUPPRESS)
 CPPCHECK_EXTLIBS_SUPPRESS+=missingOverride cstyleCast passedByValue uninitMemberVarPrivate unusedPrivateFunction duplInheritedMember
 CPPCHECK_EXTLIBS_SUPPRESS+=duplicateValueTernary operatorEqVarError unreadVariable uninitMemberVar virtualCallInConstructor constParameterPointer
+CPPCHECK_EXTLIBS_SUPPRESS+=constVariablePointer
 
 CPPCHECK_ARGS+=--enable=all --inline-suppr --error-exitcode=1 --report-progress
 CPPCHECK_ARGS+=$(sort $(filter -D%,$(CXXFLAGS) $(CFLAGS)))
@@ -28,7 +29,7 @@ CPPCHECK_ARGS+=--suppressions-list=$(CPPCHECK_SUPPRESS_FILE)
 # generation of RES_HEADER if resources files are needed to generate res.h.
 $(CPPCHECK_INCLUDES_FILE): module.cfg $(PRJROOT)/app.cfg
 	@echo "$(ABSROOT)/core/include" > $@.tmp
-	@$(foreach mod,$(INCLUDE_PROJ_MODS) $(MODNAME),$(if $(wildcard $(PRJROOT)/$(mod)/include),echo $(PRJROOT)/$(mod)/include >> $@.tmp;))
+	@$(foreach mod,$(sort $(INCLUDE_PROJ_MODS) $(INCLUDE_TESTMODS_PROJ) $(MODNAME)),$(if $(wildcard $(PRJROOT)/$(mod)/include),echo $(PRJROOT)/$(mod)/include >> $@.tmp;))
 	@find -L $(wildcard $(EXTLIBDIR) $(NA_EXTLIBDIR) $(NDEXTLIBDIR) $(NDNA_EXTLIBDIR)) -maxdepth 3 -name include -type d >> $@.tmp
 	@echo "$(TRDIR)/include" >> $@.tmp
 	@mv $@.tmp $@
@@ -36,7 +37,7 @@ $(CPPCHECK_INCLUDES_FILE): module.cfg $(PRJROOT)/app.cfg
 $(CPPCHECK_SUPPRESS_FILE): module.cfg $(PRJROOT)/app.cfg
 	@$(foreach suppr,$(CPPCHECK_EXTLIBS_SUPPRESS),echo "$(suppr):$(PRJROOT)/build/extlib/*" >> $@.tmp;)
 	@$(foreach suppr,$(CPPCHECK_SUPPRESS),echo $(suppr) >> $@.tmp;)
-	@$(foreach mod,$(INCLUDE_PROJ_MODS),\
+	@$(foreach mod,$(sort $(INCLUDE_PROJ_MODS) $(INCLUDE_TESTMODS_PROJ)),\
 		$(foreach suppr,$(CPPCHECK_EXTLIBS_SUPPRESS),echo $(suppr):$(PRJROOT)/$(mod)/include/* >> $@.tmp;))
 	@mv $@.tmp $@
 

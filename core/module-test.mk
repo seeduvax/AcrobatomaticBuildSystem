@@ -60,8 +60,9 @@ TSRCFILES=$(filter-out $(patsubst %,test/%,$(TDISABLE_SRC)),$(TALLSRCFILES))
 TCPPOBJS=$(patsubst test/%.cpp,$(OBJDIR)/test/%.o,$(filter %.cpp,$(TSRCFILES))) \
 		$(patsubst test/%.c,$(OBJDIR)/test/%.o,$(filter %.c,$(TSRCFILES)))
 
+INCLUDE_TESTMODS_PROJ=$(filter-out $(MODNAME),$(patsubst $(APPNAME)_%,%,$(filter $(PROJECT_INC_MODS),$(T_ALL_DEPENDENCIES))))
 # compiler options specific to test
-TCFLAGS+=$(patsubst %,-I$(PRJROOT)/%/include,$(patsubst $(APPNAME)_%,%,$(filter $(PROJECT_INC_MODS),$(T_ALL_DEPENDENCIES))))
+TCFLAGS+=$(patsubst %,-I$(PRJROOT)/%/include,$(INCLUDE_TESTMODS_PROJ))
 
 # linker options specific to test
 TLDFLAGS+=-L$(TRDIR)/$(SODIR)
