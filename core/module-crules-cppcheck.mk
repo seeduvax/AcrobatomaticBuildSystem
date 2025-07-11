@@ -17,7 +17,7 @@ CPPCHECK_SUPPRESS+=unmatchedSuppression missingIncludeSystem
 # define each suppress because need preprocessorErrorDirective to avoid stop of analyze.
 CPPCHECK_EXTLIBS_SUPPRESS+=$(CPPCHECK_SUPPRESS)
 CPPCHECK_EXTLIBS_SUPPRESS+=missingOverride cstyleCast passedByValue uninitMemberVarPrivate unusedPrivateFunction duplInheritedMember
-CPPCHECK_EXTLIBS_SUPPRESS+=duplicateValueTernary operatorEqVarError unreadVariable uninitMemberVar virtualCallInConstructor
+CPPCHECK_EXTLIBS_SUPPRESS+=duplicateValueTernary operatorEqVarError unreadVariable uninitMemberVar virtualCallInConstructor constParameterPointer
 
 CPPCHECK_ARGS+=--enable=all --inline-suppr --error-exitcode=1 --report-progress
 CPPCHECK_ARGS+=$(sort $(filter -D%,$(CXXFLAGS) $(CFLAGS)))
@@ -25,10 +25,12 @@ CPPCHECK_ARGS+=--cppcheck-build-dir=$(CPPCHECK_BUILD_DIR)
 CPPCHECK_ARGS+=--suppressions-list=$(CPPCHECK_SUPPRESS_FILE)
 
 # /usr/include must not be included otherwise cppcheck can fail without analyzing code.
+# generation of RES_HEADER if resources files are needed to generate res.h.
 $(CPPCHECK_INCLUDES_FILE): module.cfg $(PRJROOT)/app.cfg
 	@echo "$(ABSROOT)/core/include" > $@.tmp
 	@$(foreach mod,$(INCLUDE_PROJ_MODS) $(MODNAME),$(if $(wildcard $(PRJROOT)/$(mod)/include),echo $(PRJROOT)/$(mod)/include >> $@.tmp;))
 	@find -L $(wildcard $(EXTLIBDIR) $(NA_EXTLIBDIR) $(NDEXTLIBDIR) $(NDNA_EXTLIBDIR)) -maxdepth 3 -name include -type d >> $@.tmp
+	@echo "$(TRDIR)/include" >> $@.tmp
 	@mv $@.tmp $@
 	
 $(CPPCHECK_SUPPRESS_FILE): module.cfg $(PRJROOT)/app.cfg
@@ -39,7 +41,7 @@ $(CPPCHECK_SUPPRESS_FILE): module.cfg $(PRJROOT)/app.cfg
 	@mv $@.tmp $@
 
 .PHONY: $(OBJDIR)/cppcheck.log
-$(OBJDIR)/cppcheck.log: $(CPPCHECK_INCLUDES_FILE) $(CPPCHECK_SUPPRESS_FILE)
+$(OBJDIR)/cppcheck.log: $(CPPCHECK_INCLUDES_FILE) $(CPPCHECK_SUPPRESS_FILE) $(if $(RESSRC),$(RES_HEADER))
 	@mkdir -p $(CPPCHECK_BUILD_DIR)
 	@$(CPPCHECK_BINARY) --includes-file=$< --output-file=$@ $(CPPCHECK_ARGS) $(wildcard src test) || $(ABS_PRINT_error) "Errors found while analyzing cpp code"
 
