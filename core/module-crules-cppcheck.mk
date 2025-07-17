@@ -14,11 +14,13 @@ CPPCHECK_INCLUDES_FILE=$(OBJDIR)/cppcheck_includes.txt
 CPPCHECK_BUILD_DIR=$(OBJDIR)/cppcheck_build_dir
 
 CPPCHECK_SUPPRESS+=unmatchedSuppression missingIncludeSystem
+
+CPPCHECK_TESTS_SUPPRESS+=uselessOverride
 # define each suppress because need preprocessorErrorDirective to avoid stop of analyze.
 CPPCHECK_EXTLIBS_SUPPRESS+=$(CPPCHECK_SUPPRESS)
 CPPCHECK_EXTLIBS_SUPPRESS+=missingOverride cstyleCast passedByValue uninitMemberVarPrivate unusedPrivateFunction duplInheritedMember
 CPPCHECK_EXTLIBS_SUPPRESS+=duplicateValueTernary operatorEqVarError unreadVariable uninitMemberVar virtualCallInConstructor constParameterPointer
-CPPCHECK_EXTLIBS_SUPPRESS+=constVariablePointer
+CPPCHECK_EXTLIBS_SUPPRESS+=constVariablePointer uselessOverride
 
 CPPCHECK_ARGS+=--enable=all --inline-suppr --error-exitcode=1 --report-progress
 CPPCHECK_ARGS+=$(sort $(filter -D%,$(CXXFLAGS) $(CFLAGS)))
@@ -37,6 +39,7 @@ $(CPPCHECK_INCLUDES_FILE): module.cfg $(PRJROOT)/app.cfg
 $(CPPCHECK_SUPPRESS_FILE): module.cfg $(PRJROOT)/app.cfg
 	@$(foreach suppr,$(CPPCHECK_EXTLIBS_SUPPRESS),echo "$(suppr):$(PRJROOT)/build/extlib/*" >> $@.tmp;)
 	@$(foreach suppr,$(CPPCHECK_SUPPRESS),echo $(suppr) >> $@.tmp;)
+	@$(foreach suppr,$(CPPCHECK_TESTS_SUPPRESS),echo $(suppr):test/* >> $@.tmp;)
 	@$(foreach mod,$(sort $(INCLUDE_PROJ_MODS) $(INCLUDE_TESTMODS_PROJ)),\
 		$(foreach suppr,$(CPPCHECK_EXTLIBS_SUPPRESS),echo $(suppr):$(PRJROOT)/$(mod)/include/* >> $@.tmp;))
 	@mv $@.tmp $@
