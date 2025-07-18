@@ -37,11 +37,11 @@ $(CPPCHECK_INCLUDES_FILE): module.cfg $(PRJROOT)/app.cfg
 	@mv $@.tmp $@
 	
 $(CPPCHECK_SUPPRESS_FILE): module.cfg $(PRJROOT)/app.cfg
-	@$(foreach suppr,$(CPPCHECK_EXTLIBS_SUPPRESS),echo "$(suppr):$(PRJROOT)/build/extlib/*" >> $@.tmp;)
-	@$(foreach suppr,$(CPPCHECK_SUPPRESS),echo $(suppr) >> $@.tmp;)
-	@$(foreach suppr,$(CPPCHECK_TESTS_SUPPRESS),echo $(suppr):test/* >> $@.tmp;)
+	@$(foreach suppr,$(sort $(CPPCHECK_EXTLIBS_SUPPRESS)),echo "$(suppr):$(PRJROOT)/build/extlib/*" >> $@.tmp;)
+	@$(foreach suppr,$(sort $(CPPCHECK_SUPPRESS)),echo $(suppr) >> $@.tmp;)
+	@$(foreach suppr,$(sort $(CPPCHECK_TESTS_SUPPRESS)),echo $(suppr):test/* >> $@.tmp;)
 	@$(foreach mod,$(sort $(INCLUDE_PROJ_MODS) $(INCLUDE_TESTMODS_PROJ)),\
-		$(foreach suppr,$(CPPCHECK_EXTLIBS_SUPPRESS),echo $(suppr):$(PRJROOT)/$(mod)/include/* >> $@.tmp;))
+		$(foreach suppr,$(sort $(CPPCHECK_EXTLIBS_SUPPRESS)),echo $(suppr):$(PRJROOT)/$(mod)/include/* >> $@.tmp;))
 	@mv $@.tmp $@
 
 .PHONY: $(OBJDIR)/cppcheck.log
