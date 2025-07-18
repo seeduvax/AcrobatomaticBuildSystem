@@ -27,6 +27,9 @@ CPPCHECK_ARGS+=$(sort $(filter -D%,$(CXXFLAGS) $(CFLAGS)))
 CPPCHECK_ARGS+=--cppcheck-build-dir=$(CPPCHECK_BUILD_DIR)
 CPPCHECK_ARGS+=--suppressions-list=$(CPPCHECK_SUPPRESS_FILE)
 
+# indicates if the cppcheck duration must be shown
+CPPCHECK_TIME?=true
+
 # /usr/include must not be included otherwise cppcheck can fail without analyzing code.
 # generation of RES_HEADER if resources files are needed to generate res.h.
 $(CPPCHECK_INCLUDES_FILE): module.cfg $(PRJROOT)/app.cfg
@@ -47,7 +50,7 @@ $(CPPCHECK_SUPPRESS_FILE): module.cfg $(PRJROOT)/app.cfg
 .PHONY: $(OBJDIR)/cppcheck.log
 $(OBJDIR)/cppcheck.log: $(CPPCHECK_INCLUDES_FILE) $(CPPCHECK_SUPPRESS_FILE) $(if $(RESSRC),$(RES_HEADER))
 	@mkdir -p $(CPPCHECK_BUILD_DIR)
-	@$(CPPCHECK_BINARY) --includes-file=$< --output-file=$@ $(CPPCHECK_ARGS) $(wildcard src test) || $(ABS_PRINT_error) "Errors found while analyzing cpp code"
+	@$(if $(filter true,$(CPPCHECK_TIME)),time) $(CPPCHECK_BINARY) --includes-file=$< --output-file=$@ $(CPPCHECK_ARGS) $(wildcard src test) || $(ABS_PRINT_error) "Errors found while analyzing cpp code"
 
 ##  - cppcheck: launch cppcheck and generate report
 cppcheck: $(OBJDIR)/cppcheck.log
