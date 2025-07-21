@@ -52,8 +52,16 @@ $(OBJDIR)/cppcheck.log: $(CPPCHECK_INCLUDES_FILE) $(CPPCHECK_SUPPRESS_FILE) $(if
 	@mkdir -p $(CPPCHECK_BUILD_DIR)
 	@$(if $(filter true,$(CPPCHECK_TIME)),time) $(CPPCHECK_BINARY) --includes-file=$< --output-file=$@ $(CPPCHECK_ARGS) $(wildcard src test) || $(ABS_PRINT_error) "Errors found while analyzing cpp code"
 
+
+ifneq ($(filter %.cpp %.c,$(SRCFILES)),)
 ##  - cppcheck: launch cppcheck and generate report
 cppcheck: $(OBJDIR)/cppcheck.log
 	@$(ABS_PRINT_info) "File $< generated"
+
+else
+cppcheck:
+	@$(ABS_PRINT_warning) "Cannot execution cppcheck because no cpp/c source files found"
+
+endif
 
 endif #ifeq ($(MAKECMDGOALS),cppcheck)
