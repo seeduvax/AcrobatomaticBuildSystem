@@ -274,7 +274,7 @@ define extlib_linkLibrary
 			( cd $${dest_dir} ; ln -sf $$f ) ;\
 		done ;\
 	} ;\
-	$(ABS_PRINT_debug) "Creating symlinks for $$(basename $(@D)) dependency to $(TRDIR) ..." ;\
+	$(ABS_PRINT_debug) "Creating symlinks for $* dependency to $(TRDIR) ..." ;\
 	for extd in etc share; do createSymLinks $(<D) $$extd $(TRDIR); done ;)
 endef
 
