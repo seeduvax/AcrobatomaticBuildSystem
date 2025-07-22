@@ -40,6 +40,9 @@
 ##      Each define will be -D$(define) in CFLAGS
 ##  - DISABLE_SRC: List of files in src directory to not compile
 ##  - PREPROC_ONLY: if true, "object files" will be inlined code for each compilation unit, and "linkage" will just create an empty file
+##  - prelink_hook: macro defining the script to execute prior to link step (generate ld script) for EXE
+##  - postlink_hook: macro defining the script to execute after to link step (strip, ...) for EXE
+##  - LD_SCRIPT_FILE: input LD script file (if needed)
 
 include $(ABSROOT)/core/module-cheaders.mk
 
@@ -69,6 +72,15 @@ RES_HEADER=$(TR_MOD_INCLUDE_DIR)/res.h
 
 # includes dependencies
 -include $(patsubst %.o,%.o.d,$(OBJS))
+
+# add hook make script that can be run before and after link phase
+ifneq ($(PRELINK_HOOK),)
+include $(PRELINK_HOOK)
+endif
+
+ifneq ($(POSTLINK_HOOK),)
+include $(POSTLINK_HOOK)
+endif
 
 # ---------------------------------------------------------------------
 # Default target : build target file
@@ -124,9 +136,26 @@ $(OBJDIR)/%.o: $(EXT_SRC_DIR)/%.cpp
 $(OBJDIR)/%.o: $(EXT_MODSRC_DIR)/%.cpp
 	$(cxx-command)
 
+# support for specific target LD_script
+ifneq ($(LD_SCRIPT_FILE),)
+LD_SCRIPT:=$(OBJDIR)/target.ld
+LD_APPEND:=-T $(LD_SCRIPT)
+endif
+.PHONY: $(LD_SCRIPT)
+
+$(LD_SCRIPT): $(LD_SCRIPT_FILE)
+	@$(ABS_PRINT_info) "Generate Linker script $@"
+	@$(CPP) $(LD_SCRIPT_OPTIONS) -P -C $< -o $@
+
 # link target from objects
 $(TARGETFILE_EXE): $(OBJS)
+ifdef prelink_hook
+	$(prelink_hook)
+endif
 	$(ld-command-exe)
+ifdef postlink_hook
+	$(postlink_hook)
+endif
 
 $(TARGETFILE_LIB): $(OBJS)
 	$(ld-command-lib)

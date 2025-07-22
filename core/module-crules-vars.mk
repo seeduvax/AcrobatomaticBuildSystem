@@ -116,6 +116,10 @@ define GetExistingModGeneratedSO
 $(foreach mod,$1,$(if $(wildcard $(TRDIR)/$(SODIR)/$(SOPFX)$(APPNAME)_$(mod).$(SOEXT)),$(APPNAME)_$(mod))$(if $(wildcard $(TRDIR)/$(SODIR)/$(SOPFX)$(mod).$(SOEXT)),$(mod)))
 endef
 
+define GetExistingModGeneratedArchive
+$(foreach mod,$1,$(if $(wildcard $(TRDIR)/$(SODIR)/$(SOPFX)$(APPNAME)_$(mod).$(AREXT)),$(APPNAME)_$(mod))$(if $(wildcard $(TRDIR)/$(SODIR)/$(SOPFX)$(mod).$(AREXT)),$(mod)))
+endef
+
 # --no-as-needed permit to add the linked libraries even if they are not used in this module.
 # This is the default value for old compilers
 LDFLAGS+=-Wl,--no-as-needed
@@ -211,8 +215,8 @@ PREPROC_EXTRA_FLAGS?=
 PREPROC_FLAGS=-E $(PREPROC_EXTRA_FLAGS)
 endif
 
-EXTRA_CFLAGS=$(PREPROC_FLAGS) $(GEN_DEP_FLAGS)
-EXTRA_CXXFLAGS=$(PREPROC_FLAGS) $(GEN_DEP_FLAGS)
+EXTRA_CFLAGS+=$(PREPROC_FLAGS) $(GEN_DEP_FLAGS)
+EXTRA_CXXFLAGS+=$(PREPROC_FLAGS) $(GEN_DEP_FLAGS)
 
 ifneq ($(filter clang%,$(CC)),)
 EXTRA_CFLAGS+=-MJ $@.json
@@ -317,14 +321,14 @@ ifneq ($(ISWINDOWS),true)
 define ar-command-lib
 @$(ABS_PRINT_info) "Archiving $@ ..."
 @mkdir -p $(TARGETDIR)
-@$(call executeAndLogCmd,LD_RUN_PATH='$(LDRUNP)' $(AR) rcs $@ $(OBJS_NO_VINFO))
+@$(call executeAndLogCmd,LD_RUN_PATH='$(LDRUNP)' $(AR) rDcs $@ $(OBJS_NO_VINFO))
 endef
 ifneq ($(PREPROC_ONLY),true)
 define ld-command-lib
 @$(ABS_PRINT_info) "Linking $@ ..."
 @mkdir -p $(TARGETDIR)
 @$(call writeToBuildLogs,$(MODNAME) linked to $(sort $(patsubst -l%,%,$(CRULES_VAR_LINKED_LIBS))))
-@$(call executeAndLogCmd,LD_RUN_PATH='$(LDRUNP)' LD_LIBRARY_PATH=$(LDLIBP) $(LD) -o $@ $(OBJS) $(FULL_LDFLAGS))
+@$(call executeAndLogCmd,LD_RUN_PATH='$(LDRUNP)' LD_LIBRARY_PATH=$(LDLIBP) $(LD) -o $@ $(OBJS) $(FULL_LDFLAGS) $(EXTRA_LD_FLAGS))
 endef
 else
 define ld-command-lib
@@ -339,13 +343,13 @@ ifneq ($(PREPROC_ONLY),true)
 define ld-command-lib
 @$(ABS_PRINT_info) "Linking $@ ..."
 @mkdir -p $(TARGETDIR) $(CYGTARGETDIR)
-@$(call executeAndLogCmd,$(LD) -shared -o $(CYGTARGETDIR)/$(CYGTARGET) $(call getWindowsLibLDFlags,$@,$(OBJS)) $(LDFLAGS))
+@$(call executeAndLogCmd,$(LD) -shared -o $(CYGTARGETDIR)/$(CYGTARGET) $(call getWindowsLibLDFlags,$@,$(OBJS)) $(LDFLAGS) $(EXTRA_LD_FLAGS))
 endef
 define ld-command-exe
 @$(ABS_PRINT_info) "Linking $@ ..."
 @mkdir -p $(TARGETDIR) $(CYGTARGETDIR)
 @$(call writeToBuildLogs,$(MODNAME) linked to $(sort $(patsubst -l%,%,$(CRULES_VAR_LINKED_LIBS))))
-@$(call executeAndLogCmd,$(LD) -o $@ -Wl$(_comma_)--enable-auto-import $(OBJS) $(FULL_LDFLAGS))
+@$(call executeAndLogCmd,$(LD) -o $@ -Wl$(_comma_)--enable-auto-import $(OBJS) $(FULL_LDFLAGS) $(EXTRA_LD_FLAGS))
 endef
 else
 define ld-command-lib

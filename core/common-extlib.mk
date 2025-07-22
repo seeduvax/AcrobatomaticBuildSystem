@@ -81,15 +81,18 @@ $(call _getDependenciesByTransitivity1,$1,$(call generateTmpVariable,_depvar_))
 endef
 
 ABSWS_EXTLIBDIR=$(ABSWS)/extlib/$(ARCH)
+ABSWS_HOST_EXTLIBDIR=$(ABSWS)/extlib/$(HOST_ARCH)
 ABSWS_NA_EXTLIBDIR=$(ABSWS)/extlib/noarch
-ABSWS_NDEXTLIBDIR=$(ABSWS_EXTLIBDIR).nodist
+ABSWS_NDEXTLIBDIR=$(ABSWS_HOST_EXTLIBDIR).nodist
 ABSWS_NDNA_EXTLIBDIR=$(ABSWS_NA_EXTLIBDIR).nodist
 
 ifeq ($(TRDIR),$(BUILDROOT)/$(ARCH)/$(MODE))
 EXTLIBDIR?=$(BUILDROOT)/extlib/$(ARCH)
+HOST_EXTLIBDIR=$(BUILDROOT)/extlib/$(HOST_ARCH)
 NA_EXTLIBDIR?=$(BUILDROOT)/extlib/noarch
 else
 EXTLIBDIR?=$(TRDIR)/extlib
+HOST_EXTLIBDIR=$(BUILDROOT)/extlib
 NA_EXTLIBDIR?=$(TRDIR)/extlib
 endif
 NDEXTLIBDIR:=$(EXTLIBDIR).nodist
@@ -114,7 +117,7 @@ ABS_DEPDOWNLOAD_RULE_OVERLOADED:=1
 .PRECIOUS: $(ABS_CACHE)/noarch/%
 .PRECIOUS: $(ABS_CACHE)/noarch/%.tar.gz
 .PRECIOUS: $(ABS_CACHE)/noarch/%.jar
-.PRECIOUS: $(ABSWS_EXTLIBDIR)/%/import.mk $(ABSWS_NDEXTLIBDIR)/%/import.mk $(ABSWS_NA_EXTLIBDIR)/%/import.mk $(ABSWS_NDNA_EXTLIBDIR)/%/import.mk
+.PRECIOUS: $(ABSWS_EXTLIBDIR)/%/import.mk $(ABSWS_HOST_EXTLIBDIR)/%/import.mk $(ABSWS_NDEXTLIBDIR)/%/import.mk $(ABSWS_NA_EXTLIBDIR)/%/import.mk $(ABSWS_NDNA_EXTLIBDIR)/%/import.mk
 
 OPEN_BRACE:={
 ABS_REPO_TEMPLATE=$(foreach entry, $(ABS_REPO),$(if $(findstring $(OPEN_BRACE),$(entry)),$(entry),$(entry)/{arch}/{name}-{version}.{arch}.{ext} $(entry)/{arch}/{name}/{name}-{version}.{arch}.{ext} $(entry)/{arch}/{name}-{version}.{ext}))
@@ -212,13 +215,22 @@ $(ABS_CACHE)/noarch/%:
 	$(if $(filter %.jar,$(@F)),@mv $@ $(ABS_CACHE)/noarch/$(_local_jarfile);ln -sf $(ABS_CACHE)/noarch/$(_local_jarfile) $@,)
 
 
-$(ABS_CACHE)/%:
+$(ABS_CACHE)/$(ARCH)/%:
 	@mkdir -p $(@D)
 	@$(ABS_PRINT_info) "Fetching $*..."
 	$(call downloadFromURLs,$@.tmp,$(call GetDownloadURLs,$(subst $(ABS_CACHE)/$(ARCH)/,,$@)))
 	@mv $@.tmp $@
 	@test -f $@
 
+ifneq ($(ARCH),$(HOST_ARCH))
+$(ABS_CACHE)/$(HOST_ARCH)/%:
+	@mkdir -p $(@D)
+	@$(ABS_PRINT_info) "Fetching $*..."
+	$(call downloadFromURLs,$@.tmp,$(call GetDownloadURLs,$(subst $(ABS_CACHE)/$(HOST_ARCH)/,,$@)))
+	@mv $@.tmp $@
+	@test -f $@
+
+endif
 # extract import.mk at the end to be sure the extraction is complete.
 define unpackArchive
 	@$(ABS_PRINT_info) "Unpacking library : $*"
@@ -234,6 +246,11 @@ endef
 $(ABSWS_EXTLIBDIR)/%/import.mk: $(ABS_CACHE)/$(ARCH)/%/pck.tar.gz
 	$(call unpackArchive,$(ABSWS_EXTLIBDIR))
 
+ifneq ($(ARCH),$(HOST_ARCH))
+$(ABSWS_HOST_EXTLIBDIR)/%/import.mk: $(ABS_CACHE)/$(HOST_ARCH)/%/pck.tar.gz
+	$(call unpackArchive,$(ABSWS_HOST_EXTLIBDIR))
+
+endif
 # unpack external lib that should not be forwarded to dist package
 $(ABSWS_NDEXTLIBDIR)/%/import.mk: $(ABS_CACHE)/$(ARCH)/%/pck.tar.gz
 	$(call unpackArchive,$(ABSWS_NDEXTLIBDIR))
@@ -282,6 +299,11 @@ endef
 $(EXTLIBDIR)/%/import.mk: $(ABSWS_EXTLIBDIR)/%/import.mk
 	$(call extlib_linkLibrary)
 
+ifneq ($(ARCH),$(HOST_ARCH))
+$(HOST_EXTLIBDIR)/%/import.mk: $(ABSWS_HOST_EXTLIBDIR)/%/import.mk
+	$(call extlib_linkLibrary)
+
+endif
 # unpack external lib that should not be forwarded to dist package
 $(NDEXTLIBDIR)/%/import.mk: $(ABSWS_NDEXTLIBDIR)/%/import.mk
 	$(call extlib_linkLibrary)

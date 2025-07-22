@@ -111,12 +111,19 @@ _comma_=,
 ##  - ABS_REPO: dependencies repositories. URL pattern. Repositories shall
 ##       be listed according the expected search order. Use space char as
 ##       separator.
-##       Pattern shall include % char for file name substitution.
-##       Pattern may include any other variable, however ARCH variable
-##       shall be someway escaped with double $ to be properly substitued
-##       in any case.
-##       Exemple:
-##       ABS_REPO=file://usr/local/dist/$$(ARCH)/% https://example.org/abs/%?arch=$$(ARCH)
+##       Pattern shall include any of the following variable in accolades:
+##        - arch: architecture name
+##        - name: package name
+##        - version: package version.
+##        - ext: file extension
+##       When none of the variable above is given, the entry is understood as
+##       an URL prefix on witch standard pattern are applied. Then defining
+##       ABS_REPO to https://example.com/abs is equivalent to the list of the
+##       following sequence of patterns:
+##          https://example.com/abs/{arch}/{name}-{version}.{arch}.{ext}
+##          https://example.com/abs/{arch}/{name}/{name}-{version}.{arch}.{ext}
+##          https://example.com/abs/{arch}/noarch/{name}-{version}.noarch.{ext}
+##          https://example.com/abs/{arch}/noarch/{name}-{version}.{ext}
 
 ##  - USER: name of the user running the build
 USER?=$(shell whoami)
@@ -164,6 +171,14 @@ include $(BUILDROOT)/.abs/$(HOSTNAME)-vars.mk
 
 ##  - ARCH: Architecture (ex: Debian_8_x86_64)
 ARCH?=$(SYSNAME)_$(HWNAME)
+# architecture of the host actually running ABS
+HOST_ARCH=$(ARCH)
+# compatibility with previously used variable.
+# TODO unify XARCH and CROSS_ARCH ? => XARCH?=$(CROSS_ARCH)
+ifneq ($(XARCH),)
+ARCH=$(XARCH)
+endif
+
 
 ifeq ($(ISWINDOWS),true)
 PATH_SEP:=;
