@@ -5,46 +5,39 @@
 ##
 ## Test services variables
 ##
-##  - CPPUNIT: cppunit version. Default is set accorging your gcc version
-##    - 1.14.0 for gcc >= 6.0
-##    - 1.12.1 for gcc < 6.0
-##	- TUSEMOD: The other mods of the project to link for the tests.
+##  - CPP_UNIT_TESTER: Unit tester, choose one of:
+##    - cppunit
+##    - googletest
+##    - geod
+##    cppunit is the default.
+##  - TUSEMOD: The other mods of the project to link for the tests.
 ##  - TLINKLIB: List of libraries to link for tests.
 ##  - TCFLAGS: CFLAGS used for tests compilation
 ##  - TLDFLAGS: LDFLAGS used for tests linkage
 ##  - TDISABLE_SRC: List of files in test directory to not compile
 ##
 ## ------------------------------------------------------------------------
-ifeq ($(filter %-win32 %-posix,$(CC_VERSION)),)
-CC_VERSION_GE6:=$(shell [ `echo "$(CC_VERSION)" | cut -f1 -d.` -ge 6 ] && echo true || echo false)
-ifeq ($(CC_VERSION_GE6),false)
-CPPUNIT?=cppunit|1.12.1
-endif
-endif
-CPPUNIT?=cppunit|1.14.0
 
-TESTRUNNER=ctrunner$(BINEXT)
-TXTXSL=xunit2txt.xsl
-# default TIMEOUT 10min
-TIMEOUT?=600
-ifeq ($(COLORS_TCAP),yes)
-TIMEOUTCMD:=
-else
-TIMEOUTCMD:=timeout $(TIMEOUT)
-endif
-
-CPPUNIT_DIR=$(call GetExtLibDir,$(NDEXTLIBDIR),$(CPPUNIT))
-TCFLAGS+=-I$(CPPUNIT_DIR)/include
-TLDFLAGS+=-L$(CPPUNIT_DIR)/$(SODIR)
-TLINKLIB+=cppunit
+CPP_UNIT_TESTER?=cppunit
+# include selected test tool definitions
+include $(ABSROOT)/core/xunit/$(CPP_UNIT_TESTER).mk
 
 # valgrind
 VALGRIND=valgrind
 
 # Target definition.
-TTARGETFILE=$(TTARGETDIR)/t_$(TARGET)
 ifeq ($(ISWINDOWS),true)
-TCYGTARGET=$(TTARGETDIR)/t_$(CYGTARGET)
+  ifeq ($(DYNAMIC_LIB),true)
+     TCYGTARGET=$(TTARGETDIR)/t_$(CYGTARGET)
+  else
+     TCYGTARGET=$(TTARGETDIR)/t_$(subst $(SOEXT),$(AREXT),$(CYGTARGET))
+  endif
+else
+  ifeq ($(DYNAMIC_LIB),true)
+     TTARGETFILE=$(TTARGETDIR)/t_$(TARGET)
+  else
+     TTARGETFILE=$(TTARGETDIR)/t_$(subst $(SOEXT),$(AREXT),$(TARGET))
+  endif
 endif
 TARGETFILES+=$(TTARGETFILE)
 
@@ -66,7 +59,12 @@ TCFLAGS+=$(patsubst %,-I$(PRJROOT)/%/include,$(INCLUDE_TESTMODS_PROJ))
 
 # linker options specific to test
 TLDFLAGS+=-L$(TRDIR)/$(SODIR)
+ifeq ($(DYNAMIC_LIB),true)
 TLDFLAGS+=$(patsubst %,-l%,$(call GetExistingModGeneratedSO,$(TESTUSEMOD)))
+endif
+ifeq ($(STATIC_LIB),true)
+TLDFLAGS+=$(patsubst %,-l%,$(call GetExistingModGeneratedArchive,$(TESTUSEMOD)))
+endif
 TLDFLAGS+=$(patsubst %,-l%,$(TLINKLIB))
 
 INCLUDE_TESTMODS_EXT=$(filter-out $(PROJECT_INC_MODS),$(sort $(T_ALL_DEPENDENCIES)))
@@ -118,14 +116,14 @@ TLDLIBP=$(LDLIBP):$(subst $(_space_),:,$(patsubst -L%,%,$(filter -L%,$(TLDFLAGS)
 $(OBJDIR)/test/%.o: test/%.cpp
 	@$(ABS_PRINT_info) "Compiling test $< ..."
 	@mkdir -p $(@D)
-	@$(call writeToBuildLogs,$(CPPC) $(CXXFLAGS) $(CFLAGS) $(TCFLAGS) -c $< -o $@)
-# generation of header for cppunit tests definition. Remove one line defines to avoid resolving them now.
-	@grep -v "#\s*include" $< | grep -v -E "#\s*define.*[^\]$$" | $(CPPC) -x c++ -E - |\
-		grep -E "ABS_TEST_.*_BEGIN|ABS_TEST_SUITE_END" | sed -E 's/\{ *$$//g' |\
-		$(CPPC) -x c++ -E -include $(ABSROOT)/core/include/abs/testdef2cppunitdecl.h - |\
-		sed -e '/^#/d;s/!$$//g;s/ !!!/\n!!!/g;s/!!!/#/g' > $(patsubst %.o,%.h,$@)
-	$(gen-json-test-cppc)
-	@$(CPPC) $(CXXFLAGS) $(CFLAGS) $(TCFLAGS) -include $(patsubst %.o,%.h,$@) $(GEN_DEP_FLAGS) -c $< -o $@
+	@$(call writeToBuildLogs,$(CPPC) $(CXXFLAGS) $(CFLAGS) $(TCFLAGS) $(TCXXFLAGS) -c $< -o $@)
+	$(pre_compile_cpp_test)
+ifeq ($(wildcard $(patsubst %.o,%.h,$@)),$(patsubst %.o,%.h,$@))
+	@$(CPPC) $(CXXFLAGS) $(TCXXFLAGS) $(CFLAGS) $(TCFLAGS) -include $(patsubst %.o,%.h,$@) $(GEN_DEP_FLAGS) -c $< -o $@
+else
+	@$(CPPC) $(CXXFLAGS) $(TCXXFLAGS) $(CFLAGS) $(TCFLAGS) $(GEN_DEP_FLAGS) -c $< -o $@
+endif
+
 ifeq ($(ISWINDOWS),true)
 	$(win-patch-dep)
 endif
@@ -133,7 +131,7 @@ endif
 $(OBJDIR)/test/%.o: test/%.c
 	@$(ABS_PRINT_info) "Compiling test $< ..."
 	@mkdir -p $(@D)
-	$(gen-json-test-cc)
+	$(pre_compile_c_test)
 	@$(call executeAndLogCmd,$(CC) $(CFLAGS) $(TCFLAGS) $(GEN_DEP_FLAGS) -c $< -o $@)
 ifeq ($(ISWINDOWS),true)
 	$(win-patch-dep)
@@ -150,7 +148,11 @@ $(OBJDIR)/bintest/%.o: $(OBJDIR)/%.o
 endif
 
 ifneq ($(filter exe library,$(MODTYPE)),)
-TTARGETFILEDEP:=$(TARGETFILE)
+  ifeq ($(DYNAMIC_LIB),true)
+     TTARGETFILEDEP:=$(TARGETFILE)
+  else
+     TTARGETFILEDEP:=$(subst $(SOEXT),$(AREXT),$(TARGETFILE))
+  endif
 endif
 
 # link main lib dependencies too (in case the main lib is not directly used.)
@@ -160,14 +162,16 @@ ifneq ($(PREPROC_ONLY),true)
 ifneq ($(ISWINDOWS),true)
 define ld-test
 @$(ABS_PRINT_info) "Linking $@ ..."
+@$(call updateOptionsAndFlags, OPTIONSANDFLAGS, $(LDFLAGS), $(TLDFLAGS), $@)
 @$(call writeToBuildLogs,t_$(MODNAME) linked to $(sort $(patsubst -l%,%,$(TLDFLAGS_L))))
-@$(call executeAndLogCmd,$(LD) -o $@ $(TCPPOBJS) $(LDFLAGS) $(TLDFLAGS))
+@$(call executeAndLogCmd,$(LD) -o $@ $(TCPPOBJS) $(OPTIONSANDFLAGS))
 endef
 else
 define ld-test
 @$(ABS_PRINT_info) "Linking $(TCYGTARGET) ..."
+@$(call updateOptionsAndFlags, OPTIONSANDFLAGS, $(LDFLAGS), $(TLDFLAGS), $@)
 @$(call writeToBuildLogs,t_$(MODNAME) linked to $(sort $(patsubst -l%,%,$(TLDFLAGS_L))))
-@$(call executeAndLogCmd,$(LD) -shared -o $(TCYGTARGET) $(call getWindowsLibLDFlags,$@,$(TCPPOBJS)) $(LDFLAGS) $(TLDFLAGS))
+@$(call executeAndLogCmd,$(LD) -o $(TCYGTARGET) $(call getWindowsLibLDFlags,$@,$(TCPPOBJS)) $(OPTIONSANDFLAGS))
 endef
 endif
 else
@@ -177,19 +181,26 @@ endef
 endif
 
 # link test target from test objects.
-$(TTARGETFILE): $(TCPPOBJS) $(TTARGETFILEDEP)
+$(TTARGETFILE): $(TCPPOBJS) $(TTARGETFILEDEP) $(LD_SCRIPT)
 	@mkdir -p $(@D)
-	@$(ld-test)
+	@$(ld-test) $(LD_APPEND)
 
 # CPPUNIT must be added before following rules to recompute $(EXTLIBMAKES)
 NDUSELIB+=$(CPPUNIT)
+ifneq ($(XARCH),)
+# TODO: Unsure, NDXA_USELIB not define previously (not well reported everything from Antoine)...
+NDXA_USELIB+=$(CPP_UNIT_TESTER_LIB)
+else
+NDUSELIB+=$(CPP_UNIT_TESTER_LIB)
+endif
+
 # ---------------------------------------------------------------------
 # Extra dependencies
 # ---------------------------------------------------------------------
 # Generating test object need cppunit libs and tools to be availables
 $(TCPPOBJS): $(EXTLIBMAKES)
 
-ifneq ($(wildcard test/Main.cpp),)
+ifneq ($(ARE_TESTS_AVAILABLE),)
 
 # Variable to handle the filter of some test files defined in FILTER_TEST_FILES.
 # The files in FILTER_TEST_FILES must start with 'test/'.
@@ -222,20 +233,14 @@ WINEFULLPATH=$(TRDIR)/bin;$(subst :,;,$(TLDLIBP))
 ifneq ($(ISWINDOWS),true)
 define exec-test
 @$(RUNTIME_PROLOG)
-@( [ -d test ] && PATH="$(RUNPATH)" LD_LIBRARY_PATH="$(TLDLIBP)" WINEPATH="$(WINEFULLPATH);$$WINEPATH" TRDIR="$(TRDIR)" TTARGETDIR="$(TTARGETDIR)" LD_PRELOAD="$(TLDPRELOADFORMATTED)" $(RUNTIME_ENV) $1 $(ARCH_EXECUTOR) $(CPPUNIT_DIR)/bin/$(TESTRUNNER) -x $(TEST_REPORT_PATH) $(TTARGETFILE) $(RUNARGS) $(patsubst %,+f %,$(T)) $(TARGS) 2>&1 | tee $(TTARGETDIR)/$(APPNAME)_$(MODNAME).stdout ) || :
+@( [ -d test ] && PATH="$(RUNPATH)" LD_LIBRARY_PATH="$(TLDLIBP)" WINEPATH="$(WINEFULLPATH);$$WINEPATH" TRDIR="$(TRDIR)" TTARGETDIR="$(TTARGETDIR)" LD_PRELOAD="$(TLDPRELOADFORMATTED)" $(RUNTIME_ENV) $1 $(ARCH_EXECUTOR) $(TEST_RUNNER_CMD) $(TTARGETFILE) $(TEST_RUNNER_ARG_XML)$(TEST_REPORT_PATH) $(RUNARGS) $(patsubst %,+f %,$(T)) $(TARGS) 2>&1 | tee $(TTARGETDIR)/$(APPNAME)_$(MODNAME).stdout ) || :
 @$(RUNTIME_EPILOG)
 endef
 else
 define exec-test
-@( [ -d test ] && PATH="$(RUNPATH):$(TLDLIBP)" LD_LIBRARY_PATH="$(TLDLIBP)" WINEPATH="$(WINEFULLPATH);$$WINEPATH" TRDIR="$(TRDIR)" TTARGETDIR="$(TTARGETDIR)" LD_PRELOAD="$(TLDPRELOADFORMATTED)" $(RUNTIME_ENV) $1 $(ARCH_EXECUTOR) $(CPPUNIT_DIR)/bin/$(TESTRUNNER) -x $(TEST_REPORT_PATH) $(TCYGTARGET) $(RUNARGS) $(patsubst %,+f %,$(T)) $(TARGS) 2>&1 | tee $(TTARGETDIR)/$(APPNAME)_$(MODNAME).stdout ) || true
+@( [ -d test ] && PATH="$(RUNPATH):$(TLDLIBP)" LD_LIBRARY_PATH="$(TLDLIBP)" WINEPATH="$(WINEFULLPATH);$$WINEPATH" TRDIR="$(TRDIR)" TTARGETDIR="$(TTARGETDIR)" LD_PRELOAD="$(TLDPRELOADFORMATTED)" $(RUNTIME_ENV) $1 $(ARCH_EXECUTOR) $(TEST_RUNNER_CMD) $(TCYGTARGET) $(TEST_RUNNER_ARG_XML)$(TEST_REPORT_PATH) $(RUNARGS) $(patsubst %,+f %,$(T)) $(TARGS) 2>&1 | tee $(TTARGETDIR)/$(APPNAME)_$(MODNAME).stdout ) || true
 endef
 endif
-
-define post-test
-@( [ -d test -a ! -r $(TEST_REPORT_PATH) ] && $(ABS_PRINT_error) "no test report, test runner exited abnormally." ) || true
-@( [ -d test -a -r $(TEST_REPORT_PATH) ] && xsltproc $(ABSROOT)/core/$(TXTXSL) $(TEST_REPORT_PATH) ) || true
-@if [ -d test ]; then [ -s $(TEST_REPORT_PATH) ]; else true; fi
-endef
 
 define run-test
 $(pre-test)
@@ -374,54 +379,7 @@ TESTNAME=$(word 2,$(MAKECMDGOALS))$(T)
 
 .PHONY: newtest
 newtest:
-	@$(ABS_PRINT_info) "Generating test class test/Test$(TESTNAME).cpp to test $(TESTNAME) class."
-	@mkdir -p test
-	@test -f test/Main.cpp || printf "#include <cppunit/plugin/TestPlugIn.h>\n#undef main\n\
-CPPUNIT_PLUGIN_IMPLEMENT();\n" > test/Main.cpp
-	@test -f test/Test$(TESTNAME).cpp || printf "/*\n\
- * @file Test$(TESTNAME).cpp\n\
- *\n\
- * Copyright %d $(COMPANY). All rights reserved.\n\
- * Use is subject to license terms.\n\
- *\n\
- * \$$Id$$\n\
- * \$$Date$$\n\
- */\n\
-#include \"abs/test.h\"\n\
-#include \"$(TINC_PATH)/$(TESTNAME).hpp\"\n\
-\n\
-namespace test {\n\
-using namespace $(TNAMESPACE);\n\
-\n\
-// ----------------------------------------------------------\n\
-// test suite implementation\n\
-ABS_TEST_SUITE_BEGIN( $(TESTNAME) )\n\
-// uncomment and complete next line for test suite description\n\
-// ABS_TEST_DESCR(test description)\n\
-\n\
-private:\n\
-\n\
-public:\n\
-    void setUp() override {\n\
-    }\n\
-\n\
-    void tearDown() override {\n\
-    }\n\
-\n\
-/* Test case template, uncomment and complete according this pattern for each test case\n\
-    ABS_TEST_CASE_BEGIN(NameOfTestCase) {\n\
-        ABS_TEST_DESCR(Test case description)\n\
-        ABS_TEST_CASE_REQ(req.id) // one entry for each requirement checked by this case\n\
-        // init/call service / function to be tested and collect results\n\
-\n\
-        // check results with cppunit asserts\n\
-        CPPUNIT_ASSERT( bool expr);\n\
-        CPPUNIT_ASSERT_EQUAL(expected_value,computed_value);\n\
-    }\n\
-    ABS_TEST_CASE_END\n\
-*/\n\
-ABS_TEST_SUITE_END\n\
-} // namespace test\n" `date +%Y` > test/Test$(TESTNAME).cpp
+	$(new_test_cmd)
 
 $(TESTNAME):
 	@:

@@ -6,11 +6,11 @@
 ## 
 ##  - JUNIT: junit package name (default is junit-4.8.2)
 ##  - TARGS: run only test class with name containing the string given with this variable.
-JUNIT?=junit-4.8.2
-JUNITXML?=junitXmlFormatter-0.0
+JUNIT?=junit|4.8.2
+JUNITXML?=junitXmlFormatter|0.0
 
-JUNIT_JAR_FILE=$(ABS_CACHE)/noarch/$(JUNIT).jar
-JUNITXML_JAR_FILE=$(ABS_CACHE)/noarch/$(JUNITXML).jar
+JUNIT_JAR_FILE=$(ABS_CACHE)/noarch/$(subst |,-,$(JUNIT)).jar
+JUNITXML_JAR_FILE=$(ABS_CACHE)/noarch/$(subst |,-,$(JUNITXML)).jar
 
 TXTXSL=xunit2txt.xsl
 TESTCLASSFILES=$(patsubst %.java,$(OBJDIR)/%.class,$(shell find test -name "Test*.java" 2>/dev/null))
