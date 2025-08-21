@@ -169,14 +169,27 @@ endif
 
 include $(BUILDROOT)/.abs/$(HOSTNAME)-vars.mk
 
-##  - ARCH: Architecture (ex: Debian_8_x86_64)
+HOST_ARCH?=$(HOST_SYSNAME)_$(HOST_HWNAME)
+##  - SYSNAME: target operating system name, default is to use hot's system name.
+SYSNAME=$(HOST_SYSNAME)
+##  - HMNAME: target hardware name (CPU architecture name), default is to use hot's hardware name.
+HWNAME=$(HOST_HWNAME)
+##  - ARCH: Target architecture (ex: Debian_8_x86_64), default is built from SYSNAME and HWNAME.
 ARCH?=$(SYSNAME)_$(HWNAME)
 # architecture of the host actually running ABS
-HOST_ARCH=$(ARCH)
 # compatibility with previously used variable.
-# TODO unify XARCH and CROSS_ARCH ? => XARCH?=$(CROSS_ARCH)
+##  - CROSS_ARCH (or XARCH in short): target architecture for cross compilation
 ifneq ($(XARCH),)
 ARCH=$(XARCH)
+else
+ifneq ($(CROSS_ARCH),)
+ARCH=$(CROSS_ARCH)
+endif
+endif
+
+# mingw is a arch shortcut for cross compile from linux to windows
+ifeq ($(ARCH),mingw)
+ARCH:=Windows_$(HWNAME)
 endif
 
 

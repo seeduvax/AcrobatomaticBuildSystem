@@ -188,9 +188,10 @@ endef
 
 # Get URL list related to a package
 # $1 package file name. expected format is <name>/<version>/pck.<ext>
+# $2 architecture
 define GetDownloadURLs
-$(call SubstituteRepoTemplate,$(word 1,$(subst /, ,$1)),$(word 2,$(subst /, ,$1)),$(ARCH),$(subst pck.,,$(word 3,$(subst /, ,$1)))) \
-$(if $(filter $(ARCH),$(KERNARCH)),,$(call SubstituteRepoTemplate,$(word 1,$(subst /, ,$1)),$(word 2,$(subst /, ,$1)),$(KERNARCH),$(subst pck.,,$(word 3,$(subst /, ,$1))))) \
+$(call SubstituteRepoTemplate,$(word 1,$(subst /, ,$1)),$(word 2,$(subst /, ,$1)),$2,$(subst pck.,,$(word 3,$(subst /, ,$1)))) \
+$(if $(filter $2,$(KERNARCH)),,$(call SubstituteRepoTemplate,$(word 1,$(subst /, ,$1)),$(word 2,$(subst /, ,$1)),$(KERNARCH),$(subst pck.,,$(word 3,$(subst /, ,$1))))) \
 $(call SubstituteRepoTemplate,$(word 1,$(subst /, ,$1)),$(word 2,$(subst /, ,$1)),noarch,$(subst pck.,,$(word 3,$(subst /, ,$1))))
 endef
 
@@ -218,7 +219,7 @@ $(ABS_CACHE)/noarch/%:
 $(ABS_CACHE)/$(ARCH)/%:
 	@mkdir -p $(@D)
 	@$(ABS_PRINT_info) "Fetching $*..."
-	$(call downloadFromURLs,$@.tmp,$(call GetDownloadURLs,$(subst $(ABS_CACHE)/$(ARCH)/,,$@)))
+	$(call downloadFromURLs,$@.tmp,$(call GetDownloadURLs,$(subst $(ABS_CACHE)/$(ARCH)/,,$@),$(ARCH)))
 	@mv $@.tmp $@
 	@test -f $@
 
@@ -226,7 +227,7 @@ ifneq ($(ARCH),$(HOST_ARCH))
 $(ABS_CACHE)/$(HOST_ARCH)/%:
 	@mkdir -p $(@D)
 	@$(ABS_PRINT_info) "Fetching $*..."
-	$(call downloadFromURLs,$@.tmp,$(call GetDownloadURLs,$(subst $(ABS_CACHE)/$(HOST_ARCH)/,,$@)))
+	$(call downloadFromURLs,$@.tmp,$(call GetDownloadURLs,$(subst $(ABS_CACHE)/$(HOST_ARCH)/,,$@),$(HOST_ARCH),))
 	@mv $@.tmp $@
 	@test -f $@
 
@@ -363,6 +364,7 @@ EXTLIBS_ALL_USELIB=$(sort $(USELIB) $(MODS_USELIBS))
 EXTLIBS_ALL_NDUSELIB=$(sort $(NDUSELIB) $(MODS_NDUSELIBS))
 EXTLIBS_ALL_NAUSELIB=$(NA_USELIB)
 EXTLIBS_ALL_NDNAUSELIB=$(NDNA_USELIB)
+EXTLIBS_ALL_HOSTUSELIB=$(HOST_USELIB)
 
 ALLUSELIB=$(sort $(USELIB) $(NDUSELIB) $(MODS_USELIBS) $(MODS_NDUSELIBS))
 DEV_USELIB=$(filter-out $(DEV_USELIB_IGNORE),$(filter %d,$(ALLUSELIB)))
@@ -433,6 +435,7 @@ $(if $(call isLibInList,$1-$2,$(EXTLIBS_ALL_USELIB)),$(call extlib_import2,$1,$2
 $(if $(call isLibInList,$1-$2,$(EXTLIBS_ALL_NAUSELIB)),$(call extlib_import2,$1,$2,$3,$(NA_EXTLIBDIR),EXTLIBS_ALL_NAUSELIB))
 $(if $(call isLibInList,$1-$2,$(EXTLIBS_ALL_NDUSELIB)),$(call extlib_import2,$1,$2,$3,$(NDEXTLIBDIR),EXTLIBS_ALL_NDUSELIB))
 $(if $(call isLibInList,$1-$2,$(EXTLIBS_ALL_NDNAUSELIB)),$(call extlib_import2,$1,$2,$3,$(NDNA_EXTLIBDIR),EXTLIBS_ALL_NDNAUSELIB))
+$(if $(call isLibInList,$1-$2,$(EXTLIBS_ALL_HOSTUSELIB)),$(call extlib_import2,$1,$2,$3,$(HOST_EXTLIBDIR),EXTLIBS_ALL_HOSTUSELIB))
 endef
 
 define extlib_import_template
@@ -452,8 +455,8 @@ EXTLIBMAKES= \
 	$(foreach entry,$(sort $(USELIB) $(MODS_USELIBS)),$(call GetExtLibDir,$(EXTLIBDIR),$(entry))/import.mk) \
 	$(foreach entry,$(sort $(NDUSELIB) $(MODS_NDUSELIBS)),$(call GetExtLibDir,$(NDEXTLIBDIR),$(entry))/import.mk) \
 	$(foreach entry,$(sort $(NDNA_USELIB)),$(call GetExtLibDir,$(NDNA_EXTLIBDIR),$(entry))/import.mk) \
-	$(foreach entry,$(sort $(NA_USELIB)),$(call GetExtLibDir,$(NA_EXTLIBDIR),$(entry))/import.mk)
-	
+	$(foreach entry,$(sort $(NA_USELIB)),$(call GetExtLibDir,$(NA_EXTLIBDIR),$(entry))/import.mk) \
+	$(foreach entry,$(sort $(HOST_USELIB)),$(call GetExtLibDir,$(HOST_EXTLIBDIR),$(entry))/import.mk)
 
 DEFAULT_EXTLIBMAKES:=$(EXTLIBMAKES)
 

@@ -10,12 +10,6 @@ $(BUILDROOT)/.abs/vars.mk:
 $(BUILDROOT)/.abs/$(HOSTNAME)-vars.mk:
 	mkdir -p $(@D)
 	@echo "# generated file, do not edit" > $@
-	@printf 'ifeq ($$(CROSS_ARCH),mingw)\n'\
-	'    SYSNAME?=Windows\n'\
-	'else\n'\
-	'ifneq ($$(CROSS_ARCH),)\n'\
-	'    HWNAME?=$$(CROSS_ARCH)\n'\
-	'endif\nendif\n' >> $@
 	@LSBRCMD=`which lsb_release 2>/dev/null` ;\
 	release="" ;\
 	distId="" ;\
@@ -31,9 +25,9 @@ $(BUILDROOT)/.abs/$(HOSTNAME)-vars.mk:
 		distId=`uname -o | sed 's:[/ ]:_:g'` ;\
 	fi ;\
 	case "$$distId"_"$$release" in \
-		_) echo "SYSNAME?=UnknownArch" >> $@ ;;\
-		Msys*|Cygwin*) echo "SYSNAME?=Windows" >> $@;;\
-		*) echo "SYSNAME?=$$distId"_"$$mrelease" >> $@;;\
+		_) echo "HOST_SYSNAME?=UnknownArch" >> $@ ;;\
+		Msys*|Cygwin*) echo "HOST_SYSNAME?=Windows" >> $@;;\
+		*) echo "HOST_SYSNAME?=$$distId"_"$$mrelease" >> $@;;\
 	esac
-	@echo "HWNAME?="`uname -m` >> $@
-	@echo 'KERNARCH?=$$(if $$(filter Windows,$$(SYSNAME)),$$(SYSNAME),'`uname -s`')_$$(HWNAME)' >> $@
+	@echo "HOST_HWNAME?="`uname -m` >> $@
+	@echo 'KERNARCH?=$$(if $$(filter Windows,$$(HOST_SYSNAME)),$$(HOST_SYSNAME),'`uname -s`')_$$(HOST_HWNAME)' >> $@

@@ -1,20 +1,22 @@
 # Creation of default variables for cross compilation
 # CROSS_COMPILE is a wide spread variable name used for cross compilation.
-ifeq ($(CROSS_ARCH),mingw)
-CROSS_COMPILE?=x86_64-w64-mingw32-
-ARCH_EXECUTOR?=wine
-else
-ifneq ($(CROSS_ARCH),)
-CROSS_COMPILE?=$(CROSS_ARCH)-linux-gnu-
-ARCH_EXECUTOR?=qemu-$(CROSS_ARCH)-static
-endif
+ifneq ($(ARCH),$(HOST_ARCH))
+  ifeq ($(ARCH),Windows_x86_64)
+    # in this case target is windows while host is not, we assume mingw
+    # compiler shall be used.
+    CROSS_COMPILE?=x86_64-w64-mingw32-
+    ARCH_EXECUTOR?=wine
+  else
+    CROSS_COMPILE?=$(HWNAME)-linux-gnu-
+    ARCH_EXECUTOR?=qemu-$(HWNAME)-static
+  endif
 endif
 
 # default C flags
 CFLAGS+=-I$(ABSROOT)/core/include
 CFLAGS+=-Iinclude -I$(TRDIR)/include
 
-ifneq ($(filter true,$(ISWINDOWS))$(filter mingw,$(CROSS_ARCH)),)
+ifneq ($(filter Windows_%,$(ARCH)),)
 # compilation of windows executable (in cross compilation or directly on windows.)
 CFLAGS+=-Wa,-mbig-obj
 else
@@ -46,7 +48,7 @@ SOEXT?=dll.a
 SOPFX?=lib
 BINEXT=.exe
 else
-ifeq ($(CROSS_ARCH),mingw)
+ifeq ($(ARCH),mingw)
 SOEXT?=dll
 SOPFX?=
 BINEXT=.exe
@@ -56,8 +58,6 @@ SOPFX?=lib
 BINEXT=
 endif
 endif
-
-CC_VERSION:=$(shell $(CC) -dumpversion)
 
 # add extra symbol definition
 CFLAGS+=$(patsubst %,-D%,$(DEFINES))
