@@ -16,7 +16,7 @@ endif
 CFLAGS+=-I$(ABSROOT)/core/include
 CFLAGS+=-Iinclude -I$(TRDIR)/include
 
-ifneq ($(filter Windows_%,$(ARCH)),)
+ifeq ($(SYSNAME),Windows)
 # compilation of windows executable (in cross compilation or directly on windows.)
 CFLAGS+=-Wa,-mbig-obj
 else
@@ -43,20 +43,14 @@ endif
 
 AREXT?=a
 SODIR?=lib
-ifeq ($(ISWINDOWS),true)
+ifeq ($(SYSNAME),Windows)
 SOEXT?=dll.a
-SOPFX?=lib
-BINEXT=.exe
-else
-ifeq ($(ARCH),mingw)
-SOEXT?=dll
 SOPFX?=
 BINEXT=.exe
 else
 SOEXT?=so
 SOPFX?=lib
 BINEXT=
-endif
 endif
 
 # add extra symbol definition
