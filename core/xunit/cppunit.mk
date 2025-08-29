@@ -28,8 +28,8 @@ TCFLAGS+=-I$(CPPUNIT_DIR)/include
 TLDFLAGS+=-L$(CPPUNIT_DIR)/$(SODIR)
 TLINKLIB+=cppunit
 
-define pre_compile_cpp_test
 # generation of header for cppunit tests definition. Remove one line defines to avoid resolving them now.
+define pre_compile_cpp_test
 	@grep -v "#\s*include" $< | grep -v -E "#\s*define.*[^\]$$" | $(CPPC) -x c++ -E - |\
 		grep -E "ABS_TEST_.*_BEGIN|ABS_TEST_SUITE_END" | sed -E 's/\{ *$$//g' |\
 		$(CPPC) -x c++ -E -include $(ABSROOT)/core/include/abs/testdef2cppunitdecl.h - |\

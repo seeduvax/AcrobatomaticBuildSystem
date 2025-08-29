@@ -32,6 +32,7 @@ ifeq ($(ISWINDOWS),true)
   else
      TCYGTARGET=$(TTARGETDIR)/t_$(subst $(SOEXT),$(AREXT),$(CYGTARGET))
   endif
+  TTARGETFILE=$(TCYGTARGET)
 else
   ifeq ($(DYNAMIC_LIB),true)
      TTARGETFILE=$(TTARGETDIR)/t_$(TARGET)
