@@ -20,7 +20,7 @@ testFileExists $projBOutDir/include/projB/cpplib3/inc3.hpp
 echo "#### Launch generation patches"
 projBOUtPatchesDir=$testDirectory/projBPatches
 cd projB
-ARCH=NotALinux make generatePatches -C cpplib3 ARCHSRC_GENE_PATCHES_OUT=$projBOUtPatchesDir
+ARCH=NotALinux HOST_ARCH=NotALinux make generatePatches -C cpplib3 ARCHSRC_GENE_PATCHES_OUT=$projBOUtPatchesDir
 if [ $? -ne 0 ]; then
     echo "Error while executing make generatePatches on projB"
     doExit 3

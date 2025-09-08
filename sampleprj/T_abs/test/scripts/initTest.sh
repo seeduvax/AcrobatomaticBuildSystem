@@ -67,7 +67,7 @@ function executeMake {
     echo ""
     shift;shift;
     # reset makelevel to 0
-    MAKELEVEL=0 ARCH=NotALinux make -C $module $goal ABS_LOG_LEVEL=debug $*
+    MAKELEVEL=0 ARCH=NotALinux HOST_ARCH=NotALinux make -C $module $goal ABS_LOG_LEVEL=debug $*
     if [ $? -ne 0 ]; then
         echo "Error while executing make $goal on $module"
         doExit 11
@@ -82,7 +82,7 @@ function executeMakeWithError {
     echo ""
     shift;shift;
     # reset makelevel to 0
-    MAKELEVEL=0 ARCH=NotALinux make -C $module $goal ABS_LOG_LEVEL=debug $*
+    MAKELEVEL=0 ARCH=NotALinux HOST_ARCH=NotALinux make -C $module $goal ABS_LOG_LEVEL=debug $*
     if [ $? -eq 0 ]; then
         echo "The execution of make $goal on $module should be in error"
         doExit 15
