@@ -176,11 +176,16 @@ SYSNAME?=$(HOST_SYSNAME)
 HWNAME?=$(HOST_HWNAME)
 # architecture of the host actually running ABS
 # compatibility with previously used variable.
-##  - CROSS_ARCH [deprecated]: target architecture for cross compilation
+##  - CROSS_ARCH [deprecated]: target hardware name for cross compilation
 ##  - XARCH [deprecated]: target hardware name for cross compilation
 ifneq ($(XARCH),)
 $(info $(shell $(ABS_PRINT_warn) "XARCH is deprecated, override SYSNAME and/or HWNAME to define target architecture for cross compilation"))
 HWNAME:=$(XARCH)
+endif
+
+ifneq ($(CROSS_ARCH),)
+$(info $(shell $(ABS_PRINT_warn) "CROSS_ARCH is deprecated, override SYSNAME and/or HWNAME to define target architecture for cross compilation"))
+HWNAME:=$(CROSS_ARCH)
 endif
 
 # mingw is a shortcut for cross compile from linux to windows
@@ -190,12 +195,6 @@ SYSNAME:=Windows
 endif
 
 ARCH?=$(SYSNAME)_$(HWNAME)
-ifneq ($(CROSS_ARCH),)
-$(info $(shell $(ABS_PRINT_warn) "CROSS_ARCH is deprecated, override SYSNAME and/or HWNAME to define target architecture for cross compilation"))
-ARCH:=$(CROSS_ARCH)
-endif
-
-
 
 ifeq ($(ISWINDOWS),true)
 PATH_SEP:=;

@@ -8,12 +8,14 @@ KERNELDIR?=/lib/modules/$(KVERSION)/build
 endif
 LKMNAME:=$(patsubst %_lkm,%,$(MODNAME))
 
-ifeq ($(CROSS_ARCH),mingw)
-CROSS_COMPILE?=x86_64-w64-mingw32-
-else
-ifneq ($(CROSS_ARCH),)
-CROSS_COMPILE?=$(CROSS_ARCH)-linux-gnu-
-endif
+ifneq ($(ARCH),$(HOST_ARCH))
+  ifeq ($(ARCH),Windows_x86_64)
+    # in this case target is windows while host is not, we assume mingw
+    # compiler shall be used.
+    CROSS_COMPILE?=x86_64-w64-mingw32-
+  else
+    CROSS_COMPILE?=$(HWNAME)-linux-gnu-
+  endif
 endif
 
 include $(ABSROOT)/core/module-cheaders.mk
