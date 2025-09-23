@@ -208,15 +208,26 @@ cleandist:
 	@$(ABS_PRINT_info) "Removing dist"
 	@rm -rf dist
 
-pubdist: dist
-	@$(ABS_PRINT_info)  "Publishing dist archive $(DIST_ARCHIVE) $(USER) on $(DISTREPO)"
+ifdef pubdist-cmd
 ifneq ($(filter file://%,$(PROJ_DIST_REPO)),)
+define pubdist-cmd
+	@$(ABS_PRINT_info)  "Publishing dist archive $(DIST_ARCHIVE) $(USER) on $(DISTREPO)"
 	@outputFile="$(patsubst file://%,%,$(PROJ_DIST_REPO))/$(APPNAME)-$(VERSION).$(ARCH).tar.gz" && \
-		mkdir -p `dirname $$outputFile` && cp $(DIST_ARCHIVE) $$outputFile
+		mkdir -p `dirname $$outputFile` && cp $1 $$outputFile
+endef
 else
+define pubdist-cmd
+	@$(ABS_PRINT_info)  "Publishing dist archive $(DIST_ARCHIVE) $(USER) on $(DISTREPO)"
 	@ssh $(SSHFLAGS) $(word 1,$(subst :, ,$(PROJ_DIST_REPO))) -C "mkdir -p $(word 2,$(subst :, ,$(PROJ_DIST_REPO)))"
-	@scp $(SCPFLAGS) $(DIST_ARCHIVE) $(PROJ_DIST_REPO)/$(APPNAME)-$(VERSION).$(ARCH).tar.gz
+	@scp $(SCPFLAGS) $1 $(PROJ_DIST_REPO)/$(APPNAME)-$(VERSION).$(ARCH).tar.gz
+endef
 endif
+endif
+
+
+
+pubdist: dist
+	$(call pubdist-cmd,$(DIST_ARCHIVE))
 
 cachedist: dist
 	@$(ABS_PRINT_info) "Storing dist archive $(DIST_ARCHIVE) into local ABS cache"
