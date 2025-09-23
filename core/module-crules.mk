@@ -263,7 +263,6 @@ else
 # Path to dll for Wine execution.
 WINEFULLPATH=$(TRDIR)/bin;$(subst :,;,$(LDLIBP))
 # run application
-# TODO cygwin compat
 run:: all
 	@$(ABS_PRINT_info) "Starting $(TARGETFILE_EXE) $(RUNARGS)"
 	@$(RUNTIME_PROLOG)
@@ -285,7 +284,6 @@ $(GDBCMD): $(TARGETFILE_EXE)
 
 
 # run application with gdb
-# TODO cygwin compat
 debug:: $(GDBCMD)
 	@PATH=$(RUNPATH) $(RUNTIME_ENV) gdb -x $<
 
