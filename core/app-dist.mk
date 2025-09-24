@@ -208,7 +208,7 @@ cleandist:
 	@$(ABS_PRINT_info) "Removing dist"
 	@rm -rf dist
 
-ifdef pubdist-cmd
+ifndef pubdist-cmd
 ifneq ($(filter file://%,$(PROJ_DIST_REPO)),)
 define pubdist-cmd
 	@$(ABS_PRINT_info)  "Publishing dist archive $(DIST_ARCHIVE) $(USER) on $(DISTREPO)"
