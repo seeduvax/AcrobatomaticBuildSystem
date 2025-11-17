@@ -44,13 +44,6 @@ SPACECHAR=
 # Path to receive external source files
 EXT_SRC_DIR=$(BUILDROOT)/extsrc
 
-# Buildcript capabilities
-# introduced in buildscrip 0.4, may be used to have some fallback
-# behavior to support several buildscript versions from imported precompiled
-# dist package.
-# - linklib : independant extlib's CFLAGS/LDFLAGS settings, see RD_TEA332-776
-BUILDSCRIPTS_CAPS:=linklib
-
 # initialize variable that must not be forwared in recursive make call
 COBJS:=
 CPPOBJS:=

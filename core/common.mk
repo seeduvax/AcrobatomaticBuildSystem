@@ -19,6 +19,13 @@ SHELL=/bin/bash
 # macro for pretty message print, use color if available
 COLORS_TCAP:=$(shell ncolors=`tput colors 2>/dev/null` ; ( [ "$$ncolors" != "" ] && [ "$$ncolors" -ge 0 ] ) && echo yes || echo no)
 
+# Buildcript capabilities
+# introduced in buildscrip 0.4, may be used to have some fallback
+# behavior to support several buildscript versions from imported precompiled
+# dist package.
+# - linklib : independant extlib's CFLAGS/LDFLAGS settings, see GIT historic.
+BUILDSCRIPTS_CAPS:=linklib
+
 ABS_LOG_LEVEL?=info
 ifeq ($(COLORS_TCAP),yes)
 ABS_COLOR_DEBUG:=\e[36m
