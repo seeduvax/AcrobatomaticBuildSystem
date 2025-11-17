@@ -20,7 +20,7 @@ $(VSCODE_CPP_CONFIG): app.cfg
 	@printf '        "name": "Linux",\n' >> $@.tmp
 	@printf '        "includePath": [\n' >> $@.tmp
 	@$(foreach mod,$(MODULES_WITH_INCLUDES),printf '            "$${workspaceFolder}/$(mod)/include/",\n' >> $@.tmp;)
-	@$(foreach path,$(patsubst $(BUILDROOT)/%,%,$(wildcard $(EXTLIBDIR)/*/include) $(wildcard $(NA_EXTLIBDIR)/*/include) $(wildcard $(NDEXTLIBDIR)/*/include) $(wildcard $(NDNA_EXTLIBDIR)/*/include)),printf '            "$${workspaceFolder}/build/$(path)",\n' >> $@.tmp;)
+	@$(foreach path,$(patsubst $(BUILDROOT)/%,%,$(wildcard $(EXTLIBDIR)/*/*/include) $(wildcard $(NA_EXTLIBDIR)/*/*/include) $(wildcard $(NDEXTLIBDIR)/*/*/include) $(wildcard $(NDNA_EXTLIBDIR)/*/*/include)),printf '            "$${workspaceFolder}/build/$(path)",\n' >> $@.tmp;)
 	@printf '            "$(ABSROOT)/core/include/"\n' >> $@.tmp
 	@printf '        ],\n' >> $@.tmp
 	@printf '        "compileCommands": "$${workspaceFolder}/compile_commands.json"\n' >> $@.tmp
