@@ -59,12 +59,16 @@ INSTALLTAR_EXCLUDE+=.abs/ import.mk
 ifneq ($(filter 1 true,$(LIGHT_INSTALLER)),)
 INSTALLTAR_EXCLUDE+=share/doc/*/doxygen/ include/ src/
 endif
+
+# for exclusion in tar command, the directory must not end with '/'.
+# => remove this caractere.
+
 ##  - DISTTARFLAGS: arguments to add to tar command when packing files on dist
 ##      and distinstall target.
-DISTTARFLAGS+=$(patsubst %,--exclude=%,$(DIST_EXCLUDE))
+DISTTARFLAGS+=$(patsubst %,--exclude=%,$(filter-out %/,$(DIST_EXCLUDE))) $(patsubst %/,--exclude=%,$(filter %/,$(DIST_EXCLUDE)))
 
 ##  - INSTALLTARFLAGS: arguments to add to tar command when packing files on distinstall target.
-INSTALLTARFLAGS+=$(patsubst %,--exclude=%,$(INSTALLTAR_EXCLUDE))
+INSTALLTARFLAGS+=$(patsubst %,--exclude=%,$(filter-out %/,$(INSTALLTAR_EXCLUDE))) $(patsubst %/,--exclude=%,$(filter %/,$(INSTALLTAR_EXCLUDE)))
 
 # EXPMOD: list of public modules for which includes are inserted into the distribuable archive.
 EXPMOD?=$(MODULES_DEPS)
@@ -158,11 +162,12 @@ $(PRJOBJDIR)/%/.done: $(DEFAULT_EXTLIBMAKES)
 	@$(call checkModName,$*)
 	@mkdir -p $(@D)
 	@mkdir -p $(TRDIR)/.abs/content
-	@touch $(TRDIR)/obj/$*/files.ts
+	@touch $(PRJOBJDIR)/$*/files.ts
 	@+make $(MMARGS) MODE=$(MODE) -C $* && date > $@
-	@find $(TRDIR) -type f -cnewer $(TRDIR)/obj/$*/files.ts | grep -v $(TRDIR)/obj | sed 's~$(TRDIR)/~~g' | grep -E -v "^$(subst *,.*,$(subst $(_space_),|,$(DIST_EXCLUDE)))" > $(TRDIR)/.abs/content/$(APPNAME)_$*.filelist || true
-	@$(if $(filter $*,$(EXPMOD)),test ! -d $*/include || find $*/include -type f | sed 's~^$*/~~g' >> $(TRDIR)/.abs/content/$(APPNAME)_$*.filelist)
-	@rm -f $(TRDIR)/obj/$*/files.ts
+	@find $(TRDIR) -type f -cnewer $(PRJOBJDIR)/$*/files.ts | grep -v $(PRJOBJDIR) | sed 's~$(TRDIR)/~~g' | grep -E -v "$(subst *,.*,$(subst $(_space_),|,$(DIST_EXCLUDE)))" > $(PRJOBJDIR)/$*/.filelist || true
+	@$(if $(filter $*,$(EXPMOD)),test ! -d $*/include || find $*/include -type f | sed 's~^$*/~~g' >> $(PRJOBJDIR)/$*/.filelist)
+	@rm -f $(PRJOBJDIR)/$*/files.ts
+	@mv $(PRJOBJDIR)/$*/.filelist $(TRDIR)/.abs/content/$(APPNAME)_$*.filelist
 	@$(ABS_PRINT_info) "Module $* built."
 
 .PRECIOUS: $(PRJOBJDIR)/%/.testdone	
