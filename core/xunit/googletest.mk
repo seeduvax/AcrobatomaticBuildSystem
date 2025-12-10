@@ -13,6 +13,9 @@ else
 	TCFLAGS+=--std=c++17 
 endif
 
+TEST_SRC_FILE:=test/test_$(TESTNAME).cpp
+TEST_SRC_FILES+=$(TEST_SRC_FILE)
+
 TCFLAGS+=-I$(TESTEXTLIBDIR)/$(GOOGLE_TEST)/include
 TLDFLAGS+=-L$(TESTEXTLIBDIR)/$(GOOGLE_TEST)/$(SODIR) -L$(TESTEXTLIBDIR)/$(GOOGLE_TEST)/$(SODIR)64
 # -L$(TESTEXTLIBDIR)/$(GOOGLE_TEST)/$(SODIR)64 to be confirmed if needed
@@ -46,10 +49,10 @@ TEST_RUNNER_CMD=unbuffer
 
 CPP_UNIT_TESTER_LIB:=$(GOOGLE_TEST)
 
-define new_test_cmd
-	@$(ABS_PRINT_info) "Generating test class test/test_(TESTNAME).cpp to test $(TESTNAME) class."
+$(TEST_SRC_FILE):
+	@$(ABS_PRINT_info) "Generating test class $@ to test $(TESTNAME) class."
 	@mkdir -p test
-	@test -f test/test_(TESTNAME).cpp || printf "|| printf "/*\n\
+	@test -f $@ || printf "|| printf "/*\n\
  * @file Test$(TESTNAME).cpp\n\
  *\n\
  * Copyright %d $(COMPANY). All rights reserved.\n\
@@ -59,6 +62,5 @@ define new_test_cmd
  * \$$Date$$\n\
  */\n\
  \n\
- // namespace test\n" `date +%Y` > test/test_$(TESTNAME).cpp
-endef
+ // namespace test\n" `date +%Y` > $@
 

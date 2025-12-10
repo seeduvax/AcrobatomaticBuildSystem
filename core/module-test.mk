@@ -20,6 +20,9 @@
 
 CPP_UNIT_TESTER?=cppunit
 # include selected test tool definitions
+ifeq ($(word 1,$(MAKECMDGOALS)),newtest)
+TESTNAME=$(word 2,$(MAKECMDGOALS))$(T)
+endif
 include $(ABSROOT)/core/xunit/$(CPP_UNIT_TESTER).mk
 
 # valgrind
@@ -376,11 +379,10 @@ edebugtest:
 
 ##  - newtest <tested class name>: create a new empty test class
 ifeq ($(word 1,$(MAKECMDGOALS)),newtest)
-TESTNAME=$(word 2,$(MAKECMDGOALS))$(T)
 
 .PHONY: newtest
-newtest:
-	$(new_test_cmd)
+newtest: $(TEST_SRC_FILES)
+	@:
 
 $(TESTNAME):
 	@:
