@@ -185,7 +185,7 @@ endef
 # - 1: module type
 # - 2: entry in map
 define getPathForCurrentMod
-$(if $(strip $(call findModTypeInMap,$1,$2)),$(word 1,$(subst :, ,$2)), )
+$(if $(strip $(call findModTypeInMap,$1,$2)),$(word 1,$(subst :, ,$2)))
 endef
 
 # load the makefiles for given modtype
@@ -193,9 +193,8 @@ endef
 # 1 - modtype
 # then include resolved file in case new libs have been added to dependencies.
 define LoadModTypeMakefiles
-$(eval INC_MODULE_FILE_$1:=$(patsubst %,$(foreach entry,$(MODULE_TYPES_MAP),$(call getPathForCurrentMod,$1,$(entry))),$1))
-$(if $(strip $(INC_MODULE_FILE_$1)),$(eval include $(INC_MODULE_FILE_$1)),$(warning Unknown module type $1, no module specific rules included))
-
+$(eval INC_MODULE_FILE_$1:=$(patsubst %,$(foreach entry,$(MODULE_TYPES_MAP),$(call getPathForCurrentMod,$1,$(entry))),$1))\
+$(if $(strip $(INC_MODULE_FILE_$1)),$(eval include $(INC_MODULE_FILE_$1)),$(warning Unknown module type $1, no module specific rules included))\
 $(eval $(call extlib_updates_deps))
 endef
 
