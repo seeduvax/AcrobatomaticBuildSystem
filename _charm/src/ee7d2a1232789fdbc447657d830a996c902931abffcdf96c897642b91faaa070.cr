@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<cr id="ee7d2a1232789fdbc447657d830a996c902931abffcdf96c897642b91faaa070" state="working">
+<cr id="ee7d2a1232789fdbc447657d830a996c902931abffcdf96c897642b91faaa070" state="closed" delivered="abs-3.4.27">
 <title>Integrate cppfmu lib as abs package</title>
 <reporter>sdevaux</reporter>
 <creation>2025-08-20 18:44:27+02:00</creation>

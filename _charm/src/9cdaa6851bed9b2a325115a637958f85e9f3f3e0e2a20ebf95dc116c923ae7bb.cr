@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<cr id="9cdaa6851bed9b2a325115a637958f85e9f3f3e0e2a20ebf95dc116c923ae7bb" state="working">
+<cr id="9cdaa6851bed9b2a325115a637958f85e9f3f3e0e2a20ebf95dc116c923ae7bb" state="closed" delivered="abs-3.4.27">
 <title>Windows compatibility with msys2</title>
 <reporter>sebas</reporter>
 <creation>2024-11-05 22:13:40+01:00</creation>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<cr id="b6ce0872ce6312705d7b7dda4d3f6ead0a903d8106eccab76a0c4c16380779dd" state="working">
+<cr id="b6ce0872ce6312705d7b7dda4d3f6ead0a903d8106eccab76a0c4c16380779dd" state="closed" delivered="abs-3.4.27">
 <title>extend abs repository URL matching templating capabilities</title>
 <reporter>m026258</reporter>
 <creation>2025-06-20 18:27:24+02:00</creation>

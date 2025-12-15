@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<cr id="e2a5ae6cb73385cbb94a71e50c15709a33a63727df054111cdc07f4baf5e712a" state="working">
+<cr id="e2a5ae6cb73385cbb94a71e50c15709a33a63727df054111cdc07f4baf5e712a" state="closed" delivered="abs-3.4.27">
 <title>Integrate luaprompt in lua package</title>
 <reporter>sdevaux</reporter>
 <creation>2025-02-28 15:31:23+01:00</creation>
