@@ -175,22 +175,30 @@ MODULE_TYPES_MAP+=$(ABSROOT)/core/module-%.mk:linuxmodule,java,rust,python,types
     $(ABSROOT)/core/module-java.mk:jar \
 	$(ABSROOT)/%/main.mk:fpga
 
+# find the mod in map
+# - 1: module type
+# - 2: entry in map
 define findModTypeInMap
-$(filter $(MODTYPE),$(subst $(_comma_), ,$(word 2,$(subst :, ,$(entry)))))
+$(filter $1,$(subst $(_comma_), ,$(word 2,$(subst :, ,$2))))
 endef
+# find the path in map
+# - 1: module type
+# - 2: entry in map
 define getPathForCurrentMod
-$(if $(strip $(findModTypeInMap)),$(word 1,$(subst :, ,$(entry))), )
+$(if $(strip $(call findModTypeInMap,$1,$2)),$(word 1,$(subst :, ,$2)))
 endef
 
-INC_MODULE_FILE:=$(patsubst %,$(foreach entry,$(MODULE_TYPES_MAP),$(getPathForCurrentMod)),$(MODTYPE))
-ifneq ($(strip $(INC_MODULE_FILE)),)
-include $(INC_MODULE_FILE)
-else
-$(warning Unknown module type $(MODTYPE), no module specific rules included)
-endif
-
-# include resolved file in case new libs have been added to dependencies.
+# load the makefiles for given modtype
+# macro callable from external makesfiles.
+# 1 - modtype
+# then include resolved file in case new libs have been added to dependencies.
+define LoadModTypeMakefiles
+$(eval INC_MODULE_FILE_$1:=$(patsubst %,$(foreach entry,$(MODULE_TYPES_MAP),$(call getPathForCurrentMod,$1,$(entry))),$1))\
+$(if $(strip $(INC_MODULE_FILE_$1)),$(eval include $(INC_MODULE_FILE_$1)),$(warning Unknown module type $1, no module specific rules included))\
 $(eval $(call extlib_updates_deps))
+endef
+
+$(call LoadModTypeMakefiles,$(MODTYPE))
 
 # Copy of config files.
 # Use FILTER_FILES to find the config file which must be modified using FILTER_VARIABLES.

@@ -23,6 +23,10 @@ else
 TIMEOUTCMD:=timeout $(TIMEOUT)
 endif
 
+TEST_SRC_FILE:=test/Test$(TESTNAME).cpp
+TEST_SRC_MAIN_FILE:=test/Main.cpp
+TEST_SRC_FILES+=$(TEST_SRC_FILE) $(TEST_SRC_MAIN_FILE)
+
 CPPUNIT_DIR=$(call GetExtLibDir,$(NDEXTLIBDIR),$(CPPUNIT))
 TCFLAGS+=-I$(CPPUNIT_DIR)/include
 TLDFLAGS+=-L$(CPPUNIT_DIR)/$(SODIR)
@@ -59,12 +63,15 @@ CPP_UNIT_TESTER_LIB:=$(CPPUNIT)
 TEST_RUNNER_CMD:=$(CPPUNIT_DIR)/bin/$(TESTRUNNER)
 TEST_RUNNER_ARG_XML:=-x 
 
-define new_test_cmd
-	@$(ABS_PRINT_info) "Generating test class test/Test$(TESTNAME).cpp to test $(TESTNAME) class."
+$(TEST_SRC_MAIN_FILE):
 	@mkdir -p test
-	@test -f test/Main.cpp || printf "#include <cppunit/plugin/TestPlugIn.h>\n#undef main\n\
-CPPUNIT_PLUGIN_IMPLEMENT();\n" > test/Main.cpp
-	@test -f test/Test$(TESTNAME).cpp || printf "/*\n\
+	@test -f $@ || printf "#include <cppunit/plugin/TestPlugIn.h>\n#undef main\n\
+CPPUNIT_PLUGIN_IMPLEMENT();\n" > $@
+
+$(TEST_SRC_FILE):
+	@$(ABS_PRINT_info) "Generating test class $@ to test $(TESTNAME) class."
+	@mkdir -p test
+	@test -f $@ || printf "/*\n\
  * @file Test$(TESTNAME).cpp\n\
  *\n\
  * Copyright %d $(COMPANY). All rights reserved.\n\
@@ -88,10 +95,10 @@ ABS_TEST_SUITE_BEGIN( $(TESTNAME) )\n\
 private:\n\
 \n\
 public:\n\
-    void setUp() {\n\
+    void setUp() override {\n\
     }\n\
 \n\
-    void tearDown() {\n\
+    void tearDown() override {\n\
     }\n\
 \n\
 /* Test case template, uncomment and complete according this pattern for each test case\n\
@@ -107,6 +114,4 @@ public:\n\
     ABS_TEST_CASE_END\n\
 */\n\
 ABS_TEST_SUITE_END\n\
-} // namespace test\n" `date +%Y` > test/Test$(TESTNAME).cpp
-
-endef
+} // namespace test\n" `date +%Y` > $@
