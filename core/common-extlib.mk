@@ -2,6 +2,7 @@
 ## ------------------------------------------------------------------------
 ## Dependencies management
 ## ------------------------------------------------------------------------
+## Targets:
 
 # MAP to get version of lib with | separator.
 # This permit to correctly identify version even if lib have a '-' in its name
@@ -394,7 +395,7 @@ define extlib_import_warn_imported
 $(call abs_warning,$1 not imported from $2. Already imported another version: $(call getLibWithLibName,$(call getLibNameFromVersioned,$1),$(ALLUSELIB)))
 $(eval NOTHING:=$(shell $(call writeToBuildLogs,$1 not imported because different version: $(call getLibWithLibName,$(call getLibNameFromVersioned,$1),$(ALLUSELIB)))))
 $(eval DEPENDENCIES_ERROR=true)
-$(eval ADDEDDEPLIST:=$(ADDEDDEPLIST)[color="red"] "$1"[color="red"])
+$(eval DEPS_BAD_LIB+=$1)
 endef
 
 # macro to include lib
@@ -403,7 +404,6 @@ endef
 # $3 extlib directory path
 # $4 variable to use to store libs
 define extlib_import3
-$(eval ADDEDDEPLIST:=$(ADDEDDEPLIST) "$2"->"$1")
 $(if $(call isLibInListByName,$1,$(ALLUSELIB)),\
 $(if $(call isLibInList,$1,$(ALLUSELIB)),\
 $(call extlib_import4,$1,$2,$3,$4),\
@@ -420,6 +420,7 @@ endef
 define extlib_import2
 $(foreach lib,$3,$(call extlib_import3,$(lib),$1-$2,$4,$5))
 $(eval _app_$1_dir:=$4/$1/$2)
+$(eval _app_$1_version:=$2)
 $(eval _app_$1_depends+=$(foreach lib,$3,$(call getLibNameFromVersioned,$(lib))))
 $(eval ALL_LIBS_LOADED+=$1)
 endef
@@ -440,6 +441,7 @@ endef
 
 define extlib_import_template
 include $$(strip $$(call extlib_import,$1,$2,$3))
+$(foreach mod,$(_app_$1_modules),$(eval _module_$1_$(mod)_app:=$1))
 
 $$(NA_EXTLIBDIR)/%.jar: $$(EXTLIBDIR)/$1-$2/lib/%.jar
 	@$$(ABS_PRINT_info) "Importing jar lib $$(@F)..."

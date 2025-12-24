@@ -35,6 +35,11 @@ DIST_ARCHIVE:=dist/$(APPNAME)-$(VERSION).$(ARCH).tar.gz
 DISTINSTALL_BINARY:=dist/$(APPNAME)-$(VERSION).$(ARCH)-install.bin
 KDISTINSTALL_BINARY:=dist/$(APPNAME)_lkm-$(VERSION)-$(KVERSION)-install.bin
 
+# INCLUDE_INSTALL_MODS additionnals external mods to include in the installation.
+NEEDED_MODS=$(filter-out $(DIST_PROJ_MODS),$(call getDependenciesByTransitivity,$(INCLUDE_INSTALL_MODS) $(DIST_PROJ_MODS)))
+INCLUDE_EXT_MODULES=$(foreach mod,$(NEEDED_MODS),$(if $(_module_$(mod)_dir),$(mod),))
+INCLUDE_EXT_LIBS=$(sort $(foreach mod,$(NEEDED_MODS),$(if $(_module_$(mod)_dir),,$(mod))))
+
 ifneq ($(TRDIR),$(TR_DIST_DIR))
 # compile first to have the .distinfo files available
 $(TR_DIST_DIR)/obj/.compiled:
@@ -60,13 +65,7 @@ include $(wildcard $(patsubst %,$(TRDIR)/obj/%/$(DISTINFO_FILENAME),$(DIST_MODS)
 $(eval $(call extlib_updates_deps))
 endif
 
-
-# INCLUDE_INSTALL_MODS additionnals external mods to include in the installation.
-NEEDED_MODS=$(filter-out $(DIST_PROJ_MODS),$(call getDependenciesByTransitivity,$(INCLUDE_INSTALL_MODS) $(DIST_PROJ_MODS)))
 # Install external dependencies
-# Use _dir variable because _depends can be empty
-INCLUDE_EXT_MODULES=$(foreach mod,$(NEEDED_MODS),$(if $(_module_$(mod)_dir),$(mod),))
-INCLUDE_EXT_LIBS=$(sort $(foreach mod,$(NEEDED_MODS),$(if $(_module_$(mod)_dir),,$(mod))))
 INCLUDE_EXT_MODS_TO_INSTALL=$(patsubst %,installExt.%,$(INCLUDE_EXT_MODULES))
 INCLUDE_EXT_LIBS_TO_INSTALL=$(patsubst %,installExtLib.%,$(INCLUDE_EXT_LIBS))
 
