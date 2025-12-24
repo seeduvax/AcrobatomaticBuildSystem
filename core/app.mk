@@ -282,6 +282,7 @@ absclean: cleanabs
 include $(ABSROOT)/core/app-scm.mk
 include $(ABSROOT)/core/app-docker.mk
 include $(ABSROOT)/core/app-vscode.mk
+include $(ABSROOT)/core/app-deps.mk
 
 
 ifneq ($(IMPORT_ABSMOD),)
