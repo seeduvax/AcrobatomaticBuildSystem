@@ -13,7 +13,7 @@ testLinkedInBuild projB t_cpplib2 cppunit projA_cpplib projB_cpplib2 projB_cppli
 executeMake newtest projB/cpplib T=Toto
 createdFile=$testDirectory/projB/cpplib/test/TestToto.cpp
 testFileExists $createdFile
-sed -i 's/Copyright (.*) eduvax/Copyright 2025 eduvax/g' $createdFile
+sed -i -E 's/Copyright (.*) eduvax/Copyright 2025 eduvax/g' $createdFile
 testFile $MODROOT/test/resources/expected/TestToto.cpp $createdFile
 
 testFile $MODROOT/test/resources/expected/TestExample.h $testDirectory/projB/build/NotALinux/$MODE/obj/cpplib2/test
