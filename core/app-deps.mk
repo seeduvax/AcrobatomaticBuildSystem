@@ -85,7 +85,7 @@ $(BUILDROOT)/$(APPNAME)_deps.dot: $(PRJROOT)/app.cfg
 	@$(call generateCheckDep,$(call filterDependencies,$(DEPS_TO_SHOW),$(sort $(_modules_$(APPNAME)_uselib))))
 	
 $(BUILDROOT)/$(APPNAME)_testdeps.dot: $(PRJROOT)/app.cfg
-	@$(call generateCheckDep,$(call filterDependencies,$(DEPS_TO_SHOW),$(sort $(_modules_$(APPNAME)_uselib)) $(_modules_$(APPNAME)_nduselib)))
+	@$(call generateCheckDep,$(call filterDependencies,$(DEPS_TO_SHOW),$(sort $(_modules_$(APPNAME)_uselib)) $(_modules_$(APPNAME)_nduselib) $(TUSELIB)))
 
 $(BUILDROOT)/$(APPNAME)_modsdeps.dot: $(PRJROOT)/app.cfg
 	@$(call generateCheckModDep,$(MODULES))
