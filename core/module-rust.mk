@@ -14,7 +14,7 @@ include $(ABSROOT)/core/rust/module-rust-rustc.mk
 
 endif # ($(USE_CARGO),true)
 
-TARGETFILES+=$(RUST_TARGET_FILES) 
+TARGETFILES+=$(RUST_TARGET_FILES)
 
 # this target will create the archive for rust dynamic loaded libraries.
 RUST_GENERATION_DIR=$(OBJDIR)/rust_arch_generation
@@ -37,11 +37,8 @@ $(RUST_GENERATION_DIR)/.extracted: $(RUST_INSTALL_SRC)
 	@touch $@
 
 $(RUST_GENERATION_IMPORT_MK): $(RUST_GENERATION_DIR)/.extracted
-	@mkdir -p $(@D)/lib $(@D)/bin
-	@cp -r $(RUST_EXTRACT_DIR)/rust-std-$(RUST_INSTALL_SRC_ARCH)/lib/rustlib/$(RUST_INSTALL_SRC_ARCH)/lib/* $(@D)/lib
-	@cp -r $(RUST_EXTRACT_DIR)/rustc/lib/* $(@D)/lib
-	@cp -r $(RUST_EXTRACT_DIR)/rustc/bin/* $(@D)/bin
-	@cp -r $(RUST_EXTRACT_DIR)/cargo/bin/* $(@D)/bin
+	@$(RUST_EXTRACT_DIR)/install.sh --destdir=$(@D) --prefix= \
+		--components=rustc,cargo,rust-docs,rust-std-$(RUST_INSTALL_SRC_ARCH),rust-analysis-$(RUST_INSTALL_SRC_ARCH)
 	@echo "# generated: ABS-$(__ABS_VERSION__) $(USER)@"`hostname`" "`$(TRACE_DATE_CMD)` > $@.tmp
 	@printf '_app_rust_dir:=$$(dir $$(lastword $$(MAKEFILE_LIST)))\n\n' >> $@.tmp
 	@printf '$$(eval $$(call extlib_import_template,rust,$(RUST_VERSION),))\n' >> $@.tmp
@@ -51,7 +48,7 @@ $(RUST_GENERATION_IMPORT_MK): $(RUST_GENERATION_DIR)/.extracted
 
 $(RUST_GENERATION_DEST_ARCHIVE): $(RUST_GENERATION_IMPORT_MK)
 	@$(ABS_PRINT_info) "Creation of $@"
-	@tar -czf $@ -C $(RUST_GENERATION_DIR) rust-$(RUST_VERSION)
+	@tar --exclude=doc --exclude=uninstall.sh -czf $@ -C $(RUST_GENERATION_DIR) rust-$(RUST_VERSION)
 
 #
 # This job generate the archive containing rustc and its libraries

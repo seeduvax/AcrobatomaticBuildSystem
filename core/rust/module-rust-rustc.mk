@@ -96,10 +96,11 @@ debug:: all
 	$(ABS_PRINT_error) "won't debug a library !"
 endif
 
+# RUST_BIN_DIR must be first in PATH to avoid using installed rust toolchain
 define rust_compile
 @$(ABS_PRINT_info) "Rust compile $(1) from src/$(ENTRYFILENAME)"
 @mkdir -p $(@D)
-@LD_LIBRARY_PATH=$(LDLIBP) $(RUST_BIN_DIR)$(RUSTC) --crate-type $(1) $(RUSTFLAGS) $(RUSTLIBS) src/$(ENTRYFILENAME) -o $@ && \
+@PATH=$(RUST_BIN_DIR):$$PATH LD_LIBRARY_PATH=$(LDLIBP) $(RUST_BIN_DIR)$(RUSTC) --crate-type $(1) $(RUSTFLAGS) $(RUSTLIBS) src/$(ENTRYFILENAME) -o $@ && \
 	$(ABS_PRINT_info) "Rust crate built: $@" || ($(ABS_PRINT_error) "Rust cannot build crate: $@" && false)
 endef
 

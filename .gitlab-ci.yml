@@ -33,13 +33,9 @@ test_suse_12:
     extends: .test_base
     tags:
         - suse_12
-    variables:
-        TASK_OPTVAR: "$USER_TASK_OPTVAR MODE=release DISABLE_DYN_RUST=true"
         
 
 test_suse_15sp5:
     extends: .test_base
     tags:
         - suse_15sp5
-    variables:
-        TASK_OPTVAR: "$USER_TASK_OPTVAR MODE=release DISABLE_DYN_RUST=true"

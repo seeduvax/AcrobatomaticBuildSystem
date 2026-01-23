@@ -36,9 +36,9 @@ RUST_TARGET_FILE_SO:=$(TRDIR)/lib/lib$(TARGET_NAME)$(SOEXT)
 RUST_TARGET_FILE_RUST_SO:=$(TRDIR)/lib/librust_$(TARGET_NAME)$(SOEXT)
 
 define getRustTargetName
-$(if $(filter rlib,$(1)),$(RUST_TARGET_FILE_RLIB),
-$(if $(filter dylib,$(1)),$(RUST_TARGET_FILE_RUST_SO),
-$(if $(filter cdylib,$(1)),$(RUST_TARGET_FILE_SO),
+$(if $(filter rlib,$(1)),$(RUST_TARGET_FILE_RLIB),\
+$(if $(filter dylib,$(1)),$(RUST_TARGET_FILE_RUST_SO),\
+$(if $(filter cdylib,$(1)),$(RUST_TARGET_FILE_SO),\
 $(RUST_TARGET_FILE_BIN))))
 endef
 
