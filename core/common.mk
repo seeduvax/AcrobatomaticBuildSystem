@@ -237,6 +237,8 @@ include $(PRJROOT)/app.cfg
 ifneq ($(MODROOT),)
 include $(MODROOT)/module.cfg
 endif
+# APPVERSION = VERSION without flavors, debug or scm information
+APPVERSION:=$(VERSION)
 
 -include $(ABSWS)/local.cfg
 -include $(PRJROOT)/local.cfg

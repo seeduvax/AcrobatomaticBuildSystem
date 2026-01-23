@@ -121,7 +121,7 @@ ABS_DEPDOWNLOAD_RULE_OVERLOADED:=1
 .PRECIOUS: $(ABSWS_EXTLIBDIR)/%/import.mk $(ABSWS_HOST_EXTLIBDIR)/%/import.mk $(ABSWS_NDEXTLIBDIR)/%/import.mk $(ABSWS_NA_EXTLIBDIR)/%/import.mk $(ABSWS_NDNA_EXTLIBDIR)/%/import.mk
 
 OPEN_BRACE:={
-ABS_REPO_TEMPLATE=$(foreach entry, $(ABS_REPO),$(if $(findstring $(OPEN_BRACE),$(entry)),$(entry),$(entry)/{arch}/{name}-{version}.{arch}.{ext} $(entry)/{arch}/{name}/{name}-{version}.{arch}.{ext} $(entry)/{arch}/{name}-{version}.{ext}))
+ABS_REPO_TEMPLATE=$(foreach entry,$(ABS_REPO),$(if $(findstring $(OPEN_BRACE),$(entry)),$(entry),$(entry)/{arch}/{name}-{version}.{arch}.{ext} $(entry)/{arch}/{name}/{name}-{version}.{arch}.{ext} $(entry)/{arch}/{name}-{version}.{ext}))
 
 # fetch package with wget (any URL kind that wget can handle)
 # Caution: empty line at end of macro def is required for proper commands
@@ -167,8 +167,9 @@ endef
 # $2 package version
 # $3 architecture name
 # $4 file extension
+# The variable appversion is the version without flavors, debug or scm information.
 define SubstituteRepoTemplate
-$(subst {name},$1,$(subst {version},$2,$(subst {arch},$3,$(subst {ext},$4,$(ABS_REPO_TEMPLATE)))))
+$(subst {appversion},$(shell echo "$2" | sed -E 's/([0-9a-zA-Z\.\-]+[^de_]).*/\1/g'),$(subst {name},$1,$(subst {version},$2,$(subst {arch},$3,$(subst {ext},$4,$(ABS_REPO_TEMPLATE))))))
 endef
 
 # Get the path to the external directory for a specified library

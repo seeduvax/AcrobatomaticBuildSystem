@@ -6,6 +6,8 @@
 ##  - PUBLISH_TO_APP_LEVEL:
 ##       true: publish to $(DISTREPO)/$(APPNAME) directory
 ##       false: publish to $(DISTREPO)
+##  - PUBLISH_TO_GITLAB_REGISTRY:
+## 		 true: publish to gitlab registry (using gitlab job variables)
 ## 
 ## Targets
 ##  - cleandist: remove the dist directory
@@ -18,6 +20,7 @@
 ##  - pubinstall: publish install package
 
 PUBLISH_TO_APP_LEVEL?=false
+PUBLISH_TO_GITLAB_REGISTRY?=false
 
 _extra_import_defs_=$(subst !,\n,$(extra_import_defs))
 _extra_import_defs_:=$(subst $(_space_)!,\n,$(extra_import_defs))
@@ -223,10 +226,15 @@ endef
 endif
 endif
 
-
+define publishToGitlabRegistry
+$(ABS_PRINT_info) "Publishing to gitlab registry" && \
+DIST_PATH="$$CI_API_V4_URL/projects/$$CI_PROJECT_ID/packages/generic/$(APPNAME)/$(APPVERSION)/`basename $1`" \
+curl --header "JOB-TOKEN: $$CI_JOB_TOKEN" --upload-file $1 "$$DIST_PATH"
+endef
 
 pubdist: dist
 	$(call pubdist-cmd,$(DIST_ARCHIVE))
+	@$(if $(filter $(PUBLISH_TO_GITLAB_REGISTRY),true),$(call publishToGitlabRegistry,$(DIST_ARCHIVE)))
 
 cachedist: dist
 	@$(ABS_PRINT_info) "Storing dist archive $(DIST_ARCHIVE) into local ABS cache"
@@ -242,3 +250,4 @@ else
 	@ssh $(SSHFLAGS) $(word 1,$(subst :, ,$(PROJ_DIST_REPO))) -C "mkdir -p $(word 2,$(subst :, ,$(PROJ_DIST_REPO)))"
 	@scp $(SCPFLAGS) $(DISTINSTALL_BINARY) $(PROJ_DIST_REPO)/$(APPNAME)-$(VERSION).$(ARCH)-install.bin
 endif
+	@$(if $(filter $(PUBLISH_TO_GITLAB_REGISTRY),true),$(call publishToGitlabRegistry,$(DISTINSTALL_BINARY)))
