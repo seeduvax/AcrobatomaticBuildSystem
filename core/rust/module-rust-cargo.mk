@@ -21,7 +21,8 @@ RUST_DEPENDS_OUT_TEXT=$(subst $(SPACE) ,\n,$(foreach mod,$(USEMOD),$(mod)={path=
 # RUST_BIN_DIR => directory of rust binaries
 RUST_BIN_DIR?=
 # RUST_BIN_DIR must be first in PATH to avoid using installed rust toolchain
-RUST_CARGO_CMD=PATH=$(RUST_BIN_DIR):$$PATH CARGO_TARGET_DIR=$(RUST_TARGET_DIR) $(RUST_BIN_DIR)cargo
+# Add MAKEFLAGS= to avoid using flags from ABS in CARGO
+RUST_CARGO_CMD=MAKEFLAGS= PATH=$(RUST_BIN_DIR):$$PATH CARGO_TARGET_DIR=$(RUST_TARGET_DIR) $(RUST_BIN_DIR)cargo
 
 $(RUST_CARGO_EXECUTED): $(RUSTSRCFILES) $(CARGO_TOML) $(PRJOBJDIR)/$(MODNAME)/.depready $(foreach mod,$(USEMOD),$(wildcard $(TRDIR)/lib/lib$(USEMOD).rlib))
 	@mkdir -p $(@D)
