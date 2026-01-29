@@ -73,7 +73,9 @@ $(TRDIR)/src/$(APPNAME)_$(MODNAME)/Cargo.toml: $(CARGO_TOML)
 	@mkdir -p $(@D)
 	@cp $< $@.tmp
 	@chmod +w $@.tmp
-	@sed -i 's~path="../~path="../$(APPNAME)_~g' $@.tmp
+	@sed -i \
+		-e 's~path="../~path="../$(APPNAME)_~g' \
+		-e 's~path="$(EXTLIBDIR)/~path="../../../../~g' $@.tmp
 	@mv $@.tmp $@
 
 Cargo.toml: $(CARGO_TOML)
