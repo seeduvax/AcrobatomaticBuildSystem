@@ -6,7 +6,7 @@ _module_projA_cppexe_depends=$(sort $(call getLibrariesNameFromLinklib,)  projA_
 
 _module_projA_cppexe_done_depends=$(patsubst %,$(PRJOBJDIR)/%/.done,cpplib)
 
-_module_projA_cppexe_uselib=
+_module_projA_cppexe_uselib=rust-1.82.0
 _module_projA_cppexe_nduselib=libtest|1.0.0
 _modules_projA_uselib+=$(_module_projA_cppexe_uselib)
 _modules_projA_nduselib+=$(_module_projA_cppexe_nduselib)

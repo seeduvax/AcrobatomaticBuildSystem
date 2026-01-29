@@ -14,7 +14,7 @@ _module_projB_cpplib_depends:=libtest projA_cpplib projB_fileset tracy
 _module_projB_cpplib2_depends:=libtest projA_cpplib testlib-dashed tracy
 _module_projB_cpplib3_depends:=tracy
 _module_projB_fileset_depends:=projA_fileset tracy
-_module_projB_rustlibB_depends:=tracy
+_module_projB_rustlibB_depends:=projA_rustlibA tracy
 
 _module_projB_cpplib_dir:=$(_app_projB_dir)
 _module_projB_cpplib2_dir:=$(_app_projB_dir)

@@ -1,7 +1,7 @@
 _app_projC_dir:=$(dir $(lastword $(MAKEFILE_LIST)))
 
 _app_projC_version:=2.4.3d
-_app_projC_uselib:=libtest-2.0.0 projB-2.4.2d projD-2.4.4d
+_app_projC_uselib:=libtest-2.0.0 projB-2.4.2d projD-2.4.4d rust-1.82.0
 _app_projC_modules:=cpplib rustexe
 
 

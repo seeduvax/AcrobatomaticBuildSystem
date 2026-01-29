@@ -1,7 +1,7 @@
 _app_projA_dir:=$(dir $(lastword $(MAKEFILE_LIST)))
 
 _app_projA_version:=1.4.2d
-_app_projA_uselib:=
+_app_projA_uselib:=rust-1.82.0
 _app_projA_modules:=cppexe cpplib fileset rustlibA
 
 

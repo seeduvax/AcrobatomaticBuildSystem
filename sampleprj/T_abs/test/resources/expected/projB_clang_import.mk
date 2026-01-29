@@ -10,6 +10,7 @@ _module_projB_cpplib2_uselib:=libtest-1.0.0
 _module_projB_cpplib_depends:=libtest projA_cpplib projB_fileset
 _module_projB_cpplib2_depends:=libtest projA_cpplib testlib-dashed
 _module_projB_fileset_depends:=projA_fileset
+_module_projB_rustlibB_depends:=projA_rustlibA
 
 _module_projB_cpplib_dir:=$(_app_projB_dir)
 _module_projB_cpplib2_dir:=$(_app_projB_dir)
