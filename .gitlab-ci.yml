@@ -19,7 +19,10 @@ stages:
         - echo make -C sampleprj test $TASK_OPTVAR
         # disable SVN_CHECKOUTS that need internet access.
         - echo "SVN_CHECKOUTS=" >> sampleprj/cpplib/module.cfg
-        - echo "ABS_REPO=$ABS_REPO" > sampleprj/local.cfg
+        - echo "ABS_REPO+=$ABS_REPO" > sampleprj/local.cfg
+        - cp sampleprj/local.cfg sampleprj/T_abs/test/resources/projA
+        - cp sampleprj/local.cfg sampleprj/T_abs/test/resources/projB
+        - cp sampleprj/local.cfg sampleprj/T_abs/test/resources/projC
         - make -C sampleprj test $TASK_OPTVAR
         - egrep -ri 'errors="[1-9]+' sampleprj/build/unit_test_results && exit 1 || echo "ok"
         - egrep -ri 'failures="[1-9]+' sampleprj/build/unit_test_results && exit 1 || echo "ok"
