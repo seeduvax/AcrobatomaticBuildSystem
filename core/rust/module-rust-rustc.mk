@@ -6,8 +6,6 @@ ifeq ($(MODE),release)
 RUSTFLAGS+=-O
 endif
 
-# CRATE Type for doc generation or test execution
-ONE_CRATETYPE=$(if $(filter bin,$(CRATETYPE)),bin,lib)
 
 # Initialize rustc edition
 # prefer use RUST_EDITION than EDITION
@@ -38,7 +36,7 @@ RUSTDOC=rustdoc
 
 RUSTLIBDIR=$(TRDIR)/lib
 
-RUSTLIBS=$(foreach MOD,$(USEMOD),--extern $(MOD)=$(RUSTLIBDIR)/librust_$(APPNAME)_$(MOD).so)
+RUSTLIBS=$(foreach MOD,$(USEMOD),--extern $(MOD)=$(RUSTLIBDIR)/lib$(APPNAME)_$(MOD).so)
 
 ALL_DEPENDENCIES=$(call getDependenciesByTransitivity,$(call getLibrariesNameFromLinklib,$(LINKLIB)) $(INCLUDE_MODS) $(patsubst %,$(APPNAME)_%,$(USEMOD)))
 

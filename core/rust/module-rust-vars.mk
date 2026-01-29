@@ -1,7 +1,7 @@
 # ---------------------------------------------------------------------
 # Common Rust variables and dependency management
 # ---------------------------------------------------------------------
-RUST_VERSION?=1.82.0
+RUST_VERSION?=1.93.0
 USE_CARGO?=false
 
 # Initialize type of crate
@@ -12,6 +12,9 @@ else
 CRATETYPE=bin
 endif
 endif
+
+# CRATE Type for doc generation or test execution
+ONE_CRATETYPE=$(if $(filter bin,$(CRATETYPE)),bin,lib)
 
 ifeq ($(ISWINDOWS),true)
 SOEXT=.dll
@@ -32,8 +35,8 @@ RUSTSRCFILES:=$(filter %.rs,$(SRCFILES))
 
 RUST_TARGET_FILE_BIN:=$(TRDIR)/bin/$(TARGET_NAME)$(EXEEXT)
 RUST_TARGET_FILE_RLIB:=$(TRDIR)/lib/lib$(TARGET_NAME).rlib
-RUST_TARGET_FILE_SO:=$(TRDIR)/lib/lib$(TARGET_NAME)$(SOEXT)
-RUST_TARGET_FILE_RUST_SO:=$(TRDIR)/lib/librust_$(TARGET_NAME)$(SOEXT)
+RUST_TARGET_FILE_SO:=$(TRDIR)/lib/libc$(TARGET_NAME)$(SOEXT)
+RUST_TARGET_FILE_RUST_SO:=$(TRDIR)/lib/lib$(TARGET_NAME)$(SOEXT)
 
 define getRustTargetName
 $(if $(filter rlib,$(1)),$(RUST_TARGET_FILE_RLIB),\

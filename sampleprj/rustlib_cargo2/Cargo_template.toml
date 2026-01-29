@@ -5,5 +5,10 @@
 name = "@NAME@"
 version = "@VERSION@"
 edition = '@RUST_EDITION@'
+[lib]
+crate-type = [@CREATE_TYPE@]
 [dependencies]
 @DEPENDENCIES@
+
+#cc = "*"
+# r2d2 = "*"

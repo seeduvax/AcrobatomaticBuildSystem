@@ -1,7 +1,5 @@
 pub fn example() {
-    println!("Rustexe_cargo: Rust function Example");
-    sampleprj_rustlib_cargo::rustlib::example();
-    sampleprj_rustlib_cargo2::rustlib::example();
+    println!("Rustlib_cargo2: Rust function Example");
 }
 
 #[cfg(test)]
