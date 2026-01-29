@@ -46,3 +46,4 @@ $(RUST_TARGET_FILE_BIN))))
 endef
 
 RUST_TARGET_FILES:=$(foreach crateType,$(CRATETYPE),$(call getRustTargetName,$(crateType)))
+RUST_TARGET_FILES+=$(patsubst src/%.rs,$(TRDIR)/src/$(APPNAME)_$(MODNAME)/src/%.rs,$(filter %.rs,$(SRCFILES)))

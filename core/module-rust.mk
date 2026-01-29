@@ -55,6 +55,11 @@ $(RUST_GENERATION_DEST_ARCHIVE): $(RUST_GENERATION_IMPORT_MK)
 	@$(ABS_PRINT_info) "Creation of $@"
 	@tar --exclude=doc --exclude=uninstall.sh -czf $@ -C $(RUST_GENERATION_DIR) rust-$(RUST_VERSION)
 
+# copy the sources to be able to recompile dependencies.
+$(TRDIR)/src/$(APPNAME)_$(MODNAME)/src/%.rs: src/%.rs
+	@mkdir -p $(@D)
+	@cp $< $@
+
 # initialize the module for RUST
 init:
 	@$(ABS_PRINT_info) "Use Cargo ? (Y/n)" && read answer && use_cargo=`test "$$answer" = 'n' && echo 'false' || echo 'true'` && \

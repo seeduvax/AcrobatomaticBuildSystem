@@ -2,12 +2,14 @@ _app_projC_dir:=$(dir $(lastword $(MAKEFILE_LIST)))
 
 _app_projC_version:=2.4.3d
 _app_projC_uselib:=libtest-2.0.0 projB-2.4.2d projD-2.4.4d
-_app_projC_modules:=cpplib
+_app_projC_modules:=cpplib rustexe
 
 
 _module_projC_cpplib_depends:=projB_cpplib projB_cpplib2 projD_cpplib projD_fileset
+_module_projC_rustexe_depends:=projA_rustlibA projB_rustlibB
 
 _module_projC_cpplib_dir:=$(_app_projC_dir)
+_module_projC_rustexe_dir:=$(_app_projC_dir)
 _module_projC__extra_dir:=$(_app_projC_dir)
 _app_projC_alluselib:=$(sort $(_app_projC_uselib) )
 
