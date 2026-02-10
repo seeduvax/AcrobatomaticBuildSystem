@@ -213,13 +213,13 @@ cleandist:
 ifndef pubdist-cmd
 ifneq ($(filter file://%,$(PROJ_DIST_REPO)),)
 define pubdist-cmd
-	@$(ABS_PRINT_info)  "Publishing dist archive $(DIST_ARCHIVE) $(USER) on $(DISTREPO)"
+	@$(ABS_PRINT_info)  "Publishing dist archive $(DIST_ARCHIVE) $(USER) to $(DISTREPO)"
 	@outputFile="$(patsubst file://%,%,$(PROJ_DIST_REPO))/$(APPNAME)-$(VERSION).$(ARCH).tar.gz" && \
 		mkdir -p `dirname $$outputFile` && cp $1 $$outputFile
 endef
 else
 define pubdist-cmd
-	@$(ABS_PRINT_info)  "Publishing dist archive $(DIST_ARCHIVE) $(USER) on $(DISTREPO)"
+	@$(ABS_PRINT_info)  "Publishing dist archive $(DIST_ARCHIVE) $(USER) to $(DISTREPO)"
 	@ssh $(SSHFLAGS) $(word 1,$(subst :, ,$(PROJ_DIST_REPO))) -C "mkdir -p $(word 2,$(subst :, ,$(PROJ_DIST_REPO)))"
 	@scp $(SCPFLAGS) $1 $(PROJ_DIST_REPO)/$(APPNAME)-$(VERSION).$(ARCH).tar.gz
 endef
@@ -242,7 +242,7 @@ cachedist: dist
 	@mv $(DIST_ARCHIVE) $(ABS_CACHE)/$(ARCH)/
 
 pubinstall: distinstall
-	@$(ABS_PRINT_info)  "Publishing install binary $(DISTINSTALL_BINARY) $(USER) on $(DISTREPO)"
+	@$(ABS_PRINT_info)  "Publishing install binary $(DISTINSTALL_BINARY) $(USER) to $(DISTREPO)"
 ifneq ($(filter file://%,$(PROJ_DIST_REPO)),)
 	@outputFile="$(patsubst file://%,%,$(PROJ_DIST_REPO))/$(APPNAME)-$(VERSION).$(ARCH)-install.bin" && \
 		mkdir -p `dirname $$outputFile` && cp $(DISTINSTALL_BINARY) $$outputFile

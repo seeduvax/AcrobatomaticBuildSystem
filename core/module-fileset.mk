@@ -2,17 +2,21 @@
 ## -----------------------------------------------------------------------
 ## Fileset module specific features
 ## -----------------------------------------------------------------------
-TARGETFILES+=$(patsubst src/%,$(TRDIR)/%,$(SRCFILES))
+## Variables:
+##    - FILESET_OUTPUT_DIR: relative directory where to copy files (default is empty)
+FILESET_OUTPUT_DIR?=
+FILESET_ABS_OUTPUT=$(TRDIR)$(if $(FILESET_OUTPUT_DIR),/$(FILESET_OUTPUT_DIR))
+TARGETFILES+=$(patsubst src/%,$(FILESET_ABS_OUTPUT)/%,$(SRCFILES))
 
 $(TRDIR)/bin/%: src/bin/%
-	@$(ABS_PRINT_info) "Publishing $<..."
+	@$(ABS_PRINT_info) "Publishing $< to $(patsubst $(TRDIR)/%,%,$@)..."
 	@mkdir -p $(@D)
 	@cp $(COPYOPTIONS) $< $@
 	@$(call executeFiltering, $<, $@)
 	@chmod a+x $@
 
-$(TRDIR)/%: src/% 
-	@$(ABS_PRINT_info) "Publishing $<..."
+$(FILESET_ABS_OUTPUT)/%: src/% 
+	@$(ABS_PRINT_info) "Publishing $< to $(patsubst $(TRDIR)/%,%,$@)..."
 	@mkdir -p $(@D)
 	@cp $(COPYOPTIONS) $< $@
 	@$(call executeFiltering, $<, $@)
