@@ -122,7 +122,7 @@ TESTINDEXES+=$(OBJDIR)/testexecindex.heml
 
 $(OBJDIR)/pumldeps.mk: $(SRCFILES)
 	@mkdir -p $(@D)
-	@$(ABSDOCDIR)/pumldeps.sh $(SRCFILES) > $@
+	@$(if $(SRCFILES),$(ABSDOCDIR)/pumldeps.sh $(SRCFILES) > $@)
 
 include $(OBJDIR)/pumldeps.mk
 

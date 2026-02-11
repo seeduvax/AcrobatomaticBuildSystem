@@ -148,6 +148,22 @@ testbuild:: all
 .PHONY: check
 check:: test
 
+##  - watch: watch for change in needed modules.
+##    Execute make command when a change is detected.
+.PHONY: watch
+watch:
+	@$(ABS_PRINT_info) "Watching changes in modules $(MODNAME) $(NEEDED_PROJ_MODS). Ctrl-C to stop."
+	@+while [ true ]; do \
+		ALL_FILES=`find . $(patsubst %,../%,$(NEEDED_PROJ_MODS)) -type f`; \
+		test ! -f $(OBJDIR)/.watch || cp $(OBJDIR)/.watch $(OBJDIR)/.watch_old; \
+		stat -c "%n : %Y" $$ALL_FILES > $(OBJDIR)/.watch; \
+		if [ `diff -q $(OBJDIR)/.watch_old $(OBJDIR)/.watch | wc -l` -ne 0 ]; then \
+			$(ABS_PRINT_info) "Change detected, compilation of $(MODNAME)"; \
+			make $(MAKEFLAGS); \
+		fi; \
+		sleep 1; \
+	done
+
 # ---------------------------------------------------------------------
 # external sources / svn checkout
 # ---------------------------------------------------------------------
