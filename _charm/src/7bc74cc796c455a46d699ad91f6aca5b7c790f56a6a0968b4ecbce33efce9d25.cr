@@ -68,5 +68,5 @@
 <link name="child">8ee01cf1b62f5d9e4a29c22dbb4843507e89fb46e602eaa3c7adc57ddbed6a14</link>
 <link name="child">d2b1f8852a41a0421054fc4bb9f226463d5e1e320f3fe4a8cc62b3010389d923</link>
 </links>
-<cf v="Sebastien Devaux 2025-12-15T21:08:12+01:00"/>
+<cf v="Frederic ASTRUC 2026-02-11T09:32:14+01:00"/>
 </cr>
