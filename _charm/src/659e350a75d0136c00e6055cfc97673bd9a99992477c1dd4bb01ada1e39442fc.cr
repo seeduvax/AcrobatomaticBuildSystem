@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<cr id="659e350a75d0136c00e6055cfc97673bd9a99992477c1dd4bb01ada1e39442fc" state="working">
+<cr id="659e350a75d0136c00e6055cfc97673bd9a99992477c1dd4bb01ada1e39442fc" state="resolved">
 <title>Add information about timeout when cppunit test fail</title>
 <reporter>m096258</reporter>
 <creation>2026-02-12 13:56:35+01:00</creation>
