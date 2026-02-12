@@ -227,24 +227,21 @@ $(FILTERED_DIRECTORY)/%: test/%
 testbuild::	$(TTARGETFILE) $(FILTERED_TEST_FILES_OUTPUT)
 
 define pre-test
-@( [ -d test ] && mkdir -p $(TTARGETDIR) ) || true
-@( [ -d test ] && rm -f $(TEST_REPORT_PATH) ) || true
+@test ! -d test || mkdir -p $(TTARGETDIR)
+@test ! -d test || rm -f $(TEST_REPORT_PATH)
 endef
 
 # Path to dll for Wine execution.
 WINEFULLPATH=$(TRDIR)/bin;$(subst :,;,$(TLDLIBP))
 
-ifneq ($(ISWINDOWS),true)
+# macro to launch the test
 define exec-test
-@$(RUNTIME_PROLOG)
-@( [ -d test ] && PATH="$(RUNPATH)" LD_LIBRARY_PATH="$(TLDLIBP)" WINEPATH="$(WINEFULLPATH);$$WINEPATH" TRDIR="$(TRDIR)" TTARGETDIR="$(TTARGETDIR)" LD_PRELOAD="$(TLDPRELOADFORMATTED)" $(RUNTIME_ENV) $1 $(ARCH_EXECUTOR) $(TEST_RUNNER_CMD) $(TTARGETFILE) $(TEST_RUNNER_ARG_XML)$(TEST_REPORT_PATH) $(RUNARGS) $(patsubst %,+f %,$(T)) $(TARGS) 2>&1 | tee $(TTARGETDIR)/$(APPNAME)_$(MODNAME).stdout ) || :
-@$(RUNTIME_EPILOG)
+@$(if $(filter true,$(ISWINDOWS)),,$(RUNTIME_PROLOG))
+@test ! -d test || \
+	(PATH="$(RUNPATH)" LD_LIBRARY_PATH="$(TLDLIBP)" WINEPATH="$(WINEFULLPATH);$$WINEPATH" TRDIR="$(TRDIR)" TTARGETDIR="$(TTARGETDIR)" LD_PRELOAD="$(TLDPRELOADFORMATTED)" $(RUNTIME_ENV) $1 $(ARCH_EXECUTOR) $(TEST_RUNNER_CMD) $(TTARGETFILE) $(TEST_RUNNER_ARG_XML)$(TEST_REPORT_PATH) $(RUNARGS) $(patsubst %,+f %,$(T)) $(TARGS) 2>&1 | tee $(TTARGETDIR)/$(APPNAME)_$(MODNAME).stdout \
+	&& $(ABS_PRINT_error) "Execution failed. $(if $(TIMEOUT),Timeout=$(TIMEOUT)s)")
+@$(if $(filter true,$(ISWINDOWS)),,$(RUNTIME_EPILOG))
 endef
-else
-define exec-test
-@( [ -d test ] && PATH="$(RUNPATH)" LD_LIBRARY_PATH="$(TLDLIBP)" WINEPATH="$(WINEFULLPATH);$$WINEPATH" TRDIR="$(TRDIR)" TTARGETDIR="$(TTARGETDIR)" LD_PRELOAD="$(TLDPRELOADFORMATTED)" $(RUNTIME_ENV) $1 $(ARCH_EXECUTOR) $(TEST_RUNNER_CMD) $(TCYGTARGET) $(TEST_RUNNER_ARG_XML)$(TEST_REPORT_PATH) $(RUNARGS) $(patsubst %,+f %,$(T)) $(TARGS) 2>&1 | tee $(TTARGETDIR)/$(APPNAME)_$(MODNAME).stdout ) || true
-endef
-endif
 
 define run-test
 $(pre-test)
