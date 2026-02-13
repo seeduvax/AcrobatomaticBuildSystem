@@ -237,9 +237,9 @@ WINEFULLPATH=$(TRDIR)/bin;$(subst :,;,$(TLDLIBP))
 # macro to launch the test
 define exec-test
 @$(if $(filter true,$(ISWINDOWS)),,$(RUNTIME_PROLOG))
-@test ! -d test || \
-	(PATH="$(RUNPATH)" LD_LIBRARY_PATH="$(TLDLIBP)" WINEPATH="$(WINEFULLPATH);$$WINEPATH" TRDIR="$(TRDIR)" TTARGETDIR="$(TTARGETDIR)" LD_PRELOAD="$(TLDPRELOADFORMATTED)" $(RUNTIME_ENV) $1 $(ARCH_EXECUTOR) $(TEST_RUNNER_CMD) $(TTARGETFILE) $(TEST_RUNNER_ARG_XML)$(TEST_REPORT_PATH) $(RUNARGS) $(patsubst %,+f %,$(T)) $(TARGS) 2>&1 | tee $(TTARGETDIR)/$(APPNAME)_$(MODNAME).stdout \
-	&& $(ABS_PRINT_error) "Execution failed. $(if $(TIMEOUT),Timeout=$(TIMEOUT)s)")
+@test ! -d test \
+	|| (set -o pipefail; PATH="$(RUNPATH)" LD_LIBRARY_PATH="$(TLDLIBP)" WINEPATH="$(WINEFULLPATH);$$WINEPATH" TRDIR="$(TRDIR)" TTARGETDIR="$(TTARGETDIR)" LD_PRELOAD="$(TLDPRELOADFORMATTED)" $(RUNTIME_ENV) $1 $(ARCH_EXECUTOR) $(TEST_RUNNER_CMD) $(TTARGETFILE) $(TEST_RUNNER_ARG_XML)$(TEST_REPORT_PATH) $(RUNARGS) $(patsubst %,+f %,$(T)) $(TARGS) 2>&1 | tee $(TTARGETDIR)/$(APPNAME)_$(MODNAME).stdout) \
+	|| $(ABS_PRINT_error) "Tests execution failed. $(if $(TIMEOUT),Timeout=$(TIMEOUT)s)"
 @$(if $(filter true,$(ISWINDOWS)),,$(RUNTIME_EPILOG))
 endef
 
