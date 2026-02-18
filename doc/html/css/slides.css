@@ -1,0 +1,251 @@
+/*
+ * such variables are not supported by IE11 as available on RLE hosts.
+:root {
+	--frame-bgcol: #FAFAFF;
+	--frame-bordcol: #5A4799;
+	--table-bordcol: #000000;
+	--req-bgcol: #fffee6; 
+	--theven-bgcol: #e6e6ff;
+	--thodd-bgcol: #dcdcff;
+	--tdeven-bgcol: #f5f5ff;
+	--tdodd-bgcol: #ebebff;
+	
+}
+*/
+body {
+	font-size: 150%;
+}
+.step {
+    position: relative;
+    width: 1700px;
+    padding: 10px;
+    margin: 10px auto;
+
+    box-sizing:         border-box;
+}
+.notes {
+    display: none;
+}
+center {
+	text-align: center;
+}
+/*
+    Make inactive steps a little bit transparent.
+*/
+.impress-enabled .step {
+    margin: 0;
+    opacity: 0.6;
+    transition:         opacity 1s;
+}
+
+.impress-enabled .step.active { opacity: 1 }
+.slide {
+    display: block;
+
+    width: 1280px;
+    height: 700px;
+    padding: 40px 60px;
+
+    background-color: #FFFFFF;
+    box-shadow: 0 2px 6px #222233; 
+    background-image: url('eduvax.png'), url('abslogo.png');
+    background-position: bottom left, top right;
+    background-repeat: no-repeat, no-repeat;
+    background-size: 100px, 64px;
+}
+
+.impress-enabled div#impress-toolbar {
+    position: fixed;
+    right: 1px;
+    bottom: 1px;
+    opacity: 0.6;
+    z-index: 10;
+}
+.impress-enabled div#impress-toolbar > span {
+    margin-right: 10px;
+}
+
+/*
+    With help from the mouse-timeout plugin, we can hide the toolbar and
+    have it show only when you move/click/touch the mouse.
+*/
+body.impress-mouse-timeout div#impress-toolbar {
+    display: none;
+}
+
+/*
+    In fact, we can hide the mouse cursor itself too, when mouse isn't used.
+*/
+body.impress-mouse-timeout {
+    cursor: none;
+}
+
+.impress-progress {
+    display: none;
+}
+
+
+div.col2 {
+	column-count: 2
+}
+div.col3 {
+	column-count: 3
+}
+div.col4 {
+	column-count: 4
+}
+a {
+	text-decoration: none;
+}
+a:hover {
+	text-decoration: underline;
+}
+
+a.noHoverable:hover {
+	text-decoration: none;
+}
+
+.slide h1 {
+	font-family: sans-serif;
+	text-align: center;
+}
+body {
+	background-color: #000000;
+	margin: 0px;
+	background-image: url('mdbbg1.jpg'); 
+}
+
+
+h2 {
+	margin: 0px;
+	border-bottom: 1px dotted #6A57A9;
+	padding-top: 3px;
+}
+
+h1 a, h2 a, h3 a, h4 a, h5 a {
+	text-decoration: none;
+}
+img {
+	max-width: 100%;
+}
+
+div.info {
+	border: 1px dotted #00AA00;
+	padding: 2px;
+	padding-left: 24px;
+	margin-bottom: 3px;
+	background: url('icon-info.png') no-repeat;
+	background-color: #EEFFEE;
+}
+div.info p.title {
+	font-weight: bold;
+}
+div.warning {
+	border: 1px dotted #AA8800;
+	padding: 2px;
+	padding-left: 24px;
+	margin-bottom: 3px;
+	background: url('icon-warning.png') no-repeat;
+	background-color: #FFEEAA;
+}
+div.warning p.title {
+	font-weight: bold;
+}
+
+div.fig {
+	text-align: center;
+	font-weight: bold;
+}
+div.fig a {
+	text-decoration: none;
+}
+div.fig object {
+	width: 80%;
+	padding: 10px;
+	border: 1px solid #e2d9ff;
+}
+
+span.todo {
+	background-color: #FFFF00;
+	border-radius: 3px;
+	padding: 2px;
+}
+span.xref {
+	background-color: #dcdcff;
+	border-radius: 3px;
+	padding: 2px;
+}
+code {
+	background-color: #e6e6ff;
+	color: #880000;
+	border-radius: 3px;
+	padding: 2px;
+}
+div.code {
+	padding-left: 1px;
+	padding-right: 1px;
+}
+div.code p {
+	font-weight: bold; 
+	text-align: center;
+}	
+
+
+div.table p {
+	font-weight: bold; 
+	text-align: center;
+}	
+table {
+	margin: auto;
+	margin-top: 5px;
+	margin-bottom: 5px;
+	border-top: 1px solid #000000; /* --table-bordcol */
+	border-bottom: 1px solid #000000; /* --table-bordcol */
+	border-collapse: collapse;
+}
+table.def {
+	border: none;
+	margin-left: 10px;
+	margin-right: 10px;
+}
+table.history, table.ref {
+	margin-left: 10px;
+	margin-right: 10px;
+}
+th {
+	border-left: 1px solid #000000; /* --table-bordcol */
+	border-right: 1px solid #000000; /* --table-bordcol */
+	margin: 0px;
+	padding: 2px;
+	background-color: #DCDCFF; /* --thodd-bgcol */
+}
+tr.odd {
+	background-color: #EBEBFF; /* --tdodd-bgcol */
+}
+tr.even {
+	background-color: #F5F5FF; /* --tdeven-bgcol */
+}
+tr.odd th {
+	background-color: #DCDCFF; /* --thodd-bgcol */
+}
+tr.even th {
+	background-color: #E6E6FF; /* --theven-bgcol */
+}
+td {
+	border-left: 1px solid #000000; /* --table-bordcol */
+	border-right: 1px solid #000000; /* --table-bordcol */
+	margin: 0px;
+	padding: 2px;
+}
+table.def tr td {
+	border: none;
+}
+table.def tr th {
+	border: none;
+}
+div.req table {
+	border: none;
+	border-top: 1px solid #000000; /* --table-bordcol */
+	width: 95%
+}
+

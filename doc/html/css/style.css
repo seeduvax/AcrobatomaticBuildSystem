@@ -1,0 +1,408 @@
+/*
+ * such variables are not supported by IE11 
+:root {
+	--frame-bgcol: #FAFAFF;
+	--frame-bordcol: #5A4799;
+	--table-bordcol: #000000;
+	--req-bgcol: #fffee6; 
+	--reqremovedd-bgcol: #c0c0b0; 
+	--theven-bgcol: #e6e6ff;
+	--thodd-bgcol: #dcdcff;
+	--tdeven-bgcol: #f5f5ff;
+	--tdodd-bgcol: #ebebff;
+	
+}
+*/
+center {
+	text-align: center;
+}
+a {
+	text-decoration: none;
+}
+a:hover {
+	text-decoration: underline;
+}
+
+a.noHoverable:hover {
+	text-decoration: none;
+}
+
+div.title h1 {
+	font-family: sans-serif;
+	font-size: 15px;
+	text-align: center;
+}
+div.head h1 {
+	font-family: sans-serif;
+	font-size: 15px;
+	text-align: center;
+}
+div.head {
+	font-family: sans-serif;
+	border-top: solid 1px #5A4799;
+	border-bottom: solid 1px #5A4799;
+	background-color: #FAFAFF;
+	background-image: url('../images/abslogo.png'), url('../images/eduvax.png');
+	background-repeat: no-repeat, no-repeat;
+	background-position: top left, top right;
+	background-size: 64px, 100px;
+	padding: 11px;
+}
+div.head p {
+	font-family: sans-serif;
+	font-size: 9px;
+	text-align: right;
+}
+
+div.statusOK {
+	font-weight: bold;
+	color: #008000;	
+}
+div.statusKO {
+	font-weight: bold;
+	color: #FF0000;	
+}
+div.statusWarn {
+	font-weight: bold;
+	color: #F09000;	
+}
+
+div.crstatus p {
+	margin-left: 50px;
+	margin-right: 50px;
+	border: 1px solid;
+	text-align: center;
+}
+
+div.toc {
+	float: right;
+	width: 200px;
+	margin: 3px;
+	margin-right: -10px;
+	background-color: #FAFAFF;
+	border: 1px dotted #5A4799;
+	padding: 2px;
+}
+div.toc * {
+	font-family: sans-serif;
+	background: none;
+	list-style-type: none;
+	font-size: 10px;
+	padding-left: 5px;
+	text-align: left;
+	margin-left: 0px;
+}
+
+body {
+	background-color: #FFFFFF;
+	margin: 0px;
+}
+
+
+h2 {
+	margin: 0px;
+	border-top: 1px dotted #6A57A9;
+	font-size: 16px;
+	padding-top: 3px;
+}
+h2 a {
+	font-size: 16px;
+}
+h3, h3 a {
+	font-size: 14px;
+}
+h1 a, h2 a, h3 a, h4 a, h5 a {
+	text-decoration: none;
+}
+q {
+	margin-left: 20px;
+	font-style: italic;
+}
+
+img {
+	max-width: 100%;
+}
+
+div.info {
+	border: 1px dotted #00AA00;
+	padding: 2px;
+	padding-left: 24px;
+	margin-bottom: 3px;
+	background: url('../images/icon-info.png') no-repeat;
+	background-color: #EEFFEE;
+}
+div.info p.title {
+	font-weight: bold;
+}
+div.warning {
+	border: 1px dotted #AA8800;
+	padding: 2px;
+	padding-left: 24px;
+	margin-bottom: 3px;
+	background: url('../images/icon-warning.png') no-repeat;
+	background-color: #FFEEAA;
+}
+div.warning p.title {
+	font-weight: bold;
+}
+
+div.fig {
+	text-align: center;
+	font-weight: bold;
+	font-size: 10px;
+}
+div.fig a {
+	text-decoration: none;
+}
+div.fig object {
+	width: 80%;
+	padding: 10px;
+	border: 1px solid #e2d9ff;
+}
+
+span.todo {
+	background-color: #FFFF00;
+	border-radius: 3px;
+	padding: 2px;
+}
+span.tbc {
+	background-color: #FFE54C;
+	border-radius: 3px;
+	padding: 2px;
+}
+span.tbd {
+	background-color: #FFCC66;
+	border-radius: 3px;
+	padding: 2px;
+}
+span.xref {
+	background-color: #dcdcff;
+	border-radius: 3px;
+	padding: 2px;
+}
+.comment_open {
+	background-color: #ffffdc;
+	border-radius: 3px;
+	padding: 2px;
+	display: inline-block;
+}
+.comment_detail_open ul {
+	border-top: 2px solid #A04040;
+	border-left: 1px dotted #A04040;
+	border-radius: 5px;
+}
+.comment_closed {
+	background-color: #dcffdc;
+	border-radius: 3px;
+	padding: 2px;
+	display: inline-block;
+}
+.comment_detail_closed ul {
+	border-top: 2px solid #40A040;
+	border-left: 1px dotted #40A040;
+	border-radius: 5px;
+}
+.comment_open:hover .comment_content {
+	display: block;
+}
+.comment_closed:hover .comment_content {
+	display: block;
+}
+.comment_content {
+	display: none;
+}
+code {
+	background-color: #e6e6ff;
+	color: #880000;
+	border-radius: 3px;
+	padding: 2px;
+}
+div.code {
+	padding-left: 1px;
+	padding-right: 1px;
+}
+div.code p {
+	font-weight: bold; 
+	font-size: 10px;
+	text-align: center;
+}	
+article {
+	font-family: sans-serif;
+	text-align: justify;
+	font-size: 12px;
+	
+	padding: 2px;
+	margin-left: 42px;
+	margin-right: 10px;
+	border-left: 1px dotted #5A4799;
+	border-right: 1px dotted #5A4799;
+}
+
+div.foot {
+	margin: 0px;
+	border-top: solid 1px #5A4799;
+	border-bottom: solid 1px #5A4799;
+	background-color: #FAFAFF;
+	padding: 10px;
+}
+div.foot * {
+	padding: 0px;
+	margin: 0px;
+	font-size: 9px;
+	text-align: right;
+}
+
+div.blog-entry {
+	border: 1px solid #FF7B00;
+	margin: 3px;
+}
+
+div.blog-entry-head {
+	background-color: #FFE3C9;
+	padding: 2px;
+	margin: 0px;
+}
+div.blog-entry-head h2 {
+	background: none;
+	padding: 0px;
+	margin: 0px;
+}
+div.blog-entry-head p {
+	font-size: 8pt;
+	text-align: right;
+	padding: 0px;
+	margin: 0px;
+}
+div.blog-entry-content {
+	padding: 3px;
+	margin: 0px;
+}
+
+div.table p {
+	font-weight: bold; 
+	font-size: 10px;
+	text-align: center;
+}	
+table {
+	margin: auto;
+	margin-top: 5px;
+	margin-bottom: 5px;
+	border-top: 1px solid #000000; /* --table-bordcol */
+	border-bottom: 1px solid #000000; /* --table-bordcol */
+	border-collapse: collapse;
+}
+table.def {
+	border: none;
+	margin-left: 10px;
+	margin-right: 10px;
+}
+table.history, table.ref {
+	margin-left: 10px;
+	margin-right: 10px;
+}
+th {
+	border-left: 1px solid #000000; /* --table-bordcol */
+	border-right: 1px solid #000000; /* --table-bordcol */
+	margin: 0px;
+	padding: 2px;
+	background-color: #DCDCFF; /* --thodd-bgcol */
+}
+tr.odd {
+	background-color: #EBEBFF; /* --tdodd-bgcol */
+}
+tr.even {
+	background-color: #F5F5FF; /* --tdeven-bgcol */
+}
+tr.odd th {
+	background-color: #DCDCFF; /* --thodd-bgcol */
+}
+tr.even th {
+	background-color: #E6E6FF; /* --theven-bgcol */
+}
+td {
+	border-left: 1px solid #000000; /* --table-bordcol */
+	border-right: 1px solid #000000; /* --table-bordcol */
+	margin: 0px;
+	padding: 2px;
+}
+
+td.removed {
+	font-size: x-small;
+	font-style: italic;
+}
+
+div.table tr td p {
+	text-align: start;
+	font-size: 12px;
+	font-weight: normal; 
+}
+
+table.def tr td {
+	border: none;
+}
+table.def tr th {
+	border: none;
+}
+div.item table {
+	border: none;
+	border-top: 1px solid #000000; /* --table-bordcol */
+	width: 95%
+}
+div.item table tr th {
+	border: none;
+}
+div.item table tr td {
+	border: none;
+	background-color: #EBEBFF; 
+}
+div.req table {
+	border: none;
+	border-top: 1px solid #000000; /* --table-bordcol */
+	width: 95%
+}
+div.req table tr th {
+	border: none;
+	width: 150px;
+	text-align: left;
+	background-color: #EEEDD5; /* --req-bgcol */
+}
+div.req table tr td {
+	border: none;
+}
+div.req table tr td.rational {
+	background-color: #EEEDD5; /* --req-bgcol */
+}
+div.req table tr {
+	background-color: #FFFEE6; /* --req-bgcol */	
+	border: none;
+}
+
+div.reqremoved table {
+	border: none;
+	width: 95%
+}
+div.reqremoved table tr th {
+	border: none;
+	width: 150px;
+	font-size: x-small;
+	text-align: left;
+	background-color: #e0e0e0; /* --reqremoved-bgcol */
+}
+div.reqremoved table tr td {
+	border: none;
+	font-size: x-small;
+}
+div.reqremoved table tr {
+	background-color: #e0e0e0; /* --reqremoved-bgcol */	
+	border: none;
+}
+
+div.chkreq {
+	background-color: #ebebeb;
+}
+div.operation {
+	background-color: #f5f5ff;
+}
+div.assert {
+	background-color: #fffee6;
+}

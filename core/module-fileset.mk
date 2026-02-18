@@ -41,5 +41,8 @@ endif
 include $(ABSROOT)/core/module-crules-vars.mk
 
 ifneq ($(INCTESTS),)
+# only include module-test.mk if there is cpp tests.
+ifneq ($(filter %.cpp,$(call find,test,*.cpp *.c)),)
 include $(ABSROOT)/core/module-test.mk
+endif
 endif

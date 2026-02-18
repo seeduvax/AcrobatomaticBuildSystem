@@ -1,9 +1,9 @@
-<?xml version="1.0" encoding="iso-8859-1"?>
+<?xml version="1.0" encoding="utf-8"?>
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 <xsl:output method="xml"
 	    encoding="utf-8"
 	    doctype-public="-//W3C//DTD XHTML 1.0 Transitional//EN"
-		doctype-system="http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"
+		  doctype-system="http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"
 	    indent="yes"/>
 <!-- parametres :
 	@buildDate : date d'invocation
@@ -15,8 +15,8 @@
 <xsl:param name="user"/>
 <xsl:param name="host"/>
 <xsl:param name="srcdir"/>
-<xsl:param name="mainCss">style.css</xsl:param>
-<xsl:param name="slidesCss">slides.css</xsl:param>
+<xsl:param name="mainCss">css/style.css</xsl:param>
+<xsl:param name="slidesCss">css/slides.css</xsl:param>
 <xsl:param name="context">Component <xsl:value-of select="$app"/>-<xsl:value-of select="$version"/></xsl:param>
 <xsl:param name="root">.<xsl:call-template name="getbackpath">
   <xsl:with-param name="in"><xsl:value-of select="$srcdir"/></xsl:with-param>
@@ -109,7 +109,7 @@
 	<xsl:when test="@type!=''"><xsl:value-of select="@type"/></xsl:when>
 	<xsl:otherwise>info</xsl:otherwise>
 </xsl:choose></xsl:param>
-	<div class="{$type}">
+	<div class="{$type} unbreakable">
 <xsl:if test="@title!=''">
 <p class="title"><xsl:value-of select="@title"/></p>
 </xsl:if>
@@ -117,11 +117,10 @@
 </xsl:template>
 <xsl:template match="code">
 <xsl:param name="num"><xsl:value-of select="count(preceding::code)+1"/></xsl:param>
-  	<div class="code">
+  	<div name="code-{$num}" class="code">
 		<xsl:if test="@title!=''">
 			<p>Listing <xsl:value-of select="$num"/> - <xsl:value-of select="@title"/></p>
 		</xsl:if>
-		<a name="code-{$num}" class="noHoverable"/>
 		<pre><code class="{@language}"><xsl:choose><xsl:when test="count(pre)&gt;0"><xsl:apply-templates select="pre/text()"/></xsl:when><xsl:otherwise><xsl:apply-templates/></xsl:otherwise></xsl:choose></code></pre>
 	</div>	
 </xsl:template>
@@ -191,7 +190,7 @@ include(<xsl:value-of select="@src"/>.txt)
 <xsl:template match="enum" mode="ok">
 	<li><xsl:apply-templates/></li>
 </xsl:template>
-<!-- copier le resultat indenté -->
+<!-- copy of indented result -->
 <xsl:template name="enumEnd">
 	<xsl:param name="acc"/>
 	<ul>
@@ -263,7 +262,7 @@ include(<xsl:value-of select="@src"/>.txt)
 <xsl:choose>
 <xsl:when test="@id!=''">
 <div class="req{$style}">
-<table><tr>
+<table class="unbreakable"><tr>
 <th><a name="req.{@id}"><xsl:value-of select="@id"/>&#160;<xsl:if test="@state!='' or @replace-by!='' or @cr!=''">[<xsl:value-of select="@state"/><xsl:if test="@replaced-by!=''">&#160;replaced&#160;by:&#160;<xsl:value-of select="@replaced-by"/></xsl:if>&#160;<xsl:value-of select="@cr"/>]</xsl:if></a> <xsl:value-of select="@title"/></th>
 </tr>
 <tr><td><xsl:apply-templates select="text()|*[not(self::up) and not(self::req) and not(self::rational)]"/></td></tr>
@@ -397,7 +396,7 @@ include(<xsl:value-of select="@src"/>.txt)
 <xsl:template match="check|procedure|testmodule" mode="index">
   <xsl:param name="rid"/>
   <xsl:param name="secid"><xsl:call-template name="secid"/></xsl:param>
-<a href="#{$secid}">§<xsl:value-of select="$secid"/>:<xsl:apply-templates select="@id"/><xsl:value-of select="@name"/></a> 
+<a href="#{$secid}">Â§<xsl:value-of select="$secid"/>:<xsl:apply-templates select="@id"/><xsl:value-of select="@name"/></a> 
 <xsl:if test="count(.//assert//req[text()=$rid]|.//testcase//req[text()=$rid])&gt;0"> [<xsl:apply-templates select=".//assert[count(descendant::req[text()=$rid])&gt;0]|.//testcase[count(descendant::req[text()=$rid])&gt;0]" mode="index"><xsl:with-param name="rid"><xsl:value-of select="$rid"/></xsl:with-param></xsl:apply-templates>] </xsl:if>
 </xsl:template>
 <!-- assert reference in index -->
@@ -414,7 +413,7 @@ include(<xsl:value-of select="@src"/>.txt)
 <!-- Summary table -->
 <xsl:template match="*" mode="index">
 <xsl:param name="num"><xsl:number count="section|references|definitions" level="multiple" format="1.1"/></xsl:param>
-<a href="#{$num}">§<xsl:value-of select="$num"/> </a>
+<a href="#{$num}">Â§<xsl:value-of select="$num"/> </a>
 </xsl:template>
 
 <xsl:template match="index[@type='tbc']">
@@ -473,6 +472,7 @@ include(<xsl:value-of select="@src"/>.txt)
 <xsl:template match="testmodule">
 <xsl:param name="modname"><xsl:value-of select="@name"/></xsl:param>
 <xsl:if test="count(testsuite)&gt;0 and (count(../../select)=0 or count(../../select[text()=$modname])!=0)">
+<section>
 <xsl:call-template name="sectionHead">
 	<xsl:with-param name="title">Module <xsl:value-of select="@name"/></xsl:with-param>
 	<xsl:with-param name="level"><xsl:value-of select="count(ancestor-or-self::section)+count(ancestor-or-self::article)+2"/></xsl:with-param>
@@ -482,6 +482,7 @@ include(<xsl:value-of select="@src"/>.txt)
 <tr><th>Test suite / case</th><th>Description</th><th>File / Requirements</th></tr>
 <xsl:apply-templates select="testsuite"/>
 </table>
+</section>
 </xsl:if>
 </xsl:template>
 <xsl:template match="testsuite">
@@ -542,6 +543,7 @@ include(<xsl:value-of select="@src"/>.txt)
     Checks
 -->
 <xsl:template match="check|procedure">
+<section>
 <xsl:call-template name="sectionHead">
 	<xsl:with-param name="title"><xsl:if test="name()='check'">Control </xsl:if>Procedure <xsl:value-of select="@id"/> - <xsl:value-of select="@title"/></xsl:with-param>
 	<xsl:with-param name="level"><xsl:value-of select="count(ancestor-or-self::section)+count(ancestor-or-self::article)+2"/></xsl:with-param>
@@ -554,6 +556,7 @@ include(<xsl:value-of select="@src"/>.txt)
 </div>
 </xsl:if>
 <xsl:apply-templates select="*[not(self::req)]"/>
+</section>
 </xsl:template>
 <xsl:template match="operation">
 <div class="operation">
@@ -610,7 +613,7 @@ include(<xsl:value-of select="@src"/>.txt)
 <div class="table">
 <table>
   <tr class="odd">
-    <th></th><th>Procedure <xsl:value-of select="@id"/> [<xsl:value-of select="../context/@reference"/> §<xsl:value-of select="@ref"/>]: <xsl:value-of select="@title"/><br/>
+    <th></th><th>Procedure <xsl:value-of select="@id"/> [<xsl:value-of select="../context/@reference"/> Â§<xsl:value-of select="@ref"/>]: <xsl:value-of select="@title"/><br/>
 <xsl:apply-templates select="req"/></th><th></th>
   </tr><tr class="even">
      <th>step</th><th>Comment</th><th>Status</th>
@@ -623,7 +626,7 @@ include(<xsl:value-of select="@src"/>.txt)
 <!-- section in procedure report -->
 <xsl:template match="report/check//section|report/procedure//section">
 <tr>
-<th>§<xsl:value-of select="@id"/></th><th><xsl:value-of select="@title"/></th>
+<th>Â§<xsl:value-of select="@id"/></th><th><xsl:value-of select="@title"/></th>
 <th><xsl:text> </xsl:text></th>
 </tr>
 <xsl:apply-templates select="section|operation|assert"/>
@@ -691,7 +694,7 @@ include(<xsl:value-of select="@src"/>.txt)
     <xsl:attribute name="class">even</xsl:attribute>
   </xsl:otherwise>
 </xsl:choose>
-  <th><xsl:value-of select="@id"/> [<xsl:value-of select="../context/@reference"/> §<xsl:value-of select="@ref"/>]</th>
+  <th><xsl:value-of select="@id"/> [<xsl:value-of select="../context/@reference"/> Â§<xsl:value-of select="@ref"/>]</th>
   <td>
 <xsl:choose>
    <xsl:when test="$failures!=0"><div class="statusKO">Failures: <xsl:value-of select="$failures"/></div><xsl:if test="count(.//req)&gt;0"><br/>
@@ -707,6 +710,7 @@ Unchecked requirements: <xsl:apply-templates select="req|.//assert[translate(@st
      Definition table
 -->
 <xsl:template match="definitions">
+<section>
 <xsl:call-template name="sectionHead">
 	<xsl:with-param name="title"><xsl:value-of select="@title"/></xsl:with-param>
 	<xsl:with-param name="level"><xsl:value-of select="count(ancestor-or-self::section)+count(ancestor-or-self::article)+2"/></xsl:with-param>
@@ -717,6 +721,7 @@ Unchecked requirements: <xsl:apply-templates select="req|.//assert[translate(@st
   <xsl:sort select="@entry"/>
 </xsl:apply-templates>
 </table>
+</section>
 </xsl:template>
 <xsl:template match="def">
   <xsl:param name="trclass"><xsl:choose>
@@ -729,6 +734,7 @@ Unchecked requirements: <xsl:apply-templates select="req|.//assert[translate(@st
      Reference table
 -->
 <xsl:template match="references">
+<section>
 <xsl:call-template name="sectionHead">
 	<xsl:with-param name="title"><xsl:value-of select="@title"/></xsl:with-param>
 	<xsl:with-param name="level"><xsl:value-of select="count(ancestor-or-self::section)+count(ancestor-or-self::article)+2"/></xsl:with-param>
@@ -738,6 +744,7 @@ Unchecked requirements: <xsl:apply-templates select="req|.//assert[translate(@st
 <tr><th> </th><th>Authors <i>Title</i><br/>Reference <i>Edition</i></th></tr>
 <xsl:apply-templates select="ref"/>
 </table>
+</section>
 </xsl:template>
 <xsl:template match="ref">
   <xsl:param name="hhref"><xsl:value-of select="@href"/></xsl:param>
@@ -809,7 +816,7 @@ Unchecked requirements: <xsl:apply-templates select="req|.//assert[translate(@st
 	<xsl:copy-of select="./*"/>
 </xsl:template>	
 <!--************************************************
-	Resumé/Description de page
+	Resumï¿½/Description de page
 -->
 <xsl:template match="abstract">
 	<meta name="description">
@@ -852,7 +859,7 @@ Unchecked requirements: <xsl:apply-templates select="req|.//assert[translate(@st
 </xsl:template>
 
 <!--************************************************
-	mots clés
+	mots clï¿½s
 -->
 <xsl:template match="keywords">
 	<meta name="keywords">
@@ -894,7 +901,7 @@ Unchecked requirements: <xsl:apply-templates select="req|.//assert[translate(@st
 	Prise en charge d'une section
 -->	
 <xsl:template match="section">
-	<div class="section">
+	<section>
 	<xsl:choose>
 		<xsl:when test="count(ancestor::chapter)&gt;0">
 			<xsl:call-template name="sectionHead">
@@ -913,10 +920,10 @@ Unchecked requirements: <xsl:apply-templates select="req|.//assert[translate(@st
 		</xsl:otherwise>
 	</xsl:choose>
 	<xsl:apply-templates/>
-	</div>
+	</section>
 </xsl:template>
 <!--****************************************************
-	Table des matières
+	Table des matiï¿½res
 -->
 <xsl:template match="section|references|definitions" mode="summary">
 <xsl:param name="num"><xsl:if test="count(ancestor::appendices)">A</xsl:if><xsl:number count="section|references|definitions|testmodule[count(testsuite)&gt;0]|check|procedure" level="multiple" format="1.1"/></xsl:param>
@@ -989,7 +996,7 @@ Unchecked requirements: <xsl:apply-templates select="req|.//assert[translate(@st
 <div class="head">
 	<xsl:apply-templates select="head"/>
 <h1><a name="top"><xsl:value-of select="$title"/></a></h1>
-<p aligh="right"><xsl:value-of select="/document/author/@sigle"/> n°<xsl:value-of select="/document/reference"/>, Issue <xsl:value-of select="/document/history/edition[1]/@version"/> - Revision <xsl:value-of select="/document/revision"/><xsl:value-of select="$revision"/> - <xsl:value-of select="/document/history/edition[1]/@date"/></p>
+<p aligh="right"><xsl:value-of select="/document/author/@sigle"/> nÂ°<xsl:value-of select="/document/reference"/>, Issue <xsl:value-of select="/document/history/edition[1]/@version"/> - Revision <xsl:value-of select="/document/revision"/><xsl:value-of select="$revision"/> - <xsl:value-of select="/document/history/edition[1]/@date"/></p>
 </div>
 </xsl:template>
 <!-- #######################################################
@@ -997,7 +1004,7 @@ Unchecked requirements: <xsl:apply-templates select="req|.//assert[translate(@st
 -->
 <xsl:template name="page-body">
 	<xsl:param name="content-template"></xsl:param>
-<div class="body">
+<article>
 	<xsl:if test="$hasToc!=0">
 		<xsl:call-template name="toc"/>
 	</xsl:if>
@@ -1010,7 +1017,7 @@ Unchecked requirements: <xsl:apply-templates select="req|.//assert[translate(@st
 	</xsl:otherwise>
 </xsl:choose>	
 	<xsl:apply-templates select="appendices"/>
-</div>
+</article>
 </xsl:template>
 <xsl:template match="appendices">
 <hr/>
@@ -1028,6 +1035,13 @@ Unchecked requirements: <xsl:apply-templates select="req|.//assert[translate(@st
 Copyright (c) <xsl:value-of select="./text()"/> <xsl:value-of select="@year"/><xsl:text> </xsl:text><xsl:value-of select="@holder"/>,&#160;
 </xsl:template>
 <!-- #######################################################
+	default templates
+-->
+<xsl:template name="additionnalStyles">
+</xsl:template>
+<xsl:template name="additionnalScripts">
+</xsl:template>
+<!-- #######################################################
 	squelette page
 -->
 <xsl:template name="page">
@@ -1037,23 +1051,12 @@ Copyright (c) <xsl:value-of select="./text()"/> <xsl:value-of select="@year"/><x
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title><xsl:value-of select="$title"/></title>
+<xsl:call-template name="additionnalMeta"/>
 <xsl:apply-templates select="abstract"/>
 <xsl:apply-templates select="keywords"/>
 <link rel="stylesheet" href="./highlight/default.css"/>
-<script src="{$root}/highlight/highlight.js">
-&#160;
-</script>
-<script>hljs.initHighlightingOnLoad();</script>
-<script>
-  MathJax = {
-    tex: {
-      tags: 'ams'  // should be 'ams', 'none', or 'all'
-    }
-  };
-  </script>
-  <script id="MathJax-script" src="{$root}/mathjax/es5/tex-chtml.js">
-<xsl:text> </xsl:text></script>
 <link rel="stylesheet" href="{$root}/{$mainCss}"/>
+<xsl:call-template name="additionnalStyles"/>
 </head>
 <body>
 	<a name="top"/>
@@ -1067,6 +1070,20 @@ Copyright (c) <xsl:value-of select="./text()"/> <xsl:value-of select="@year"/><x
 </xsl:call-template>
 <!-- pied de page -->
 <xsl:call-template name="page-foot"/>
+
+<script src="{$root}/highlight/highlight.js">
+<xsl:text> </xsl:text></script>
+<script>hljs.initHighlightingOnLoad();</script>
+<script>
+  MathJax = {
+    tex: {
+      tags: 'ams'  // should be 'ams', 'none', or 'all'
+    }
+  };
+  </script>
+  <script id="MathJax-script" src="{$root}/mathjax/es5/tex-chtml.js">
+<xsl:text> </xsl:text></script>
+<xsl:call-template name="additionnalScripts"/>
 </body>
 </html>
 </xsl:template>

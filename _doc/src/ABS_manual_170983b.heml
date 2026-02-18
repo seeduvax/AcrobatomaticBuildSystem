@@ -94,9 +94,9 @@ identifiers}
 use conditional compilation)}
 {req %id=abs.cm.4
   ABS shall be compatible with continuous integration automation}
-Only one build process should be used from both developer's workspace and
+{p Only one build process should be used from both developer's workspace and
 continuous integration tools such as jenkins to ensure consistency of builds and
-coherence from various context.
+coherence from various context.}
 {req %id=abs.cm.5
   On user request ABS shall create tag according the current version number 
 found in the project configuration file.
@@ -112,7 +112,7 @@ after creation of a tag.
 {req %id=abs.arch.1 
   ABS shall support several target computing architecture (various processor and
 operating systems)}
-The exact list of targets, is not specified and will be adjusted over the time
+{p The exact list of targets, is not specified and will be adjusted over the time
 according the user projects' needs. At least, it should enable build of software
 targeting standard x86 PC running widely used not too old GNU/Linux operating
 systems. First implementations were started using RedHat 5 and Debian 7, and is
@@ -120,7 +120,7 @@ currently used on projects targeting CentOs 7, SUSE 12, Debian 8 and Debian 9.
 Most features should require only GNU/make, a shell and a few additional
 commands and it should be adaptable to any system where such software is
 available. Some experimental projects were successfully built with ABS on
-Android (through termux) and Cygwin/MinGW. 
+Android (through termux) and Cygwin/MinGW.}
     }
     {section %title=Documentation features
 {req %id=abs.doc.1 
@@ -2006,7 +2006,7 @@ build option is not set.
 }
 {?table
 PROFILER_FUNCTION % % X % Place at function/method start to activate the function tracing. 
-PROFILER_FUNCTION_COL(color) % % X % % Same as PROFILER_FUNCTION but using a specific color for its rendering.
+PROFILER_FUNCTION_COL(color) % % X % Same as PROFILER_FUNCTION but using a specific color for its rendering.
 PROFILER_REGION(name) % % X % Trace region inside a code section, from the location of the macro, until the next closure.
 PROFILER_REGION_COL(name,color) % % X % Same as PROFILER_REGION with color argument.
 PROFILER_REGION_BEGIN(name) % X % X % Trace the beginning of a region not related to the code closure. Section shall be explicitly ended (see PROFILER_REGION_END)

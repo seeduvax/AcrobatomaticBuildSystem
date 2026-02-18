@@ -1,0 +1,31 @@
+article {
+    border: 0;
+}
+
+body {
+    line-height: inherit;
+}
+
+.code, code {
+    text-wrap: auto;
+    text-align: left;
+}
+
+.page_1 .footer, .page_1 .header {
+    display: none;
+}
+
+#titlePage {
+    display: flex;
+    flex-direction: column;
+    /* almost A4*/
+    height: 26cm;
+}
+
+#titlePage div {
+    flex: auto;
+}
+
+#titlePage div.titlePart {
+    flex: auto;
+}

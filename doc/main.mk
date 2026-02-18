@@ -2,7 +2,13 @@
 ## --------------------------------------------------------------------
 ## Documentation services
 ## 
+## Variables
+## 	  DOC_PDF_GENERATOR: indicates the generator of pdf to use.
+##		- latex: use texlive to generate pdf
+##		- chrome: use chrome (chromium) binary to generate pdf
+##		- nodejs: use nodejs with playwright to generate pdf (need chromium)
 MODNAME?=_doc
+DOC_PDF_GENERATOR?=latex
 DOCDIR:=$(TRDIR)/share/doc/$(APPNAME)
 PDFDIR:=$(DOCDIR)/pdf
 DBDIR:=$(DOCDIR)/docbook
@@ -12,7 +18,9 @@ HTMLDIR:=$(DOCDIR)/html
 JAVACMD:=java -Djava.awt.headless=true
 DOXYGENCMD:=$(shell which doxygen 2>/dev/null)
 DOCROOT:=$(ABSROOT)/doc
-HTML_STYLE_BUNDLE+=$(patsubst %,$(ABSROOT)/doc/html/%.tar.gz,style impress.js highlight.js mathjax.js)
+# when changing version of HtmlToBook, change it in style.xhtml.pdf.xsl too
+HTML_STYLE_BUNDLE+=$(patsubst %,$(ABSROOT)/doc/html/%.tar.gz,impress.js highlight.js mathjax.js HtmlToBook-1.0.0.noarch)
+HTML_STYLE_EXTRACTED=$(OBJDIR)/.html_style.extracted
 # user for continous integration.
 CI_USER?=jenkins
 
@@ -60,11 +68,15 @@ TEXFOT:=$(shell which texfot 2>/dev/null)
 ifneq ($(TEXFOT),)
 TEXFOT:=$(TEXFOT) --tee=/dev/null
 endif
-PDFS:=$(patsubst src/%.heml,$(PDFDIR)/%.pdf,$(HEMLS))
 endif
+PDFS:=$(patsubst src/%.heml,$(PDFDIR)/%.pdf,$(HEMLS))
 DOCBOOKS:=$(patsubst src/%.heml,$(DBDIR)/%.xml,$(HEMLS))
-HTMLS:=$(patsubst src/%.heml,$(HTMLDIR)/%.html,$(HEMLS)) $(HTMLDIR)/style.css
+HTMLS:=$(patsubst src/%.heml,$(HTMLDIR)/%.html,$(HEMLS))
+HTMLS+=$(patsubst src/%.heml,$(HTMLDIR)/%.pdf.html,$(HEMLS)) 
 CSS:=$(patsubst src/%,$(HTMLDIR)/%,$(filter %.css,$(SRCFILES)))
+CSS+=$(patsubst $(DOCROOT)/html/%,$(HTMLDIR)/%,$(wildcard $(DOCROOT)/html/css/*.css))
+CSS+=$(patsubst $(DOCROOT)/html/%,$(HTMLDIR)/%,$(wildcard $(DOCROOT)/html/images/*.png) $(wildcard $(DOCROOT)/html/images/*.jpg))
+CSS+=$(HTML_STYLE_EXTRACTED)
 
 ABSDOCDIR:=$(dir $(lastword $(MAKEFILE_LIST)))
 
@@ -135,9 +147,11 @@ endif
 ## XSL Stylesheets definition:
 ##   - HEMLTOTEX_STYLE: tex (pdf)
 ##   - HEMLTOXHTML_STYLE: html
+##	 - HEMLTOHTMLPDF_STYLE: html to pdf
 ##   - HEMLTOXML_STYLE: docbook
 HEMLTOTEX_STYLE?=$(DOCROOT)/tex/style.tex.xsl $(HEMLTOTEX_FLAGS)
 HEMLTOXHTML_STYLE?=$(DOCROOT)/html/style.xhtml.xsl $(HEMLTOXHTML_FLAGS)
+HEMLTOHTMLPDF_STYLE?=$(DOCROOT)/html/style.xhtml_pdf.xsl $(HEMLTOXHTML_FLAGS)
 HEMLTOXML_STYLE?=$(DOCROOT)/docbook/style.docbook.xsl $(HEMLTOXML_FLAGS)
 
 ## Documentation targets:
@@ -171,21 +185,35 @@ $(HTMLDIR)/%.css: src/%.css
 	@mkdir -p $(@D)
 	@cp $^ $@
 
-$(HTMLDIR)/style.css: $(HTML_STYLE_BUNDLE)
+$(HTMLDIR)/%.css: $(DOCROOT)/html/%.css
+	@mkdir -p $(@D)
+	@cp $^ $@
+
+$(HTML_STYLE_EXTRACTED): $(HTML_STYLE_BUNDLE)
 	@$(ABS_PRINT_info) "Extracting html style bundles:"
 	@mkdir -p $(@D)
+	@mkdir -p $(HTMLDIR)
 	@for tarball in $(HTML_STYLE_BUNDLE) ; do \
 	$(ABS_PRINT_info) "  - $$tarball" ; \
-	tar -C $(@D) -xzf $$tarball && touch $@ ; \
+	tar -C $(HTMLDIR) -xzf $$tarball ; \
 	done
+	@touch $(HTML_STYLE_EXTRACTED)
 
 $(HTMLDIR)/%.jpg: src/%.jpg
 	@mkdir -p $(@D)
-	cp $^ $@
+	@cp $^ $@
 
 $(HTMLDIR)/%.png: src/%.png
 	@mkdir -p $(@D)
-	cp $^ $@
+	@cp $^ $@
+
+$(HTMLDIR)/%.jpg: $(DOCROOT)/html/%.jpg
+	@mkdir -p $(@D)
+	@cp $^ $@
+
+$(HTMLDIR)/%.png: $(DOCROOT)/html/%.png
+	@mkdir -p $(@D)
+	@cp $^ $@
 
 DIACMD:=$(shell which dia 2>/dev/null)
 ifeq ($(DIACMD),)
@@ -212,14 +240,17 @@ COMMENTS?=true
 # HEML transformation
 # $1 xsl file
 define absHemlTransformation
-	@$(ABS_PRINT_info) "heml to $(suffix $@) of $< using style $(1)"
+	@$(ABS_PRINT_info) "heml to $(suffix $@) of $< using style $1: $(@F)"
 	@mkdir -p $(@D)
 	@mkdir -p $(patsubst src/%,$(OBJDIR)/%,$(<D))
-	@$(HEMLCMD) -in $(call absGetPath,$<) -xsl $(call absGetPath,$(1)) -path $(OBJDIR) -param srcdir "$(call absGetPath,$(<D))" -param srcfilename "$(call absGetPath,$(<F))" $(HEMLARGS) -param revision ""`$(call abs_scm_file_revision,$<)` -param showComments ""$(COMMENTS) -out $(call absGetPath,$@) -depattr fig:src:$(patsubst %/,%,$(patsubst src%,$(HTMLDIR)/%,$(<D)))
+	@$(HEMLCMD) -in $(call absGetPath,$<) -xsl $(call absGetPath,$1) -path $(OBJDIR) -param srcdir "$(call absGetPath,$(<D))" -param srcfilename "$(call absGetPath,$(<F))" $(HEMLARGS) -param revision ""`$(call abs_scm_file_revision,$<)` -param showComments ""$(COMMENTS) -out $(call absGetPath,$@) -depattr fig:src:$(patsubst %/,%,$(patsubst src%,$(HTMLDIR)/%,$(<D)))
 endef
 
 $(HTMLDIR)/%.html: src/%.heml $(HEMLJARTG) $(LUAJJARTG) $(TESTINDEXES)
 	$(call absHemlTransformation,$(HEMLTOXHTML_STYLE) -dep $(patsubst $(HTMLDIR)/%,$(OBJDIR)/%.d,$@))
+
+$(HTMLDIR)/%.pdf.html: src/%.heml $(HEMLJARTG) $(LUAJJARTG) $(TESTINDEXES)
+	$(call absHemlTransformation,$(HEMLTOHTMLPDF_STYLE) -dep $(patsubst $(HTMLDIR)/%,$(OBJDIR)/%.d,$@))
 
 $(DBDIR)/%.xml: src/%.heml $(HEMLJARTG) $(LUAJJARTG) $(TESTINDEXES)
 	$(call absHemlTransformation,$(HEMLTOXML_STYLE) -dep $(patsubst $(DBDIR)/%,$(OBJDIR)/%.d,$@))
@@ -234,6 +265,7 @@ endif
 TEXINPUTS:=$(TEXINPUTS)$(ABSROOT)/doc/tex//:$(OBJDIR):$(TEXDIR):$(HTMLDIR):$(CURDIR)/src$(TEXDEFAULTINPUTS)
 TEXENV=TEXINPUTS=$(TEXINPUTS)
 
+ifeq ($(DOC_PDF_GENERATOR),latex)
 $(PDFDIR)/%.pdf: $(TEXDIR)/%.tex
 	@$(ABS_PRINT_info) "Processing TEX $<"
 	@mkdir -p $(@D)
@@ -258,15 +290,67 @@ else
 	@mv $(OBJDIR)/$(@F) $(@D) || $(ABS_PRINT_error) "$@ generation failed."
 endif
 
+endif
+
+ifeq ($(DOC_PDF_GENERATOR),nodejs)
+
+$(OBJDIR)/.playwright.extracted:
+	@mkdir -p $(@D)
+	@tar -xf $(DOCROOT)/html/playwright-core.tar.gz -C $(@D)
+	@touch $@
+
+.PRECIOUS: $(OBJDIR)/%.print.js
+$(OBJDIR)/%.print.js: $(HTMLDIR)/%.pdf.html $(CSS)
+	@mkdir -p $(@D)
+	@CHROME_PATH="$(shell which chromium 2>/dev/null)" && sed -e "s~{PATH_HTML}~file://$<~g" \
+		-e "s~{PATH_BROWSER}~$$CHROME_PATH~g" \
+		-e "s~{OUTPUT}~$(OBJDIR)/$(*F).pdf~g" \
+		-e "s~{EXPORT}~$(OBJDIR)/$(*F).export.html~g" $(ABSROOT)/doc/html/print.js > $@
+
+$(PDFDIR)/%.pdf: $(OBJDIR)/%.print.js $(OBJDIR)/.playwright.extracted
+	@mkdir -p $(@D)
+	@cd $(OBJDIR) && $(ABS_PRINT_info) "Generating PDF..." && nodejs $<
+	@sed -n '/<bookmarks.*>/,/<\/bookmarks>/p' $(OBJDIR)/$(*F).export.html | \
+		sed -z 's/<[^>]*>//g; s/^[[:space:]]*//; s/[[:space:]]*$$//' | \
+		sed 's/&nbsp;/ /g' > $(OBJDIR)/$(*F).bookmarks.ps
+	@gs -dBATCH -dNOPAUSE -dQUIET \
+		-sDEVICE=pdfwrite \
+		-sOutputFile=$@ \
+		$(OBJDIR)/$(*F).pdf $(OBJDIR)/$(*F).bookmarks.ps
+	@$(ABS_PRINT_info) "File $@ created"
+
+endif
+
+ifeq ($(DOC_PDF_GENERATOR),chrome)
+
+$(PDFDIR)/%.pdf: $(HTMLDIR)/%.pdf.html $(CSS)
+	@mkdir -p $(@D)
+	@mkdir -p $(OBJDIR)
+	@chromium --headless --disable-gpu --dump-dom $< | \
+		sed -n '/<bookmarks.*>/,/<\/bookmarks>/p' | \
+		sed -z 's/<[^>]*>//g; s/^[[:space:]]*//; s/[[:space:]]*$$//' | \
+		sed 's/&nbsp;/ /g' > $(OBJDIR)/$(*F).bookmarks.ps
+	@chromium --headless --disable-gpu --no-pdf-header-footer --print-to-pdf="$@.tmp" $< 
+	gs -dBATCH -dNOPAUSE -dQUIET \
+		-sDEVICE=pdfwrite \
+		-sOutputFile=$@ \
+		$@.tmp $(OBJDIR)/$(*F).bookmarks.ps
+	@rm $@.tmp
+endif
+
 ##  - html: generates html files and companion images from heml files.
 html: $(HTMLS)
 
 ##  - pdf: generates pdf files and companion images from heml files. pdf 
 ##    generation is available only from host having a latex package including
 ##    the pdflatex command.
+ifeq ($(DOC_PDF_GENERATOR),latex)
 ifneq ($(HASLATEX),true)
 pdf:
 	@$(ABS_PRINT_warning) "pdflatex or metafont are not available, can't generate pdf files."
+else
+pdf: $(PDFS)
+endif
 else
 pdf: $(PDFS)
 endif
