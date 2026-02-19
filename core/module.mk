@@ -186,7 +186,7 @@ include $(ABSROOT)/core/module-srcarchive.mk
 # module type adaptation
 # -------------------------------------------------
 
-MODULE_TYPES_MAP+=$(ABSROOT)/core/module-%.mk:linuxmodule,java,rust,python,typescript,library,exe,fileset,absext,arduino,maven \
+MODULE_TYPES_MAP+=$(ABSROOT)/core/module-%.mk:linuxmodule,java,rust,python,typescript,library,exe,fileset,absext,arduino,maven,web \
     $(ABSROOT)/%/main.mk:doc \
     $(ABSROOT)/core/module-java.mk:jar \
 	$(ABSROOT)/%/main.mk:fpga

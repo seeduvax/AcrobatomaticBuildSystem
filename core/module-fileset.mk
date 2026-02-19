@@ -6,7 +6,8 @@
 ##    - FILESET_OUTPUT_DIR: relative directory where to copy files (default is empty)
 FILESET_OUTPUT_DIR?=
 FILESET_ABS_OUTPUT=$(TRDIR)$(if $(FILESET_OUTPUT_DIR),/$(FILESET_OUTPUT_DIR))
-TARGETFILES+=$(patsubst src/%,$(FILESET_ABS_OUTPUT)/%,$(SRCFILES))
+FILESET_SRCFILES?=$(SRCFILES)
+TARGETFILES+=$(patsubst src/%,$(FILESET_ABS_OUTPUT)/%,$(FILESET_SRCFILES))
 
 $(TRDIR)/bin/%: src/bin/%
 	@$(ABS_PRINT_info) "Publishing $< to $(patsubst $(TRDIR)/%,%,$@)..."

@@ -6,10 +6,16 @@ expectedDir="$MODROOT/test/resources/expected"
 executeMake pubdist libtest VERSION=2.0.0
 
 executeMake pubdist projA
-testLinked projA cppexe projA_cpplib
-
+# test web files generation
 projAOutDir=$testDirectory/projA/dist/flatten/projA-1.4.2d
 projAObjDir=$projAOutDir/obj
+testFileExists $projAOutDir/etc/projA/www/typescript/class1.js
+testFileExists $projAOutDir/etc/projA/www/typescript/class2.js
+testFileExists $projAOutDir/etc/projA/www/index.html
+testFileExists $projAOutDir/etc/projA/www/style/myStyle.css
+testFileExists $projAOutDir/etc/projA/www/js/myScript.js
+testLinked projA cppexe projA_cpplib
+
 testFile $projAObjDir/cppexe/moddeps.mk $expectedDir/projA_cppexe_moddeps.mk
 tail -n +2 $projAOutDir/import.mk > $projAOutDir/import2.mk
 testFile $projAOutDir/import2.mk $expectedDir/projA_import2.mk
