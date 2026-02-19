@@ -9,16 +9,19 @@ executeMake pubdist projA
 # test web files generation
 projAOutDir=$testDirectory/projA/dist/flatten/projA-1.4.2d
 projAObjDir=$projAOutDir/obj
-testFileExists $projAOutDir/etc/projA/www/typescript/class1.js
-testFileExists $projAOutDir/etc/projA/www/typescript/class2.js
-testFileExists $projAOutDir/etc/projA/www/index.html
-testFileExists $projAOutDir/etc/projA/www/style/myStyle.css
-testFileExists $projAOutDir/etc/projA/www/js/myScript.js
 testLinked projA cppexe projA_cpplib
 
 testFile $projAObjDir/cppexe/moddeps.mk $expectedDir/projA_cppexe_moddeps.mk
 tail -n +2 $projAOutDir/import.mk > $projAOutDir/import2.mk
-testFile $projAOutDir/import2.mk $expectedDir/projA_import2.mk
+
+if [ "$DISABLE_NODE_TESTS" != "true" ]; then
+    testFile $projAOutDir/import2.mk $expectedDir/projA_import2.mk
+    testFileExists $projAOutDir/etc/projA/www/typescript/class1.js
+    testFileExists $projAOutDir/etc/projA/www/typescript/class2.js
+    testFileExists $projAOutDir/etc/projA/www/index.html
+    testFileExists $projAOutDir/etc/projA/www/style/myStyle.css
+    testFileExists $projAOutDir/etc/projA/www/js/myScript.js
+fi
 
 executeMake pubdist projB
 testLinked projB cpplib projA_cpplib test

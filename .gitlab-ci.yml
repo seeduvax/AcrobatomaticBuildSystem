@@ -34,9 +34,11 @@ test_debian_11:
 
 test_suse_12:
     extends: .test_base
+    variables:
+        # nodejs is too recent to be used with suse12
+        USER_TASK_OPTVAR: "DISABLE_NODE_TESTS=true"
     tags:
         - suse_12
-        
 
 test_suse_15sp5:
     extends: .test_base
