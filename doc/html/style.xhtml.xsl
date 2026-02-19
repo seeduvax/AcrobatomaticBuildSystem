@@ -1037,6 +1037,8 @@ Copyright (c) <xsl:value-of select="./text()"/> <xsl:value-of select="@year"/><x
 <!-- #######################################################
 	default templates
 -->
+<xsl:template name="additionnalMeta">
+</xsl:template>
 <xsl:template name="additionnalStyles">
 </xsl:template>
 <xsl:template name="additionnalScripts">
