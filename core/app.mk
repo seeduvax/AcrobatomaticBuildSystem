@@ -76,6 +76,7 @@ EXPMOD:=$(filter-out $(NODISTMOD),$(sort $(EXPMOD)))
 DOLLAR=$$
 ##  - NOBUILD: list of modules to *not* build.
 
+##  - DISABLE_COMPILE_COMMANDS: Disable the generation of the compile_commands.json
 # for clangd server used for modern editors (VSCode...) completion/introspection engine
 CLANGD_DB=compile_commands.json
 
@@ -92,7 +93,7 @@ endef
 
 ##  - all (default): builds all modules. Useful variable: NOBUILD.
 all: $(MODULES_TARGET)
-	$(gen-clangd-db)
+	$(if $(filter true,$(DISABLE_COMPILE_COMMANDS)),,$(gen-clangd-db))
 
 ##  - test: builds modules, tests and launch tests.
 ifneq ($(shell ls $(PRJROOT)/*/test 2>/dev/null),)

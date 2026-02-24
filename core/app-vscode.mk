@@ -23,7 +23,7 @@ $(VSCODE_CPP_CONFIG): app.cfg
 	@$(foreach path,$(patsubst $(BUILDROOT)/%,%,$(wildcard $(EXTLIBDIR)/*/*/include) $(wildcard $(NA_EXTLIBDIR)/*/*/include) $(wildcard $(NDEXTLIBDIR)/*/*/include) $(wildcard $(NDNA_EXTLIBDIR)/*/*/include)),printf '            "$${workspaceFolder}/build/$(path)",\n' >> $@.tmp;)
 	@printf '            "$(ABSROOT)/core/include/"\n' >> $@.tmp
 	@printf '        ],\n' >> $@.tmp
-	@printf '        "compileCommands": "$${workspaceFolder}/compile_commands.json"\n' >> $@.tmp
+	@$(if $(filter true,$(DISABLE_COMPILE_COMMANDS)),,printf '        "compileCommands": "$${workspaceFolder}/compile_commands.json"\n' >> $@.tmp)
 	@printf '    }\n' >> $@.tmp
 	@printf ']}' >> $@.tmp
 	@mv $@.tmp $@
