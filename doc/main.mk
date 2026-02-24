@@ -294,6 +294,8 @@ endif
 
 ifeq ($(DOC_PDF_GENERATOR),nodejs)
 
+NODE?=$(shell which node 2>/dev/null)
+
 $(OBJDIR)/.playwright.extracted:
 	@mkdir -p $(@D)
 	@tar -xf $(DOCROOT)/html/playwright-core.tar.gz -C $(@D)
@@ -309,7 +311,8 @@ $(OBJDIR)/%.print.js: $(HTMLDIR)/%.pdf.html $(CSS)
 
 $(PDFDIR)/%.pdf: $(OBJDIR)/%.print.js $(OBJDIR)/.playwright.extracted
 	@mkdir -p $(@D)
-	@cd $(OBJDIR) && $(ABS_PRINT_info) "Generating PDF..." && nodejs $<
+	@test -n $(NODE) || $(ABS_PRINT_error) "No node interpreter found!"
+	@cd $(OBJDIR) && $(ABS_PRINT_info) "Generating PDF..." && $(NODE) $<
 	@sed -n '/<bookmarks.*>/,/<\/bookmarks>/p' $(OBJDIR)/$(*F).export.html | \
 		sed -z 's/<[^>]*>//g; s/^[[:space:]]*//; s/[[:space:]]*$$//' | \
 		sed 's/&nbsp;/ /g' > $(OBJDIR)/$(*F).bookmarks.ps
