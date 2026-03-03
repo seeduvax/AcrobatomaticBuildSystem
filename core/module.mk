@@ -67,7 +67,6 @@ TR_MOD_INCLUDE_DIR=$(TR_APP_INCLUDE_DIR)/$(MODNAME)
 
 # ultimate wildcard to eliminate files with space
 SRCFILES:=$(wildcard $(call find,src,*))
-EXTSRCFILES:=
 
 TTARGETDIR?=$(TRDIR)/test
 TEST_REPORT_PATH:=$(TTARGETDIR)/$(APPNAME)_$(MODNAME).xml
