@@ -240,8 +240,8 @@ pubdist: dist
 
 cachedist: dist
 	@$(ABS_PRINT_info) "Storing dist archive $(DIST_ARCHIVE) into local ABS cache"
-	@mkdir -p $(ABS_CACHE)/$(ARCH)
-	@mv $(DIST_ARCHIVE) $(ABS_CACHE)/$(ARCH)/
+	@mkdir -p $(ABS_CACHE)/$(ARCH)/$(APPNAME)/$(VERSION)
+	@mv $(DIST_ARCHIVE) $(ABS_CACHE)/$(ARCH)/$(APPNAME)/$(VERSION)/pck.tar.gz
 
 pubinstall: distinstall
 	@$(ABS_PRINT_info)  "Publishing install binary $(DISTINSTALL_BINARY) $(USER) to $(DISTREPO)"
