@@ -33,13 +33,15 @@ CPPCHECK_TIME?=true
 # /usr/include must not be included otherwise cppcheck can fail without analyzing code.
 # generation of RES_HEADER if resources files are needed to generate res.h.
 $(CPPCHECK_INCLUDES_FILE): module.cfg $(PRJROOT)/app.cfg
-	@echo "$(ABSROOT)/core/include" > $@.tmp
+	@echo "" > $@.tmp
+	@$(foreach el,$(sort $(patsubst -I%,%,$(filter -I%,$(CXXFLAGS) $(CFLAGS)))),echo "$(el)" >> $@.tmp;)
 	@$(foreach mod,$(sort $(INCLUDE_PROJ_MODS) $(INCLUDE_TESTMODS_PROJ) $(MODNAME)),$(if $(wildcard $(PRJROOT)/$(mod)/include),echo $(PRJROOT)/$(mod)/include >> $@.tmp;))
 	@find -L $(wildcard $(EXTLIBDIR) $(NA_EXTLIBDIR) $(NDEXTLIBDIR) $(NDNA_EXTLIBDIR)) -maxdepth 3 -name include -type d >> $@.tmp
-	@echo "$(TRDIR)/include" >> $@.tmp
 	@mv $@.tmp $@
 	
 $(CPPCHECK_SUPPRESS_FILE): module.cfg $(PRJROOT)/app.cfg
+	@$(if $(filter preprocessorErrorDirective,$(CPPCHECK_EXTLIBS_SUPPRESS)),$(ABS_PRINT_warning) "preprocessorErrorDirective suppression present for ext libs. This can hide errors while checking cpp")
+	@$(if $(filter preprocessorErrorDirective,$(CPPCHECK_SUPPRESS)),$(ABS_PRINT_warning) "preprocessorErrorDirective suppression present. This can hide errors while checking cpp")
 	@$(foreach suppr,$(sort $(CPPCHECK_EXTLIBS_SUPPRESS)),echo "$(suppr):$(PRJROOT)/build/extlib/*" >> $@.tmp;)
 	@$(foreach suppr,$(sort $(CPPCHECK_SUPPRESS)),echo $(suppr) >> $@.tmp;)
 	@$(foreach suppr,$(sort $(CPPCHECK_TESTS_SUPPRESS)),echo $(suppr):test/* >> $@.tmp;)
