@@ -1,3 +1,18 @@
+## ---------------------------------------------------------------------
+## C/C++ : cppcheck
+## ---------------------------------------------------------------------
+## Targets
+##  - cppcheck: launch cppcheck and generate report
+## 
+## Variables
+##  CPPCHECK_SUPPRESS: checks to ignore by cppcheck
+##  CPPCHECK_TESTS_SUPPRESS: checks to ignore by cppcheck for sources in test directory
+##  CPPCHECK_EXTLIBS_SUPPRESS: checks to ignore by cppcheck from extlibs headers
+##  CPPCHECK_ARGS: additionals arguments for cppcheck binary
+##  CPPCHECK_VERSION: version of cppcheck (default is 2.17.0)
+##  CPPCHECK_SRCS: files or directories containing sources to ananlyze (src test are already presents)
+##  CPPCHECK_TIME: indicates if the check duration must be shown
+## 
 
 ifeq ($(MAKECMDGOALS),cppcheck)
 
@@ -52,11 +67,10 @@ $(CPPCHECK_SUPPRESS_FILE): module.cfg $(PRJROOT)/app.cfg
 .PHONY: $(OBJDIR)/cppcheck.log
 $(OBJDIR)/cppcheck.log: $(CPPCHECK_INCLUDES_FILE) $(CPPCHECK_SUPPRESS_FILE) $(if $(RESSRC),$(RES_HEADER))
 	@mkdir -p $(CPPCHECK_BUILD_DIR)
-	@$(if $(filter true,$(CPPCHECK_TIME)),time) $(CPPCHECK_BINARY) --includes-file=$< --output-file=$@ $(CPPCHECK_ARGS) $(wildcard src test) || $(ABS_PRINT_error) "Errors found while analyzing cpp code"
+	@$(if $(filter true,$(CPPCHECK_TIME)),time) $(CPPCHECK_BINARY) --includes-file=$< --output-file=$@ $(CPPCHECK_ARGS) $(wildcard src test $(CPPCHECK_SRCS)) || $(ABS_PRINT_error) "Errors found while analyzing cpp code"
 
 
-ifneq ($(filter %.cpp %.c,$(SRCFILES)),)
-##  - cppcheck: launch cppcheck and generate report
+ifneq ($(filter %.cpp %.c,$(SRCFILES))$(CPPCHECK_SRCS),)
 cppcheck: $(OBJDIR)/cppcheck.log
 	@$(ABS_PRINT_info) "File $< generated"
 
