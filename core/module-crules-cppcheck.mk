@@ -12,6 +12,7 @@
 ##  CPPCHECK_VERSION: version of cppcheck (default is 2.17.0)
 ##  CPPCHECK_SRCS: files or directories containing sources to ananlyze (src test are already presents)
 ##  CPPCHECK_TIME: indicates if the check duration must be shown
+##  CPPCHECK_EXCLUDE_EXTLIBS: List of externals libs to exclude of analyze.
 ## 
 
 ifeq ($(MAKECMDGOALS),cppcheck)
@@ -45,16 +46,21 @@ CPPCHECK_ARGS+=--suppressions-list=$(CPPCHECK_SUPPRESS_FILE)
 # indicates if the cppcheck duration must be shown
 CPPCHECK_TIME?=true
 
+# paths to extlibs to not include in includes file.
+CPPCHECK_EXCLUDE_EXTLIBS_INCLUDES=$(foreach el,$(sort $(CPPCHECK_EXCLUDE_EXTLIBS)),$(wildcard $(EXTLIBDIR)/$(el)/*/include $(NA_EXTLIBDIR)/$(el)/*/include $(NDEXTLIBDIR)/$(el)/*/include $(NDNA_EXTLIBDIR)/$(el)/*/include))
+CPPCHECK_EXTLIBS_ALL_INCLUDES=$(subst //,/,$(wildcard $(EXTLIBDIR)/*/include $(NA_EXTLIBDIR)/*/include $(NDEXTLIBDIR)/*/include $(NDNA_EXTLIBDIR)/*/include $(patsubst -I%,%,$(filter -I%,$(CXXFLAGS) $(CFLAGS)))))
+CPPCHECK_EXTLIBS_INCLUDES=$(filter-out $(CPPCHECK_EXCLUDE_EXTLIBS_INCLUDES),$(sort $(CPPCHECK_EXTLIBS_ALL_INCLUDES)))
+
 # /usr/include must not be included otherwise cppcheck can fail without analyzing code.
 # generation of RES_HEADER if resources files are needed to generate res.h.
 $(CPPCHECK_INCLUDES_FILE): module.cfg $(PRJROOT)/app.cfg
 	@echo "" > $@.tmp
-	@$(foreach el,$(sort $(patsubst -I%,%,$(filter -I%,$(CXXFLAGS) $(CFLAGS)))),echo "$(el)" >> $@.tmp;)
 	@$(foreach mod,$(sort $(INCLUDE_PROJ_MODS) $(INCLUDE_TESTMODS_PROJ) $(MODNAME)),$(if $(wildcard $(PRJROOT)/$(mod)/include),echo $(PRJROOT)/$(mod)/include >> $@.tmp;))
-	@find -L $(wildcard $(EXTLIBDIR) $(NA_EXTLIBDIR) $(NDEXTLIBDIR) $(NDNA_EXTLIBDIR)) -maxdepth 3 -name include -type d >> $@.tmp
+	@$(foreach path,$(CPPCHECK_EXTLIBS_INCLUDES),echo "$(path)" >> $@.tmp;)
 	@mv $@.tmp $@
 	
 $(CPPCHECK_SUPPRESS_FILE): module.cfg $(PRJROOT)/app.cfg
+	@echo "" > $@.tmp
 	@$(if $(filter preprocessorErrorDirective,$(CPPCHECK_EXTLIBS_SUPPRESS)),$(ABS_PRINT_warning) "preprocessorErrorDirective suppression present for ext libs. This can hide errors while checking cpp")
 	@$(if $(filter preprocessorErrorDirective,$(CPPCHECK_SUPPRESS)),$(ABS_PRINT_warning) "preprocessorErrorDirective suppression present. This can hide errors while checking cpp")
 	@$(foreach suppr,$(sort $(CPPCHECK_EXTLIBS_SUPPRESS)),echo "$(suppr):$(PRJROOT)/build/extlib/*" >> $@.tmp;)
@@ -68,7 +74,6 @@ $(CPPCHECK_SUPPRESS_FILE): module.cfg $(PRJROOT)/app.cfg
 $(OBJDIR)/cppcheck.log: $(CPPCHECK_INCLUDES_FILE) $(CPPCHECK_SUPPRESS_FILE) $(if $(RESSRC),$(RES_HEADER))
 	@mkdir -p $(CPPCHECK_BUILD_DIR)
 	@$(if $(filter true,$(CPPCHECK_TIME)),time) $(CPPCHECK_BINARY) --includes-file=$< --output-file=$@ $(CPPCHECK_ARGS) $(wildcard src test $(CPPCHECK_SRCS)) || $(ABS_PRINT_error) "Errors found while analyzing cpp code"
-
 
 ifneq ($(filter %.cpp %.c,$(SRCFILES))$(CPPCHECK_SRCS),)
 cppcheck: $(OBJDIR)/cppcheck.log
