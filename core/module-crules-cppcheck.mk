@@ -48,7 +48,7 @@ CPPCHECK_TIME?=true
 
 # paths to extlibs to not include in includes file.
 CPPCHECK_EXCLUDE_EXTLIBS_INCLUDES=$(foreach el,$(sort $(CPPCHECK_EXCLUDE_EXTLIBS)),$(wildcard $(EXTLIBDIR)/$(el)/*/include $(NA_EXTLIBDIR)/$(el)/*/include $(NDEXTLIBDIR)/$(el)/*/include $(NDNA_EXTLIBDIR)/$(el)/*/include))
-CPPCHECK_EXTLIBS_ALL_INCLUDES=$(subst //,/,$(wildcard $(EXTLIBDIR)/*/include $(NA_EXTLIBDIR)/*/include $(NDEXTLIBDIR)/*/include $(NDNA_EXTLIBDIR)/*/include $(patsubst -I%,%,$(filter -I%,$(CXXFLAGS) $(CFLAGS)))))
+CPPCHECK_EXTLIBS_ALL_INCLUDES=$(subst //,/,$(wildcard $(EXTLIBDIR)/*/*/include $(NA_EXTLIBDIR)/*/*/include $(NDEXTLIBDIR)/*/*/include $(NDNA_EXTLIBDIR)/*/*/include $(patsubst -I%,%,$(filter -I%,$(CXXFLAGS) $(CFLAGS)))))
 CPPCHECK_EXTLIBS_INCLUDES=$(filter-out $(CPPCHECK_EXCLUDE_EXTLIBS_INCLUDES),$(sort $(CPPCHECK_EXTLIBS_ALL_INCLUDES)))
 
 # /usr/include must not be included otherwise cppcheck can fail without analyzing code.
@@ -66,8 +66,6 @@ $(CPPCHECK_SUPPRESS_FILE): module.cfg $(PRJROOT)/app.cfg
 	@$(foreach suppr,$(sort $(CPPCHECK_EXTLIBS_SUPPRESS)),echo "$(suppr):$(PRJROOT)/build/extlib/*" >> $@.tmp;)
 	@$(foreach suppr,$(sort $(CPPCHECK_SUPPRESS)),echo $(suppr) >> $@.tmp;)
 	@$(foreach suppr,$(sort $(CPPCHECK_TESTS_SUPPRESS)),echo $(suppr):test/* >> $@.tmp;)
-	@$(foreach mod,$(sort $(INCLUDE_PROJ_MODS) $(INCLUDE_TESTMODS_PROJ)),\
-		$(foreach suppr,$(sort $(CPPCHECK_EXTLIBS_SUPPRESS)),echo $(suppr):$(PRJROOT)/$(mod)/include/* >> $@.tmp;))
 	@mv $@.tmp $@
 
 .PHONY: $(OBJDIR)/cppcheck.log
