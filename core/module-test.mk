@@ -113,6 +113,13 @@ endif
 
 TLDLIBP=$(LDLIBP):$(subst $(_space_),:,$(patsubst -L%,%,$(filter -L%,$(TLDFLAGS))))
 
+TPREPROC_FLAGS=
+ifeq ($(PREPROC_ONLY),true)
+# use for extra flags such as -P or -CC
+TPREPROC_EXTRA_FLAGS?=
+TPREPROC_FLAGS=-E $(TPREPROC_EXTRA_FLAGS)
+endif
+
 -include $(patsubst %.o,%.o.d,$(TCPPOBJS))
 # ---------------------------------------------------------------------
 # transformation rules specific to tests.
@@ -120,12 +127,12 @@ TLDLIBP=$(LDLIBP):$(subst $(_space_),:,$(patsubst -L%,%,$(filter -L%,$(TLDFLAGS)
 $(OBJDIR)/test/%.o: test/%.cpp
 	@$(ABS_PRINT_info) "Compiling test $< ..."
 	@mkdir -p $(@D)
-	@$(call writeToBuildLogs,$(CPPC) $(CXXFLAGS) $(CFLAGS) $(TCFLAGS) $(TCXXFLAGS) -c $< -o $@)
+	@$(call writeToBuildLogs,$(CPPC) $(CXXFLAGS) $(CFLAGS) $(TCFLAGS) $(TCXXFLAGS) $(TPREPROC_FLAGS) -c $< -o $@)
 	$(pre_compile_cpp_test)
 ifeq ($(wildcard $(patsubst %.o,%.h,$@)),$(patsubst %.o,%.h,$@))
-	@$(CPPC) $(CXXFLAGS) $(TCXXFLAGS) $(CFLAGS) $(TCFLAGS) -include $(patsubst %.o,%.h,$@) $(GEN_DEP_FLAGS) -c $< -o $@
+	@$(CPPC) $(CXXFLAGS) $(TCXXFLAGS) $(CFLAGS) $(TCFLAGS) $(TPREPROC_FLAGS) -include $(patsubst %.o,%.h,$@) $(GEN_DEP_FLAGS) -c $< -o $@
 else
-	@$(CPPC) $(CXXFLAGS) $(TCXXFLAGS) $(CFLAGS) $(TCFLAGS) $(GEN_DEP_FLAGS) -c $< -o $@
+	@$(CPPC) $(CXXFLAGS) $(TCXXFLAGS) $(CFLAGS) $(TCFLAGS) $(TPREPROC_FLAGS) $(GEN_DEP_FLAGS) -c $< -o $@
 endif
 
 ifeq ($(ISWINDOWS),true)
@@ -136,7 +143,7 @@ $(OBJDIR)/test/%.o: test/%.c
 	@$(ABS_PRINT_info) "Compiling test $< ..."
 	@mkdir -p $(@D)
 	$(pre_compile_c_test)
-	@$(call executeAndLogCmd,$(CC) $(CFLAGS) $(TCFLAGS) $(GEN_DEP_FLAGS) -c $< -o $@)
+	@$(call executeAndLogCmd,$(CC) $(CFLAGS) $(TCFLAGS) $(TPREPROC_FLAGS) $(GEN_DEP_FLAGS) -c $< -o $@)
 ifeq ($(ISWINDOWS),true)
 	$(win-patch-dep)
 endif
