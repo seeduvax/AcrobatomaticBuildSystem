@@ -1,20 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 	<xsl:import href="style.xhtml.xsl"/>
+	<xsl:param name="htmlToBookVersion"/>
 	<xsl:template name="additionnalMeta">
 		<meta name="numberedSections" content="false"/>
 	</xsl:template>
 	<xsl:template name="additionnalStylesPdf">
 	</xsl:template>
 	<xsl:template name="additionnalStyles">
-        <link rel="stylesheet" href="./HtmlToBook-1.0.0/htmlToBook.css"/>
+        <link rel="stylesheet" href="./HtmlToBook-{$htmlToBookVersion}/htmlToBook.css"/>
+		<link rel="stylesheet" href="{$root}/{$mainCss}"/>
         <link rel="stylesheet" href="./css/style_pdf.css"/>
 		<xsl:call-template name="additionnalStylesPdf"/>
 	</xsl:template>
+	<xsl:template name="additionnalStylesPres">
+		<style>:root { 
+			--page_orientation: landscape; 
+			--width: 700px;
+			--height: 1280px; 
+		}</style>
+        <link rel="stylesheet" href="./HtmlToBook-{$htmlToBookVersion}/htmlToBook.css"/>
+		<link rel="stylesheet" href="{$root}/{$slidesCss}"/>
+        <link rel="stylesheet" href="./css/slides_pdf.css"/>
+	</xsl:template>
 	<xsl:template name="additionnalScriptsPdf">
 	</xsl:template>
+	<!-- remove impress part in html -->
+	<xsl:template name="impress_part">
+	</xsl:template>
 	<xsl:template name="additionnalScripts">
-		<script type="text/javascript" src="{$root}/HtmlToBook-1.0.0/htmlToBook_all.js">
+		<script type="text/javascript" src="{$root}/HtmlToBook-{$htmlToBookVersion}/htmlToBook_all.js">
 		<xsl:text> </xsl:text></script>
 		<xsl:call-template name="additionnalScriptsPdf"/>
 	</xsl:template>

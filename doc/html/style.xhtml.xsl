@@ -1040,6 +1040,10 @@ Copyright (c) <xsl:value-of select="./text()"/> <xsl:value-of select="@year"/><x
 <xsl:template name="additionnalMeta">
 </xsl:template>
 <xsl:template name="additionnalStyles">
+<link rel="stylesheet" href="{$root}/{$mainCss}"/>
+</xsl:template>
+<xsl:template name="additionnalStylesPres">
+<link rel="stylesheet" href="{$root}/{$slidesCss}"/>
 </xsl:template>
 <xsl:template name="additionnalScripts">
 </xsl:template>
@@ -1057,7 +1061,6 @@ Copyright (c) <xsl:value-of select="./text()"/> <xsl:value-of select="@year"/><x
 <xsl:apply-templates select="abstract"/>
 <xsl:apply-templates select="keywords"/>
 <link rel="stylesheet" href="./highlight/default.css"/>
-<link rel="stylesheet" href="{$root}/{$mainCss}"/>
 <xsl:call-template name="additionnalStyles"/>
 </head>
 <body>
@@ -1118,7 +1121,7 @@ Copyright (c) <xsl:value-of select="./text()"/> <xsl:value-of select="@year"/><x
 <xsl:apply-templates mode="slide"/>
 </xsl:template>
 <xsl:template match="slide" mode="slide">
-<div class="step slide">
+<section class="step slide">
 <xsl:choose>
   <xsl:when test="count(preceding-sibling::slide)=0">
     <xsl:attribute name="data-x">0</xsl:attribute>
@@ -1131,7 +1134,7 @@ Copyright (c) <xsl:value-of select="./text()"/> <xsl:value-of select="@year"/><x
 </xsl:choose>
 <h2><xsl:apply-templates select="@title"/></h2>
 <xsl:apply-templates/>
-</div>
+</section>
 </xsl:template>
 <!-- layout handling, resize, multi column, ... -->
 <xsl:template match="layout">
@@ -1159,32 +1162,7 @@ Copyright (c) <xsl:value-of select="./text()"/> <xsl:value-of select="@year"/><x
 </div>
 </xsl:template>
 <!-- Presentation main -->
-<xsl:template match="/presentation">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="fr" lang="fr">
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<title><xsl:value-of select="title"/><xsl:value-of select="@title"/></title>
-<xsl:apply-templates select="abstract"/>
-<xsl:apply-templates select="keywords"/>
-<link rel="stylesheet" href="./highlight/default.css"/>
-<script src="{$root}/highlight/highlight.js">
-&#160;
-</script>
-<script>hljs.initHighlightingOnLoad();</script>
-<link rel="stylesheet" href="{$root}/{$slidesCss}"/>
-</head>
-<body>
-<div id="impress">
-<div class="step slide title" data-x="0" data-y="0" data-z="0" data-rel-x="0" data-rel-y="0" data-rel-z="0">
-<h1><xsl:value-of select="title"/><xsl:value-of select="@title"/></h1>
-<xsl:apply-templates select="titleImage"/>
-</div>
-<xsl:apply-templates select="section|slide" mode="slide"/>
-<div id="overview" class="step" data-scale="10" data-x="4000" data-y="2000" data-z="10">
-<xsl:text> </xsl:text>
-</div>
-</div>
-<!-- pied de page -->
+<xsl:template name="impress_part">
 <div id="impress-toolbar"></div>
 <div class="impress-progressbar"><div></div></div>
 <div class="impress-progress"></div>
@@ -1202,6 +1180,35 @@ function speak(txt) {
 
 impress().init();
 </script>
+</xsl:template>
+<xsl:template match="/presentation">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="fr" lang="fr" class="landscape">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title><xsl:value-of select="title"/><xsl:value-of select="@title"/></title>
+<xsl:apply-templates select="abstract"/>
+<xsl:apply-templates select="keywords"/>
+<link rel="stylesheet" href="./highlight/default.css"/>
+<xsl:call-template name="additionnalStylesPres"/>
+</head>
+<body>
+<article id="impress">
+<section class="step slide title" data-x="0" data-y="0" data-z="0" data-rel-x="0" data-rel-y="0" data-rel-z="0">
+<h1><xsl:value-of select="title"/><xsl:value-of select="@title"/></h1>
+<xsl:apply-templates select="titleImage"/>
+</section>
+<xsl:apply-templates select="section|slide" mode="slide"/>
+<div id="overview" class="step" data-scale="10" data-x="4000" data-y="2000" data-z="10">
+<xsl:text> </xsl:text>
+</div>
+</article>
+<!-- pied de page -->
+<script src="{$root}/highlight/highlight.js">
+&#160;
+</script>
+<script>hljs.initHighlightingOnLoad();</script>
+<xsl:call-template name="impress_part"/>
+<xsl:call-template name="additionnalScripts"/>
 </body>
 </html>
 </xsl:template>

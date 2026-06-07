@@ -1,7 +1,7 @@
 {?set %encoding=utf-8}
 {presentation 
   {title Acrobatomatic Build System - introduction and training}
-  {titleImage abslogo.png}
+  {titleImage images/abslogo.png}
 {section
   {slide %title=ABS - overview
 Generic tool for software builds and deliverable package generation.

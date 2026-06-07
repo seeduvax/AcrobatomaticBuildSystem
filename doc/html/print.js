@@ -15,13 +15,23 @@ const { chromium } = require('playwright-core');
   await page.goto('{PATH_HTML}', {
     waitUntil: 'networkidle' // Attendre que le réseau soit inactif
   });
-let content = await page.content();
-fs.writeFileSync("{EXPORT}", content);
+
+  const element = await page.locator('.page').first();
+  const dimensions = await element.evaluate((el) => {
+    return {
+      offsetWidth: el.offsetWidth,       // Largeur totale (inclut bordures/padding)
+      offsetHeight: el.offsetHeight,     // Hauteur totale
+    };
+  });
+
+  let content = await page.content();
+  fs.writeFileSync("{EXPORT}", content);
 
   // Générer le PDF
   await page.pdf({
     path: '{OUTPUT}', // Chemin où enregistrer le PDF
-    format: 'A4', // Format de la page (A4, Letter, etc.)
+    width: dimensions.offsetWidth,
+    height: dimensions.offsetHeight,
     printBackground: true, // Inclure les arrière-plans
     displayHeaderFooter: false, // Désactive l'en-tête et le pied de page
     preferCSSPageSize: true,

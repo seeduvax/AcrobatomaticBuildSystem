@@ -1,0 +1,27 @@
+
+article {
+    padding: 0;
+}
+
+.step {
+    width: inherit;
+    margin: auto;
+}
+.slide {
+    /* Sizes from htmlToBook style */
+    width: calc(var(--internal_width) - 1px);
+    height: calc(var(--internal_height) - 1px);
+    box-sizing: border-box;
+}
+
+#overview {
+    display: none;
+}
+
+pre {
+    margin: 0;
+}
+
+p {
+    margin: 0;
+}
