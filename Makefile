@@ -1,7 +1,14 @@
+
+ifneq ($(wildcard app.cfg),)
+PRJROOT:=$(CURDIR)
+endif
+ifneq ($(wildcard module.cfg),)
+PRJROOT:=$(dir $(CURDIR))
+endif
+
 ifeq ($(MAKECMDGOALS),dist)
 include app.cfg
 # overloading dist
-PRJROOT:=$(CURDIR)
 ABSROOT=$(CURDIR)
 
 # dummy rules to disable attempt to download local.cfg, app.cfg. I (S.Devaux) 
@@ -27,5 +34,5 @@ dist: dist/abs.core-$(VERSION).tar.gz
 $(PREFIX)/noarch/abs.%: dist/abs.%
 	cp $^ $@
 else
-include core/bootstrap.mk
+include $(PRJROOT)/core/bootstrap.mk
 endif

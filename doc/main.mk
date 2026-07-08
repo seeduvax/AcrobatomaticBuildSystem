@@ -19,7 +19,8 @@ JAVACMD:=java -Djava.awt.headless=true
 DOXYGENCMD:=$(shell which doxygen 2>/dev/null)
 DOCROOT:=$(ABSROOT)/doc
 # when changing version of HtmlToBook, change it in style.xhtml.pdf.xsl too
-HTML_STYLE_BUNDLE+=$(patsubst %,$(ABSROOT)/doc/html/%.tar.gz,impress.js highlight.js mathjax.js HtmlToBook-1.0.0.noarch)
+HTMLTOBOOK_VERSION=1.0.1
+HTML_STYLE_BUNDLE+=$(patsubst %,$(ABSROOT)/doc/html/%.tar.gz,impress.js highlight.js mathjax.js HtmlToBook-$(HTMLTOBOOK_VERSION).noarch)
 HTML_STYLE_EXTRACTED=$(OBJDIR)/.html_style.extracted
 # user for continous integration.
 CI_USER?=jenkins
@@ -28,7 +29,7 @@ CI_USER?=jenkins
 DOXSRCFILES:=$(shell find $(PRJROOT) -name *.h -o -name *.c -o -name *.hpp -o -name *.cpp -o -name *.py -o -name *.java | fgrep -v "/build/" | fgrep -v "/dist/" | fgrep -v "$(ABSROOT)")
 
 HEMLVERSION?=1.0.15
-HEMLARGS:=-param app $(APPNAME) -param version $(VERSION) -param date "`date --rfc-3339 s`" -param user "$(USER)" -param host $(shell hostname)
+HEMLARGS:=-param app $(APPNAME) -param version $(VERSION) -param date "`date --rfc-3339 s`" -param user "$(USER)" -param host $(shell hostname) -param htmlToBookVersion "$(HTMLTOBOOK_VERSION)" 
 
 PUMLVERSION?=1.2021.6
 LUAJVERSION?=3.0.1
@@ -243,7 +244,11 @@ define absHemlTransformation
 	@$(ABS_PRINT_info) "heml to $(suffix $@) of $< using style $1: $(@F)"
 	@mkdir -p $(@D)
 	@mkdir -p $(patsubst src/%,$(OBJDIR)/%,$(<D))
-	@$(HEMLCMD) -in $(call absGetPath,$<) -xsl $(call absGetPath,$1) -path $(OBJDIR) -param srcdir "$(call absGetPath,$(<D))" -param srcfilename "$(call absGetPath,$(<F))" $(HEMLARGS) -param revision ""`$(call abs_scm_file_revision,$<)` -param showComments ""$(COMMENTS) -out $(call absGetPath,$@) -depattr fig:src:$(patsubst %/,%,$(patsubst src%,$(HTMLDIR)/%,$(<D)))
+	@$(HEMLCMD) -in $(call absGetPath,$<) -xsl $(call absGetPath,$1) -path $(OBJDIR) \
+		-param srcdir "$(call absGetPath,$(<D))" -param srcfilename "$(call absGetPath,$(<F))" \
+		$(HEMLARGS) \
+		-param revision ""`$(call abs_scm_file_revision,$<)` -param showComments ""$(COMMENTS) \
+		-out $(call absGetPath,$@) -depattr fig:src:$(patsubst %/,%,$(patsubst src%,$(HTMLDIR)/%,$(<D)))
 endef
 
 $(HTMLDIR)/%.html: src/%.heml $(HEMLJARTG) $(LUAJJARTG) $(TESTINDEXES)
