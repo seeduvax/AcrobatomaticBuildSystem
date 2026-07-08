@@ -266,6 +266,7 @@ TEXINPUTS:=$(TEXINPUTS)$(ABSROOT)/doc/tex//:$(OBJDIR):$(TEXDIR):$(HTMLDIR):$(CUR
 TEXENV=TEXINPUTS=$(TEXINPUTS)
 
 ifeq ($(DOC_PDF_GENERATOR),latex)
+ifeq ($(HASLATEX),true)
 $(PDFDIR)/%.pdf: $(TEXDIR)/%.tex
 	@$(ABS_PRINT_info) "Processing TEX $<"
 	@mkdir -p $(@D)
@@ -289,7 +290,7 @@ else
 		done || ($(ABS_PRINT_error) "pdf generation error see $(OBJDIR)/tex.$(@F).log for more information." && ! $(DOC_FAIL_ON_ERROR))
 	@mv $(OBJDIR)/$(@F) $(@D) || $(ABS_PRINT_error) "$@ generation failed."
 endif
-
+endif
 endif
 
 ifeq ($(DOC_PDF_GENERATOR),nodejs)
