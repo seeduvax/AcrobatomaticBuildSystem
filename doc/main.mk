@@ -170,16 +170,23 @@ $(HTMLS): $(CSS)
 ifneq ($(DOXYGENCMD),)
 TARGETFILES+=$(DOXDIR)
 
+DOXYGEN_ALL_INCLUDES_EXT=$(patsubst $(PRJROOT)/%,%,$(wildcard $(EXTLIBDIR)/*/*/include) $(wildcard $(NA_EXTLIBDIR)/*/*/include) $(wildcard $(NDEXTLIBDIR)/*/*/include) $(wildcard $(NDNA_EXTLIBDIR)/*/*/include))
+DOXYGEN_ALL_DEFINES=$(patsubst -D%,%,$(filter -D%,$(CFLAGS))) $(DEFINES)
+
 $(DOXDIR): $(DOXSRCFILES)
 	@$(ABS_PRINT_info) "Generating API reference documentation..."
 	@mkdir -p $(DOXDIR)
-	@m4 -D__project_name__=$(APPNAME) -D__project_number__=$(VERSION) -D__output_directory__=$(DOXDIR) -D__abs_root__=$(ABSROOT) -D__prj_module_list__="$(patsubst %/module.cfg,%,$(wildcard $(PRJROOT)/*/module.cfg))" $(ABSROOT)/doc/doxygen/Doxyfile > $(TRDIR)/.Doxyfile
+	@m4 -D_predefineds__="$(subst $(_space_), \\\n ,$(DOXYGEN_ALL_DEFINES))" -D__include_paths__="$(foreach path,$(DOXYGEN_ALL_INCLUDES_EXT),../$(path) \\\n) $(ABSROOT)/core/include" -D__project_name__=$(APPNAME) -D__project_number__=$(VERSION) -D__output_directory__=$(DOXDIR) -D__abs_root__=$(ABSROOT) -D__prj_module_list__="$(patsubst %/module.cfg,%,$(wildcard $(PRJROOT)/*/module.cfg))" $(ABSROOT)/doc/doxygen/Doxyfile > $(TRDIR)/.Doxyfile
+	@sed -i 's/\\n/\n/g' $(TRDIR)/.Doxyfile
 	@$(DOXYGENCMD) $(TRDIR)/.Doxyfile
 	@rm -rf $(TRDIR)/.Doxyfile
 else
 $(DOXDIR):
 	@$(ABS_PRINT_warning) "Doxygen not available, doxygen generation skipped."
 endif
+
+##  - doxygen: generate doxygen documentation
+doxygen: $(DOXDIR)
 
 $(HTMLDIR)/%.css: src/%.css
 	@$(ABS_PRINT_info) "Publishing $<..."
