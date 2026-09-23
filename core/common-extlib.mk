@@ -84,7 +84,9 @@ endef
 ABSWS_EXTLIBDIR=$(ABSWS)/extlib/$(ARCH)
 ABSWS_HOST_EXTLIBDIR=$(ABSWS)/extlib/$(HOST_ARCH)
 ABSWS_NA_EXTLIBDIR=$(ABSWS)/extlib/noarch
-ABSWS_NDEXTLIBDIR=$(ABSWS_HOST_EXTLIBDIR).nodist
+
+ABSWS_NDEXTLIBDIR=$(ABSWS_EXTLIBDIR).nodist
+ABSWS_HOST_NDEXTLIBDIR=$(ABSWS_HOST_EXTLIBDIR).nodist
 ABSWS_NDNA_EXTLIBDIR=$(ABSWS_NA_EXTLIBDIR).nodist
 
 ifeq ($(TRDIR),$(BUILDROOT)/$(ARCH)/$(MODE))
@@ -97,6 +99,7 @@ HOST_EXTLIBDIR=$(BUILDROOT)/extlib
 NA_EXTLIBDIR?=$(TRDIR)/extlib
 endif
 NDEXTLIBDIR:=$(EXTLIBDIR).nodist
+HOST_NDEXTLIBDIR:=$(HOST_EXTLIBDIR).nodist
 NDNA_EXTLIBDIR:=$(NA_EXTLIBDIR).nodist
 EXTLIBDIR_READONLY?=true
 
@@ -118,7 +121,9 @@ ABS_DEPDOWNLOAD_RULE_OVERLOADED:=1
 .PRECIOUS: $(ABS_CACHE)/noarch/%
 .PRECIOUS: $(ABS_CACHE)/noarch/%.tar.gz
 .PRECIOUS: $(ABS_CACHE)/noarch/%.jar
-.PRECIOUS: $(ABSWS_EXTLIBDIR)/%/import.mk $(ABSWS_HOST_EXTLIBDIR)/%/import.mk $(ABSWS_NDEXTLIBDIR)/%/import.mk $(ABSWS_NA_EXTLIBDIR)/%/import.mk $(ABSWS_NDNA_EXTLIBDIR)/%/import.mk
+.PRECIOUS: $(ABSWS_EXTLIBDIR)/%/import.mk $(ABSWS_HOST_EXTLIBDIR)/%/import.mk
+.PRECIOUS: $(ABSWS_NDEXTLIBDIR)/%/import.mk $(ABSWS_HOST_NDEXTLIBDIR)/%/import.mk
+.PRECIOUS: $(ABSWS_NA_EXTLIBDIR)/%/import.mk $(ABSWS_NDNA_EXTLIBDIR)/%/import.mk
 
 OPEN_BRACE:={
 ABS_REPO_TEMPLATE=$(foreach entry,$(ABS_REPO),$(if $(findstring $(OPEN_BRACE),$(entry)),$(entry),$(entry)/{arch}/{name}-{version}.{arch}.{ext} $(entry)/{arch}/{name}/{name}-{version}.{arch}.{ext} $(entry)/{arch}/{name}-{version}.{ext}))
@@ -249,15 +254,18 @@ endef
 $(ABSWS_EXTLIBDIR)/%/import.mk: $(ABS_CACHE)/$(ARCH)/%/pck.tar.gz
 	$(call unpackArchive,$(ABSWS_EXTLIBDIR))
 
-ifneq ($(ARCH),$(HOST_ARCH))
-$(ABSWS_HOST_EXTLIBDIR)/%/import.mk: $(ABS_CACHE)/$(HOST_ARCH)/%/pck.tar.gz
-	$(call unpackArchive,$(ABSWS_HOST_EXTLIBDIR))
-
-endif
 # unpack external lib that should not be forwarded to dist package
 $(ABSWS_NDEXTLIBDIR)/%/import.mk: $(ABS_CACHE)/$(ARCH)/%/pck.tar.gz
 	$(call unpackArchive,$(ABSWS_NDEXTLIBDIR))
 
+ifneq ($(ARCH),$(HOST_ARCH))
+$(ABSWS_HOST_EXTLIBDIR)/%/import.mk: $(ABS_CACHE)/$(HOST_ARCH)/%/pck.tar.gz
+	$(call unpackArchive,$(ABSWS_HOST_EXTLIBDIR))
+
+$(ABSWS_HOST_NDEXTLIBDIR)/%/import.mk: $(ABS_CACHE)/$(HOST_ARCH)/%/pck.tar.gz
+	$(call unpackArchive,$(ABSWS_HOST_NDEXTLIBDIR))
+
+endif
 # unpack no arch external lib
 $(ABSWS_NA_EXTLIBDIR)/%/import.mk: $(ABS_CACHE)/noarch/%/pck.tar.gz
 	$(call unpackArchive,$(ABSWS_NA_EXTLIBDIR))
@@ -302,14 +310,18 @@ endef
 $(EXTLIBDIR)/%/import.mk: $(ABSWS_EXTLIBDIR)/%/import.mk
 	$(call extlib_linkLibrary)
 
+# unpack external lib that should not be forwarded to dist package
+$(NDEXTLIBDIR)/%/import.mk: $(ABSWS_NDEXTLIBDIR)/%/import.mk
+	$(call extlib_linkLibrary)
+
 ifneq ($(ARCH),$(HOST_ARCH))
 $(HOST_EXTLIBDIR)/%/import.mk: $(ABSWS_HOST_EXTLIBDIR)/%/import.mk
 	$(call extlib_linkLibrary)
 
-endif
-# unpack external lib that should not be forwarded to dist package
-$(NDEXTLIBDIR)/%/import.mk: $(ABSWS_NDEXTLIBDIR)/%/import.mk
+$(HOST_NDEXTLIBDIR)/%/import.mk: $(ABSWS_HOST_NDEXTLIBDIR)/%/import.mk
 	$(call extlib_linkLibrary)
+
+endif
 
 # unpack no arch external lib
 $(NA_EXTLIBDIR)/%/import.mk: $(ABSWS_NA_EXTLIBDIR)/%/import.mk
@@ -438,6 +450,7 @@ $(if $(call isLibInList,$1-$2,$(EXTLIBS_ALL_NAUSELIB)),$(call extlib_import2,$1,
 $(if $(call isLibInList,$1-$2,$(EXTLIBS_ALL_NDUSELIB)),$(call extlib_import2,$1,$2,$3,$(NDEXTLIBDIR),EXTLIBS_ALL_NDUSELIB))
 $(if $(call isLibInList,$1-$2,$(EXTLIBS_ALL_NDNAUSELIB)),$(call extlib_import2,$1,$2,$3,$(NDNA_EXTLIBDIR),EXTLIBS_ALL_NDNAUSELIB))
 $(if $(call isLibInList,$1-$2,$(EXTLIBS_ALL_HOSTUSELIB)),$(call extlib_import2,$1,$2,$3,$(HOST_EXTLIBDIR),EXTLIBS_ALL_HOSTUSELIB))
+$(if $(call isLibInList,$1-$2,$(EXTLIBS_ALL_HOSTNDUSELIB)),$(call extlib_import2,$1,$2,$3,$(HOST_NDEXTLIBDIR),EXTLIBS_ALL_HOSTNDUSELIB))
 endef
 
 define extlib_import_template
@@ -459,7 +472,8 @@ EXTLIBMAKES= \
 	$(foreach entry,$(sort $(NDUSELIB) $(MODS_NDUSELIBS)),$(call GetExtLibDir,$(NDEXTLIBDIR),$(entry))/import.mk) \
 	$(foreach entry,$(sort $(NDNA_USELIB)),$(call GetExtLibDir,$(NDNA_EXTLIBDIR),$(entry))/import.mk) \
 	$(foreach entry,$(sort $(NA_USELIB)),$(call GetExtLibDir,$(NA_EXTLIBDIR),$(entry))/import.mk) \
-	$(foreach entry,$(sort $(HOST_USELIB)),$(call GetExtLibDir,$(HOST_EXTLIBDIR),$(entry))/import.mk)
+	$(foreach entry,$(sort $(HOST_USELIB)),$(call GetExtLibDir,$(HOST_EXTLIBDIR),$(entry))/import.mk) \
+	$(foreach entry,$(sort $(HOST_NDUSELIB)),$(call GetExtLibDir,$(HOST_NDEXTLIBDIR),$(entry))/import.mk)
 
 DEFAULT_EXTLIBMAKES:=$(EXTLIBMAKES)
 
