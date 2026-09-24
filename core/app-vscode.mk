@@ -3,7 +3,7 @@
 ## VSCode utilities.
 ## --------------------------------------------------------------------
 ## Targets:
-##  - vscodeconfig: Generate the c_cpp_properties.json for vscode to correctly add include paths.
+##  - vscodeconfig: Generate the c_cpp_properties.json for vscode to correctly add include paths and defines.
 
 VSCODE_CPP_CONFIG=$(PRJROOT)/.vscode/c_cpp_properties.json
 
@@ -13,6 +13,8 @@ MODULES_WITH_INCLUDES=$(foreach mod,$(MODULES),$(if $(wildcard $(mod)/include),$
 VSCODE_PATHS_FROM_EXTLIBS=$(wildcard $(EXTLIBDIR)/*/*/include) $(wildcard $(NA_EXTLIBDIR)/*/*/include) $(wildcard $(NDEXTLIBDIR)/*/*/include) $(wildcard $(NDNA_EXTLIBDIR)/*/*/include)
 # USE CFLAGS et CXXFLAGS for includes defined in external libs
 VSCODE_PATHS_FROM_CFLAGS=$(foreach path,$(sort $(patsubst -I%,%,$(filter -I%,$(CXXFLAGS) $(CFLAGS)))),$(if $(wildcard $(path)),$(path)))
+
+VSCODE_ALL_DEFINES=$(patsubst -D%,%,$(filter -D%,$(CFLAGS))) $(DEFINES)
 
 VSCODE_ALL_INCLUDES=$(patsubst %,$(PRJROOT)/%/include/,$(MODULES_WITH_INCLUDES))
 VSCODE_ALL_INCLUDES+=$(TRDIR)/include/
@@ -32,6 +34,9 @@ $(VSCODE_CPP_CONFIG): app.cfg
 	@printf '        "includePath": [\n' >> $@.tmp
 	@$(foreach path,$(sort $(VSCODE_ALL_INCLUDES_REL)),printf '            "$${workspaceFolder}/$(path)",\n' >> $@.tmp;)
 	@printf '            "$(ABSROOT)/core/include/"\n' >> $@.tmp
+	@printf '        ],\n' >> $@.tmp
+	@printf '        "defines": [\n' >> $@.tmp
+	@$(foreach define,$(sort $(VSCODE_ALL_DEFINES)),printf '            "$(define)",\n' >> $@.tmp;)
 	@printf '        ],\n' >> $@.tmp
 	@$(if $(filter true,$(DISABLE_COMPILE_COMMANDS)),,printf '        "compileCommands": "$${workspaceFolder}/compile_commands.json"\n' >> $@.tmp)
 	@printf '    }\n' >> $@.tmp
