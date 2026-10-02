@@ -118,8 +118,6 @@ endif
 ABS_DEPDOWNLOAD_RULE_OVERLOADED:=1
 # download files from repository
 .PRECIOUS: $(ABS_CACHE)/%
-.PRECIOUS: $(ABS_CACHE)/noarch/%
-.PRECIOUS: $(ABS_CACHE)/noarch/%.tar.gz
 .PRECIOUS: $(ABS_CACHE)/noarch/%.jar
 .PRECIOUS: $(ABSWS_EXTLIBDIR)/%/import.mk $(ABSWS_HOST_EXTLIBDIR)/%/import.mk
 .PRECIOUS: $(ABSWS_NDEXTLIBDIR)/%/import.mk $(ABSWS_HOST_NDEXTLIBDIR)/%/import.mk
@@ -212,6 +210,7 @@ define GetRawPckNameDownloadURLs
 $(foreach entry,$(ABS_REPO_TEMPLATE),$(if $(findstring {file},$(entry)),$(subst {file},$1,$(entry))))
 endef
 
+.PRECIOUS: $(ABS_CACHE)/noarch/%
 $(ABS_CACHE)/noarch/%:
 	@mkdir -p $(@D)
 	@$(ABS_PRINT_info) "Fetching NA $*..."
@@ -223,6 +222,7 @@ $(ABS_CACHE)/noarch/%:
 	$(if $(filter %.jar,$(@F)),@mv $@ $(ABS_CACHE)/noarch/$(_local_jarfile);ln -sf $(ABS_CACHE)/noarch/$(_local_jarfile) $@,)
 
 
+.PRECIOUS: $(ABS_CACHE)/$(ARCH)/%
 $(ABS_CACHE)/$(ARCH)/%:
 	@mkdir -p $(@D)
 	@$(ABS_PRINT_info) "Fetching $*..."
@@ -231,6 +231,7 @@ $(ABS_CACHE)/$(ARCH)/%:
 	@test -f $@
 
 ifneq ($(ARCH),$(HOST_ARCH))
+.PRECIOUS: $(ABS_CACHE)/$(HOST_ARCH)/%
 $(ABS_CACHE)/$(HOST_ARCH)/%:
 	@mkdir -p $(@D)
 	@$(ABS_PRINT_info) "Fetching $*..."

@@ -269,6 +269,15 @@ cleanabs:
 	@rm -rf $(ABSROOT)
 	@$(ABS_PRINT_info) "ABS cleaning completed."
 
+##  - cleanextlibs: clean abs extlibs directory (extracted extlibs files). 
+##    Does not make any change inside your project tree.
+cleanextlibs:
+	@$(ABS_PRINT_info) "Setting write permissions to $(ABSWS)/extlib..."
+	@test ! -d $(ABSWS)/extlib || chmod -R u+w $(ABSWS)/extlib
+	@$(ABS_PRINT_info) "Cleaning ABS extlibs $(ABSWS)/extlib..."
+	@rm -rf $(ABSWS)/extlib
+	@$(ABS_PRINT_info) "ABS cleaning completed."
+
 ##  - purgeabs: purge (remove all) abs directory (will remove all files cached by abs and
 ##    all version of abs). Does not make any change inside your project tree.
 purgeabs:
